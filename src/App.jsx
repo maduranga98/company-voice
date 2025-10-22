@@ -9,12 +9,14 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
-// import CompanyQRGenerator from "./pages/admin/CompanyQRGenerator";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
-import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
+import EmployeeLayout from "./components/EmployeeLayout";
+import CreativeWall from "./pages/employee/CreativeWall";
+import Complaints from "./pages/employee/Complaints";
+import Discussions from "./pages/employee/Discussions";
 
 function App() {
   return (
@@ -35,14 +37,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            {/* <Route
-              path="/admin/qr-generator"
-              element={
-                <PrivateRoute>
-                  <CompanyQRGenerator />
-                </PrivateRoute>
-              }
-            /> */}
 
             {/* Company Admin Routes */}
             <Route
@@ -62,6 +56,21 @@ function App() {
               }
             />
 
+            {/* Employee Routes with Layout */}
+            <Route
+              path="/employee"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<Navigate to="creative-wall" replace />} />
+              <Route path="creative-wall" element={<CreativeWall />} />
+              <Route path="complaints" element={<Complaints />} />
+              <Route path="discussions" element={<Discussions />} />
+            </Route>
+
             {/* General Routes */}
             <Route
               path="/dashboard"
@@ -71,22 +80,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/employee/dashboard"
-              element={
-                <PrivateRoute>
-                  <EmployeeDashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/employee/creative-wall"
-              element={
-                <PrivateRoute>
-                  <CreativeWall />
-                </PrivateRoute>
-              }
-            />
+
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
