@@ -1,0 +1,158 @@
+import LikeButton from "./LikeButton";
+import CommentsSection from "./CommentsSection";
+
+const Post = ({ post, getTimeAgo }) => {
+  return (
+    <article className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-slate-300 transition">
+      {/* Post Header */}
+      <div className="p-4 border-b border-slate-100">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white font-medium">
+              {post.authorName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h3 className="font-medium text-slate-900">{post.authorName}</h3>
+              <p className="text-xs text-slate-500">
+                {getTimeAgo(post.createdAt)}
+              </p>
+            </div>
+          </div>
+          <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
+            {post.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Post Content */}
+      <div className="p-4">
+        <h2 className="text-xl font-semibold text-slate-900 mb-2">
+          {post.title}
+        </h2>
+        <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
+          {post.description}
+        </p>
+
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {post.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Post Attachments */}
+      {post.attachments && post.attachments.length > 0 && (
+        <div className="px-4 pb-4">
+          {post.attachments.length === 1 ? (
+            post.attachments[0].type.startsWith("image/") ? (
+              <img
+                src={post.attachments[0].url}
+                alt={post.title}
+                className="w-full rounded-lg"
+              />
+            ) : (
+              <a
+                href={post.attachments[0].url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+              >
+                <svg
+                  className="w-8 h-8 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  />
+                </svg>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-900 truncate">
+                    {post.attachments[0].name}
+                  </p>
+                  <p className="text-xs text-slate-500">Click to view</p>
+                </div>
+              </a>
+            )
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {post.attachments.map((attachment, index) => (
+                <div key={index}>
+                  {attachment.type.startsWith("image/") ? (
+                    <img
+                      src={attachment.url}
+                      alt={`${post.title} ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <a
+                      href={attachment.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col items-center justify-center h-48 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                    >
+                      <svg
+                        className="w-8 h-8 text-slate-400 mb-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <p className="text-xs text-slate-600 text-center px-2 truncate max-w-full">
+                        {attachment.name}
+                      </p>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Post Actions */}
+      <div className="px-4 py-3 border-t border-slate-100 flex items-center gap-2">
+        <LikeButton postId={post.id} initialLikes={post.likes || 0} />
+        <CommentsSection
+          postId={post.id}
+          initialCommentCount={post.comments || 0}
+        />
+        <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition ml-auto">
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+            />
+          </svg>
+        </button>
+      </div>
+    </article>
+  );
+};
+
+export default Post;

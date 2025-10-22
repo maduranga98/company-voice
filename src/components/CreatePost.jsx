@@ -15,13 +15,11 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
     category: "",
     tags: "",
     isAnonymous: false,
-    privacyLevel: "company_public",
     attachments: [],
   });
 
   const [filePreview, setFilePreview] = useState([]);
 
-  // Configuration based on post type
   const config = {
     complaint: {
       title: "Report a Problem",
@@ -33,7 +31,7 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
         />
       ),
-      iconBg: "bg-red-100",
+      iconBg: "bg-red-50",
       iconColor: "text-red-600",
       categories: [
         "Workplace Safety",
@@ -64,7 +62,7 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
           d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
         />
       ),
-      iconBg: "bg-purple-100",
+      iconBg: "bg-purple-50",
       iconColor: "text-purple-600",
       categories: [
         "Art & Design",
@@ -86,6 +84,38 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
       buttonColor: "bg-purple-600 hover:bg-purple-700",
       postType: "creative_content",
     },
+    discussion: {
+      title: "Start a Discussion",
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+        />
+      ),
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      categories: [
+        "General Discussion",
+        "Ideas & Suggestions",
+        "Team Updates",
+        "Announcements",
+        "Questions",
+        "Feedback",
+        "Collaboration",
+        "Events",
+        "Other",
+      ],
+      placeholder: {
+        title: "What would you like to discuss?",
+        description:
+          "Share your thoughts, ideas, or questions with the team...",
+      },
+      buttonText: "Start Discussion",
+      buttonColor: "bg-blue-600 hover:bg-blue-700",
+      postType: "team_discussion",
+    },
   };
 
   const currentConfig = config[type] || config.creative;
@@ -106,7 +136,6 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
       return;
     }
 
-    // Create preview URLs
     const newPreviews = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
@@ -188,19 +217,16 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
     setLoading(true);
 
     try {
-      // Upload files if any
       let uploadedFiles = [];
       if (formData.attachments.length > 0) {
         uploadedFiles = await uploadFiles();
       }
 
-      // Parse tags
       const tagsList = formData.tags
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0);
 
-      // Create post
       const postData = {
         title: formData.title,
         description: formData.description,
@@ -208,7 +234,6 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
         tags: tagsList,
         type: currentConfig.postType,
         isAnonymous: formData.isAnonymous,
-        privacyLevel: formData.privacyLevel,
         attachments: uploadedFiles,
         authorId: userData.id,
         authorName: formData.isAnonymous ? "Anonymous" : userData.displayName,
@@ -223,12 +248,10 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
 
       await addDoc(collection(db, "posts"), postData);
 
-      // Success
       if (onSuccess) {
         onSuccess();
       }
 
-      // Close modal
       if (onClose) {
         onClose();
       }
@@ -241,15 +264,15 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div className={`${currentConfig.iconBg} rounded-full p-3 mr-3`}>
+            <div className="flex items-center gap-3">
+              <div className={`${currentConfig.iconBg} rounded-full p-2.5`}>
                 <svg
-                  className={`w-6 h-6 ${currentConfig.iconColor}`}
+                  className={`w-5 h-5 ${currentConfig.iconColor}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -257,13 +280,13 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
                   {currentConfig.icon}
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl font-semibold text-slate-900">
                 {currentConfig.title}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition"
+              className="text-slate-400 hover:text-slate-600 transition"
             >
               <svg
                 className="w-6 h-6"
@@ -283,19 +306,8 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start">
-              <svg
-                className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>{error}</span>
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
@@ -303,43 +315,50 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Title */}
             <div>
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Title *
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Title
               </label>
               <input
-                id="title"
                 name="title"
                 type="text"
                 value={formData.title}
                 onChange={handleInputChange}
                 required
-                maxLength={100}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
                 placeholder={currentConfig.placeholder.title}
               />
-              <p className="text-xs text-gray-500 mt-1">
-                {formData.title.length}/100 characters
+            </div>
+
+            {/* Description - Text Area with prominence */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                What's on your mind?
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+                rows="8"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition resize-none"
+                placeholder={currentConfig.placeholder.description}
+              />
+              <p className="text-xs text-slate-500 mt-1.5">
+                Share your thoughts, ideas, or stories
               </p>
             </div>
 
             {/* Category */}
             <div>
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Category *
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Category
               </label>
               <select
-                id="category"
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
               >
                 <option value="">Select a category</option>
                 {currentConfig.categories.map((cat) => (
@@ -350,58 +369,42 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
               </select>
             </div>
 
-            {/* Description */}
-            <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Description *
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required
-                rows={6}
-                maxLength={2000}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition resize-none"
-                placeholder={currentConfig.placeholder.description}
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                {formData.description.length}/2000 characters
-              </p>
-            </div>
-
             {/* Tags */}
             <div>
-              <label
-                htmlFor="tags"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Tags (Optional)
               </label>
               <input
-                id="tags"
                 name="tags"
                 type="text"
                 value={formData.tags}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                placeholder="e.g., urgent, maintenance, innovation (comma separated)"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
+                placeholder="creativity, innovation, teamwork (comma-separated)"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Separate tags with commas
-              </p>
             </div>
 
-            {/* File Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Attachments (Optional)
+            {/* Anonymous Option */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isAnonymous"
+                name="isAnonymous"
+                checked={formData.isAnonymous}
+                onChange={handleInputChange}
+                className="w-4 h-4 text-slate-900 border-slate-300 rounded focus:ring-slate-900"
+              />
+              <label htmlFor="isAnonymous" className="text-sm text-slate-700">
+                Post anonymously
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition">
+            </div>
+
+            {/* Attachments (Optional) */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Add Attachments (Optional)
+              </label>
+              <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-slate-300 transition">
                 <input
                   type="file"
                   id="fileUpload"
@@ -413,7 +416,7 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
                 />
                 <label htmlFor="fileUpload" className="cursor-pointer">
                   <svg
-                    className="w-12 h-12 text-gray-400 mx-auto mb-3"
+                    className="w-10 h-10 text-slate-400 mx-auto mb-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -425,13 +428,13 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
                       d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                     />
                   </svg>
-                  <p className="text-sm text-gray-600">
-                    <span className="text-primary-600 font-medium">
+                  <p className="text-sm text-slate-600">
+                    <span className="text-slate-900 font-medium">
                       Click to upload
                     </span>{" "}
                     or drag and drop
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     Images, Videos, PDFs, Documents (Max 5 files)
                   </p>
                 </label>
@@ -439,154 +442,63 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
 
               {/* File Previews */}
               {filePreview.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   {filePreview.map((file, index) => (
                     <div key={index} className="relative group">
                       {file.type.startsWith("image/") ? (
                         <img
                           src={file.preview}
                           alt={file.name}
-                          className="w-full h-32 object-cover rounded-lg"
+                          className="w-full h-24 object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <div className="text-center">
-                            <svg
-                              className="w-8 h-8 text-gray-400 mx-auto mb-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                              />
-                            </svg>
-                            <p className="text-xs text-gray-600 px-2 truncate">
-                              {file.name}
-                            </p>
-                          </div>
+                        <div className="w-full h-24 bg-slate-100 rounded-lg flex items-center justify-center">
+                          <svg
+                            className="w-8 h-8 text-slate-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                            />
+                          </svg>
                         </div>
                       )}
                       <button
                         type="button"
                         onClick={() => removeFile(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
+                        ×
                       </button>
+                      <p className="text-xs text-slate-600 mt-1 truncate">
+                        {file.name}
+                      </p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Privacy Settings */}
-            <div className="border-t border-gray-200 pt-5">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                Privacy Settings
-              </h3>
-
-              <div className="space-y-4">
-                {/* Anonymous Toggle */}
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isAnonymous"
-                    checked={formData.isAnonymous}
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
-                  <div className="ml-3">
-                    <span className="text-sm font-medium text-gray-900">
-                      Post Anonymously
-                    </span>
-                    <p className="text-xs text-gray-500">
-                      Your identity will be hidden from other users
-                    </p>
-                  </div>
-                </label>
-
-                {/* Privacy Level */}
-                <div>
-                  <label
-                    htmlFor="privacyLevel"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Who can see this?
-                  </label>
-                  <select
-                    id="privacyLevel"
-                    name="privacyLevel"
-                    value={formData.privacyLevel}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                  >
-                    <option value="company_public">Everyone in company</option>
-                    <option value="department_only">My department only</option>
-                    <option value="hr_only">HR/Management only</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`px-6 py-3 ${currentConfig.buttonColor} text-white font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg`}
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Creating...
-                  </span>
-                ) : (
-                  currentConfig.buttonText
-                )}
-              </button>
-            </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${currentConfig.buttonColor}`}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Publishing...
+                </span>
+              ) : (
+                currentConfig.buttonText
+              )}
+            </button>
           </form>
         </div>
       </div>
