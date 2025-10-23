@@ -5,41 +5,43 @@ const Post = ({ post, getTimeAgo }) => {
   return (
     <article className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-slate-300 transition">
       {/* Post Header */}
-      <div className="p-4 border-b border-slate-100">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white font-medium">
+      <div className="p-3 sm:p-4 border-b border-slate-100">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-900 rounded-full flex items-center justify-center text-white font-medium text-sm sm:text-base flex-shrink-0">
               {post.authorName.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <h3 className="font-medium text-slate-900">{post.authorName}</h3>
+            <div className="min-w-0">
+              <h3 className="font-medium text-slate-900 text-sm sm:text-base truncate">
+                {post.authorName}
+              </h3>
               <p className="text-xs text-slate-500">
                 {getTimeAgo(post.createdAt)}
               </p>
             </div>
           </div>
-          <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full">
+          <span className="px-2 sm:px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
             {post.category}
           </span>
         </div>
       </div>
 
       {/* Post Content */}
-      <div className="p-4">
-        <h2 className="text-xl font-semibold text-slate-900 mb-2">
+      <div className="p-3 sm:p-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2">
           {post.title}
         </h2>
-        <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
+        <p className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap">
           {post.description}
         </p>
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3">
             {post.tags.map((tag, index) => (
               <span
                 key={index}
-                className="px-2 py-1 bg-slate-50 text-slate-600 text-xs rounded"
+                className="px-2 py-0.5 sm:py-1 bg-slate-50 text-slate-600 text-xs rounded"
               >
                 #{tag}
               </span>
@@ -50,7 +52,7 @@ const Post = ({ post, getTimeAgo }) => {
 
       {/* Post Attachments */}
       {post.attachments && post.attachments.length > 0 && (
-        <div className="px-4 pb-4">
+        <div className="px-3 sm:px-4 pb-3 sm:pb-4">
           {post.attachments.length === 1 ? (
             post.attachments[0].type.startsWith("image/") ? (
               <img
@@ -63,10 +65,10 @@ const Post = ({ post, getTimeAgo }) => {
                 href={post.attachments[0].url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
               >
                 <svg
-                  className="w-8 h-8 text-slate-400"
+                  className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -79,7 +81,7 @@ const Post = ({ post, getTimeAgo }) => {
                   />
                 </svg>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">
+                  <p className="text-xs sm:text-sm font-medium text-slate-900 truncate">
                     {post.attachments[0].name}
                   </p>
                   <p className="text-xs text-slate-500">Click to view</p>
@@ -87,24 +89,24 @@ const Post = ({ post, getTimeAgo }) => {
               </a>
             )
           ) : (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               {post.attachments.map((attachment, index) => (
                 <div key={index}>
                   {attachment.type.startsWith("image/") ? (
                     <img
                       src={attachment.url}
                       alt={`${post.title} ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-32 sm:h-48 object-cover rounded-lg"
                     />
                   ) : (
                     <a
                       href={attachment.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-col items-center justify-center h-48 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                      className="flex flex-col items-center justify-center h-32 sm:h-48 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
                     >
                       <svg
-                        className="w-8 h-8 text-slate-400 mb-2"
+                        className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400 mb-2"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -128,28 +130,40 @@ const Post = ({ post, getTimeAgo }) => {
         </div>
       )}
 
-      {/* Post Actions */}
-      <div className="px-4 py-3 border-t border-slate-100 flex items-center gap-2">
-        <LikeButton postId={post.id} initialLikes={post.likes || 0} />
-        <CommentsSection
-          postId={post.id}
-          initialCommentCount={post.comments || 0}
-        />
-        <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition ml-auto">
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-            />
-          </svg>
-        </button>
+      {/* Post Actions & Comments */}
+      <div className="border-t border-slate-100">
+        {/* Action Bar */}
+        <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 sm:gap-2">
+          <LikeButton
+            postId={post.id}
+            initialLikes={post.likes || 0}
+            postAuthorId={post.authorId}
+            postAuthorName={post.authorName}
+            postTitle={post.title}
+          />
+          <CommentsSection
+            postId={post.id}
+            initialCommentCount={post.comments || 0}
+            postAuthorId={post.authorId}
+            postAuthorName={post.authorName}
+            postTitle={post.title}
+          />
+          <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition ml-auto">
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </article>
   );
