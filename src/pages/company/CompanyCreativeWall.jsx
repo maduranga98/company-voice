@@ -8,7 +8,7 @@ import {
   getDocs,
   limit,
 } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { db } from "../../config/firebase";
 import CreatePost from "../../components/CreatePost";
 import Post from "../../components/Post";
 
