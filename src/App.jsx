@@ -11,12 +11,17 @@ import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
+import CompanyPosts from "./pages/company/CompanyPosts";
+import CompanyCreativeWall from "./pages/company/CompanyCreativeWall";
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
+import CompanyAdminLayout from "./components/CompanyAdminLayout";
 import CreativeWall from "./pages/employee/CreativeWall";
 import Complaints from "./pages/employee/Complaints";
 import Discussions from "./pages/employee/Discussions";
+import Notifications from "./pages/Notifications";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -38,15 +43,22 @@ function App() {
               }
             />
 
-            {/* Company Admin Routes */}
+            {/* Company Admin Routes with Layout */}
             <Route
-              path="/company/dashboard"
+              path="/company"
               element={
                 <PrivateRoute>
-                  <CompanyDashboard />
+                  <CompanyAdminLayout />
                 </PrivateRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<CompanyDashboard />} />
+              <Route path="posts" element={<CompanyPosts />} />
+              <Route path="creative-wall" element={<CompanyCreativeWall />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
             <Route
               path="/company/qr-code"
               element={
@@ -69,6 +81,8 @@ function App() {
               <Route path="creative-wall" element={<CreativeWall />} />
               <Route path="complaints" element={<Complaints />} />
               <Route path="discussions" element={<Discussions />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* General Routes */}
