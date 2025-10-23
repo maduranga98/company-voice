@@ -6,11 +6,20 @@ import {
   getDoc,
   setDoc,
   deleteDoc,
+  addDoc,
+  collection,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 
-const LikeButton = ({ postId, initialLikes = 0 }) => {
+const LikeButton = ({
+  postId,
+  initialLikes = 0,
+  postAuthorId,
+  postAuthorName,
+  postTitle,
+}) => {
   const { userData } = useAuth();
   const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(false);
@@ -61,6 +70,23 @@ const LikeButton = ({ postId, initialLikes = 0 }) => {
         });
         setLikes((prev) => prev + 1);
         setIsLiked(true);
+
+        // Create notification for post author (only if not liking own post)
+        if (postAuthorId && postAuthorId !== userData.id) {
+          try {
+            await addDoc(collection(db, "notifications"), {
+              userId: postAuthorId,
+              type: "like",
+              title: "New Like",
+              message: `${userData.displayName} liked your post "${postTitle}"`,
+              postId: postId,
+              read: false,
+              createdAt: serverTimestamp(),
+            });
+          } catch (error) {
+            console.error("Error creating notification:", error);
+          }
+        }
       }
     } catch (error) {
       console.error("Error toggling like:", error);
@@ -73,14 +99,14 @@ const LikeButton = ({ postId, initialLikes = 0 }) => {
     <button
       onClick={handleLike}
       disabled={loading}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all ${
+      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg font-medium transition-all ${
         isLiked
           ? "text-red-500 bg-red-50 hover:bg-red-100"
           : "text-slate-600 hover:text-red-500 hover:bg-red-50"
       } disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       <svg
-        className={`w-5 h-5 transition-transform ${isLiked ? "scale-110" : ""}`}
+        className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${isLiked ? "scale-110" : ""}`}
         fill={isLiked ? "currentColor" : "none"}
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -92,7 +118,7 @@ const LikeButton = ({ postId, initialLikes = 0 }) => {
           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
         />
       </svg>
-      <span className="text-sm">{likes}</span>
+      <span className="text-xs sm:text-sm">{likes}</span>
     </button>
   );
 };

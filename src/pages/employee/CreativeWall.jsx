@@ -13,8 +13,8 @@ import { db } from "../../config/firebase";
 import CreatePost from "../../components/CreatePost";
 import Post from "../../components/Post";
 
-const ComplaintsWall = () => {
-  const { userData, logout } = useAuth();
+const CreativeWall = () => {
+  const { userData } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -25,14 +25,14 @@ const ComplaintsWall = () => {
 
   const categories = [
     "All",
-    "Workplace Safety",
-    "Equipment Issue",
-    "Environment",
-    "Harassment",
-    "Discrimination",
-    "Work Conditions",
-    "Policy Violation",
-    "Management",
+    "Art & Design",
+    "Innovation",
+    "Photography",
+    "Writing",
+    "Music",
+    "Technology",
+    "Ideas",
+    "Projects",
     "Other",
   ];
 
@@ -51,7 +51,7 @@ const ComplaintsWall = () => {
       const q = query(
         postsRef,
         where("companyId", "==", userData.companyId),
-        where("type", "==", "problem_report"),
+        where("type", "==", "creative_content"),
         where("status", "==", "published"),
         orderBy("createdAt", "desc"),
         limit(50)
@@ -97,11 +97,6 @@ const ComplaintsWall = () => {
     loadPosts();
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
-
   const getTimeAgo = (date) => {
     if (!date) return "Just now";
 
@@ -131,7 +126,7 @@ const ComplaintsWall = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => navigate("/employee/dashboard")}
                 className="text-slate-600 hover:text-slate-900 transition"
@@ -151,9 +146,9 @@ const ComplaintsWall = () => {
                 </svg>
               </button>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
                   <svg
-                    className="w-4 h-4 text-red-600"
+                    className="w-4 h-4 text-purple-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -162,29 +157,22 @@ const ComplaintsWall = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                     />
                   </svg>
                 </div>
-                <h1 className="text-lg font-semibold text-slate-900">
-                  Complaints & Reports
+                <h1 className="text-base sm:text-lg font-semibold text-slate-900">
+                  Creative Wall
                 </h1>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowCreatePost(true)}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
-              >
-                Report Issue
-              </button>
-              <button
-                onClick={handleLogout}
-                className="text-slate-600 hover:text-slate-900 text-sm transition"
-              >
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={() => setShowCreatePost(true)}
+              className="px-3 sm:px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition"
+            >
+              <span className="hidden sm:inline">Share Creative Work</span>
+              <span className="sm:hidden">Share</span>
+            </button>
           </div>
         </div>
       </header>
@@ -200,8 +188,8 @@ const ComplaintsWall = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search reports..."
-                className="w-full pl-10 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition"
+                placeholder="Search creative content..."
+                className="w-full pl-10 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition"
               />
               <svg
                 className="absolute left-3 top-2.5 w-4 h-4 text-slate-400"
@@ -222,7 +210,7 @@ const ComplaintsWall = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition"
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat === "All" ? "all" : cat}>
@@ -236,13 +224,13 @@ const ComplaintsWall = () => {
         {/* Posts Feed */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-slate-200 border-t-red-600 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-slate-200 border-t-purple-600 rounded-full animate-spin" />
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 sm:p-12 text-center">
+            <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
-                className="w-8 h-8 text-red-600"
+                className="w-8 h-8 text-purple-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -251,21 +239,21 @@ const ComplaintsWall = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                 />
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
-              No reports found
+              No creative content found
             </h3>
             <p className="text-sm text-slate-600 mb-6">
               {searchQuery || selectedCategory !== "all"
                 ? "Try adjusting your filters"
-                : "No issues reported yet"}
+                : "Be the first to share your creative work!"}
             </p>
             <button
               onClick={() => setShowCreatePost(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition"
             >
               <svg
                 className="w-4 h-4"
@@ -280,7 +268,7 @@ const ComplaintsWall = () => {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Report Issue
+              Share Creative Work
             </button>
           </div>
         ) : (
@@ -295,7 +283,7 @@ const ComplaintsWall = () => {
       {/* Create Post Modal */}
       {showCreatePost && (
         <CreatePost
-          type="complaint"
+          type="creative"
           onClose={() => setShowCreatePost(false)}
           onSuccess={handlePostSuccess}
         />
@@ -304,4 +292,4 @@ const ComplaintsWall = () => {
   );
 };
 
-export default ComplaintsWall;
+export default CreativeWall;
