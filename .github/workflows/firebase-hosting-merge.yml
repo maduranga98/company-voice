@@ -12,8 +12,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18" # Adjust to match your local Node version (Vite recommends Node 14+)
-          cache: "npm" # Cache node_modules for faster builds
+          node-version: "20" # Updated to Node 20 for Firebase CLI compatibility
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
