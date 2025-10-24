@@ -3,6 +3,8 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
+import { PostStatus, PostPriority } from "../utils/constants";
+import { encryptAuthorId, checkRateLimit } from "../services/postManagementService";
 
 const CreatePost = ({ type, onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -217,6 +219,16 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
     setLoading(true);
 
     try {
+      // Check rate limiting
+      const rateLimitCheck = await checkRateLimit(userData.id, userData.companyId);
+      if (!rateLimitCheck.allowed) {
+        setError(
+          `Rate limit exceeded. You can create ${rateLimitCheck.remaining} more posts. Please try again after ${rateLimitCheck.resetTime.toLocaleTimeString()}.`
+        );
+        setLoading(false);
+        return;
+      }
+
       let uploadedFiles = [];
       if (formData.attachments.length > 0) {
         uploadedFiles = await uploadFiles();
@@ -227,6 +239,11 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0);
 
+      // Encrypt author ID if anonymous
+      const authorId = formData.isAnonymous
+        ? encryptAuthorId(userData.id)
+        : userData.id;
+
       const postData = {
         title: formData.title,
         description: formData.description,
@@ -235,10 +252,11 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
         type: currentConfig.postType,
         isAnonymous: formData.isAnonymous,
         attachments: uploadedFiles,
-        authorId: userData.id,
+        authorId: authorId, // Encrypted if anonymous, plain if named
         authorName: formData.isAnonymous ? "Anonymous" : userData.displayName,
         companyId: userData.companyId,
-        status: "published",
+        status: PostStatus.OPEN, // Default status for new posts
+        priority: PostPriority.MEDIUM, // Default priority
         likes: 0,
         comments: 0,
         views: 0,

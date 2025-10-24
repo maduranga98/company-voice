@@ -11,17 +11,18 @@ import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
-import CompanyPosts from "./pages/company/CompanyPosts";
-import CompanyCreativeWall from "./pages/company/CompanyCreativeWall";
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
-import CreativeWall from "./pages/employee/CreativeWall";
-import Complaints from "./pages/employee/Complaints";
-import Discussions from "./pages/employee/Discussions";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
+
+// New Unified Feed Pages
+import CreativeFeed from "./pages/feed/CreativeFeed";
+import ProblemsFeed from "./pages/feed/ProblemsFeed";
+import DiscussionsFeed from "./pages/feed/DiscussionsFeed";
+import MyPosts from "./pages/MyPosts";
 
 function App() {
   return (
@@ -43,6 +44,50 @@ function App() {
               }
             />
 
+            {/* Unified Feed Routes (shared by all users - employees and admins) */}
+            <Route
+              path="/feed/creative"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <CreativeFeed />
+                  </EmployeeLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/feed/problems"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <ProblemsFeed />
+                  </EmployeeLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/feed/discussions"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <DiscussionsFeed />
+                  </EmployeeLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* My Posts - Private Dashboard (available to all users) */}
+            <Route
+              path="/my-posts"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <MyPosts />
+                  </EmployeeLayout>
+                </PrivateRoute>
+              }
+            />
+
             {/* Company Admin Routes with Layout */}
             <Route
               path="/company"
@@ -52,10 +97,8 @@ function App() {
                 </PrivateRoute>
               }
             >
-              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route index element={<Navigate to="/feed/creative" replace />} />
               <Route path="dashboard" element={<CompanyDashboard />} />
-              <Route path="posts" element={<CompanyPosts />} />
-              <Route path="creative-wall" element={<CompanyCreativeWall />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="profile" element={<Profile />} />
             </Route>
@@ -77,10 +120,7 @@ function App() {
                 </PrivateRoute>
               }
             >
-              <Route index element={<Navigate to="creative-wall" replace />} />
-              <Route path="creative-wall" element={<CreativeWall />} />
-              <Route path="complaints" element={<Complaints />} />
-              <Route path="discussions" element={<Discussions />} />
+              <Route index element={<Navigate to="/feed/creative" replace />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="profile" element={<Profile />} />
             </Route>
@@ -95,7 +135,8 @@ function App() {
               }
             />
 
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Default route based on role */}
+            <Route path="/" element={<Navigate to="/feed/creative" replace />} />
           </Routes>
         </div>
       </Router>
