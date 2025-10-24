@@ -1,0 +1,270 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the document (by authorId field)
+    function isOwner(authorId) {
+      return request.auth.uid == authorId;
+    }
+
+    // Check if user is super admin
+    function isSuperAdmin() {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin';
+    }
+
+    // Check if user is company admin or HR
+    function isCompanyAdmin(companyId) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId &&
+             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'company_admin' ||
+              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'hr');
+    }
+
+    // Check if user belongs to the same company
+    function isSameCompany(companyId) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId;
+    }
+
+    // Check if user is an admin (super admin, company admin, or HR)
+    function isAdmin() {
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return isAuthenticated() &&
+             (userData.role == 'super_admin' ||
+              userData.role == 'company_admin' ||
+              userData.role == 'hr');
+    }
+
+    // Validate post creation rate limit (10 posts per hour)
+    function checkRateLimit() {
+      let userId = request.auth.uid;
+      let oneHourAgo = request.time - duration.value(1, 'h');
+
+      // This is a simplified check - actual rate limiting should be done server-side
+      return true; // Allow for now, server-side function will enforce
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Company admins can read users in their company
+      allow read: if isAuthenticated() &&
+                     isSameCompany(resource.data.companyId);
+
+      // Super admins can read all users
+      allow read: if isSuperAdmin();
+
+      // Users can update their own profile (limited fields)
+      allow update: if isAuthenticated() &&
+                       request.auth.uid == userId &&
+                       !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['role', 'companyId', 'status']);
+
+      // Only super admins and company admins can create users
+      allow create: if isSuperAdmin() ||
+                       (isAdmin() &&
+                        isSameCompany(request.resource.data.companyId));
+
+      // Only super admins and company admins can delete users
+      allow delete: if isSuperAdmin() || isCompanyAdmin(resource.data.companyId);
+    }
+
+    // ============================================
+    // COMPANIES COLLECTION
+    // ============================================
+    match /companies/{companyId} {
+      // All authenticated users can read their own company
+      allow read: if isAuthenticated() && isSameCompany(companyId);
+
+      // Super admins can read all companies
+      allow read: if isSuperAdmin();
+
+      // Only super admins can create/update/delete companies
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // POSTS COLLECTION
+    // ============================================
+    match /posts/{postId} {
+      // Anyone in the same company can read posts
+      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
+
+      // Users can create posts in their company with rate limiting
+      allow create: if isAuthenticated() &&
+                       isSameCompany(request.resource.data.companyId) &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       checkRateLimit() &&
+                       // Ensure required fields are present
+                       request.resource.data.keys().hasAll(['title', 'description', 'type', 'companyId', 'authorId', 'createdAt']) &&
+                       // Validate status and priority defaults
+                       request.resource.data.status in ['open', 'published', 'draft'] &&
+                       request.resource.data.priority in ['low', 'medium', 'high', 'critical'];
+
+      // Post author can update their own post (limited fields)
+      allow update: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid &&
+                       isSameCompany(resource.data.companyId) &&
+                       // Users can only update specific fields
+                       !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['authorId', 'companyId', 'createdAt', 'status', 'priority', 'assignedTo']);
+
+      // Admins can update post status, priority, assignment
+      allow update: if isAuthenticated() &&
+                       isSameCompany(resource.data.companyId) &&
+                       isAdmin();
+
+      // Post author or admin can delete posts
+      allow delete: if isAuthenticated() &&
+                       (resource.data.authorId == request.auth.uid || isAdmin()) &&
+                       isSameCompany(resource.data.companyId);
+
+      // Likes subcollection
+      match /likes/{likeId} {
+        // Users can read likes
+        allow read: if isAuthenticated() && isSameCompany(get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+
+        // Users can create/delete their own likes
+        allow create, delete: if isAuthenticated() &&
+                                 request.auth.uid == likeId &&
+                                 isSameCompany(get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+      }
+    }
+
+    // ============================================
+    // COMMENTS COLLECTION
+    // ============================================
+    match /comments/{commentId} {
+      // Anyone in the same company can read comments
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/posts/$(resource.data.postId)) &&
+                     isSameCompany(get(/databases/$(database)/documents/posts/$(resource.data.postId)).data.companyId);
+
+      // Users can create comments on posts in their company
+      allow create: if isAuthenticated() &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       exists(/databases/$(database)/documents/posts/$(request.resource.data.postId)) &&
+                       isSameCompany(get(/databases/$(database)/documents/posts/$(request.resource.data.postId)).data.companyId) &&
+                       // Ensure required fields
+                       request.resource.data.keys().hasAll(['postId', 'text', 'authorId', 'authorName', 'createdAt']);
+
+      // Comment author can update their own comment
+      allow update: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid &&
+                       // Can only update text field
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'updatedAt']);
+
+      // Comment author or admin can delete comments
+      allow delete: if isAuthenticated() &&
+                       (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    // ============================================
+    // DISCUSSIONS COLLECTION
+    // ============================================
+    match /discussions/{discussionId} {
+      // Anyone in the same company can read discussions
+      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
+
+      // Users can create discussions in their company
+      allow create: if isAuthenticated() &&
+                       isSameCompany(request.resource.data.companyId) &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       checkRateLimit();
+
+      // Discussion author can update their own discussion
+      allow update: if isAuthenticated() &&
+                       resource.data.authorId == request.auth.uid &&
+                       isSameCompany(resource.data.companyId);
+
+      // Discussion author or admin can delete discussions
+      allow delete: if isAuthenticated() &&
+                       (resource.data.authorId == request.auth.uid || isAdmin()) &&
+                       isSameCompany(resource.data.companyId);
+    }
+
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // System and admins can create notifications
+      allow create: if isAuthenticated() &&
+                       (isAdmin() || request.resource.data.userId == request.auth.uid);
+
+      // Users can update their own notifications (mark as read)
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================
+    // POST ACTIVITIES COLLECTION (Timeline)
+    // ============================================
+    match /postActivities/{activityId} {
+      // Anyone in the same company can read post activities
+      allow read: if isAuthenticated() &&
+                     exists(/databases/$(database)/documents/posts/$(resource.data.postId)) &&
+                     isSameCompany(get(/databases/$(database)/documents/posts/$(resource.data.postId)).data.companyId);
+
+      // Only admins can create post activities
+      allow create: if isAdmin();
+
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // POST VIEWS COLLECTION (For "My Posts" unread tracking)
+    // ============================================
+    match /postViews/{viewId} {
+      // Users can read their own post views
+      allow read: if isAuthenticated() && resource.data.authorId == request.auth.uid;
+
+      // Users can create/update their own post views
+      allow create, update: if isAuthenticated() &&
+                               request.resource.data.authorId == request.auth.uid;
+
+      // No deletes allowed
+      allow delete: if false;
+    }
+
+    // ============================================
+    // DEPARTMENTS COLLECTION
+    // ============================================
+    match /departments/{departmentId} {
+      // Anyone in the same company can read departments
+      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
+
+      // Only admins can create/update/delete departments
+      allow create, update, delete: if isAdmin() &&
+                                        isSameCompany(resource.data.companyId);
+    }
+
+    // ============================================
+    // DENY ALL OTHER COLLECTIONS
+    // ============================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
