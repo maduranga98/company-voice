@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import Post from "../components/Post";
 import {
   getUserPosts,
@@ -15,7 +15,7 @@ import AdminActionPanel from "../components/AdminActionPanel";
  * Zero-notification model - all updates visible here without external notifications for anonymous posts
  */
 const MyPosts = () => {
-  const { userData } = useContext(AuthContext);
+  const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);

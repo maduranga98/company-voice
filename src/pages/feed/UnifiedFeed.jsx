@@ -1,7 +1,7 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import { AuthContext } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import Post from "../../components/Post";
 import CreatePost from "../../components/CreatePost";
 import AdminActionPanel from "../../components/AdminActionPanel";
@@ -14,7 +14,7 @@ import { isAdmin } from "../../services/postManagementService";
  * Used for Creative Wall, Problems, and Discussions feeds
  */
 const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
-  const { userData } = useContext(AuthContext);
+  const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
