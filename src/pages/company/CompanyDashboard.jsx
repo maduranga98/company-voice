@@ -347,8 +347,38 @@ const CompanyDashboard = () => {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <button
+          onClick={() => navigate("/company/member-management")}
+          className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Member Management</h3>
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <p className="text-green-100">
+            Assign tags and manage your team members
+          </p>
+        </button>
+
+        <button
+          onClick={() => navigate("/company/tag-management")}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Tag Management</h3>
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+          <p className="text-indigo-100">
+            Create and manage tags for categorizing members
+          </p>
+        </button>
+
+        <button
           onClick={() => navigate("/company/qr-code")}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+          className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Company QR Code</h3>
@@ -363,7 +393,7 @@ const CompanyDashboard = () => {
 
         <button
           onClick={() => navigate("/my-posts")}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+          className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">My Posts</h3>
@@ -371,7 +401,7 @@ const CompanyDashboard = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <p className="text-purple-100">
+          <p className="text-pink-100">
             View and manage your own posts and updates
           </p>
         </button>

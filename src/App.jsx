@@ -11,6 +11,8 @@ import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
+import TagManagement from "./pages/company/TagManagement";
+import MemberManagement from "./pages/company/MemberManagement";
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
@@ -107,6 +109,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <CompanyQRCode />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/tag-management"
+              element={
+                <PrivateRoute>
+                  <TagManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/member-management"
+              element={
+                <PrivateRoute>
+                  <MemberManagement />
                 </PrivateRoute>
               }
             />

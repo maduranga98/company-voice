@@ -5,8 +5,6 @@ import {
   PostPriority,
   PostPriorityConfig,
   AssignmentType,
-  UserTag,
-  UserTagConfig,
   COLORS,
 } from "../utils/constants";
 import {
@@ -34,6 +32,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
+  const [tags, setTags] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [selectedDueDate, setSelectedDueDate] = useState(
     post.dueDate ? new Date(post.dueDate.seconds * 1000).toISOString().split("T")[0] : ""
@@ -59,6 +58,27 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       const depts = await getCompanyDepartments(currentUser.companyId);
       setDepartments(depts);
 
+      // Load tags from database
+      const tagsRef = collection(db, "userTags");
+      const tagsQuery = query(
+        tagsRef,
+        where("companyId", "==", currentUser.companyId)
+      );
+      const tagsSnapshot = await getDocs(tagsQuery);
+      const tagsList = [];
+      tagsSnapshot.forEach((doc) => {
+        tagsList.push({ id: doc.id, ...doc.data() });
+      });
+      // Sort by priority (highest first)
+      tagsList.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+      setTags(tagsList);
+
+      // Create a tag map for quick lookup
+      const tagMap = {};
+      tagsList.forEach((tag) => {
+        tagMap[tag.id] = tag;
+      });
+
       // Load users (for non-anonymous posts)
       if (!post.isAnonymous) {
         const usersRef = collection(db, "users");
@@ -71,17 +91,20 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
         const usersList = [];
         snapshot.forEach((doc) => {
           const userData = { id: doc.id, ...doc.data() };
-          // Add default tag if not set
-          if (!userData.userTag) {
-            userData.userTag = UserTag.STAFF;
+          // Attach full tag data if user has a tag
+          if (userData.userTagId && tagMap[userData.userTagId]) {
+            userData.tagData = tagMap[userData.userTagId];
           }
           usersList.push(userData);
         });
-        // Sort by tag priority (highest first)
+        // Sort by tag priority (highest first), then by name
         usersList.sort((a, b) => {
-          const priorityA = UserTagConfig[a.userTag]?.priority || 0;
-          const priorityB = UserTagConfig[b.userTag]?.priority || 0;
-          return priorityB - priorityA;
+          const priorityA = a.tagData?.priority || 0;
+          const priorityB = b.tagData?.priority || 0;
+          if (priorityB !== priorityA) {
+            return priorityB - priorityA;
+          }
+          return (a.displayName || "").localeCompare(b.displayName || "");
         });
         setUsers(usersList);
       }
@@ -200,11 +223,40 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       user.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Group by tag
     const grouped = {};
-    Object.values(UserTag).forEach((tag) => {
-      grouped[tag] = filtered.filter((u) => u.userTag === tag);
+
+    // First, create groups for each available tag
+    tags.forEach((tag) => {
+      grouped[tag.id] = {
+        tag: tag,
+        users: filtered.filter((u) => u.userTagId === tag.id),
+      };
     });
+
+    // Add group for untagged users
+    const untaggedUsers = filtered.filter((u) => !u.userTagId);
+    if (untaggedUsers.length > 0) {
+      grouped["untagged"] = {
+        tag: { id: "untagged", name: "Untagged", icon: "👤", color: "gray", priority: 0 },
+        users: untaggedUsers,
+      };
+    }
+
     return grouped;
+  };
+
+  const getColorClasses = (color) => {
+    const colorMap = {
+      purple: { bgClass: "bg-purple-100", textClass: "text-purple-800" },
+      blue: { bgClass: "bg-blue-100", textClass: "text-blue-800" },
+      indigo: { bgClass: "bg-indigo-100", textClass: "text-indigo-800" },
+      green: { bgClass: "bg-green-100", textClass: "text-green-800" },
+      yellow: { bgClass: "bg-yellow-100", textClass: "text-yellow-800" },
+      red: { bgClass: "bg-red-100", textClass: "text-red-800" },
+      gray: { bgClass: "bg-gray-100", textClass: "text-gray-800" },
+    };
+    return colorMap[color] || colorMap.gray;
   };
 
   return (
@@ -352,42 +404,48 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                       {/* Users (only for non-anonymous posts) - Grouped by Tag */}
                       {!post.isAnonymous && (
                         <>
-                          {Object.entries(getUsersByTag()).map(([tag, tagUsers]) => {
-                            if (tagUsers.length === 0) return null;
-                            const tagConfig = UserTagConfig[tag];
+                          {Object.entries(getUsersByTag()).map(([tagId, group]) => {
+                            if (group.users.length === 0) return null;
+                            const tagData = group.tag;
+                            const colorClasses = getColorClasses(tagData.color);
                             return (
-                              <div key={tag} className="border-t border-gray-200">
-                                <div className={`px-3 py-2 ${tagConfig.bgColor} text-xs font-semibold ${tagConfig.textColor} flex items-center`}>
-                                  <span className="mr-1">{tagConfig.icon}</span>
-                                  <span>{tagConfig.label}s</span>
-                                  <span className="ml-auto text-xs opacity-75">({tagUsers.length})</span>
+                              <div key={tagId} className="border-t border-gray-200">
+                                <div className={`px-3 py-2 ${colorClasses.bgClass} text-xs font-semibold ${colorClasses.textClass} flex items-center`}>
+                                  <span className="mr-1">{tagData.icon}</span>
+                                  <span>{tagData.name}s</span>
+                                  <span className="ml-auto text-xs opacity-75">({group.users.length})</span>
                                 </div>
-                                {tagUsers.map((user) => (
-                                  <button
-                                    key={user.id}
-                                    onClick={() => {
-                                      handleAssignment({
-                                        type: AssignmentType.USER,
-                                        id: user.id,
-                                        name: user.displayName,
-                                        userTag: user.userTag,
-                                      });
-                                      setSearchTerm("");
-                                    }}
-                                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center justify-between"
-                                  >
-                                    <div className="flex items-center">
-                                      <span className="mr-2">{tagConfig.icon}</span>
-                                      <div>
-                                        <div className="font-medium">{user.displayName}</div>
-                                        <div className="text-xs text-gray-500">{user.role}</div>
+                                {group.users.map((user) => {
+                                  const userColorClasses = user.tagData ? getColorClasses(user.tagData.color) : getColorClasses("gray");
+                                  return (
+                                    <button
+                                      key={user.id}
+                                      onClick={() => {
+                                        handleAssignment({
+                                          type: AssignmentType.USER,
+                                          id: user.id,
+                                          name: user.displayName,
+                                          userTagId: user.userTagId,
+                                        });
+                                        setSearchTerm("");
+                                      }}
+                                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center justify-between"
+                                    >
+                                      <div className="flex items-center">
+                                        <span className="mr-2">{user.tagData?.icon || tagData.icon}</span>
+                                        <div>
+                                          <div className="font-medium">{user.displayName}</div>
+                                          <div className="text-xs text-gray-500">{user.role}</div>
+                                        </div>
                                       </div>
-                                    </div>
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${tagConfig.bgColor} ${tagConfig.textColor}`}>
-                                      {tagConfig.label}
-                                    </span>
-                                  </button>
-                                ))}
+                                      {user.tagData && (
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${userColorClasses.bgClass} ${userColorClasses.textColor}`}>
+                                          {user.tagData.name}
+                                        </span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             );
                           })}
@@ -459,14 +517,19 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                     <span className="text-xs text-gray-600 capitalize">
                       {selectedAssignee.type}
                     </span>
-                    {selectedAssignee.userTag && (
-                      <>
-                        <span className="text-gray-400">•</span>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${UserTagConfig[selectedAssignee.userTag]?.bgColor} ${UserTagConfig[selectedAssignee.userTag]?.textColor}`}>
-                          {UserTagConfig[selectedAssignee.userTag]?.icon} {UserTagConfig[selectedAssignee.userTag]?.label}
-                        </span>
-                      </>
-                    )}
+                    {selectedAssignee.userTagId && (() => {
+                      const assigneeTag = tags.find(t => t.id === selectedAssignee.userTagId);
+                      if (!assigneeTag) return null;
+                      const colorClasses = getColorClasses(assigneeTag.color);
+                      return (
+                        <>
+                          <span className="text-gray-400">•</span>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClasses.bgClass} ${colorClasses.textClass}`}>
+                            {assigneeTag.icon} {assigneeTag.name}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                   {selectedDueDate && (
                     <div className="flex items-center text-xs text-gray-500 mt-2">
