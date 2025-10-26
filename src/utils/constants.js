@@ -17,6 +17,64 @@ export const UserStatus = {
   INVITED: "invited",
 };
 
+// User tags/levels for assignment (identify higher-order officers)
+export const UserTag = {
+  EXECUTIVE: "executive",         // C-level, VPs
+  SENIOR_MANAGER: "senior_manager", // Senior managers, directors
+  MANAGER: "manager",              // Team leads, managers
+  SPECIALIST: "specialist",        // Senior specialists, experts
+  STAFF: "staff",                  // Regular employees
+};
+
+// User tag configuration
+export const UserTagConfig = {
+  [UserTag.EXECUTIVE]: {
+    label: "Executive",
+    color: "purple",
+    bgColor: "bg-purple-100",
+    textColor: "text-purple-800",
+    borderColor: "border-purple-300",
+    icon: "👔",
+    priority: 5,
+  },
+  [UserTag.SENIOR_MANAGER]: {
+    label: "Senior Manager",
+    color: "blue",
+    bgColor: "bg-blue-100",
+    textColor: "text-blue-800",
+    borderColor: "border-blue-300",
+    icon: "🎯",
+    priority: 4,
+  },
+  [UserTag.MANAGER]: {
+    label: "Manager",
+    color: "indigo",
+    bgColor: "bg-indigo-100",
+    textColor: "text-indigo-800",
+    borderColor: "border-indigo-300",
+    icon: "📊",
+    priority: 3,
+  },
+  [UserTag.SPECIALIST]: {
+    label: "Specialist",
+    color: "green",
+    bgColor: "bg-green-100",
+    textColor: "text-green-800",
+    borderColor: "border-green-300",
+    icon: "🔧",
+    priority: 2,
+  },
+  [UserTag.STAFF]: {
+    label: "Staff",
+    color: "gray",
+    bgColor: "bg-gray-100",
+    textColor: "text-gray-800",
+    borderColor: "border-gray-300",
+    icon: "👤",
+    priority: 1,
+  },
+};
+
 // ============================================
 // POST TYPES & CATEGORIES
 // ============================================
@@ -44,11 +102,13 @@ export const PrivacyLevel = {
 export const PostStatus = {
   OPEN: "open",                        // Just created
   ACKNOWLEDGED: "acknowledged",         // Admin has seen it
-  IN_PROGRESS: "in_progress",          // Being worked on
+  IN_PROGRESS: "in_progress",          // Being worked on (Process)
   UNDER_REVIEW: "under_review",        // Investigating
-  RESOLVED: "resolved",                // Fixed/completed
+  WORKING_ON: "working_on",            // Forwarded to relevant sections, waiting for response
+  RESOLVED: "resolved",                // Fixed/completed (Finished)
   CLOSED: "closed",                    // No action needed
   REJECTED: "rejected",                // Not valid/duplicate
+  NOT_A_PROBLEM: "not_a_problem",      // Not a real problem or will be resolved in future
 };
 
 // Legacy statuses (for backward compatibility during migration)
@@ -108,6 +168,14 @@ export const PostStatusConfig = {
     borderColor: "border-slate-300",
     description: "No action needed",
   },
+  [PostStatus.WORKING_ON]: {
+    label: "Working On",
+    color: "indigo",
+    bgColor: "bg-indigo-100",
+    textColor: "text-indigo-800",
+    borderColor: "border-indigo-300",
+    description: "Forwarded to relevant sections, awaiting response",
+  },
   [PostStatus.REJECTED]: {
     label: "Rejected",
     color: "red",
@@ -115,6 +183,14 @@ export const PostStatusConfig = {
     textColor: "text-red-800",
     borderColor: "border-red-300",
     description: "Invalid or duplicate",
+  },
+  [PostStatus.NOT_A_PROBLEM]: {
+    label: "Not a Problem",
+    color: "slate",
+    bgColor: "bg-slate-100",
+    textColor: "text-slate-800",
+    borderColor: "border-slate-300",
+    description: "Not a real problem or will be resolved in future",
   },
 };
 
