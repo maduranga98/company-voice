@@ -32,11 +32,13 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
+  const [tags, setTags] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [selectedDueDate, setSelectedDueDate] = useState(
     post.dueDate ? new Date(post.dueDate.seconds * 1000).toISOString().split("T")[0] : ""
   );
   const [showAssignDropdown, setShowAssignDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Load departments and users on mount
   useEffect(() => {
@@ -56,6 +58,27 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       const depts = await getCompanyDepartments(currentUser.companyId);
       setDepartments(depts);
 
+      // Load tags from database
+      const tagsRef = collection(db, "userTags");
+      const tagsQuery = query(
+        tagsRef,
+        where("companyId", "==", currentUser.companyId)
+      );
+      const tagsSnapshot = await getDocs(tagsQuery);
+      const tagsList = [];
+      tagsSnapshot.forEach((doc) => {
+        tagsList.push({ id: doc.id, ...doc.data() });
+      });
+      // Sort by priority (highest first)
+      tagsList.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+      setTags(tagsList);
+
+      // Create a tag map for quick lookup
+      const tagMap = {};
+      tagsList.forEach((tag) => {
+        tagMap[tag.id] = tag;
+      });
+
       // Load users (for non-anonymous posts)
       if (!post.isAnonymous) {
         const usersRef = collection(db, "users");
@@ -67,7 +90,21 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
         const snapshot = await getDocs(q);
         const usersList = [];
         snapshot.forEach((doc) => {
-          usersList.push({ id: doc.id, ...doc.data() });
+          const userData = { id: doc.id, ...doc.data() };
+          // Attach full tag data if user has a tag
+          if (userData.userTagId && tagMap[userData.userTagId]) {
+            userData.tagData = tagMap[userData.userTagId];
+          }
+          usersList.push(userData);
+        });
+        // Sort by tag priority (highest first), then by name
+        usersList.sort((a, b) => {
+          const priorityA = a.tagData?.priority || 0;
+          const priorityB = b.tagData?.priority || 0;
+          if (priorityB !== priorityA) {
+            return priorityB - priorityA;
+          }
+          return (a.displayName || "").localeCompare(b.displayName || "");
         });
         setUsers(usersList);
       }
@@ -180,6 +217,48 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
     }
   };
 
+  // Group users by tag for organized display
+  const getUsersByTag = () => {
+    const filtered = users.filter((user) =>
+      user.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Group by tag
+    const grouped = {};
+
+    // First, create groups for each available tag
+    tags.forEach((tag) => {
+      grouped[tag.id] = {
+        tag: tag,
+        users: filtered.filter((u) => u.userTagId === tag.id),
+      };
+    });
+
+    // Add group for untagged users
+    const untaggedUsers = filtered.filter((u) => !u.userTagId);
+    if (untaggedUsers.length > 0) {
+      grouped["untagged"] = {
+        tag: { id: "untagged", name: "Untagged", icon: "👤", color: "gray", priority: 0 },
+        users: untaggedUsers,
+      };
+    }
+
+    return grouped;
+  };
+
+  const getColorClasses = (color) => {
+    const colorMap = {
+      purple: { bgClass: "bg-purple-100", textClass: "text-purple-800" },
+      blue: { bgClass: "bg-blue-100", textClass: "text-blue-800" },
+      indigo: { bgClass: "bg-indigo-100", textClass: "text-indigo-800" },
+      green: { bgClass: "bg-green-100", textClass: "text-green-800" },
+      yellow: { bgClass: "bg-yellow-100", textClass: "text-yellow-800" },
+      red: { bgClass: "bg-red-100", textClass: "text-red-800" },
+      gray: { bgClass: "bg-gray-100", textClass: "text-gray-800" },
+    };
+    return colorMap[color] || colorMap.gray;
+  };
+
   return (
     <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
       {/* Header */}
@@ -254,69 +333,125 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                 <button
                   onClick={() => setShowAssignDropdown(!showAssignDropdown)}
                   disabled={loading}
-                  className="w-full px-3 py-2 text-sm text-left border border-gray-300 rounded-lg hover:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+                  className="w-full px-3 py-2 text-sm text-left border border-gray-300 rounded-lg hover:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white flex items-center justify-between"
                 >
-                  {selectedAssignee
-                    ? `${selectedAssignee.name} (${selectedAssignee.type})`
-                    : "Select assignee..."}
+                  <span>
+                    {selectedAssignee
+                      ? `${selectedAssignee.name} (${selectedAssignee.type})`
+                      : "Select assignee..."}
+                  </span>
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
 
                 {/* Assignment Dropdown */}
                 {showAssignDropdown && (
-                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                    {/* Unassign option */}
-                    <button
-                      onClick={() => handleAssignment(null)}
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 text-gray-700"
-                    >
-                      Unassign
-                    </button>
-
-                    {/* Departments */}
-                    <div className="border-t border-gray-200">
-                      <div className="px-3 py-1 bg-gray-50 text-xs font-semibold text-gray-600">
-                        Departments
-                      </div>
-                      {departments.map((dept) => (
-                        <button
-                          key={dept.id}
-                          onClick={() =>
-                            handleAssignment({
-                              type: AssignmentType.DEPARTMENT,
-                              id: dept.id,
-                              name: dept.name,
-                            })
-                          }
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
-                        >
-                          {dept.icon} {dept.name}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Users (only for non-anonymous posts) */}
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-hidden">
+                    {/* Search Box (for users) */}
                     {!post.isAnonymous && (
+                      <div className="p-2 border-b border-gray-200">
+                        <input
+                          type="text"
+                          placeholder="Search users..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    )}
+
+                    <div className="max-h-80 overflow-y-auto">
+                      {/* Unassign option */}
+                      <button
+                        onClick={() => {
+                          handleAssignment(null);
+                          setSearchTerm("");
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 text-gray-700 border-b border-gray-200"
+                      >
+                        <span className="font-medium">Unassign</span>
+                      </button>
+
+                      {/* Departments */}
                       <div className="border-t border-gray-200">
-                        <div className="px-3 py-1 bg-gray-50 text-xs font-semibold text-gray-600">
-                          Users
+                        <div className="px-3 py-2 bg-gray-50 text-xs font-semibold text-gray-700 flex items-center">
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          Departments
                         </div>
-                        {users.map((user) => (
+                        {departments.map((dept) => (
                           <button
-                            key={user.id}
-                            onClick={() =>
+                            key={dept.id}
+                            onClick={() => {
                               handleAssignment({
-                                type: AssignmentType.USER,
-                                id: user.id,
-                                name: user.displayName,
-                              })
-                            }
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                                type: AssignmentType.DEPARTMENT,
+                                id: dept.id,
+                                name: dept.name,
+                              });
+                              setSearchTerm("");
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center"
                           >
-                            {user.displayName} ({user.role})
+                            <span className="mr-2">{dept.icon}</span>
+                            <span>{dept.name}</span>
                           </button>
                         ))}
                       </div>
-                    )}
+
+                      {/* Users (only for non-anonymous posts) - Grouped by Tag */}
+                      {!post.isAnonymous && (
+                        <>
+                          {Object.entries(getUsersByTag()).map(([tagId, group]) => {
+                            if (group.users.length === 0) return null;
+                            const tagData = group.tag;
+                            const colorClasses = getColorClasses(tagData.color);
+                            return (
+                              <div key={tagId} className="border-t border-gray-200">
+                                <div className={`px-3 py-2 ${colorClasses.bgClass} text-xs font-semibold ${colorClasses.textClass} flex items-center`}>
+                                  <span className="mr-1">{tagData.icon}</span>
+                                  <span>{tagData.name}s</span>
+                                  <span className="ml-auto text-xs opacity-75">({group.users.length})</span>
+                                </div>
+                                {group.users.map((user) => {
+                                  const userColorClasses = user.tagData ? getColorClasses(user.tagData.color) : getColorClasses("gray");
+                                  return (
+                                    <button
+                                      key={user.id}
+                                      onClick={() => {
+                                        handleAssignment({
+                                          type: AssignmentType.USER,
+                                          id: user.id,
+                                          name: user.displayName,
+                                          userTagId: user.userTagId,
+                                        });
+                                        setSearchTerm("");
+                                      }}
+                                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center justify-between"
+                                    >
+                                      <div className="flex items-center">
+                                        <span className="mr-2">{user.tagData?.icon || tagData.icon}</span>
+                                        <div>
+                                          <div className="font-medium">{user.displayName}</div>
+                                          <div className="text-xs text-gray-500">{user.role}</div>
+                                        </div>
+                                      </div>
+                                      {user.tagData && (
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${userColorClasses.bgClass} ${userColorClasses.textColor}`}>
+                                          {user.tagData.name}
+                                        </span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -365,15 +500,42 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
           {/* Current Assignment Info */}
           {selectedAssignee && (
-            <div className="p-3 bg-white border border-gray-200 rounded-lg text-sm">
+            <div className="p-3 bg-white border border-indigo-200 rounded-lg text-sm">
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-gray-900">Currently Assigned To:</div>
-                  <div className="text-gray-600">
-                    {selectedAssignee.name} ({selectedAssignee.type})
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900 mb-1 flex items-center">
+                    <svg className="w-4 h-4 mr-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Currently Assigned To:
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-900 font-semibold">
+                      {selectedAssignee.name}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <span className="text-xs text-gray-600 capitalize">
+                      {selectedAssignee.type}
+                    </span>
+                    {selectedAssignee.userTagId && (() => {
+                      const assigneeTag = tags.find(t => t.id === selectedAssignee.userTagId);
+                      if (!assigneeTag) return null;
+                      const colorClasses = getColorClasses(assigneeTag.color);
+                      return (
+                        <>
+                          <span className="text-gray-400">•</span>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClasses.bgClass} ${colorClasses.textClass}`}>
+                            {assigneeTag.icon} {assigneeTag.name}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                   {selectedDueDate && (
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="flex items-center text-xs text-gray-500 mt-2">
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
                       Due: {new Date(selectedDueDate).toLocaleDateString()}
                     </div>
                   )}
@@ -381,7 +543,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                 <button
                   onClick={() => handleAssignment(null)}
                   disabled={loading}
-                  className="text-red-600 hover:text-red-800 text-xs font-medium"
+                  className="text-red-600 hover:text-red-800 text-xs font-medium px-3 py-1 border border-red-300 rounded-lg hover:bg-red-50 transition"
                 >
                   Unassign
                 </button>

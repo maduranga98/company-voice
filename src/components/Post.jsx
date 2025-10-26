@@ -1,7 +1,11 @@
 import LikeButton from "./LikeButton";
 import CommentsSection from "./CommentsSection";
+import { PostStatusConfig, PostPriorityConfig, PostType } from "../utils/constants";
 
 const Post = ({ post, getTimeAgo }) => {
+  // Check if this is a problem report to show status/priority
+  const isProblemReport = post.type === PostType.PROBLEM_REPORT;
+
   return (
     <article className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-slate-300 transition">
       {/* Post Header */}
@@ -20,10 +24,38 @@ const Post = ({ post, getTimeAgo }) => {
               </p>
             </div>
           </div>
-          <span className="px-2 sm:px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
-            {post.category}
-          </span>
+          <div className="flex flex-col gap-1 items-end">
+            <span className="px-2 sm:px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
+              {post.category}
+            </span>
+
+            {/* Status & Priority Badges for Problem Reports */}
+            {isProblemReport && (
+              <div className="flex gap-1 flex-wrap justify-end">
+                {post.status && PostStatusConfig[post.status] && (
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}>
+                    {PostStatusConfig[post.status].label}
+                  </span>
+                )}
+                {post.priority && PostPriorityConfig[post.priority] && (
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}>
+                    {PostPriorityConfig[post.priority].icon}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Assigned To Info for Problem Reports */}
+        {isProblemReport && post.assignedTo && (
+          <div className="mt-2 flex items-center text-xs text-slate-600 bg-blue-50 px-2 py-1 rounded">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Assigned to: <span className="font-medium ml-1">{post.assignedTo.name}</span>
+          </div>
+        )}
       </div>
 
       {/* Post Content */}
