@@ -20,7 +20,8 @@ const CompanyAdminLayout = () => {
     }
   };
 
-  const tabs = [
+  // Build tabs based on user's tag status
+  const baseTabs = [
     {
       id: "dashboard",
       name: "Dashboard",
@@ -143,6 +144,32 @@ const CompanyAdminLayout = () => {
     },
   ];
 
+  // Add "Assigned to Me" tab if user has a tag
+  const tabs = userData?.userTagId ? [
+    ...baseTabs.slice(0, 4), // Dashboard, Creative, Problems, Discussions
+    {
+      id: "assigned",
+      name: "Assigned",
+      path: "/assigned-to-me",
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+          />
+        </svg>
+      ),
+    },
+    ...baseTabs.slice(4), // My Posts, Profile
+  ] : baseTabs;
+
   const isActiveTab = (path) => {
     // Handle feed routes - mark as active if path starts with the tab path
     if (path.startsWith("/feed/")) {
@@ -240,7 +267,7 @@ const CompanyAdminLayout = () => {
       {/* Bottom Navigation - Mobile First */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-6 gap-1">
+          <div className={`grid ${userData?.userTagId ? 'grid-cols-7' : 'grid-cols-6'} gap-1`}>
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);
               return (

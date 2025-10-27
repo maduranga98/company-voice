@@ -7,7 +7,9 @@ import {
   where,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { UserRole } from "../../utils/constants";
@@ -21,8 +23,18 @@ const MemberManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
   const [selectedTag, setSelectedTag] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [showTagModal, setShowTagModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+
+  // Check URL params for filter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const filterParam = params.get("filter");
+    if (filterParam === "pending") {
+      setSelectedStatus("pending");
+    }
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -105,6 +117,49 @@ const MemberManagement = () => {
     }
   };
 
+  const handleApproveMember = async (memberId) => {
+    if (!confirm("Are you sure you want to approve this member?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const memberRef = doc(db, "users", memberId);
+      await updateDoc(memberRef, {
+        status: "active",
+        updatedAt: serverTimestamp(),
+      });
+
+      alert("Member approved successfully!");
+      loadData();
+    } catch (error) {
+      console.error("Error approving member:", error);
+      alert("Failed to approve member");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectMember = async (memberId) => {
+    if (!confirm("Are you sure you want to reject this member? This will permanently delete their account.")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const memberRef = doc(db, "users", memberId);
+      await deleteDoc(memberRef);
+
+      alert("Member rejected and removed successfully!");
+      loadData();
+    } catch (error) {
+      console.error("Error rejecting member:", error);
+      alert("Failed to reject member");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getFilteredMembers = () => {
     return members.filter((member) => {
       // Search filter
@@ -128,6 +183,11 @@ const MemberManagement = () => {
         } else {
           if (member.userTagId !== selectedTag) return false;
         }
+      }
+
+      // Status filter
+      if (selectedStatus !== "all" && member.status !== selectedStatus) {
+        return false;
       }
 
       return true;
@@ -199,21 +259,27 @@ const MemberManagement = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">Total Members</p>
             <p className="text-2xl font-bold text-gray-900">{members.length}</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Tagged Members</p>
-            <p className="text-2xl font-bold text-blue-600">
-              {members.filter((m) => m.userTagId).length}
+            <p className="text-sm text-gray-600">Active Members</p>
+            <p className="text-2xl font-bold text-green-600">
+              {members.filter((m) => m.status === "active").length}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-4 border border-yellow-200">
+            <p className="text-sm text-gray-600">Pending Approval</p>
+            <p className="text-2xl font-bold text-yellow-600">
+              {members.filter((m) => m.status === "pending").length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Untagged</p>
-            <p className="text-2xl font-bold text-yellow-600">
-              {members.filter((m) => !m.userTagId).length}
+            <p className="text-sm text-gray-600">Tagged Members</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {members.filter((m) => m.userTagId).length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
@@ -225,7 +291,7 @@ const MemberManagement = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
@@ -270,6 +336,20 @@ const MemberManagement = () => {
               ))}
             </select>
           </div>
+
+          {/* Status Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="pending">Pending Approval</option>
+            </select>
+          </div>
         </div>
 
         <div className="mt-3 text-sm text-gray-600">
@@ -311,15 +391,21 @@ const MemberManagement = () => {
                   <tr key={member.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
+                        <div className={`w-10 h-10 ${member.status === "pending" ? "bg-yellow-500" : "bg-blue-600"} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}>
                           {member.displayName?.charAt(0).toUpperCase() || "?"}
                         </div>
                         <div className="ml-3">
                           <div className="text-sm font-medium text-gray-900">
                             {member.displayName || "Unnamed"}
                           </div>
-                          <div className="text-xs text-gray-500">
-                            {member.status || "active"}
+                          <div className="text-xs">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              member.status === "pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-green-100 text-green-800"
+                            }`}>
+                              {member.status === "pending" ? "Pending Approval" : "Active"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -341,15 +427,32 @@ const MemberManagement = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <button
-                        onClick={() => {
-                          setSelectedMember(member);
-                          setShowTagModal(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        {memberTag ? "Change Tag" : "Assign Tag"}
-                      </button>
+                      {member.status === "pending" ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleApproveMember(member.id)}
+                            className="text-green-600 hover:text-green-800 font-medium px-3 py-1 border border-green-300 rounded-lg hover:bg-green-50"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleRejectMember(member.id)}
+                            className="text-red-600 hover:text-red-800 font-medium px-3 py-1 border border-red-300 rounded-lg hover:bg-red-50"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSelectedMember(member);
+                            setShowTagModal(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          {memberTag ? "Change Tag" : "Assign Tag"}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

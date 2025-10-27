@@ -15,8 +15,8 @@ const Dashboard = () => {
     } else if (userData.role === "company_admin") {
       navigate("/company/dashboard");
     } else if (userData.role === "employee") {
-      // Redirect directly to creative wall instead of dashboard
-      navigate("/employee/creative-wall");
+      // Redirect directly to creative feed (unified feed for all users)
+      navigate("/feed/creative");
     }
   }, [userData, navigate]);
 
