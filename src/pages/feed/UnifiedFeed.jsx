@@ -8,11 +8,6 @@ import AdminActionPanel from "../../components/AdminActionPanel";
 import { PostType, COLORS } from "../../utils/constants";
 import { isAdmin } from "../../services/postManagementService";
 
-/**
- * Unified Feed Component
- * Displays posts of a specific type with role-based admin controls
- * Used for Creative Wall, Problems, and Discussions feeds
- */
 const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
   const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
@@ -27,7 +22,9 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
   const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
-    loadPosts();
+    if (userData?.companyId) {
+      loadPosts();
+    }
   }, [userData, feedType]);
 
   useEffect(() => {
@@ -39,10 +36,8 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
       setLoading(true);
       const postsRef = collection(db, "posts");
 
-      // Build query based on feed type
       let q;
       if (feedType === "discussions") {
-        // Discussions are stored separately
         const discussionsRef = collection(db, "discussions");
         q = query(
           discussionsRef,
@@ -51,7 +46,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
           limit(50)
         );
       } else {
-        // Creative and problems use the posts collection with type filter
         const postTypeMap = {
           creative: PostType.CREATIVE_CONTENT,
           problems: PostType.PROBLEM_REPORT,
@@ -67,11 +61,7 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
       }
 
       const snapshot = await getDocs(q);
-      const postsData = [];
-
-      snapshot.forEach((doc) => {
-        postsData.push({ id: doc.id, ...doc.data() });
-      });
+      const postsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
       setPosts(postsData);
     } catch (error) {
@@ -85,7 +75,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
   const filterPosts = () => {
     let filtered = [...posts];
 
-    // Search filter
     if (searchTerm.trim()) {
       const search = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -96,19 +85,15 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
       );
     }
 
-    // Category filter
     if (selectedCategory !== "all") {
       filtered = filtered.filter((post) => post.category === selectedCategory);
     }
 
-    // Admin filters
     if (userIsAdmin) {
-      // Status filter
       if (selectedStatus !== "all") {
         filtered = filtered.filter((post) => post.status === selectedStatus);
       }
 
-      // Priority filter
       if (selectedPriority !== "all") {
         filtered = filtered.filter((post) => post.priority === selectedPriority);
       }
@@ -118,7 +103,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
   };
 
   const handlePostUpdate = () => {
-    // Reload posts after admin action
     loadPosts();
   };
 
@@ -157,7 +141,7 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
 
   const colors = getFeedColor();
 
-  if (loading) {
+  if (loading && posts.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -170,7 +154,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className={`bg-gradient-to-r ${colors.gradient} text-white py-6 px-4 sm:px-6`}>
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between">
@@ -190,10 +173,8 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          {/* Search */}
           <div className="mb-3">
             <input
               type="text"
@@ -204,9 +185,7 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
             />
           </div>
 
-          {/* Filters Row */}
           <div className="flex flex-wrap gap-2">
-            {/* Category Filter */}
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -220,7 +199,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
               ))}
             </select>
 
-            {/* Admin Filters */}
             {userIsAdmin && (
               <>
                 <select
@@ -253,7 +231,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
             )}
           </div>
 
-          {/* Stats */}
           <div className="mt-3 flex gap-4 text-sm text-gray-600">
             <span>
               Total: <strong>{filteredPosts.length}</strong>
@@ -276,7 +253,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
         </div>
       </div>
 
-      {/* Posts Feed */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         {filteredPosts.length === 0 ? (
           <div className={`${colors.bg} border ${colors.border} rounded-lg p-8 text-center`}>
@@ -297,7 +273,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
           <div className="space-y-4">
             {filteredPosts.map((post) => (
               <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                {/* Admin Action Panel (only visible to admins) */}
                 {userIsAdmin && (
                   <div className="p-4 pb-0">
                     <AdminActionPanel
@@ -307,8 +282,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
                     />
                   </div>
                 )}
-
-                {/* Post Content */}
                 <Post post={post} />
               </div>
             ))}
@@ -316,7 +289,6 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
         )}
       </div>
 
-      {/* Create Post Modal */}
       {showCreateModal && (
         <CreatePost
           type={feedType === "creative" ? "creative" : feedType === "problems" ? "complaint" : "discussion"}
@@ -325,10 +297,9 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
         />
       )}
 
-      {/* Floating Action Button (FAB) */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className={`fixed bottom-20 right-6 bg-gradient-to-r ${colors.gradient} text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center gap-2 group`}
+        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 bg-gradient-to-r ${colors.gradient} text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center gap-2 group`}
         aria-label="Create new post"
       >
         <svg
