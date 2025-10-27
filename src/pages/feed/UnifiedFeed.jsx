@@ -328,7 +328,7 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
       {/* Floating Action Button (FAB) */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className={`fixed bottom-20 right-6 bg-gradient-to-r ${colors.gradient} text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center gap-2 group`}
+        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 bg-gradient-to-r ${colors.gradient} text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center gap-2 group`}
         aria-label="Create new post"
       >
         <svg
