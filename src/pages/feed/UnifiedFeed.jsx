@@ -324,6 +324,31 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
           onSuccess={loadPosts}
         />
       )}
+
+      {/* Floating Action Button (FAB) */}
+      <button
+        onClick={() => setShowCreateModal(true)}
+        className={`fixed bottom-20 right-6 bg-gradient-to-r ${colors.gradient} text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center gap-2 group`}
+        aria-label="Create new post"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap font-medium">
+          Create Post
+        </span>
+      </button>
     </div>
   );
 };
