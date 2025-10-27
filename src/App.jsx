@@ -17,6 +17,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
+import RoleBasedLayout from "./components/RoleBasedLayout";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 
@@ -25,6 +26,7 @@ import CreativeFeed from "./pages/feed/CreativeFeed";
 import ProblemsFeed from "./pages/feed/ProblemsFeed";
 import DiscussionsFeed from "./pages/feed/DiscussionsFeed";
 import MyPosts from "./pages/MyPosts";
+import AssignedToMe from "./pages/AssignedToMe";
 
 function App() {
   return (
@@ -51,9 +53,9 @@ function App() {
               path="/feed/creative"
               element={
                 <PrivateRoute>
-                  <EmployeeLayout>
+                  <RoleBasedLayout>
                     <CreativeFeed />
-                  </EmployeeLayout>
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />
@@ -61,9 +63,9 @@ function App() {
               path="/feed/problems"
               element={
                 <PrivateRoute>
-                  <EmployeeLayout>
+                  <RoleBasedLayout>
                     <ProblemsFeed />
-                  </EmployeeLayout>
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />
@@ -71,9 +73,9 @@ function App() {
               path="/feed/discussions"
               element={
                 <PrivateRoute>
-                  <EmployeeLayout>
+                  <RoleBasedLayout>
                     <DiscussionsFeed />
-                  </EmployeeLayout>
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />
@@ -83,9 +85,21 @@ function App() {
               path="/my-posts"
               element={
                 <PrivateRoute>
-                  <EmployeeLayout>
+                  <RoleBasedLayout>
                     <MyPosts />
-                  </EmployeeLayout>
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Assigned to Me - For tagged members */}
+            <Route
+              path="/assigned-to-me"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <AssignedToMe />
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />

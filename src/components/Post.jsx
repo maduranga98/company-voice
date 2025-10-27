@@ -6,8 +6,87 @@ const Post = ({ post, getTimeAgo }) => {
   // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
 
+  // Get dynamic styling based on status and priority
+  const getPostStyling = () => {
+    if (!isProblemReport) {
+      return {
+        border: "border-slate-200 hover:border-slate-300",
+        bg: "bg-white",
+        leftBorder: "",
+      };
+    }
+
+    // For problem reports, apply color coding
+    let styling = {
+      border: "border-slate-200",
+      bg: "bg-white",
+      leftBorder: "border-l-4",
+    };
+
+    // Priority-based colors (overridden by status colors)
+    if (post.priority === "critical") {
+      styling.border = "border-red-300 hover:border-red-400";
+      styling.leftBorder += " border-l-red-500";
+      styling.bg = "bg-red-50";
+    } else if (post.priority === "high") {
+      styling.border = "border-orange-200 hover:border-orange-300";
+      styling.leftBorder += " border-l-orange-500";
+      styling.bg = "bg-orange-50";
+    }
+
+    // Status-based colors (take precedence)
+    switch (post.status) {
+      case "open":
+        styling.border = "border-gray-300 hover:border-gray-400";
+        styling.leftBorder += " border-l-gray-400";
+        break;
+      case "acknowledged":
+        styling.border = "border-blue-200 hover:border-blue-300";
+        styling.leftBorder += " border-l-blue-500";
+        styling.bg = "bg-blue-50";
+        break;
+      case "in_progress":
+        styling.border = "border-yellow-200 hover:border-yellow-300";
+        styling.leftBorder += " border-l-yellow-500";
+        styling.bg = "bg-yellow-50";
+        break;
+      case "under_review":
+        styling.border = "border-purple-200 hover:border-purple-300";
+        styling.leftBorder += " border-l-purple-500";
+        styling.bg = "bg-purple-50";
+        break;
+      case "working_on":
+        styling.border = "border-indigo-200 hover:border-indigo-300";
+        styling.leftBorder += " border-l-indigo-500";
+        styling.bg = "bg-indigo-50";
+        break;
+      case "resolved":
+        styling.border = "border-green-200 hover:border-green-300";
+        styling.leftBorder += " border-l-green-500";
+        styling.bg = "bg-green-50";
+        break;
+      case "closed":
+      case "not_a_problem":
+        styling.border = "border-slate-300 hover:border-slate-400";
+        styling.leftBorder += " border-l-slate-400";
+        styling.bg = "bg-slate-50";
+        break;
+      case "rejected":
+        styling.border = "border-red-200 hover:border-red-300";
+        styling.leftBorder += " border-l-red-500";
+        styling.bg = "bg-red-50";
+        break;
+      default:
+        break;
+    }
+
+    return styling;
+  };
+
+  const styling = getPostStyling();
+
   return (
-    <article className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:border-slate-300 transition">
+    <article className={`${styling.bg} rounded-lg border ${styling.border} ${styling.leftBorder} overflow-hidden transition`}>
       {/* Post Header */}
       <div className="p-3 sm:p-4 border-b border-slate-100">
         <div className="flex items-start justify-between gap-2">
