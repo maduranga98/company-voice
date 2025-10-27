@@ -156,26 +156,37 @@ const TagManagement = () => {
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tag Management</h1>
-          <p className="text-gray-600">
-            Create and manage tags to categorize members by their roles and levels
-          </p>
-        </div>
+      <div className="mb-8">
         <button
-          onClick={() => {
-            setEditingTag(null);
-            setFormData({ name: "", description: "", color: "blue", icon: "👤", priority: 1 });
-            setShowCreateModal(true);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+          onClick={() => navigate(-1)}
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Create Tag
+          Back
         </button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tag Management</h1>
+            <p className="text-gray-600">
+              Create and manage tags to categorize members by their roles and levels
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setEditingTag(null);
+              setFormData({ name: "", description: "", color: "blue", icon: "👤", priority: 1 });
+              setShowCreateModal(true);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Tag
+          </button>
+        </div>
       </div>
 
       {/* Tags List */}

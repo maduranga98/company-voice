@@ -264,7 +264,9 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
         updatedAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "posts"), postData);
+      // Save to appropriate collection based on post type
+      const collectionName = type === "discussion" ? "discussions" : "posts";
+      await addDoc(collection(db, collectionName), postData);
 
       if (onSuccess) {
         onSuccess();
