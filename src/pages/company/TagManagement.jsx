@@ -93,7 +93,7 @@ const TagManagement = () => {
       } else {
         // Create new tag
         tagData.createdAt = serverTimestamp();
-        tagData.createdBy = userData.uid;
+        tagData.createdBy = userData.id;
         await addDoc(collection(db, "userTags"), tagData);
         alert("Tag created successfully!");
       }

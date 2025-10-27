@@ -319,9 +319,9 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
       {/* Create Post Modal */}
       {showCreateModal && (
         <CreatePost
+          type={feedType === "creative" ? "creative" : feedType === "problems" ? "complaint" : "discussion"}
           onClose={() => setShowCreateModal(false)}
-          onPostCreated={loadPosts}
-          defaultType={feedType === "creative" ? "creative" : feedType === "problems" ? "problem" : "discussion"}
+          onSuccess={loadPosts}
         />
       )}
     </div>

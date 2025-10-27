@@ -136,36 +136,36 @@ const MyPosts = () => {
 
       {/* Tabs */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="flex overflow-x-auto">
+        <div className="max-w-4xl mx-auto px-2 sm:px-6">
+          <div className="flex overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition ${
+              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
                 activeTab === "all"
                   ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
-              All Posts ({posts.length})
+              All ({posts.length})
             </button>
             <button
               onClick={() => setActiveTab("unread")}
-              className={`px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition relative ${
+              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition relative ${
                 activeTab === "unread"
                   ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
-              Unread Updates
+              Unread
               {getUnreadCount() > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                <span className="ml-1 sm:ml-2 inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
                   {getUnreadCount()}
                 </span>
               )}
             </button>
             <button
               onClick={() => setActiveTab("problems")}
-              className={`px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition ${
+              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
                 activeTab === "problems"
                   ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-600 hover:text-gray-900"
@@ -175,7 +175,7 @@ const MyPosts = () => {
             </button>
             <button
               onClick={() => setActiveTab("creative")}
-              className={`px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition ${
+              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
                 activeTab === "creative"
                   ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-600 hover:text-gray-900"
@@ -185,7 +185,7 @@ const MyPosts = () => {
             </button>
             <button
               onClick={() => setActiveTab("discussions")}
-              className={`px-4 py-3 font-medium text-sm whitespace-nowrap border-b-2 transition ${
+              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
                 activeTab === "discussions"
                   ? "border-indigo-600 text-indigo-600"
                   : "border-transparent text-gray-600 hover:text-gray-900"
@@ -237,44 +237,44 @@ const MyPosts = () => {
                   )}
 
                   {/* Post Metadata */}
-                  <div className="p-4 bg-gray-50 border-b border-gray-200">
-                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <div className="p-3 sm:p-4 bg-gray-50 border-b border-gray-200">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                       {/* Type Badge */}
-                      <span className={`${typeInfo.bg} ${typeInfo.color} px-2 py-1 rounded font-medium`}>
+                      <span className={`${typeInfo.bg} ${typeInfo.color} px-2 py-1 rounded font-medium whitespace-nowrap`}>
                         {typeInfo.icon} {typeInfo.label}
                       </span>
 
                       {/* Anonymous Badge */}
                       {post.isAnonymous && (
-                        <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded font-medium">
+                        <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded font-medium whitespace-nowrap">
                           🔒 Anonymous
                         </span>
                       )}
 
                       {/* Status Badge */}
                       <span
-                        className={`${statusInfo.bgColor} ${statusInfo.textColor} px-2 py-1 rounded font-medium`}
+                        className={`${statusInfo.bgColor} ${statusInfo.textColor} px-2 py-1 rounded font-medium whitespace-nowrap`}
                       >
                         {statusInfo.label}
                       </span>
 
                       {/* Priority Badge */}
                       <span
-                        className={`${priorityInfo.bgColor} ${priorityInfo.textColor} px-2 py-1 rounded font-medium`}
+                        className={`${priorityInfo.bgColor} ${priorityInfo.textColor} px-2 py-1 rounded font-medium whitespace-nowrap`}
                       >
                         {priorityInfo.icon} {priorityInfo.label}
                       </span>
 
                       {/* Assignment Badge */}
                       {post.assignedTo && (
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium truncate max-w-[200px]">
                           📌 Assigned to {post.assignedTo.name}
                         </span>
                       )}
 
                       {/* Due Date */}
                       {post.dueDate && (
-                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded font-medium">
+                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded font-medium whitespace-nowrap">
                           📅 Due: {new Date(post.dueDate.seconds * 1000).toLocaleDateString()}
                         </span>
                       )}

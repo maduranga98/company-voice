@@ -227,16 +227,16 @@ const EmployeeLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className={`grid ${userData?.userTagId ? 'grid-cols-6' : 'grid-cols-5'} gap-1`}>
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
+        <div className="max-w-7xl mx-auto">
+          <div className={`grid ${userData?.userTagId ? 'grid-cols-6' : 'grid-cols-5'} gap-0.5`}>
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);
               return (
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
-                  className={`flex flex-col items-center justify-center py-3 px-2 transition-all duration-200 ${
+                  className={`flex flex-col items-center justify-center py-2 px-1 min-h-[60px] transition-all duration-200 ${
                     isActive
                       ? "text-purple-600 bg-purple-50"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -247,10 +247,12 @@ const EmployeeLayout = () => {
                       isActive ? "scale-110" : ""
                     }`}
                   >
-                    {tab.icon}
+                    <div className="w-5 h-5 sm:w-6 sm:h-6">
+                      {tab.icon}
+                    </div>
                   </div>
                   <span
-                    className={`text-xs mt-1 font-medium ${
+                    className={`text-[10px] sm:text-xs mt-1 font-medium leading-tight text-center ${
                       isActive ? "text-purple-600" : "text-gray-600"
                     }`}
                   >
