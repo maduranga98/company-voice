@@ -1,31 +1,25 @@
 import UnifiedFeed from "./UnifiedFeed";
+import { PostType } from "../../utils/constants";
 
 /**
  * Creative Feed Page
- * Shows all creative content posts from all users in the company
+ * Shows all creative content from all users in the company
  * Same feed for employees and admins (admins see additional controls)
  */
 const CreativeFeed = () => {
-  const categories = [
-    "Art & Design",
-    "Photography",
-    "Writing",
-    "Music",
-    "Video",
-    "Innovation",
-    "DIY Project",
-    "Success Story",
-    "Team Achievement",
-    "Other",
-  ];
+  console.log("CreativeFeed rendered!");
 
   return (
     <UnifiedFeed
-      feedType="creative"
-      title="Creative Wall"
-      description="Share your creative work, achievements, and innovations"
-      icon="🎨"
-      categories={categories}
+      feedType={PostType.CREATIVE_CONTENT}
+      title="Creative Feed"
+      description="Share your creative ideas, designs, and innovations"
+      colors={{
+        gradient: "from-purple-600 to-pink-600",
+        text: "text-purple-900",
+        bg: "bg-purple-50",
+        border: "border-purple-200",
+      }}
     />
   );
 };

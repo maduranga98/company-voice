@@ -1,4 +1,5 @@
 import UnifiedFeed from "./UnifiedFeed";
+import { PostType } from "../../utils/constants";
 
 /**
  * Problems Feed Page
@@ -6,25 +7,17 @@ import UnifiedFeed from "./UnifiedFeed";
  * Same feed for employees and admins (admins see additional controls)
  */
 const ProblemsFeed = () => {
-  const categories = [
-    "Workplace Safety",
-    "Equipment Issue",
-    "Environment",
-    "Harassment",
-    "Discrimination",
-    "Work Conditions",
-    "Policy Violation",
-    "Management",
-    "Other",
-  ];
-
   return (
     <UnifiedFeed
-      feedType="problems"
+      feedType={PostType.PROBLEM_REPORT}
       title="Problems & Reports"
       description="Report workplace issues and track their resolution"
-      icon="🚨"
-      categories={categories}
+      colors={{
+        gradient: "from-red-600 to-orange-600",
+        text: "text-red-900",
+        bg: "bg-red-50",
+        border: "border-red-200",
+      }}
     />
   );
 };

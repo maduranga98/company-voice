@@ -1,4 +1,5 @@
 import UnifiedFeed from "./UnifiedFeed";
+import { PostType } from "../../utils/constants";
 
 /**
  * Discussions Feed Page
@@ -6,22 +7,17 @@ import UnifiedFeed from "./UnifiedFeed";
  * Same feed for employees and admins (admins see additional controls)
  */
 const DiscussionsFeed = () => {
-  const categories = [
-    "Improvements",
-    "Innovation",
-    "Feedback",
-    "Teamwork",
-    "Culture",
-    "Other",
-  ];
-
   return (
     <UnifiedFeed
-      feedType="discussions"
+      feedType={PostType.TEAM_DISCUSSION}
       title="Team Discussions"
-      description="Engage in conversations about improvements and ideas"
-      icon="💬"
-      categories={categories}
+      description="Start conversations and collaborate with your team"
+      colors={{
+        gradient: "from-blue-600 to-cyan-600",
+        text: "text-blue-900",
+        bg: "bg-blue-50",
+        border: "border-blue-200",
+      }}
     />
   );
 };

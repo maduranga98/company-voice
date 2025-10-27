@@ -4,7 +4,12 @@ import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import Post from "../components/Post";
 import AdminActionPanel from "../components/AdminActionPanel";
-import { PostStatus, PostStatusConfig, PostPriority, PostPriorityConfig } from "../utils/constants";
+import {
+  PostStatus,
+  PostStatusConfig,
+  PostPriority,
+  PostPriorityConfig,
+} from "../utils/constants";
 import { isAdmin } from "../services/postManagementService";
 
 /**
@@ -23,23 +28,32 @@ const AssignedToMe = () => {
   const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
-    loadAssignedPosts();
-  }, [userData]);
+    if (userData?.id && userData?.companyId) {
+      loadAssignedPosts();
+    }
+  }, [userData?.id, userData?.companyId]);
 
   useEffect(() => {
     filterPosts();
   }, [posts, selectedStatus, selectedPriority]);
 
   const loadAssignedPosts = async () => {
+    // Check if user data is available
+    if (!userData?.id || !userData?.companyId) {
+      console.log("User data not ready yet");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const postsRef = collection(db, "posts");
 
-      // Query posts assigned to current user
+      // Query posts assigned to current user using their ID
       const q = query(
         postsRef,
         where("companyId", "==", userData.companyId),
-        where("assignedTo.id", "==", userData.uid),
+        where("assignedTo.id", "==", userData.id),
         orderBy("createdAt", "desc")
       );
 
@@ -47,13 +61,31 @@ const AssignedToMe = () => {
       const postsData = [];
 
       snapshot.forEach((doc) => {
-        postsData.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        postsData.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate(),
+          updatedAt: data.updatedAt?.toDate(),
+          dueDate: data.dueDate?.toDate(),
+        });
       });
 
       setPosts(postsData);
     } catch (error) {
       console.error("Error loading assigned posts:", error);
-      alert("Failed to load assigned posts. Please try again.");
+
+      // More helpful error message
+      if (error.code === "failed-precondition") {
+        console.error(
+          "Index may be missing. Check Firebase Console for index creation link."
+        );
+      }
+
+      // Don't show alert for initial load
+      if (posts.length > 0) {
+        alert("Failed to load assigned posts. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,12 +94,10 @@ const AssignedToMe = () => {
   const filterPosts = () => {
     let filtered = [...posts];
 
-    // Status filter
     if (selectedStatus !== "all") {
       filtered = filtered.filter((post) => post.status === selectedStatus);
     }
 
-    // Priority filter
     if (selectedPriority !== "all") {
       filtered = filtered.filter((post) => post.priority === selectedPriority);
     }
@@ -76,133 +106,132 @@ const AssignedToMe = () => {
   };
 
   const handlePostUpdate = () => {
-    // Reload posts after admin action
     loadAssignedPosts();
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading assigned posts...</p>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Show message if user doesn't have a tag
+  if (!userData?.userTagId) {
+    return (
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+          <svg
+            className="w-12 h-12 text-yellow-600 mx-auto mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <h3 className="text-lg font-semibold text-yellow-900 mb-2">
+            No Tag Assigned
+          </h3>
+          <p className="text-yellow-700">
+            You need to have a user tag assigned to see posts assigned to you.
+            Please contact your administrator.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-6 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-                📋 Assigned to Me
-              </h1>
-              <p className="text-white/90 mt-1 text-sm sm:text-base">
-                Problems and tasks assigned specifically to you
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          Assigned to Me
+        </h1>
+        <p className="text-gray-600">
+          Posts and tasks that have been assigned to you
+        </p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          {/* Filters Row */}
-          <div className="flex flex-wrap gap-2">
-            {/* Status Filter */}
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-indigo-50"
-            >
-              <option value="all">All Statuses</option>
-              <option value="open">Open</option>
-              <option value="acknowledged">Acknowledged</option>
-              <option value="in_progress">In Progress</option>
-              <option value="under_review">Under Review</option>
-              <option value="working_on">Working On</option>
-              <option value="resolved">Resolved</option>
-              <option value="closed">Closed</option>
-            </select>
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <select
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Status</option>
+          {Object.entries(PostStatusConfig).map(([key, config]) => (
+            <option key={key} value={key}>
+              {config.label}
+            </option>
+          ))}
+        </select>
 
-            {/* Priority Filter */}
-            <select
-              value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-indigo-50"
-            >
-              <option value="all">All Priorities</option>
-              <option value="critical">🔴 Critical</option>
-              <option value="high">🟠 High</option>
-              <option value="medium">🟡 Medium</option>
-              <option value="low">⚪ Low</option>
-            </select>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-3 flex gap-4 text-sm text-gray-600">
-            <span>
-              Total Assigned: <strong>{filteredPosts.length}</strong>
-            </span>
-            <span>
-              Open:{" "}
-              <strong>{filteredPosts.filter((p) => p.status === "open" || p.status === "acknowledged").length}</strong>
-            </span>
-            <span>
-              In Progress:{" "}
-              <strong>
-                {filteredPosts.filter((p) => p.status === "in_progress" || p.status === "working_on").length}
-              </strong>
-            </span>
-            <span>
-              Resolved:{" "}
-              <strong>{filteredPosts.filter((p) => p.status === "resolved").length}</strong>
-            </span>
-          </div>
-        </div>
+        <select
+          value={selectedPriority}
+          onChange={(e) => setSelectedPriority(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Priority</option>
+          {Object.entries(PostPriorityConfig).map(([key, config]) => (
+            <option key={key} value={key}>
+              {config.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Posts Feed */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      <div className="space-y-4">
         {filteredPosts.length === 0 ? (
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-8 text-center">
-            <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <p className="text-indigo-700 text-lg font-medium mb-2">No Assignments Found</p>
-            <p className="text-gray-600 text-sm">
+          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
+            <svg
+              className="mx-auto h-16 w-16 text-gray-400 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+              />
+            </svg>
+            <p className="text-lg font-medium text-gray-900 mb-2">
+              No assigned posts
+            </p>
+            <p className="text-gray-600">
               {selectedStatus !== "all" || selectedPriority !== "all"
                 ? "Try adjusting your filters"
-                : "You don't have any posts assigned to you yet."}
+                : "You don't have any posts assigned to you yet"}
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {filteredPosts.map((post) => (
-              <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
-                {/* Admin Action Panel (only visible to admins) */}
-                {userIsAdmin && (
-                  <div className="p-4 pb-0">
-                    <AdminActionPanel
-                      post={post}
-                      currentUser={userData}
-                      onUpdate={handlePostUpdate}
-                    />
-                  </div>
-                )}
-
-                {/* Post Content */}
-                <Post post={post} />
-              </div>
-            ))}
-          </div>
+          filteredPosts.map((post) => (
+            <div
+              key={post.id}
+              className="bg-white rounded-lg shadow-sm border border-gray-200"
+            >
+              {userIsAdmin && (
+                <div className="p-4 pb-0">
+                  <AdminActionPanel
+                    post={post}
+                    currentUser={userData}
+                    onUpdate={handlePostUpdate}
+                  />
+                </div>
+              )}
+              <Post post={post} />
+            </div>
+          ))
         )}
       </div>
     </div>
