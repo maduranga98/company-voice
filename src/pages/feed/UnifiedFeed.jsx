@@ -1,72 +1,61 @@
 import { useState, useEffect } from "react";
-import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import Post from "../../components/Post";
 import CreatePost from "../../components/CreatePost";
 import AdminActionPanel from "../../components/AdminActionPanel";
-import { PostType, COLORS } from "../../utils/constants";
 import { isAdmin } from "../../services/postManagementService";
+import { PostType } from "../../utils/constants";
 
-const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
+/**
+ * UnifiedFeed Component
+ * Base component for all feed types (Creative, Problems, Discussions)
+ * Shows posts filtered by type with unified controls
+ */
+const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedPriority, setSelectedPriority] = useState("all");
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
-    if (userData?.companyId) {
-      loadPosts();
-    }
+    console.log("first");
+    loadPosts();
   }, [userData, feedType]);
 
   useEffect(() => {
     filterPosts();
-  }, [posts, searchTerm, selectedCategory, selectedStatus, selectedPriority]);
+  }, [posts, searchTerm, selectedCategory]);
 
   const loadPosts = async () => {
+    if (!userData?.companyId) return;
+
     try {
       setLoading(true);
-      const postsRef = collection(db, "posts");
+      const postsQuery = query(
+        collection(db, "posts"),
+        where("companyId", "==", userData.companyId),
+        where("type", "==", feedType),
+        orderBy("createdAt", "desc")
+      );
 
-      let q;
-      if (feedType === "discussions") {
-        const discussionsRef = collection(db, "discussions");
-        q = query(
-          discussionsRef,
-          where("companyId", "==", userData.companyId),
-          orderBy("createdAt", "desc"),
-          limit(50)
-        );
-      } else {
-        const postTypeMap = {
-          creative: PostType.CREATIVE_CONTENT,
-          problems: PostType.PROBLEM_REPORT,
-        };
-
-        q = query(
-          postsRef,
-          where("companyId", "==", userData.companyId),
-          where("type", "==", postTypeMap[feedType]),
-          orderBy("createdAt", "desc"),
-          limit(50)
-        );
-      }
-
-      const snapshot = await getDocs(q);
-      const postsData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const snapshot = await getDocs(postsQuery);
+      const postsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+      }));
 
       setPosts(postsData);
     } catch (error) {
       console.error("Error loading posts:", error);
-      alert("Failed to load posts. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -75,28 +64,20 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
   const filterPosts = () => {
     let filtered = [...posts];
 
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
+    // Filter by search term
+    if (searchTerm) {
       filtered = filtered.filter(
         (post) =>
-          post.title?.toLowerCase().includes(search) ||
-          post.description?.toLowerCase().includes(search) ||
-          post.tags?.some((tag) => tag.toLowerCase().includes(search))
+          post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.content?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
+    // Filter by category
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((post) => post.category === selectedCategory);
-    }
-
-    if (userIsAdmin) {
-      if (selectedStatus !== "all") {
-        filtered = filtered.filter((post) => post.status === selectedStatus);
-      }
-
-      if (selectedPriority !== "all") {
-        filtered = filtered.filter((post) => post.priority === selectedPriority);
-      }
+      filtered = filtered.filter((post) =>
+        post.tags?.includes(selectedCategory)
+      );
     }
 
     setFilteredPosts(filtered);
@@ -106,173 +87,106 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
     loadPosts();
   };
 
-  const getFeedColor = () => {
-    switch (feedType) {
-      case "creative":
-        return {
-          gradient: "from-purple-600 to-pink-600",
-          bg: "bg-purple-50",
-          border: "border-purple-200",
-          text: "text-purple-700",
-        };
-      case "problems":
-        return {
-          gradient: "from-red-600 to-orange-600",
-          bg: "bg-red-50",
-          border: "border-red-200",
-          text: "text-red-700",
-        };
-      case "discussions":
-        return {
-          gradient: "from-blue-600 to-indigo-600",
-          bg: "bg-blue-50",
-          border: "border-blue-200",
-          text: "text-blue-700",
-        };
-      default:
-        return {
-          gradient: "from-gray-600 to-gray-700",
-          bg: "bg-gray-50",
-          border: "border-gray-200",
-          text: "text-gray-700",
-        };
-    }
-  };
-
-  const colors = getFeedColor();
-
-  if (loading && posts.length === 0) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading {title.toLowerCase()}...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className={`bg-gradient-to-r ${colors.gradient} text-white py-6 px-4 sm:px-6`}>
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-                {icon} {title}
-              </h1>
-              <p className="text-white/90 mt-1 text-sm sm:text-base">{description}</p>
-            </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-white text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition text-sm sm:text-base"
-            >
-              + Create
-            </button>
-          </div>
-        </div>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto pb-24">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className={`text-2xl sm:text-3xl font-bold ${colors.text} mb-2`}>
+          {title}
+        </h1>
+        <p className="text-gray-600">{description}</p>
       </div>
 
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Search posts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-
-            {userIsAdmin && (
-              <>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-indigo-50"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="open">Open</option>
-                  <option value="acknowledged">Acknowledged</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="under_review">Under Review</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="closed">Closed</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-
-                <select
-                  value={selectedPriority}
-                  onChange={(e) => setSelectedPriority(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-indigo-50"
-                >
-                  <option value="all">All Priorities</option>
-                  <option value="critical">🔴 Critical</option>
-                  <option value="high">🟠 High</option>
-                  <option value="medium">🟡 Medium</option>
-                  <option value="low">⚪ Low</option>
-                </select>
-              </>
-            )}
-          </div>
-
-          <div className="mt-3 flex gap-4 text-sm text-gray-600">
-            <span>
-              Total: <strong>{filteredPosts.length}</strong>
-            </span>
-            {userIsAdmin && (
-              <>
-                <span>
-                  Open:{" "}
-                  <strong>{filteredPosts.filter((p) => p.status === "open").length}</strong>
-                </span>
-                <span>
-                  Critical:{" "}
-                  <strong>
-                    {filteredPosts.filter((p) => p.priority === "critical").length}
-                  </strong>
-                </span>
-              </>
-            )}
-          </div>
+      {/* Search and Filters */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Categories</option>
+          <option value="feedback">Feedback</option>
+          <option value="suggestion">Suggestion</option>
+          <option value="question">Question</option>
+          <option value="announcement">Announcement</option>
+        </select>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      {/* Posts Feed */}
+      <div className="space-y-4">
         {filteredPosts.length === 0 ? (
-          <div className={`${colors.bg} border ${colors.border} rounded-lg p-8 text-center`}>
-            <p className={`${colors.text} text-lg font-medium mb-2`}>No posts found</p>
-            <p className="text-gray-600 text-sm mb-4">
+          <div
+            className={`${colors.bg} border ${colors.border} rounded-lg p-8 text-center`}
+          >
+            <div className="mb-4">
+              <svg
+                className={`mx-auto h-16 w-16 ${colors.text} opacity-50`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <p className={`${colors.text} text-lg font-medium mb-2`}>
+              No posts found
+            </p>
+            <p className="text-gray-600 text-sm mb-6">
               {searchTerm || selectedCategory !== "all"
                 ? "Try adjusting your filters"
                 : "Be the first to create a post!"}
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className={`bg-gradient-to-r ${colors.gradient} text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition`}
+              className={`bg-gradient-to-r ${colors.gradient} text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-all transform hover:scale-105 shadow-lg`}
             >
-              Create Post
+              <span className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                Create Post
+              </span>
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <>
             {filteredPosts.map((post) => (
-              <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div
+                key={post.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200"
+              >
                 {userIsAdmin && (
                   <div className="p-4 pb-0">
                     <AdminActionPanel
@@ -285,26 +199,59 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
                 <Post post={post} />
               </div>
             ))}
-          </div>
+          </>
         )}
       </div>
 
+      {/* Create Post Modal */}
       {showCreateModal && (
         <CreatePost
-          type={feedType === "creative" ? "creative" : feedType === "problems" ? "complaint" : "discussion"}
+          type={
+            feedType === "creative"
+              ? "creative"
+              : feedType === "problems"
+              ? "complaint"
+              : "discussion"
+          }
           onClose={() => setShowCreateModal(false)}
           onSuccess={loadPosts}
         />
       )}
 
+      {/* Floating Action Button - FIXED VERSION */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 bg-gradient-to-r ${colors.gradient} text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 flex items-center gap-2 group`}
+        className={`
+          fixed bottom-20 right-6 
+          sm:bottom-24 sm:right-8 
+          bg-gradient-to-r ${colors.gradient} 
+          text-white 
+          w-14 h-14 
+          sm:w-auto sm:h-auto 
+          sm:px-6 sm:py-3 
+          rounded-full 
+          shadow-2xl 
+          hover:shadow-3xl 
+          transition-all 
+          duration-300 
+          transform 
+          hover:scale-110 
+          active:scale-95
+          z-[100]
+          flex 
+          items-center 
+          justify-center
+          gap-2 
+          group
+          border-2
+          border-white
+        `}
         aria-label="Create new post"
+        style={{ zIndex: 100 }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
+          className="h-6 w-6 sm:h-5 sm:w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -316,7 +263,7 @@ const UnifiedFeed = ({ feedType, title, description, icon, categories }) => {
             d="M12 4v16m8-8H4"
           />
         </svg>
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-300 whitespace-nowrap font-medium">
+        <span className="hidden sm:inline-block font-semibold whitespace-nowrap">
           Create Post
         </span>
       </button>

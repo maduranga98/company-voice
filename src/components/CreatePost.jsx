@@ -4,7 +4,10 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { PostStatus, PostPriority } from "../utils/constants";
-import { encryptAuthorId, checkRateLimit } from "../services/postManagementService";
+import {
+  encryptAuthorId,
+  checkRateLimit,
+} from "../services/postManagementService";
 
 const CreatePost = ({ type, onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -220,10 +223,15 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
 
     try {
       // Check rate limiting
-      const rateLimitCheck = await checkRateLimit(userData.id, userData.companyId);
+      const rateLimitCheck = await checkRateLimit(
+        userData.id,
+        userData.companyId
+      );
       if (!rateLimitCheck.allowed) {
         setError(
-          `Rate limit exceeded. You can create ${rateLimitCheck.remaining} more posts. Please try again after ${rateLimitCheck.resetTime.toLocaleTimeString()}.`
+          `Rate limit exceeded. You can create ${
+            rateLimitCheck.remaining
+          } more posts. Please try again after ${rateLimitCheck.resetTime.toLocaleTimeString()}.`
         );
         setLoading(false);
         return;
