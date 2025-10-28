@@ -1,64 +1,38 @@
-import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { PostStatus, PostPriority } from "../utils/constants";
-import {
-  encryptAuthorId,
-  checkRateLimit,
-} from "../services/postManagementService";
 
-const CreatePost = ({ type, onClose, onSuccess }) => {
+const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
     tags: "",
     isAnonymous: false,
-    attachments: [],
   });
 
-  const [filePreview, setFilePreview] = useState([]);
+  // Validate user data on component mount
+  useEffect(() => {
+    if (!userData) {
+      setError("Loading user data...");
+    } else if (!userData.id) {
+      setError("User authentication required. Please log in again.");
+    } else if (!userData.companyId) {
+      setError("Company information missing. Please contact support.");
+    } else {
+      setError(""); // Clear error if everything is valid
+    }
+  }, [userData]);
 
   const config = {
-    complaint: {
-      title: "Report a Problem",
-      icon: (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-        />
-      ),
-      iconBg: "bg-red-50",
-      iconColor: "text-red-600",
-      categories: [
-        "Workplace Safety",
-        "Equipment Issue",
-        "Environment",
-        "Harassment",
-        "Discrimination",
-        "Work Conditions",
-        "Policy Violation",
-        "Management",
-        "Other",
-      ],
-      placeholder: {
-        title: "Brief summary of the issue",
-        description: "Describe the problem in detail...",
-      },
-      buttonText: "Submit Report",
-      buttonColor: "bg-red-600 hover:bg-red-700",
-      postType: "problem_report",
-    },
     creative: {
-      title: "Share Creative Content",
+      title: "Share Something Creative",
       icon: (
         <path
           strokeLinecap="round"
@@ -70,9 +44,10 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
       iconBg: "bg-purple-50",
       iconColor: "text-purple-600",
       categories: [
-        "Art & Design",
-        "Photography",
+        "Art",
+        "Design",
         "Writing",
+        "Photography",
         "Music",
         "Video",
         "Innovation",
@@ -88,6 +63,38 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
       buttonText: "Share Creation",
       buttonColor: "bg-purple-600 hover:bg-purple-700",
       postType: "creative_content",
+    },
+    complaint: {
+      title: "Report a Problem",
+      icon: (
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
+      ),
+      iconBg: "bg-red-50",
+      iconColor: "text-red-600",
+      categories: [
+        "Safety Issue",
+        "Equipment Problem",
+        "Workplace Concern",
+        "Process Issue",
+        "Communication Gap",
+        "Resource Shortage",
+        "Technical Problem",
+        "Environment Issue",
+        "Policy Concern",
+        "Other",
+      ],
+      placeholder: {
+        title: "Briefly describe the problem",
+        description: "Provide details about the issue you're experiencing...",
+      },
+      buttonText: "Submit Report",
+      buttonColor: "bg-red-600 hover:bg-red-700",
+      postType: "problem_report",
     },
     discussion: {
       title: "Start a Discussion",
@@ -133,48 +140,52 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
     }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
+    const validFiles = files.filter((file) => {
+      const isValidType =
+        file.type.startsWith("image/") ||
+        file.type.startsWith("video/") ||
+        file.type === "application/pdf" ||
+        file.type.includes("document") ||
+        file.type.includes("word");
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
+      return isValidType && isValidSize;
+    });
 
-    if (files.length + formData.attachments.length > 5) {
+    if (validFiles.length + selectedFiles.length > 5) {
       setError("Maximum 5 files allowed");
       return;
     }
 
-    const newPreviews = files.map((file) => ({
+    const fileObjects = validFiles.map((file) => ({
       file,
-      preview: URL.createObjectURL(file),
+      preview: file.type.startsWith("image/")
+        ? URL.createObjectURL(file)
+        : null,
       name: file.name,
       type: file.type,
     }));
 
-    setFilePreview((prev) => [...prev, ...newPreviews]);
-    setFormData((prev) => ({
-      ...prev,
-      attachments: [...prev.attachments, ...files],
-    }));
+    setSelectedFiles((prev) => [...prev, ...fileObjects]);
   };
 
   const removeFile = (index) => {
-    setFilePreview((prev) => {
-      const newPreviews = [...prev];
-      URL.revokeObjectURL(newPreviews[index].preview);
-      newPreviews.splice(index, 1);
-      return newPreviews;
-    });
-
-    setFormData((prev) => {
-      const newAttachments = [...prev.attachments];
-      newAttachments.splice(index, 1);
-      return {
-        ...prev,
-        attachments: newAttachments,
-      };
+    setSelectedFiles((prev) => {
+      const newFiles = [...prev];
+      if (newFiles[index].preview) {
+        URL.revokeObjectURL(newFiles[index].preview);
+      }
+      newFiles.splice(index, 1);
+      return newFiles;
     });
   };
 
   const uploadFiles = async () => {
-    const uploadPromises = formData.attachments.map(async (file) => {
+    if (selectedFiles.length === 0) return [];
+
+    const uploadPromises = selectedFiles.map(async (fileObj) => {
+      const file = fileObj.file;
       const fileRef = ref(
         storage,
         `posts/${userData.companyId}/${Date.now()}_${file.name}`
@@ -192,90 +203,68 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
     return await Promise.all(uploadPromises);
   };
 
-  const validateForm = () => {
-    if (!formData.title.trim()) {
-      setError("Title is required");
-      return false;
-    }
-
-    if (!formData.description.trim()) {
-      setError("Description is required");
-      return false;
-    }
-
-    if (!formData.category) {
-      setError("Please select a category");
-      return false;
-    }
-
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setError("");
     setLoading(true);
+    setError("");
 
     try {
-      // Check rate limiting
-      const rateLimitCheck = await checkRateLimit(
-        userData.id,
-        userData.companyId
-      );
-      if (!rateLimitCheck.allowed) {
-        setError(
-          `Rate limit exceeded. You can create ${
-            rateLimitCheck.remaining
-          } more posts. Please try again after ${rateLimitCheck.resetTime.toLocaleTimeString()}.`
-        );
-        setLoading(false);
-        return;
+      // Validate user data
+      if (!userData?.id) {
+        throw new Error("User authentication required. Please log in again.");
       }
 
-      let uploadedFiles = [];
-      if (formData.attachments.length > 0) {
-        uploadedFiles = await uploadFiles();
+      if (!userData?.companyId) {
+        throw new Error("Company information missing. Please contact support.");
       }
 
-      const tagsList = formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
+      // Upload files if any
+      let uploadedAttachments = [];
+      if (selectedFiles.length > 0) {
+        try {
+          uploadedAttachments = await uploadFiles();
+        } catch (uploadError) {
+          console.error("Error uploading files:", uploadError);
+          throw new Error("Failed to upload attachments. Please try again.");
+        }
+      }
 
-      // Encrypt author ID if anonymous
-      const authorId = formData.isAnonymous
-        ? encryptAuthorId(userData.id)
-        : userData.id;
-
+      // Prepare post data
       const postData = {
-        title: formData.title,
-        description: formData.description,
+        title: formData.title.trim(),
+        content: formData.description.trim(),
         category: formData.category,
-        tags: tagsList,
-        type: currentConfig.postType,
+        tags: formData.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
         isAnonymous: formData.isAnonymous,
-        attachments: uploadedFiles,
-        authorId: authorId, // Encrypted if anonymous, plain if named
-        authorName: formData.isAnonymous ? "Anonymous" : userData.displayName,
+        authorId: userData.id,
+        authorName: formData.isAnonymous
+          ? "Anonymous"
+          : userData.displayName || "Unknown User",
+        authorEmail: userData.email || "",
         companyId: userData.companyId,
-        status: PostStatus.OPEN, // Default status for new posts
-        priority: PostPriority.MEDIUM, // Default priority
-        likes: 0,
+        type:
+          type === "creative"
+            ? "creative_content"
+            : type === "complaint"
+            ? "problem_report"
+            : "team_discussion",
+        status: "open",
+        priority: "medium",
+        attachments: uploadedAttachments, // Save uploaded file URLs
+        likes: [],
         comments: 0,
         views: 0,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
-      // Save to appropriate collection based on post type
-      const collectionName = type === "discussion" ? "discussions" : "posts";
-      await addDoc(collection(db, collectionName), postData);
+      // Save to posts collection - all post types go to the same collection
+      await addDoc(collection(db, "posts"), postData);
 
+      // Success callbacks
       if (onSuccess) {
         onSuccess();
       }
@@ -285,18 +274,32 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      setError("Failed to create post. Please try again.");
+
+      // User-friendly error messages
+      if (error.message.includes("authentication")) {
+        setError("Please log in again to create a post.");
+      } else if (error.message.includes("Company information")) {
+        setError(error.message);
+      } else if (error.message.includes("attachments")) {
+        setError(error.message);
+      } else if (error.code === "permission-denied") {
+        setError(
+          "You don't have permission to create posts. Please contact your admin."
+        );
+      } else {
+        setError("Failed to create post. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]">
+        {/* STICKY HEADER - Always visible at top */}
+        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-slate-100 p-6 z-10">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`${currentConfig.iconBg} rounded-full p-2.5`}>
                 <svg
@@ -314,7 +317,9 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition"
+              type="button"
+              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-2 transition"
+              aria-label="Close modal"
             >
               <svg
                 className="w-6 h-6"
@@ -331,7 +336,10 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
               </svg>
             </button>
           </div>
+        </div>
 
+        {/* SCROLLABLE CONTENT AREA */}
+        <div className="overflow-y-auto flex-1 p-6">
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
@@ -339,8 +347,12 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form Fields */}
+          <form
+            id="create-post-form"
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -438,13 +450,15 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
                   id="fileUpload"
                   multiple
                   accept="image/*,video/*,.pdf,.doc,.docx"
-                  onChange={handleFileChange}
+                  onChange={handleFileSelect}
                   className="hidden"
-                  disabled={formData.attachments.length >= 5}
                 />
-                <label htmlFor="fileUpload" className="cursor-pointer">
+                <label
+                  htmlFor="fileUpload"
+                  className="cursor-pointer flex flex-col items-center"
+                >
                   <svg
-                    className="w-10 h-10 text-slate-400 mx-auto mb-2"
+                    className="w-10 h-10 text-slate-400 mb-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -456,24 +470,22 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
                       d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                     />
                   </svg>
-                  <p className="text-sm text-slate-600">
-                    <span className="text-slate-900 font-medium">
-                      Click to upload
-                    </span>{" "}
-                    or drag and drop
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Images, Videos, PDFs, Documents (Max 5 files)
-                  </p>
+                  <span className="text-sm text-slate-600 font-medium">
+                    Click to upload files
+                  </span>
+                  <span className="text-xs text-slate-500 mt-1">
+                    Images, videos, PDFs, or documents (Max 10MB each, 5 files
+                    total)
+                  </span>
                 </label>
               </div>
 
-              {/* File Previews */}
-              {filePreview.length > 0 && (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {filePreview.map((file, index) => (
+              {/* Selected Files Preview */}
+              {selectedFiles.length > 0 && (
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {selectedFiles.map((file, index) => (
                     <div key={index} className="relative group">
-                      {file.type.startsWith("image/") ? (
+                      {file.preview ? (
                         <img
                           src={file.preview}
                           alt={file.name}
@@ -511,23 +523,26 @@ const CreatePost = ({ type, onClose, onSuccess }) => {
                 </div>
               )}
             </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-3 rounded-lg font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${currentConfig.buttonColor}`}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Publishing...
-                </span>
-              ) : (
-                currentConfig.buttonText
-              )}
-            </button>
           </form>
+        </div>
+
+        {/* STICKY FOOTER - Submit button always visible at bottom */}
+        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-slate-100 p-6 z-10">
+          <button
+            type="submit"
+            form="create-post-form"
+            disabled={loading || !userData?.id || !userData?.companyId}
+            className={`w-full py-3 rounded-lg font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${currentConfig.buttonColor}`}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Publishing...
+              </span>
+            ) : (
+              currentConfig.buttonText
+            )}
+          </button>
         </div>
       </div>
     </div>

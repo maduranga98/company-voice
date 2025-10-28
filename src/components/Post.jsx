@@ -1,10 +1,26 @@
-import LikeButton from "./LikeButton";
+import { useState } from "react";
+import ReactionButton from "./ReactionButton";
 import CommentsSection from "./CommentsSection";
-import { PostStatusConfig, PostPriorityConfig, PostType } from "../utils/constants";
+import {
+  PostStatusConfig,
+  PostPriorityConfig,
+  PostType,
+} from "../utils/constants";
 
 const Post = ({ post, getTimeAgo }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
+
+  // Content length limit for "Read More"
+  const CONTENT_LIMIT = 300;
+  const content = post.description || post.content || "";
+  const shouldTruncate = content.length > CONTENT_LIMIT;
+  const displayContent =
+    shouldTruncate && !isExpanded
+      ? content.substring(0, CONTENT_LIMIT) + "..."
+      : content;
 
   // Get dynamic styling based on status and priority
   const getPostStyling = () => {
@@ -86,13 +102,15 @@ const Post = ({ post, getTimeAgo }) => {
   const styling = getPostStyling();
 
   return (
-    <article className={`${styling.bg} rounded-lg border ${styling.border} ${styling.leftBorder} overflow-hidden transition`}>
+    <article
+      className={`${styling.bg} rounded-lg border ${styling.border} ${styling.leftBorder} overflow-visible transition relative`}
+    >
       {/* Post Header */}
       <div className="p-3 sm:p-4 border-b border-slate-100">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-900 rounded-full flex items-center justify-center text-white font-medium text-sm sm:text-base flex-shrink-0">
-              {post.authorName.charAt(0).toUpperCase()}
+              {post.authorName?.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
               <h3 className="font-medium text-slate-900 text-sm sm:text-base truncate">
@@ -112,13 +130,24 @@ const Post = ({ post, getTimeAgo }) => {
             {isProblemReport && (
               <div className="flex gap-1 flex-wrap justify-end">
                 {post.status && PostStatusConfig[post.status] && (
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      PostStatusConfig[post.status].bgColor
+                    } ${PostStatusConfig[post.status].textColor}`}
+                  >
                     {PostStatusConfig[post.status].label}
                   </span>
                 )}
                 {post.priority && PostPriorityConfig[post.priority] && (
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      PostPriorityConfig[post.priority].bgColor
+                    } ${PostPriorityConfig[post.priority].textColor}`}
+                  >
                     {PostPriorityConfig[post.priority].icon}
+                    <span className="ml-1 hidden sm:inline">
+                      {PostPriorityConfig[post.priority].label}
+                    </span>
                   </span>
                 )}
               </div>
@@ -129,10 +158,21 @@ const Post = ({ post, getTimeAgo }) => {
         {/* Assigned To Info for Problem Reports */}
         {isProblemReport && post.assignedTo && (
           <div className="mt-2 flex items-center text-xs text-slate-600 bg-blue-50 px-2 py-1 rounded">
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg
+              className="w-3 h-3 mr-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
-            Assigned to: <span className="font-medium ml-1">{post.assignedTo.name}</span>
+            Assigned to:{" "}
+            <span className="font-medium ml-1">{post.assignedTo.name}</span>
           </div>
         )}
       </div>
@@ -142,9 +182,51 @@ const Post = ({ post, getTimeAgo }) => {
         <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2">
           {post.title}
         </h2>
-        <p className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap">
-          {post.description}
-        </p>
+        <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap">
+          {displayContent}
+          {shouldTruncate && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="ml-2 text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
+            >
+              {isExpanded ? (
+                <>
+                  Show less
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 15l7-7 7 7"
+                    />
+                  </svg>
+                </>
+              ) : (
+                <>
+                  Read more
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </>
+              )}
+            </button>
+          )}
+        </div>
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
@@ -161,16 +243,19 @@ const Post = ({ post, getTimeAgo }) => {
         )}
       </div>
 
-      {/* Post Attachments */}
+      {/* Post Attachments with Fixed Sizes */}
       {post.attachments && post.attachments.length > 0 && (
         <div className="px-3 sm:px-4 pb-3 sm:pb-4">
           {post.attachments.length === 1 ? (
-            post.attachments[0].type.startsWith("image/") ? (
-              <img
-                src={post.attachments[0].url}
-                alt={post.title}
-                className="w-full rounded-lg"
-              />
+            post.attachments[0].type?.startsWith("image/") ? (
+              <div className="relative w-full h-64 sm:h-96 bg-slate-100 rounded-lg overflow-hidden">
+                <img
+                  src={post.attachments[0].url}
+                  alt={post.title}
+                  className="w-full h-full object-contain cursor-pointer hover:opacity-90 transition"
+                  onClick={() => window.open(post.attachments[0].url, "_blank")}
+                />
+              </div>
             ) : (
               <a
                 href={post.attachments[0].url}
@@ -200,24 +285,28 @@ const Post = ({ post, getTimeAgo }) => {
               </a>
             )
           ) : (
-            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {post.attachments.map((attachment, index) => (
-                <div key={index}>
-                  {attachment.type.startsWith("image/") ? (
+                <div
+                  key={index}
+                  className="relative h-48 bg-slate-100 rounded-lg overflow-hidden"
+                >
+                  {attachment.type?.startsWith("image/") ? (
                     <img
                       src={attachment.url}
                       alt={`${post.title} ${index + 1}`}
-                      className="w-full h-32 sm:h-48 object-cover rounded-lg"
+                      className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition"
+                      onClick={() => window.open(attachment.url, "_blank")}
                     />
                   ) : (
                     <a
                       href={attachment.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex flex-col items-center justify-center h-32 sm:h-48 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
+                      className="flex flex-col items-center justify-center h-full bg-slate-50 rounded-lg hover:bg-slate-100 transition p-2"
                     >
                       <svg
-                        className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400 mb-2"
+                        className="w-8 h-8 text-slate-400 mb-2"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -229,7 +318,7 @@ const Post = ({ post, getTimeAgo }) => {
                           d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                         />
                       </svg>
-                      <p className="text-xs text-slate-600 text-center px-2 truncate max-w-full">
+                      <p className="text-xs text-slate-600 text-center truncate max-w-full px-2">
                         {attachment.name}
                       </p>
                     </a>
@@ -243,11 +332,11 @@ const Post = ({ post, getTimeAgo }) => {
 
       {/* Post Actions & Comments */}
       <div className="border-t border-slate-100">
-        {/* Action Bar */}
-        <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 sm:gap-2">
-          <LikeButton
+        {/* Action Bar - Fixed Position */}
+        <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 bg-white">
+          <ReactionButton
             postId={post.id}
-            initialLikes={post.likes || 0}
+            initialReactions={post.reactions || {}}
             postAuthorId={post.authorId}
             postAuthorName={post.authorName}
             postTitle={post.title}
@@ -259,21 +348,6 @@ const Post = ({ post, getTimeAgo }) => {
             postAuthorName={post.authorName}
             postTitle={post.title}
           />
-          <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition ml-auto">
-            <svg
-              className="w-4 h-4 sm:w-5 sm:h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-              />
-            </svg>
-          </button>
         </div>
       </div>
     </article>
