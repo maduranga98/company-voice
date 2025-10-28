@@ -25,7 +25,6 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
-    console.log("first");
     loadPosts();
   }, [userData, feedType]);
 
@@ -87,6 +86,21 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
     loadPosts();
   };
 
+  // Utility function to format timestamps
+  const getTimeAgo = (date) => {
+    if (!date) return "Just now";
+
+    const seconds = Math.floor((new Date() - date) / 1000);
+
+    if (seconds < 60) return "Just now";
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
+
+    // For older posts, show the actual date
+    return date.toLocaleDateString();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -96,48 +110,61 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto pb-24">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className={`text-2xl sm:text-3xl font-bold ${colors.text} mb-2`}>
-          {title}
-        </h1>
-        <p className="text-gray-600">{description}</p>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search posts..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="all">All Categories</option>
-          <option value="feedback">Feedback</option>
-          <option value="suggestion">Suggestion</option>
-          <option value="question">Question</option>
-          <option value="announcement">Announcement</option>
-        </select>
-      </div>
-
-      {/* Posts Feed */}
-      <div className="space-y-4">
-        {filteredPosts.length === 0 ? (
-          <div
-            className={`${colors.bg} border ${colors.border} rounded-lg p-8 text-center`}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <h1
+            className={`text-2xl font-bold bg-gradient-to-r ${colors.gradient} bg-clip-text text-transparent`}
           >
-            <div className="mb-4">
+            {title}
+          </h1>
+          <p className="text-gray-600 text-sm mt-1">{description}</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search posts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All Categories</option>
+            {/* Add dynamic categories based on posts */}
+            {[...new Set(posts.flatMap((post) => post.tags || []))].map(
+              (tag) => (
+                <option key={tag} value={tag}>
+                  {tag}
+                </option>
+              )
+            )}
+          </select>
+        </div>
+      </div>
+
+      {/* Posts List */}
+      <div className="max-w-4xl mx-auto px-4 space-y-4">
+        {filteredPosts.length === 0 ? (
+          <div className="text-center py-12">
+            <div
+              className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r ${colors.gradient} flex items-center justify-center`}
+            >
               <svg
-                className={`mx-auto h-16 w-16 ${colors.text} opacity-50`}
+                className="w-8 h-8 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -146,14 +173,14 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M12 4v16m8-8H4"
                 />
               </svg>
             </div>
-            <p className={`${colors.text} text-lg font-medium mb-2`}>
-              No posts found
-            </p>
-            <p className="text-gray-600 text-sm mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No posts yet
+            </h3>
+            <p className="text-gray-600 mb-4">
               {searchTerm || selectedCategory !== "all"
                 ? "Try adjusting your filters"
                 : "Be the first to create a post!"}
@@ -196,7 +223,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                     />
                   </div>
                 )}
-                <Post post={post} />
+                <Post post={post} getTimeAgo={getTimeAgo} />
               </div>
             ))}
           </>
@@ -207,9 +234,9 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
       {showCreateModal && (
         <CreatePost
           type={
-            feedType === "creative"
+            feedType === "creative_content"
               ? "creative"
-              : feedType === "problems"
+              : feedType === "problem_report"
               ? "complaint"
               : "discussion"
           }

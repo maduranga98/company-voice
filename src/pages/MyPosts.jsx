@@ -6,13 +6,17 @@ import {
   markPostAsViewed,
   isAdmin,
 } from "../services/postManagementService";
-import { PostType, PostStatusConfig, PostPriorityConfig } from "../utils/constants";
+import {
+  PostType,
+  PostStatusConfig,
+  PostPriorityConfig,
+} from "../utils/constants";
 import AdminActionPanel from "../components/AdminActionPanel";
 
 /**
- * My Posts Dashboard
- * Private dashboard showing user's own posts (both anonymous and named)
- * Zero-notification model - all updates visible here without external notifications for anonymous posts
+ * My Posts Dashboard - Title-Only View
+ * Shows all posts as title cards with expandable full view
+ * Anonymous posts marked with * for privacy
  */
 const MyPosts = () => {
   const { userData } = useAuth();
@@ -20,7 +24,7 @@ const MyPosts = () => {
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [expandedPost, setExpandedPost] = useState(null);
 
   const userIsAdmin = isAdmin(userData?.role);
 
@@ -62,249 +66,372 @@ const MyPosts = () => {
         filtered = filtered.filter((p) => p.hasUnreadUpdates);
         break;
       default:
-        // all - no filter
         break;
     }
 
     setFilteredPosts(filtered);
   };
 
-  const handlePostClick = async (post) => {
-    setSelectedPost(post);
+  const handleExpandPost = async (post) => {
+    setExpandedPost(post.id);
 
     // Mark as viewed
     await markPostAsViewed(post.id, userData.id);
 
     // Update local state
     setPosts((prev) =>
-      prev.map((p) => (p.id === post.id ? { ...p, hasUnreadUpdates: false } : p))
+      prev.map((p) =>
+        p.id === post.id ? { ...p, hasUnreadUpdates: false } : p
+      )
     );
   };
 
-  const getUnreadCount = () => {
-    return posts.filter((p) => p.hasUnreadUpdates).length;
+  const handleCollapsePost = () => {
+    setExpandedPost(null);
   };
 
-  const getTypeLabel = (type) => {
+  // Utility function to format timestamps
+  const getTimeAgo = (date) => {
+    if (!date) return "Just now";
+
+    let dateObj = date;
+    if (date.seconds) {
+      dateObj = new Date(date.seconds * 1000);
+    } else if (!(date instanceof Date)) {
+      dateObj = new Date(date);
+    }
+
+    const seconds = Math.floor((new Date() - dateObj) / 1000);
+
+    if (seconds < 60) return "Just now";
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
+
+    return dateObj.toLocaleDateString();
+  };
+
+  const getPostTypeColor = (type) => {
     switch (type) {
       case PostType.PROBLEM_REPORT:
-        return { label: "Problem", icon: "🚨", color: "text-red-600", bg: "bg-red-100" };
+        return "bg-red-100 text-red-700 border-red-200";
       case PostType.CREATIVE_CONTENT:
-        return { label: "Creative", icon: "🎨", color: "text-purple-600", bg: "bg-purple-100" };
+        return "bg-purple-100 text-purple-700 border-purple-200";
       case PostType.TEAM_DISCUSSION:
-        return { label: "Discussion", icon: "💬", color: "text-blue-600", bg: "bg-blue-100" };
+        return "bg-blue-100 text-blue-700 border-blue-200";
       default:
-        return { label: "Post", icon: "📄", color: "text-gray-600", bg: "bg-gray-100" };
+        return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
+
+  const getPostTypeLabel = (type) => {
+    switch (type) {
+      case PostType.PROBLEM_REPORT:
+        return "Problem";
+      case PostType.CREATIVE_CONTENT:
+        return "Creative";
+      case PostType.TEAM_DISCUSSION:
+        return "Discussion";
+      default:
+        return "Post";
+    }
+  };
+
+  const getPostTypeIcon = (type) => {
+    switch (type) {
+      case PostType.PROBLEM_REPORT:
+        return "⚠️";
+      case PostType.CREATIVE_CONTENT:
+        return "💡";
+      case PostType.TEAM_DISCUSSION:
+        return "💬";
+      default:
+        return "📝";
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your posts...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-6 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            📋 My Posts
-          </h1>
-          <p className="text-white/90 mt-1 text-sm sm:text-base">
-            Track all your posts and their status in one place
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Posts</h1>
+          <p className="text-gray-600">
+            Track all your posts and their updates in one place
           </p>
-          {getUnreadCount() > 0 && (
-            <div className="mt-3 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
-              <span className="text-sm font-medium">
-                {getUnreadCount()} post{getUnreadCount() > 1 ? "s" : ""} with unread updates
-              </span>
-            </div>
-          )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-2 sm:px-6">
-          <div className="flex overflow-x-auto scrollbar-hide">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+        <div className="flex gap-2 overflow-x-auto">
+          {[
+            { value: "all", label: "All Posts", count: posts.length },
+            {
+              value: "problems",
+              label: "Problems",
+              count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT)
+                .length,
+            },
+            {
+              value: "creative",
+              label: "Creative",
+              count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT)
+                .length,
+            },
+            {
+              value: "discussions",
+              label: "Discussions",
+              count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION)
+                .length,
+            },
+            {
+              value: "unread",
+              label: "Unread Updates",
+              count: posts.filter((p) => p.hasUnreadUpdates).length,
+            },
+          ].map((tab) => (
             <button
-              onClick={() => setActiveTab("all")}
-              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
-                activeTab === "all"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition ${
+                activeTab === tab.value
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
               }`}
             >
-              All ({posts.length})
+              {tab.label} ({tab.count})
             </button>
-            <button
-              onClick={() => setActiveTab("unread")}
-              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition relative ${
-                activeTab === "unread"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Unread
-              {getUnreadCount() > 0 && (
-                <span className="ml-1 sm:ml-2 inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                  {getUnreadCount()}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("problems")}
-              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
-                activeTab === "problems"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              🚨 Problems ({posts.filter((p) => p.type === PostType.PROBLEM_REPORT).length})
-            </button>
-            <button
-              onClick={() => setActiveTab("creative")}
-              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
-                activeTab === "creative"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              🎨 Creative ({posts.filter((p) => p.type === PostType.CREATIVE_CONTENT).length})
-            </button>
-            <button
-              onClick={() => setActiveTab("discussions")}
-              className={`px-3 sm:px-4 py-3 font-medium text-xs sm:text-sm whitespace-nowrap border-b-2 transition ${
-                activeTab === "discussions"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              💬 Discussions ({posts.filter((p) => p.type === PostType.TEAM_DISCUSSION).length})
-            </button>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Posts List */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+      {/* Posts List - Title-Only Cards */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {filteredPosts.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-            <p className="text-gray-600 text-lg font-medium mb-2">No posts found</p>
-            <p className="text-gray-500 text-sm">
-              {activeTab === "unread"
-                ? "You're all caught up! No unread updates."
-                : "You haven't created any posts yet."}
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No posts yet
+            </h3>
+            <p className="text-gray-600">
+              {activeTab === "all"
+                ? "You haven't created any posts yet"
+                : `No ${activeTab} posts found`}
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredPosts.map((post) => {
-              const typeInfo = getTypeLabel(post.type);
-              const statusInfo = PostStatusConfig[post.status] || PostStatusConfig.open;
-              const priorityInfo = PostPriorityConfig[post.priority] || PostPriorityConfig.medium;
+              const isExpanded = expandedPost === post.id;
+              const isAnonymous = post.isAnonymous;
 
               return (
                 <div
                   key={post.id}
-                  onClick={() => handlePostClick(post)}
-                  className={`bg-white rounded-lg shadow-sm border-2 transition-all cursor-pointer ${
-                    post.hasUnreadUpdates
-                      ? "border-indigo-400 shadow-lg"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
+                  className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 transition"
                 >
-                  {/* Unread Badge */}
-                  {post.hasUnreadUpdates && (
-                    <div className="bg-indigo-600 text-white px-4 py-2 flex items-center gap-2 rounded-t-lg">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                      </span>
-                      <span className="text-sm font-medium">New updates on this post</span>
-                    </div>
-                  )}
+                  {/* Collapsed View - Title Card */}
+                  {!isExpanded ? (
+                    <button
+                      onClick={() => handleExpandPost(post)}
+                      className="w-full p-4 text-left hover:bg-gray-50 transition"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          {/* Title with Anonymous Marker */}
+                          <div className="flex items-start gap-2 mb-2">
+                            <span className="text-xl flex-shrink-0">
+                              {getPostTypeIcon(post.type)}
+                            </span>
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
+                              {isAnonymous && (
+                                <span
+                                  className="text-purple-600 font-bold text-lg"
+                                  title="Anonymous Post"
+                                >
+                                  *
+                                </span>
+                              )}
+                              <span className="flex-1">{post.title}</span>
+                            </h3>
+                          </div>
 
-                  {/* Post Metadata */}
-                  <div className="p-3 sm:p-4 bg-gray-50 border-b border-gray-200">
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-                      {/* Type Badge */}
-                      <span className={`${typeInfo.bg} ${typeInfo.color} px-2 py-1 rounded font-medium whitespace-nowrap`}>
-                        {typeInfo.icon} {typeInfo.label}
-                      </span>
+                          {/* Meta Info */}
+                          <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                            <span
+                              className={`px-2 py-0.5 rounded-full border ${getPostTypeColor(
+                                post.type
+                              )}`}
+                            >
+                              {getPostTypeLabel(post.type)}
+                            </span>
+                            <span>{getTimeAgo(post.createdAt)}</span>
+                            <span>
+                              👍 {post.likes || 0} · 💬 {post.comments || 0}
+                            </span>
+                            {isAnonymous && (
+                              <span className="text-purple-600 font-medium">
+                                Anonymous
+                              </span>
+                            )}
+                            {post.hasUnreadUpdates && (
+                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full font-medium">
+                                New Update
+                              </span>
+                            )}
+                          </div>
 
-                      {/* Anonymous Badge */}
-                      {post.isAnonymous && (
-                        <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded font-medium whitespace-nowrap">
-                          🔒 Anonymous
-                        </span>
-                      )}
+                          {/* Status & Priority (for Problem Reports) */}
+                          {post.type === PostType.PROBLEM_REPORT && (
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              {post.status && PostStatusConfig[post.status] && (
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded ${
+                                    PostStatusConfig[post.status].bgColor
+                                  } ${PostStatusConfig[post.status].textColor}`}
+                                >
+                                  {PostStatusConfig[post.status].label}
+                                </span>
+                              )}
+                              {post.priority &&
+                                PostPriorityConfig[post.priority] && (
+                                  <span
+                                    className={`text-xs px-2 py-0.5 rounded ${
+                                      PostPriorityConfig[post.priority].bgColor
+                                    } ${
+                                      PostPriorityConfig[post.priority]
+                                        .textColor
+                                    }`}
+                                  >
+                                    {PostPriorityConfig[post.priority].icon}{" "}
+                                    {PostPriorityConfig[post.priority].label}
+                                  </span>
+                                )}
+                            </div>
+                          )}
+                        </div>
 
-                      {/* Status Badge */}
-                      <span
-                        className={`${statusInfo.bgColor} ${statusInfo.textColor} px-2 py-1 rounded font-medium whitespace-nowrap`}
-                      >
-                        {statusInfo.label}
-                      </span>
-
-                      {/* Priority Badge */}
-                      <span
-                        className={`${priorityInfo.bgColor} ${priorityInfo.textColor} px-2 py-1 rounded font-medium whitespace-nowrap`}
-                      >
-                        {priorityInfo.icon} {priorityInfo.label}
-                      </span>
-
-                      {/* Assignment Badge */}
-                      {post.assignedTo && (
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium truncate max-w-[200px]">
-                          📌 Assigned to {post.assignedTo.name}
-                        </span>
-                      )}
-
-                      {/* Due Date */}
-                      {post.dueDate && (
-                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded font-medium whitespace-nowrap">
-                          📅 Due: {new Date(post.dueDate.seconds * 1000).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Admin Action Panel (if user is admin and viewing expanded) */}
-                  {userIsAdmin && selectedPost?.id === post.id && (
-                    <div className="p-4 border-b border-gray-200">
-                      <AdminActionPanel
-                        post={post}
-                        currentUser={userData}
-                        onUpdate={loadMyPosts}
-                      />
-                    </div>
-                  )}
-
-                  {/* Post Content */}
-                  <Post post={post} />
-
-                  {/* Stats Footer */}
-                  <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
-                    <div className="flex gap-4">
-                      <span>👍 {post.likes || 0} likes</span>
-                      <span>💬 {post.comments || 0} comments</span>
-                    </div>
+                        {/* Expand Icon */}
+                        <div className="flex-shrink-0">
+                          <svg
+                            className="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
+                  ) : (
+                    /* Expanded View - Full Post */
                     <div>
-                      Posted {new Date(post.createdAt?.seconds * 1000).toLocaleDateString()}
+                      {/* Collapse Button */}
+                      <div className="px-4 pt-4 pb-2 border-b border-gray-100 bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">
+                              {getPostTypeIcon(post.type)}
+                            </span>
+                            <span
+                              className={`px-2 py-1 text-xs rounded-full border font-medium ${getPostTypeColor(
+                                post.type
+                              )}`}
+                            >
+                              {getPostTypeLabel(post.type)}
+                            </span>
+                            {isAnonymous && (
+                              <span className="px-2 py-1 bg-purple-100 text-purple-700 border border-purple-200 rounded-full text-xs font-medium flex items-center gap-1">
+                                <span className="font-bold">*</span>
+                                Anonymous
+                              </span>
+                            )}
+                            {post.hasUnreadUpdates && (
+                              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                                New Update
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={handleCollapsePost}
+                            className="p-1 hover:bg-gray-200 rounded transition"
+                            title="Collapse"
+                          >
+                            <svg
+                              className="w-5 h-5 text-gray-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 15l7-7 7 7"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Admin Panel if user is admin */}
+                      {userIsAdmin && (
+                        <div className="px-4 pt-2">
+                          <AdminActionPanel
+                            post={post}
+                            currentUser={userData}
+                            onUpdate={loadMyPosts}
+                          />
+                        </div>
+                      )}
+
+                      {/* Full Post Content */}
+                      <Post post={post} getTimeAgo={getTimeAgo} />
+
+                      {/* Stats Footer */}
+                      <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex gap-4">
+                          <span>👍 {post.likes || 0} reactions</span>
+                          <span>💬 {post.comments || 0} comments</span>
+                        </div>
+                        <div>
+                          Posted{" "}
+                          {new Date(
+                            post.createdAt?.seconds * 1000
+                          ).toLocaleDateString()}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               );
             })}
@@ -313,16 +440,23 @@ const MyPosts = () => {
       </div>
 
       {/* Info Banner */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-6 pt-6">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="text-blue-900 font-semibold mb-2 flex items-center gap-2">
             ℹ️ About My Posts
           </h3>
           <ul className="text-blue-800 text-sm space-y-1">
-            <li>• View all your posts (anonymous and named) in one place</li>
-            <li>• Get notified of status changes, admin comments, and priority updates</li>
-            <li>• Anonymous posts maintain your privacy - updates only visible here</li>
-            <li>• Track progress from Open → In Progress → Resolved</li>
+            <li>
+              • All posts shown as title cards - click to expand full view
+            </li>
+            <li>
+              • <span className="font-bold text-purple-600">*</span> marks
+              anonymous posts for your reference
+            </li>
+            <li>• Track all your posts (anonymous and named) in one place</li>
+            <li>
+              • Get notified of status changes, comments, and priority updates
+            </li>
           </ul>
         </div>
       </div>
