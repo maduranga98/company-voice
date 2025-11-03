@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const EmployeeLayout = () => {
+  const { t } = useTranslation();
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,7 +26,7 @@ const EmployeeLayout = () => {
   const baseTabs = [
     {
       id: "creative",
-      name: "Creative",
+      name: t('navigation.creative'),
       path: "/feed/creative",
       icon: (
         <svg
@@ -43,7 +46,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "problems",
-      name: "Problems",
+      name: t('navigation.problems'),
       path: "/feed/problems",
       icon: (
         <svg
@@ -63,7 +66,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "discussions",
-      name: "Discussions",
+      name: t('navigation.discussions'),
       path: "/feed/discussions",
       icon: (
         <svg
@@ -83,7 +86,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "myposts",
-      name: "My Posts",
+      name: t('navigation.myPosts'),
       path: "/my-posts",
       icon: (
         <svg
@@ -103,7 +106,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "profile",
-      name: "Profile",
+      name: t('navigation.profile'),
       path: "/employee/profile",
       icon: (
         <svg
@@ -128,7 +131,7 @@ const EmployeeLayout = () => {
     ...baseTabs.slice(0, 3), // Creative, Problems, Discussions
     {
       id: "assigned",
-      name: "Assigned",
+      name: t('navigation.assignedToMe'),
       path: "/assigned-to-me",
       icon: (
         <svg
@@ -190,6 +193,7 @@ const EmployeeLayout = () => {
             </div>
 
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <div className="hidden md:block text-right">
                 <p className="text-sm font-medium text-gray-900">
                   {userData?.displayName}
@@ -214,7 +218,7 @@ const EmployeeLayout = () => {
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                   />
                 </svg>
-                {loading ? "Logging out..." : "Logout"}
+{loading ? t('common.loading') : t('auth.logout')}
               </button>
             </div>
           </div>
