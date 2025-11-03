@@ -2,8 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Html5Qrcode } from "html5-qrcode";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 const Login = () => {
+  const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +36,7 @@ const Login = () => {
       await login(username, password);
       navigate("/dashboard");
     } catch (error) {
-      setError("Invalid username or password. Please try again.");
+      setError(t('auth.login.invalidCredentials'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -57,15 +60,13 @@ const Login = () => {
           },
         });
       } else {
-        setError(
-          "Invalid QR code. Please scan a valid company registration QR code."
-        );
+        setError(t('auth.login.invalidQR'));
         setShowQRScanner(false);
         setScanning(false);
       }
     } catch (error) {
       console.error("QR Scan error:", error);
-      setError("Failed to read QR code. Please try again.");
+      setError(t('qr.scanError'));
       setScanning(false);
     }
   };
@@ -251,13 +252,16 @@ const Login = () => {
             {!showQRScanner ? (
               <>
                 {/* Header */}
-                <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Welcome Back
-                  </h1>
-                  <p className="text-gray-600">
-                    Sign in to continue to your workspace
-                  </p>
+                <div className="mb-8 flex items-center justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                      {t('auth.login.welcome')}
+                    </h1>
+                    <p className="text-gray-600">
+                      {t('auth.login.title')}
+                    </p>
+                  </div>
+                  <LanguageSwitcher />
                 </div>
 
                 {/* Error Message */}
@@ -289,7 +293,7 @@ const Login = () => {
                       htmlFor="username"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Username
+                      {t('auth.login.username')}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -324,7 +328,7 @@ const Login = () => {
                       htmlFor="password"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      Password
+                      {t('auth.login.password')}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -442,7 +446,7 @@ const Login = () => {
                         <span>Signing in...</span>
                       </div>
                     ) : (
-                      "Sign In"
+                      t('auth.login.signIn')
                     )}
                   </button>
                 </form>
@@ -479,7 +483,7 @@ const Login = () => {
                       d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                     />
                   </svg>
-                  Scan QR Code to Register
+{t('auth.login.scanQRCode')}
                 </button>
 
                 {/* Footer */}
@@ -514,7 +518,7 @@ const Login = () => {
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"
                       />
                     </svg>
-                    Back to Login
+                    {t('common.back')}
                   </button>
 
                   <div className="text-center mb-6">
@@ -534,10 +538,10 @@ const Login = () => {
                       </svg>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      Scan QR Code
+                      {t('qr.scan')}
                     </h3>
                     <p className="text-gray-600">
-                      Position the QR code within the frame below
+                      {t('qr.scanInstructions')}
                     </p>
                   </div>
 
