@@ -1,7 +1,71 @@
 @import "tailwindcss";
 
+:root {
+  /* Primary Colors */
+  --primary-navy: #2D3E50;
+  --primary-navy-rgb: 45, 62, 80;
+  --primary-teal: #1ABC9C;
+  --primary-teal-rgb: 26, 188, 156;
+  --accent-coral: #FF6B6B;
+  --accent-coral-rgb: 255, 107, 107;
+
+  /* Background Colors */
+  --bg-white: #FFFFFF;
+  --bg-soft-gray: #F7F9FC;
+  --bg-light-mist: #EEF2F7;
+
+  /* Text Colors */
+  --text-primary: #1A1F2E;
+  --text-secondary: #4A5568;
+  --text-tertiary: #7F8C8D;
+  --text-on-dark: #FFFFFF;
+
+  /* Border Colors */
+  --border-light: #E2E8F0;
+  --border-medium: #CBD5E0;
+  --border-dark: #A0AEC0;
+
+  /* Status Colors */
+  --status-success: #10B981;
+  --status-success-light: #D1FAE5;
+  --status-success-dark: #047857;
+  --status-warning: #F59E0B;
+  --status-warning-light: #FEF3C7;
+  --status-warning-dark: #B45309;
+  --status-error: #EF4444;
+  --status-error-light: #FEE2E2;
+  --status-error-dark: #B91C1C;
+  --status-info: #3B82F6;
+  --status-info-light: #DBEAFE;
+  --status-info-dark: #1D4ED8;
+
+  /* Post Status Colors */
+  --status-open: #6B7280;
+  --status-open-bg: #F3F4F6;
+  --status-acknowledged: #3B82F6;
+  --status-acknowledged-bg: #DBEAFE;
+  --status-in-progress: #F59E0B;
+  --status-in-progress-bg: #FEF3C7;
+  --status-under-review: #8B5CF6;
+  --status-under-review-bg: #EDE9FE;
+  --status-resolved: #10B981;
+  --status-resolved-bg: #D1FAE5;
+  --status-closed: #64748B;
+  --status-closed-bg: #F1F5F9;
+  --status-rejected: #EF4444;
+  --status-rejected-bg: #FEE2E2;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 @layer base {
   body {
     @apply antialiased;
+    background-color: var(--bg-soft-gray);
+    color: var(--text-primary);
   }
 }

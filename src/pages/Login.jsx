@@ -124,35 +124,30 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding/Info */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-primary p-12 flex-col justify-between relative overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-300 rounded-full blur-3xl animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent-coral rounded-full blur-3xl animate-pulse delay-700"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-teal rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         {/* Content */}
         <div className="relative z-10">
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-3">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                />
-              </svg>
+          <div className="flex items-center space-x-4 mb-8">
+            <img
+              src="/logo.png"
+              alt="ANCHORA Logo"
+              className="w-16 h-16 object-contain bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-2"
+            />
+            <div>
+              <span className="text-3xl font-bold text-white block">
+                ANCHORA
+              </span>
+              <span className="text-sm text-primary-teal font-medium">
+                Your Anchor in Every Storm
+              </span>
             </div>
-            <span className="text-2xl font-bold text-white">
-              Employee Voice
-            </span>
           </div>
 
           <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
@@ -161,7 +156,7 @@ const Login = () => {
             Matters Here
           </h1>
 
-          <p className="text-xl text-blue-100 mb-8 max-w-md">
+          <p className="text-xl text-white text-opacity-90 mb-8 max-w-md">
             A platform where every employee can share ideas, report concerns,
             and collaborate to build a better workplace together.
           </p>
@@ -201,7 +196,7 @@ const Login = () => {
                     />
                   </svg>
                 </div>
-                <span className="text-blue-50">{feature.text}</span>
+                <span className="text-white text-opacity-90">{feature.text}</span>
               </div>
             ))}
           </div>
@@ -218,7 +213,7 @@ const Login = () => {
               <div className="text-3xl font-bold text-white mb-1">
                 {stat.number}
               </div>
-              <div className="text-sm text-blue-100">{stat.label}</div>
+              <div className="text-sm text-white text-opacity-90">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -229,22 +224,15 @@ const Login = () => {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl mb-4 shadow-lg">
-              <svg
-                className="w-8 h-8 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                />
-              </svg>
+            <div className="inline-flex items-center justify-center mb-4">
+              <img
+                src="/logo.png"
+                alt="ANCHORA Logo"
+                className="w-24 h-24 object-contain"
+              />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Employee Voice</h2>
+            <h2 className="text-3xl font-bold text-primary-navy">ANCHORA</h2>
+            <p className="text-sm text-primary-teal font-medium">Your Anchor in Every Storm</p>
           </div>
 
           {/* Login Card */}
@@ -317,7 +305,7 @@ const Login = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition bg-gray-50 hover:bg-white"
+                        className="w-full pl-12 pr-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition bg-background-softGray hover:bg-white"
                         placeholder="Enter your username"
                       />
                     </div>
@@ -352,7 +340,7 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition bg-gray-50 hover:bg-white"
+                        className="w-full pl-12 pr-12 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition bg-background-softGray hover:bg-white"
                         placeholder="Enter your password"
                       />
                       <button
@@ -403,15 +391,15 @@ const Login = () => {
                     <label className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                        className="w-4 h-4 text-primary-teal border-gray-300 rounded focus:ring-primary-teal cursor-pointer"
                       />
-                      <span className="ml-2 text-sm text-gray-600 group-hover:text-gray-900">
+                      <span className="ml-2 text-sm text-text-secondary group-hover:text-text-primary">
                         Remember me
                       </span>
                     </label>
                     <a
                       href="#"
-                      className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                      className="text-sm font-medium text-primary-teal hover:text-opacity-80"
                     >
                       Forgot password?
                     </a>
@@ -420,7 +408,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3.5 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30 transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-accent-coral text-white py-3.5 rounded-xl font-semibold hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-coral focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-coral/30 transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center space-x-2">
@@ -468,10 +456,10 @@ const Login = () => {
                   type="button"
                   onClick={startQRScanner}
                   disabled={loading}
-                  className="w-full flex items-center justify-center px-4 py-3.5 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="w-full flex items-center justify-center px-4 py-3.5 border-2 border-border-medium rounded-xl text-text-secondary font-semibold hover:border-primary-teal hover:text-primary-teal hover:bg-background-lightMist focus:outline-none focus:ring-2 focus:ring-primary-teal focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   <svg
-                    className="w-6 h-6 mr-3 text-gray-400 group-hover:text-purple-600"
+                    className="w-6 h-6 mr-3 text-text-tertiary group-hover:text-primary-teal"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -487,11 +475,11 @@ const Login = () => {
                 </button>
 
                 {/* Footer */}
-                <p className="mt-8 text-center text-sm text-gray-500">
-                  New to Employee Voice?{" "}
+                <p className="mt-8 text-center text-sm text-text-tertiary">
+                  New to ANCHORA?{" "}
                   <a
                     href="#"
-                    className="font-medium text-purple-600 hover:text-purple-700"
+                    className="font-medium text-primary-teal hover:text-opacity-80"
                   >
                     Contact your HR
                   </a>
@@ -522,9 +510,9 @@ const Login = () => {
                   </button>
 
                   <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-background-lightMist rounded-full mb-4">
                       <svg
-                        className="w-8 h-8 text-purple-600"
+                        className="w-8 h-8 text-primary-teal"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -549,20 +537,20 @@ const Login = () => {
                   <div className="relative">
                     <div
                       id="qr-reader"
-                      className="rounded-xl overflow-hidden border-4 border-purple-500 shadow-lg"
+                      className="rounded-xl overflow-hidden border-4 border-primary-teal shadow-lg"
                     ></div>
                     {scanning && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-64 h-64 border-4 border-purple-500 rounded-xl animate-pulse"></div>
+                        <div className="w-64 h-64 border-4 border-primary-teal rounded-xl animate-pulse"></div>
                       </div>
                     )}
                   </div>
 
                   {/* Instructions */}
-                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-4">
+                  <div className="bg-gradient-soft border border-primary-teal/30 rounded-xl p-4">
                     <div className="flex items-start space-x-3">
                       <svg
-                        className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5"
+                        className="w-5 h-5 text-primary-teal flex-shrink-0 mt-0.5"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -573,10 +561,10 @@ const Login = () => {
                         />
                       </svg>
                       <div className="text-sm">
-                        <p className="font-semibold text-purple-900 mb-2">
+                        <p className="font-semibold text-primary-navy mb-2">
                           How to scan:
                         </p>
-                        <ul className="space-y-1 text-purple-800">
+                        <ul className="space-y-1 text-text-secondary">
                           <li>• Get QR code from your HR department</li>
                           <li>• Hold it steady within the frame</li>
                           <li>• Ensure good lighting</li>
@@ -591,8 +579,8 @@ const Login = () => {
           </div>
 
           {/* Copyright */}
-          <p className="mt-8 text-center text-sm text-gray-500">
-            © 2025 Employee Voice Platform. All rights reserved.
+          <p className="mt-8 text-center text-sm text-text-tertiary">
+            © 2025 ANCHORA. All rights reserved.
           </p>
         </div>
       </div>

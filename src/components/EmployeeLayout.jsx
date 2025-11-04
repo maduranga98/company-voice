@@ -163,31 +163,21 @@ const EmployeeLayout = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Top Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-2">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                  />
-                </svg>
-              </div>
+              <img
+                src="/logo.png"
+                alt="ANCHORA Logo"
+                className="w-10 h-10 object-contain"
+              />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  Employee Voice
+                <h1 className="text-xl font-bold text-white">
+                  ANCHORA
                 </h1>
-                <p className="text-xs text-gray-500">
-                  Share. Connect. Inspire.
+                <p className="text-xs text-primary-teal">
+                  Your Anchor in Every Storm
                 </p>
               </div>
             </div>
@@ -195,15 +185,15 @@ const EmployeeLayout = () => {
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-white">
                   {userData?.displayName}
                 </p>
-                <p className="text-xs text-gray-500">{userData?.role}</p>
+                <p className="text-xs text-primary-teal">{userData?.role}</p>
               </div>
               <button
                 onClick={handleLogout}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition disabled:opacity-50"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-teal border border-primary-teal rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal transition disabled:opacity-50"
               >
                 <svg
                   className="w-4 h-4 mr-2"
@@ -242,8 +232,8 @@ const EmployeeLayout = () => {
                   onClick={() => navigate(tab.path)}
                   className={`flex flex-col items-center justify-center py-2 px-1 min-h-[60px] transition-all duration-200 ${
                     isActive
-                      ? "text-purple-600 bg-purple-50"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      ? "text-primary-teal bg-background-lightMist"
+                      : "text-text-tertiary hover:text-text-primary hover:bg-background-softGray"
                   }`}
                 >
                   <div
@@ -257,13 +247,13 @@ const EmployeeLayout = () => {
                   </div>
                   <span
                     className={`text-[10px] sm:text-xs mt-1 font-medium leading-tight text-center ${
-                      isActive ? "text-purple-600" : "text-gray-600"
+                      isActive ? "text-primary-teal" : "text-text-tertiary"
                     }`}
                   >
                     {tab.name}
                   </span>
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-t-full" />
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-primary rounded-t-full" />
                   )}
                 </button>
               );
