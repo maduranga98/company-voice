@@ -6,14 +6,10 @@ import Post from "../../components/Post";
 import CreatePost from "../../components/CreatePost";
 import AdminActionPanel from "../../components/AdminActionPanel";
 import { isAdmin } from "../../services/postManagementService";
-import { PostType } from "../../utils/constants";
+import { useTranslation } from "react-i18next";
 
-/**
- * UnifiedFeed Component
- * Base component for all feed types (Creative, Problems, Discussions)
- * Shows posts filtered by type with unified controls
- */
 const UnifiedFeed = ({ feedType, title, description, colors }) => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
@@ -130,7 +126,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Search posts..."
+              placeholder={t("common.search")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -178,7 +174,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No posts yet
+              {t("post.noPostsYet")}
             </h3>
             <p className="text-gray-600 mb-4">
               {searchTerm || selectedCategory !== "all"
@@ -203,7 +199,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                Create Post
+                {t("post.create")}
               </span>
             </button>
           </div>

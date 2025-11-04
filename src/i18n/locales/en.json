@@ -127,6 +127,7 @@
   "feed": {
     "unified": "All Posts",
     "creative": "Creative Feed",
+    "creativeDescriptiom": "Share your creative ideas, designs, and innovations",
     "problems": "Problems Feed",
     "discussions": "Discussions Feed",
     "filterBy": "Filter by",

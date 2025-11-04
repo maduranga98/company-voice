@@ -1,19 +1,15 @@
 import UnifiedFeed from "./UnifiedFeed";
 import { PostType } from "../../utils/constants";
+import { useTranslation } from "react-i18next";
 
-/**
- * Creative Feed Page
- * Shows all creative content from all users in the company
- * Same feed for employees and admins (admins see additional controls)
- */
 const CreativeFeed = () => {
-  console.log("CreativeFeed rendered!");
+  const { t } = useTranslation();
 
   return (
     <UnifiedFeed
       feedType={PostType.CREATIVE_CONTENT}
-      title="Creative Feed"
-      description="Share your creative ideas, designs, and innovations"
+      title={t("feed.creative")}
+      description={t("feed.creativeDescriptiom")}
       colors={{
         gradient: "from-purple-600 to-pink-600",
         text: "text-purple-900",

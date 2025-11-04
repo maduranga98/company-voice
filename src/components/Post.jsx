@@ -1,18 +1,61 @@
 import { useState } from "react";
 import ReactionButton from "./ReactionButton";
 import CommentsSection from "./CommentsSection";
+import { useTranslation } from "react-i18next";
+
 import {
   PostStatusConfig,
   PostPriorityConfig,
   PostType,
 } from "../utils/constants";
 
-const Post = ({ post, getTimeAgo }) => {
+const Post = ({ post }) => {
+  const { t } = useTranslation();
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
 
+  const getTimeAgo = (timestamp) => {
+    const now = new Date();
+    const postDate = timestamp?.toDate
+      ? timestamp.toDate()
+      : new Date(timestamp);
+    const diffInSeconds = Math.floor((now - postDate) / 1000);
+
+    if (diffInSeconds < 60) {
+      return t("time.justNow");
+    }
+
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return t("time.minutesAgo", { count: diffInMinutes });
+    }
+
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return t("time.hoursAgo", { count: diffInHours });
+    }
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) {
+      return t("time.daysAgo", { count: diffInDays });
+    }
+
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    if (diffInWeeks < 4) {
+      return t("time.weeksAgo", { count: diffInWeeks });
+    }
+
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) {
+      return t("time.monthsAgo", { count: diffInMonths });
+    }
+
+    const diffInYears = Math.floor(diffInDays / 365);
+    return t("time.yearsAgo", { count: diffInYears });
+  };
   // Content length limit for "Read More"
   const CONTENT_LIMIT = 300;
   const content = post.description || post.content || "";
