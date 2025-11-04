@@ -1,16 +1,14 @@
 import UnifiedFeed from "./UnifiedFeed";
 import { PostType } from "../../utils/constants";
+import { useTranslation } from "react-i18next";
 
-/**
- * Problems Feed Page
- * Shows all problem reports from all users in the company
- * Same feed for employees and admins (admins see additional controls)
- */
 const ProblemsFeed = () => {
+  const { t } = useTranslation();
+
   return (
     <UnifiedFeed
       feedType={PostType.PROBLEM_REPORT}
-      title="Problems & Reports"
+      title={t("feed.problems")}
       description="Report workplace issues and track their resolution"
       colors={{
         gradient: "from-red-600 to-orange-600",
