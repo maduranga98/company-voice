@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
+import CompanyAnalytics from "./pages/company/CompanyAnalytics";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
 import TagManagement from "./pages/company/TagManagement";
 import MemberManagement from "./pages/company/MemberManagement";
@@ -139,6 +140,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <MemberManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/analytics"
+              element={
+                <PrivateRoute>
+                  <CompanyAnalytics />
                 </PrivateRoute>
               }
             />

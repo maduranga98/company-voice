@@ -1,6 +1,8 @@
 import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 /**
  * RoleBasedLayout Component
@@ -13,6 +15,7 @@ const RoleBasedLayout = ({ children }) => {
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -34,7 +37,7 @@ const RoleBasedLayout = ({ children }) => {
   const adminBaseTabs = [
     {
       id: "dashboard",
-      name: "Dashboard",
+      name: t("navigation.dashboard"),
       path: "/company/dashboard",
       icon: (
         <svg
@@ -54,7 +57,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "creative",
-      name: "Creative",
+      name: t("navigation.creative"),
       path: "/feed/creative",
       icon: (
         <svg
@@ -74,7 +77,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "problems",
-      name: "Problems",
+      name: t("navigation.problems"),
       path: "/feed/problems",
       icon: (
         <svg
@@ -94,7 +97,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "discussions",
-      name: "Discussions",
+      name: t("navigation.discussions"),
       path: "/feed/discussions",
       icon: (
         <svg
@@ -114,7 +117,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "myposts",
-      name: "My Posts",
+      name: t("navigation.myPosts"),
       path: "/my-posts",
       icon: (
         <svg
@@ -134,7 +137,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "profile",
-      name: "Profile",
+      name: t("navigation.profile"),
       path: "/company/profile",
       icon: (
         <svg
@@ -157,7 +160,7 @@ const RoleBasedLayout = ({ children }) => {
   const employeeBaseTabs = [
     {
       id: "creative",
-      name: "Creative",
+      name: t("navigation.creative"),
       path: "/feed/creative",
       icon: (
         <svg
@@ -177,7 +180,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "problems",
-      name: "Problems",
+      name: t("navigation.problems"),
       path: "/feed/problems",
       icon: (
         <svg
@@ -197,7 +200,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "discussions",
-      name: "Discussions",
+      name: t("navigation.discussions"),
       path: "/feed/discussions",
       icon: (
         <svg
@@ -217,7 +220,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "myposts",
-      name: "My Posts",
+      name: t("navigation.myPosts"),
       path: "/my-posts",
       icon: (
         <svg
@@ -237,7 +240,7 @@ const RoleBasedLayout = ({ children }) => {
     },
     {
       id: "profile",
-      name: "Profile",
+      name: t("navigation.profile"),
       path: "/employee/profile",
       icon: (
         <svg
@@ -264,7 +267,7 @@ const RoleBasedLayout = ({ children }) => {
         ...baseTabs.slice(0, isAdmin ? 4 : 3),
         {
           id: "assigned",
-          name: "Assigned",
+          name: t("navigation.assignedToMe"),
           path: "/assigned-to-me",
           icon: (
             <svg
@@ -364,6 +367,9 @@ const RoleBasedLayout = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+
               <div className="hidden md:block text-right">
                 <p className="text-sm font-medium text-gray-900">
                   {userData?.displayName}
@@ -390,7 +396,7 @@ const RoleBasedLayout = ({ children }) => {
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                   />
                 </svg>
-                {loading ? "Logging out..." : "Logout"}
+                {loading ? t("auth.logout") + "..." : t("auth.logout")}
               </button>
             </div>
           </div>
