@@ -4,7 +4,6 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 
 const CompanyAdminLayout = () => {
   const { userData, logout } = useAuth();
-  console.log("Company Admin");
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -184,7 +183,7 @@ const CompanyAdminLayout = () => {
   const getRoleBadge = () => {
     if (userData?.role === "company_admin") {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-teal text-white">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-teal text-text-onDark">
           COMPANY ADMIN
         </span>
       );
@@ -199,9 +198,9 @@ const CompanyAdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background-softGray pb-20">
       {/* Top Header */}
-      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-md">
+      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -211,10 +210,8 @@ const CompanyAdminLayout = () => {
                 className="w-10 h-10 object-contain"
               />
               <div>
-                <h1 className="text-xl font-bold text-white">
-                  ANCHORA
-                </h1>
-                <p className="text-xs text-primary-teal">
+                <h1 className="text-xl font-bold text-text-onDark">ANCHORA</h1>
+                <p className="text-xs text-primary-teal font-medium">
                   Your Anchor in Every Storm
                 </p>
               </div>
@@ -222,7 +219,7 @@ const CompanyAdminLayout = () => {
 
             <div className="flex items-center space-x-4">
               <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-white">
+                <p className="text-sm font-medium text-text-onDark">
                   {userData?.displayName}
                 </p>
                 <div className="flex justify-end mt-0.5">{getRoleBadge()}</div>
@@ -230,7 +227,7 @@ const CompanyAdminLayout = () => {
               <button
                 onClick={handleLogout}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-teal border border-primary-teal rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal transition disabled:opacity-50"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-text-onDark bg-primary-teal border border-primary-teal rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg
                   className="w-4 h-4 mr-2"
@@ -258,7 +255,7 @@ const CompanyAdminLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-background-white border-t border-border-light z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4">
           <div
             className={`grid ${
@@ -271,7 +268,7 @@ const CompanyAdminLayout = () => {
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
-                  className={`flex flex-col items-center justify-center py-3 px-2 transition-all duration-200 ${
+                  className={`relative flex flex-col items-center justify-center py-3 px-2 transition-all duration-200 ${
                     isActive
                       ? "text-primary-teal bg-background-lightMist"
                       : "text-text-tertiary hover:text-text-primary hover:bg-background-softGray"
