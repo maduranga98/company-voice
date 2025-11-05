@@ -36,7 +36,7 @@ const Login = () => {
       await login(username, password);
       navigate("/dashboard");
     } catch (error) {
-      setError(t('auth.login.invalidCredentials'));
+      setError(t("auth.login.invalidCredentials"));
       console.error(error);
     } finally {
       setLoading(false);
@@ -60,13 +60,13 @@ const Login = () => {
           },
         });
       } else {
-        setError(t('auth.login.invalidQR'));
+        setError(t("auth.login.invalidQR"));
         setShowQRScanner(false);
         setScanning(false);
       }
     } catch (error) {
       console.error("QR Scan error:", error);
-      setError(t('qr.scanError'));
+      setError(t("qr.scanError"));
       setScanning(false);
     }
   };
@@ -124,66 +124,58 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding/Info */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-primary p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-primary p-12 flex-col justify-center relative overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent-coral rounded-full blur-3xl animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-teal rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-background-white rounded-full blur-3xl animate-pulse"></div>
+          <div
+            className="absolute bottom-20 right-20 w-96 h-96 bg-accent-coral rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "0.7s" }}
+          ></div>
+          <div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-teal rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "1s" }}
+          ></div>
         </div>
 
         {/* Content */}
-        <div className="relative z-10">
-          <div className="flex items-center space-x-4 mb-8">
+        <div className="relative z-10 max-w-lg mx-auto">
+          {/* Logo and Brand - LARGER */}
+          <div className="flex items-center space-x-5 mb-12">
             <img
               src="/logo.png"
               alt="ANCHORA Logo"
-              className="w-16 h-16 object-contain bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-2"
+              className="w-36 h-36 object-contain bg-background-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl"
             />
             <div>
-              <span className="text-3xl font-bold text-white block">
+              <h1 className="text-5xl font-bold text-text-onDark mb-2">
                 ANCHORA
-              </span>
-              <span className="text-sm text-primary-teal font-medium">
+              </h1>
+              <p className="text-primary-teal font-bold text-xl">
                 Your Anchor in Every Storm
-              </span>
+              </p>
             </div>
           </div>
 
-          <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
-            Your Voice
+          {/* Main Heading */}
+          <h2 className="text-5xl font-bold text-text-onDark mb-6 leading-tight">
+            Empower Your
             <br />
-            Matters Here
-          </h1>
+            Workplace Voice
+          </h2>
 
-          <p className="text-xl text-white text-opacity-90 mb-8 max-w-md">
-            A platform where every employee can share ideas, report concerns,
-            and collaborate to build a better workplace together.
+          <p className="text-xl text-text-onDark mb-12 leading-relaxed font-medium">
+            A secure platform where every employee can share ideas, report
+            concerns, and collaborate to build a better workplace together.
           </p>
 
-          {/* Feature List */}
-          <div className="space-y-4">
+          {/* Feature List - MAXIMUM CONTRAST */}
+          <div className="space-y-5">
             {[
               {
-                icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
-                text: "Share creative ideas and innovations",
-              },
-              {
-                icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
-                text: "Report workplace issues safely",
-              },
-              {
-                icon: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z",
-                text: "Engage in meaningful discussions",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="flex items-center space-x-3 text-white"
-              >
-                <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-2">
+                icon: (
                   <svg
-                    className="w-5 h-5"
+                    className="w-7 h-7 text-background-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -191,72 +183,116 @@ const Login = () => {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      strokeWidth="2"
-                      d={feature.icon}
+                      strokeWidth="2.5"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                     />
                   </svg>
+                ),
+                title: "Creative Ideas",
+                text: "Share innovative solutions and creative concepts",
+              },
+              {
+                icon: (
+                  <svg
+                    className="w-7 h-7 text-background-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2.5"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                ),
+                title: "Secure Reporting",
+                text: "Report workplace issues safely and anonymously",
+              },
+              {
+                icon: (
+                  <svg
+                    className="w-7 h-7 text-background-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2.5"
+                      d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+                    />
+                  </svg>
+                ),
+                title: "Open Discussions",
+                text: "Engage in meaningful team conversations",
+              },
+            ].map((feature, index) => (
+              <div
+                key={index}
+                className="flex items-start space-x-5 bg-background-white rounded-2xl p-6 transform hover:scale-105 transition-all duration-300 shadow-2xl border border-border-light"
+              >
+                <div className="bg-primary-teal rounded-xl p-4 flex-shrink-0 shadow-xl">
+                  {feature.icon}
                 </div>
-                <span className="text-white text-opacity-90">{feature.text}</span>
+                <div>
+                  <h3 className="font-bold text-text-primary text-xl mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-text-secondary text-base leading-relaxed font-medium">
+                    {feature.text}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Bottom Stats */}
-        <div className="relative z-10 grid grid-cols-3 gap-6">
-          {[
-            { number: "10K+", label: "Active Users" },
-            { number: "50K+", label: "Ideas Shared" },
-            { number: "95%", label: "Satisfaction" },
-          ].map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-3xl font-bold text-white mb-1">
-                {stat.number}
-              </div>
-              <div className="text-sm text-white text-opacity-90">{stat.label}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center p-8 bg-background-softGray">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
+          {/* Mobile Logo - LARGER */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
               <img
                 src="/logo.png"
                 alt="ANCHORA Logo"
-                className="w-24 h-24 object-contain"
+                className="w-28 h-28 object-contain"
               />
             </div>
-            <h2 className="text-3xl font-bold text-primary-navy">ANCHORA</h2>
-            <p className="text-sm text-primary-teal font-medium">Your Anchor in Every Storm</p>
+            <h2 className="text-4xl font-bold text-primary-navy mb-2">
+              ANCHORA
+            </h2>
+            <p className="text-primary-teal font-bold text-lg">
+              Your Anchor in Every Storm
+            </p>
           </div>
 
           {/* Login Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="bg-background-white rounded-2xl shadow-2xl p-8 border border-border-light">
             {!showQRScanner ? (
               <>
                 {/* Header */}
-                <div className="mb-8 flex items-center justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      {t('auth.login.welcome')}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-2">
+                    <h1 className="text-3xl font-bold text-text-primary">
+                      {t("auth.login.welcome")}
                     </h1>
-                    <p className="text-gray-600">
-                      {t('auth.login.title')}
-                    </p>
+                    <LanguageSwitcher />
                   </div>
-                  <LanguageSwitcher />
+                  <p className="text-text-secondary text-base">
+                    {t("auth.login.title")}
+                  </p>
                 </div>
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start space-x-3">
+                  <div className="mb-6 p-4 bg-status-error-light border border-status-error rounded-xl flex items-start space-x-3 animate-shake">
                     <svg
-                      className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+                      className="w-5 h-5 text-status-error flex-shrink-0 mt-0.5"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -267,7 +303,7 @@ const Login = () => {
                       />
                     </svg>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-red-800">
+                      <p className="text-sm font-medium text-status-error-dark">
                         {error}
                       </p>
                     </div>
@@ -275,18 +311,19 @@ const Login = () => {
                 )}
 
                 {/* Login Form */}
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Username Field */}
                   <div>
                     <label
                       htmlFor="username"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
+                      className="block text-sm font-semibold text-text-primary mb-2"
                     >
-                      {t('auth.login.username')}
+                      {t("auth.login.username")}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg
-                          className="w-5 h-5 text-gray-400"
+                          className="w-5 h-5 text-text-tertiary"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -305,23 +342,24 @@ const Login = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="w-full pl-12 pr-4 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition bg-background-softGray hover:bg-white"
+                        className="w-full pl-12 pr-4 py-3.5 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition-all bg-background-softGray hover:bg-background-white text-text-primary placeholder-text-tertiary"
                         placeholder="Enter your username"
                       />
                     </div>
                   </div>
 
+                  {/* Password Field */}
                   <div>
                     <label
                       htmlFor="password"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
+                      className="block text-sm font-semibold text-text-primary mb-2"
                     >
-                      {t('auth.login.password')}
+                      {t("auth.login.password")}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg
-                          className="w-5 h-5 text-gray-400"
+                          className="w-5 h-5 text-text-tertiary"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -340,13 +378,13 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-12 pr-12 py-3 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition bg-background-softGray hover:bg-white"
+                        className="w-full pl-12 pr-12 py-3.5 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition-all bg-background-softGray hover:bg-background-white text-text-primary placeholder-text-tertiary"
                         placeholder="Enter your password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-tertiary hover:text-text-primary transition"
                       >
                         {showPassword ? (
                           <svg
@@ -387,33 +425,35 @@ const Login = () => {
                     </div>
                   </div>
 
+                  {/* Remember Me & Forgot Password */}
                   <div className="flex items-center justify-between">
                     <label className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 text-primary-teal border-gray-300 rounded focus:ring-primary-teal cursor-pointer"
+                        className="w-4 h-4 text-primary-teal border-border-medium rounded focus:ring-primary-teal cursor-pointer"
                       />
-                      <span className="ml-2 text-sm text-text-secondary group-hover:text-text-primary">
+                      <span className="ml-2 text-sm text-text-secondary group-hover:text-text-primary transition">
                         Remember me
                       </span>
                     </label>
                     <a
                       href="#"
-                      className="text-sm font-medium text-primary-teal hover:text-opacity-80"
+                      className="text-sm font-semibold text-primary-teal hover:opacity-80 transition"
                     >
                       Forgot password?
                     </a>
                   </div>
 
+                  {/* Login Button */}
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-accent-coral text-white py-3.5 rounded-xl font-semibold hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-coral focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-coral/30 transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-primary-teal text-text-onDark py-4 rounded-xl font-bold text-lg hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-primary-teal focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-teal/30 transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center space-x-2">
                         <svg
-                          className="animate-spin h-5 w-5 text-white"
+                          className="animate-spin h-5 w-5 text-text-onDark"
                           fill="none"
                           viewBox="0 0 24 24"
                         >
@@ -434,7 +474,7 @@ const Login = () => {
                         <span>Signing in...</span>
                       </div>
                     ) : (
-                      t('auth.login.signIn')
+                      t("auth.login.signIn")
                     )}
                   </button>
                 </form>
@@ -442,10 +482,10 @@ const Login = () => {
                 {/* Divider */}
                 <div className="relative my-8">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+                    <div className="w-full border-t border-border-light"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500 font-medium">
+                    <span className="px-4 bg-background-white text-text-tertiary font-medium">
                       or continue with
                     </span>
                   </div>
@@ -456,10 +496,10 @@ const Login = () => {
                   type="button"
                   onClick={startQRScanner}
                   disabled={loading}
-                  className="w-full flex items-center justify-center px-4 py-3.5 border-2 border-border-medium rounded-xl text-text-secondary font-semibold hover:border-primary-teal hover:text-primary-teal hover:bg-background-lightMist focus:outline-none focus:ring-2 focus:ring-primary-teal focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="w-full flex items-center justify-center px-4 py-3.5 border-2 border-border-medium rounded-xl text-text-secondary font-semibold hover:border-primary-teal hover:text-primary-teal hover:bg-background-lightMist focus:outline-none focus:ring-2 focus:ring-primary-teal focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   <svg
-                    className="w-6 h-6 mr-3 text-text-tertiary group-hover:text-primary-teal"
+                    className="w-6 h-6 mr-3 text-text-tertiary group-hover:text-primary-teal transition"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -471,7 +511,7 @@ const Login = () => {
                       d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                     />
                   </svg>
-{t('auth.login.scanQRCode')}
+                  {t("auth.login.scanQRCode")}
                 </button>
 
                 {/* Footer */}
@@ -479,7 +519,7 @@ const Login = () => {
                   New to ANCHORA?{" "}
                   <a
                     href="#"
-                    className="font-medium text-primary-teal hover:text-opacity-80"
+                    className="font-semibold text-primary-teal hover:opacity-80 transition"
                   >
                     Contact your HR
                   </a>
@@ -491,10 +531,10 @@ const Login = () => {
                 <div className="space-y-6">
                   <button
                     onClick={stopQRScanner}
-                    className="flex items-center text-gray-600 hover:text-gray-900 transition"
+                    className="flex items-center text-text-secondary hover:text-text-primary transition group"
                   >
                     <svg
-                      className="w-5 h-5 mr-2"
+                      className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -506,13 +546,13 @@ const Login = () => {
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"
                       />
                     </svg>
-                    {t('common.back')}
+                    {t("common.back")}
                   </button>
 
                   <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-background-lightMist rounded-full mb-4">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-background-lightMist rounded-2xl mb-4">
                       <svg
-                        className="w-8 h-8 text-primary-teal"
+                        className="w-10 h-10 text-primary-teal"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -525,11 +565,11 @@ const Login = () => {
                         />
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      {t('qr.scan')}
+                    <h3 className="text-2xl font-bold text-text-primary mb-2">
+                      {t("qr.scan")}
                     </h3>
-                    <p className="text-gray-600">
-                      {t('qr.scanInstructions')}
+                    <p className="text-text-secondary">
+                      {t("qr.scanInstructions")}
                     </p>
                   </div>
 
@@ -547,10 +587,10 @@ const Login = () => {
                   </div>
 
                   {/* Instructions */}
-                  <div className="bg-gradient-soft border border-primary-teal/30 rounded-xl p-4">
+                  <div className="bg-status-info-light border border-primary-teal rounded-xl p-5">
                     <div className="flex items-start space-x-3">
                       <svg
-                        className="w-5 h-5 text-primary-teal flex-shrink-0 mt-0.5"
+                        className="w-6 h-6 text-primary-teal flex-shrink-0 mt-0.5"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -561,14 +601,26 @@ const Login = () => {
                         />
                       </svg>
                       <div className="text-sm">
-                        <p className="font-semibold text-primary-navy mb-2">
+                        <p className="font-bold text-primary-navy mb-3 text-base">
                           How to scan:
                         </p>
-                        <ul className="space-y-1 text-text-secondary">
-                          <li>• Get QR code from your HR department</li>
-                          <li>• Hold it steady within the frame</li>
-                          <li>• Ensure good lighting</li>
-                          <li>• Auto-redirect upon successful scan</li>
+                        <ul className="space-y-2 text-text-secondary">
+                          <li className="flex items-start">
+                            <span className="text-primary-teal mr-2">•</span>
+                            <span>Get QR code from your HR department</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-primary-teal mr-2">•</span>
+                            <span>Hold it steady within the frame</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-primary-teal mr-2">•</span>
+                            <span>Ensure good lighting</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="text-primary-teal mr-2">•</span>
+                            <span>Auto-redirect upon successful scan</span>
+                          </li>
                         </ul>
                       </div>
                     </div>

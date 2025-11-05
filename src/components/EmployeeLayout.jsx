@@ -26,7 +26,7 @@ const EmployeeLayout = () => {
   const baseTabs = [
     {
       id: "creative",
-      name: t('navigation.creative'),
+      name: t("navigation.creative"),
       path: "/feed/creative",
       icon: (
         <svg
@@ -46,7 +46,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "problems",
-      name: t('navigation.problems'),
+      name: t("navigation.problems"),
       path: "/feed/problems",
       icon: (
         <svg
@@ -66,7 +66,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "discussions",
-      name: t('navigation.discussions'),
+      name: t("navigation.discussions"),
       path: "/feed/discussions",
       icon: (
         <svg
@@ -86,7 +86,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "myposts",
-      name: t('navigation.myPosts'),
+      name: t("navigation.myPosts"),
       path: "/my-posts",
       icon: (
         <svg
@@ -106,7 +106,7 @@ const EmployeeLayout = () => {
     },
     {
       id: "profile",
-      name: t('navigation.profile'),
+      name: t("navigation.profile"),
       path: "/employee/profile",
       icon: (
         <svg
@@ -127,30 +127,32 @@ const EmployeeLayout = () => {
   ];
 
   // Add "Assigned to Me" tab if user has a tag
-  const tabs = userData?.userTagId ? [
-    ...baseTabs.slice(0, 3), // Creative, Problems, Discussions
-    {
-      id: "assigned",
-      name: t('navigation.assignedToMe'),
-      path: "/assigned-to-me",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-          />
-        </svg>
-      ),
-    },
-    ...baseTabs.slice(3), // My Posts, Profile
-  ] : baseTabs;
+  const tabs = userData?.userTagId
+    ? [
+        ...baseTabs.slice(0, 3), // Creative, Problems, Discussions
+        {
+          id: "assigned",
+          name: t("navigation.assignedToMe"),
+          path: "/assigned-to-me",
+          icon: (
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+              />
+            </svg>
+          ),
+        },
+        ...baseTabs.slice(3), // My Posts, Profile
+      ]
+    : baseTabs;
 
   const isActiveTab = (path) => {
     // Handle feed routes - mark as active if path starts with the tab path
@@ -161,54 +163,105 @@ const EmployeeLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-[var(--color-background-softGray)] pb-20">
       {/* Top Header */}
-      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-md">
+      <header className="bg-[var(--color-primary-navy)] border-b border-[var(--color-primary-navy)] sticky top-0 z-40 shadow-lg backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/logo.png"
-                alt="ANCHORA Logo"
-                className="w-10 h-10 object-contain"
-              />
+            {/* Logo Section */}
+            <div
+              className="flex items-center space-x-3 group cursor-pointer"
+              onClick={() => navigate("/feed/creative")}
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-[var(--color-primary-teal)] rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <img
+                  src="/logo.png"
+                  alt="ANCHORA Logo"
+                  className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
+                />
+              </div>
               <div>
-                <h1 className="text-xl font-bold text-white">
+                <h1 className="text-xl font-bold text-[var(--color-text-onDark)] group-hover:text-[var(--color-primary-teal)] transition-colors duration-300">
                   ANCHORA
                 </h1>
-                <p className="text-xs text-primary-teal">
+                <p className="text-xs text-[var(--color-primary-teal)] font-medium">
                   Your Anchor in Every Storm
                 </p>
               </div>
             </div>
 
+            {/* Right Section */}
             <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-white">
-                  {userData?.displayName}
-                </p>
-                <p className="text-xs text-primary-teal">{userData?.role}</p>
+              {/* Language Switcher */}
+              <div className="hidden sm:block">
+                <LanguageSwitcher />
               </div>
+
+              {/* User Info - Desktop */}
+              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-[var(--color-primary-navy)] bg-opacity-50 rounded-lg border border-[var(--color-primary-teal)] border-opacity-30">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-primary-teal)] to-[var(--color-accent-coral)] flex items-center justify-center text-[var(--color-text-onDark)] font-bold text-sm">
+                  {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-[var(--color-text-onDark)]">
+                    {userData?.displayName}
+                  </p>
+                  <p className="text-xs text-[var(--color-primary-teal)] capitalize">
+                    {userData?.role?.replace("_", " ")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Logout Button */}
               <button
                 onClick={handleLogout}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-teal border border-primary-teal rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal transition disabled:opacity-50"
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-[var(--color-text-onDark)] 
+                         bg-[var(--color-primary-teal)] border-2 border-[var(--color-primary-teal)] rounded-lg 
+                         hover:bg-[var(--color-primary-teal)] hover:bg-opacity-90 hover:shadow-lg
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-teal)]
+                         transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+                         active:scale-95"
               >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-{loading ? t('common.loading') : t('auth.logout')}
+                {loading ? (
+                  <svg
+                    className="animate-spin h-4 w-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">
+                  {loading ? t("common.loading") : t("auth.logout")}
+                </span>
               </button>
             </div>
           </div>
@@ -221,39 +274,79 @@ const EmployeeLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[var(--color-background-white)] border-t border-[var(--color-border-light)] z-50 safe-area-inset-bottom shadow-2xl">
         <div className="max-w-7xl mx-auto">
-          <div className={`grid ${userData?.userTagId ? 'grid-cols-6' : 'grid-cols-5'} gap-0.5`}>
+          <div
+            className={`grid ${
+              userData?.userTagId ? "grid-cols-6" : "grid-cols-5"
+            } gap-0`}
+          >
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);
               return (
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
-                  className={`flex flex-col items-center justify-center py-2 px-1 min-h-[60px] transition-all duration-200 ${
-                    isActive
-                      ? "text-primary-teal bg-background-lightMist"
-                      : "text-text-tertiary hover:text-text-primary hover:bg-background-softGray"
-                  }`}
+                  className={`
+                    relative flex flex-col items-center justify-center py-2 px-1 min-h-[64px] 
+                    transition-all duration-300 group
+                    ${
+                      isActive
+                        ? "text-[var(--color-primary-teal)] bg-[var(--color-background-lightMist)]"
+                        : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-softGray)]"
+                    }
+                  `}
                 >
+                  {/* Active Indicator - Top */}
+                  {isActive && (
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-primary-navy)] to-[var(--color-primary-teal)] rounded-b-full animate-pulse" />
+                  )}
+
+                  {/* Icon Container */}
                   <div
-                    className={`transition-transform duration-200 ${
-                      isActive ? "scale-110" : ""
-                    }`}
+                    className={`
+                      relative transition-all duration-300
+                      ${isActive ? "scale-110" : "group-hover:scale-105"}
+                    `}
                   >
-                    <div className="w-5 h-5 sm:w-6 sm:h-6">
+                    {/* Background Glow for Active Tab */}
+                    {isActive && (
+                      <div className="absolute inset-0 bg-[var(--color-primary-teal)] rounded-full blur-lg opacity-20 -z-10"></div>
+                    )}
+
+                    {/* Icon */}
+                    <div
+                      className={`
+                      w-6 h-6 transition-colors duration-300
+                      ${
+                        isActive
+                          ? "text-[var(--color-primary-teal)]"
+                          : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-primary)]"
+                      }
+                    `}
+                    >
                       {tab.icon}
                     </div>
                   </div>
+
+                  {/* Label */}
                   <span
-                    className={`text-[10px] sm:text-xs mt-1 font-medium leading-tight text-center ${
-                      isActive ? "text-primary-teal" : "text-text-tertiary"
-                    }`}
+                    className={`
+                      text-[10px] sm:text-xs mt-1.5 font-medium leading-tight text-center
+                      transition-all duration-300
+                      ${
+                        isActive
+                          ? "text-[var(--color-primary-teal)] font-semibold"
+                          : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-primary)]"
+                      }
+                    `}
                   >
                     {tab.name}
                   </span>
+
+                  {/* Active Badge Dot */}
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-primary rounded-t-full" />
+                    <div className="absolute bottom-1 w-1 h-1 bg-[var(--color-primary-teal)] rounded-full animate-ping"></div>
                   )}
                 </button>
               );
@@ -261,6 +354,23 @@ const EmployeeLayout = () => {
           </div>
         </div>
       </nav>
+
+      {/* Mobile User Info Overlay - Shown on Language Switcher tap */}
+      <div className="md:hidden fixed top-16 right-4 bg-[var(--color-background-white)] rounded-lg shadow-xl border border-[var(--color-border-light)] p-3 z-30 hidden group-hover:block">
+        <div className="flex items-center space-x-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary-teal)] to-[var(--color-accent-coral)] flex items-center justify-center text-[var(--color-text-onDark)] font-bold">
+            {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+              {userData?.displayName}
+            </p>
+            <p className="text-xs text-[var(--color-text-secondary)] capitalize">
+              {userData?.role?.replace("_", " ")}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

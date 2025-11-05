@@ -1,71 +1,167 @@
 @import "tailwindcss";
 
-:root {
-  /* Primary Colors */
-  --primary-navy: #2D3E50;
-  --primary-navy-rgb: 45, 62, 80;
-  --primary-teal: #1ABC9C;
-  --primary-teal-rgb: 26, 188, 156;
-  --accent-coral: #FF6B6B;
-  --accent-coral-rgb: 255, 107, 107;
+/* ============================================
+   TAILWIND CSS V4 THEME CONFIGURATION
+   ============================================
+   In Tailwind v4, custom colors and themes are defined using CSS variables
+   and the @theme directive instead of tailwind.config.js
+*/
 
-  /* Background Colors */
-  --bg-white: #FFFFFF;
-  --bg-soft-gray: #F7F9FC;
-  --bg-light-mist: #EEF2F7;
+@theme {
+  /* ============================================
+     PRIMARY COLORS
+     ============================================ */
+  --color-primary-navy: #2d3e50;
+  --color-primary-teal: #1abc9c;
+  --color-primary: #1abc9c;
 
-  /* Text Colors */
-  --text-primary: #1A1F2E;
-  --text-secondary: #4A5568;
-  --text-tertiary: #7F8C8D;
-  --text-on-dark: #FFFFFF;
+  /* ============================================
+     ACCENT COLORS
+     ============================================ */
+  --color-accent-coral: #ff6b6b;
+  --color-accent: #ff6b6b;
 
-  /* Border Colors */
-  --border-light: #E2E8F0;
-  --border-medium: #CBD5E0;
-  --border-dark: #A0AEC0;
+  /* ============================================
+     BACKGROUND COLORS
+     ============================================ */
+  --color-background-white: #ffffff;
+  --color-background-softGray: #f7f9fc;
+  --color-background-lightMist: #eef2f7;
 
-  /* Status Colors */
-  --status-success: #10B981;
-  --status-success-light: #D1FAE5;
-  --status-success-dark: #047857;
-  --status-warning: #F59E0B;
-  --status-warning-light: #FEF3C7;
-  --status-warning-dark: #B45309;
-  --status-error: #EF4444;
-  --status-error-light: #FEE2E2;
-  --status-error-dark: #B91C1C;
-  --status-info: #3B82F6;
-  --status-info-light: #DBEAFE;
-  --status-info-dark: #1D4ED8;
+  /* ============================================
+     TEXT COLORS
+     ============================================ */
+  --color-text-primary: #1a1f2e;
+  --color-text-secondary: #4a5568;
+  --color-text-tertiary: #7f8c8d;
+  --color-text-onDark: #ffffff;
 
-  /* Post Status Colors */
-  --status-open: #6B7280;
-  --status-open-bg: #F3F4F6;
-  --status-acknowledged: #3B82F6;
-  --status-acknowledged-bg: #DBEAFE;
-  --status-in-progress: #F59E0B;
-  --status-in-progress-bg: #FEF3C7;
-  --status-under-review: #8B5CF6;
-  --status-under-review-bg: #EDE9FE;
-  --status-resolved: #10B981;
-  --status-resolved-bg: #D1FAE5;
-  --status-closed: #64748B;
-  --status-closed-bg: #F1F5F9;
-  --status-rejected: #EF4444;
-  --status-rejected-bg: #FEE2E2;
+  /* ============================================
+     BORDER COLORS
+     ============================================ */
+  --color-border-light: #e2e8f0;
+  --color-border-medium: #cbd5e0;
+  --color-border-dark: #a0aec0;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  /* ============================================
+     STATUS COLORS
+     ============================================ */
+  --color-status-success: #10b981;
+  --color-status-success-light: #d1fae5;
+  --color-status-success-dark: #047857;
+
+  --color-status-warning: #f59e0b;
+  --color-status-warning-light: #fef3c7;
+  --color-status-warning-dark: #b45309;
+
+  --color-status-error: #ef4444;
+  --color-status-error-light: #fee2e2;
+  --color-status-error-dark: #b91c1c;
+
+  --color-status-info: #3b82f6;
+  --color-status-info-light: #dbeafe;
+  --color-status-info-dark: #1d4ed8;
+
+  /* ============================================
+     POST STATUS COLORS
+     ============================================ */
+  --color-status-open: #6b7280;
+  --color-status-open-bg: #f3f4f6;
+
+  --color-status-acknowledged: #3b82f6;
+  --color-status-acknowledged-bg: #dbeafe;
+
+  --color-status-in-progress: #f59e0b;
+  --color-status-in-progress-bg: #fef3c7;
+
+  --color-status-under-review: #8b5cf6;
+  --color-status-under-review-bg: #ede9fe;
+
+  --color-status-resolved: #10b981;
+  --color-status-resolved-bg: #d1fae5;
+
+  --color-status-closed: #64748b;
+  --color-status-closed-bg: #f1f5f9;
+
+  --color-status-rejected: #ef4444;
+  --color-status-rejected-bg: #fee2e2;
+
+  /* ============================================
+     FONT FAMILIES
+     ============================================ */
+  --font-family-sans: "Inter", system-ui, -apple-system, "Segoe UI", "Roboto",
+    "Helvetica Neue", "Arial", sans-serif;
+
+  /* ============================================
+     SHADOWS
+     ============================================ */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -2px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 10px 10px -5px rgb(0 0 0 / 0.04);
 }
 
+/* ============================================
+   CUSTOM BACKGROUND GRADIENTS
+   ============================================ */
+@layer utilities {
+  .bg-gradient-primary {
+    background-image: linear-gradient(135deg, #2d3e50 0%, #1abc9c 100%);
+  }
+
+  .bg-gradient-soft {
+    background-image: linear-gradient(135deg, #ebf8ff 0%, #e0f2f1 100%);
+  }
+
+  .bg-gradient-coral {
+    background-image: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+  }
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
 @layer base {
+  * {
+    @apply border-border-light;
+  }
+
   body {
     @apply antialiased;
-    background-color: var(--bg-soft-gray);
-    color: var(--text-primary);
+    @apply font-sans;
+    background-color: var(--color-background-softGray);
+    color: var(--color-text-primary);
+  }
+
+  /* Ensure smooth font rendering */
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================
+   SCROLLBAR STYLING (Optional)
+   ============================================ */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: var(--color-background-lightMist);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--color-border-medium);
+    border-radius: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-dark);
   }
 }
