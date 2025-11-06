@@ -3,7 +3,7 @@ import {
   getDepartments,
   assignUserToDepartment,
   bulkAssignUsersToDepartment,
-} from "../services/departmentService";
+} from "../services/departmentservice";
 
 const DepartmentAssignment = ({
   users, // Array of users or single user

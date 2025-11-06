@@ -15,6 +15,7 @@ import CompanyQRCode from "./pages/company/CompanyQRCode";
 import TagManagement from "./pages/company/TagManagement";
 import MemberManagement from "./pages/company/MemberManagement";
 import DepartmentManagement from "./pages/company/DepartmentManagement";
+import DepartmentDetails from "./pages/company/DepartmentDetails";
 import MemberManagementWithDepartments from "./pages/company/MemberManagementWithDepartments";
 
 import PrivateRoute from "./components/PrivateRoute";
@@ -151,6 +152,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <DepartmentManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/departments/:id"
+              element={
+                <PrivateRoute>
+                  <DepartmentDetails />
                 </PrivateRoute>
               }
             />

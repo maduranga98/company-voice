@@ -194,10 +194,10 @@ const DepartmentCard = ({
             <span className="text-3xl">{department.icon || "🏢"}</span>
           </div>
 
-          {/* Action buttons */}
+          {/* Action buttons - Always visible on mobile, hover on desktop */}
           <div
             className={`flex gap-1 transition-opacity ${
-              showActions ? "opacity-100" : "opacity-0"
+              showActions ? "opacity-100" : "md:opacity-0 opacity-100"
             }`}
           >
             <button

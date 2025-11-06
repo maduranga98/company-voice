@@ -190,13 +190,13 @@ const DepartmentModal = ({ department, onClose, onSave }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Department Icon
             </label>
-            <div className="grid grid-cols-8 gap-2">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
               {departmentIcons.map(({ icon, label }) => (
                 <button
                   key={icon}
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, icon }))}
-                  className={`p-3 text-2xl rounded-lg border-2 transition-all ${
+                  className={`p-2 sm:p-3 text-xl sm:text-2xl rounded-lg border-2 transition-all ${
                     formData.icon === icon
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
