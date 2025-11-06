@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../config/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 const Profile = () => {
   const { userData, currentUser } = useAuth();
@@ -95,6 +95,7 @@ const Profile = () => {
     try {
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
       return date.toLocaleString();
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       return "Invalid date";
     }
@@ -116,7 +117,7 @@ const Profile = () => {
         {/* Profile Card */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Banner */}
-          <div className="h-32 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
+          <div className="h-32 bg-linear-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
 
           {/* Profile Content */}
           <div className="px-6 pb-6">
@@ -124,7 +125,7 @@ const Profile = () => {
             <div className="flex flex-col sm:flex-row items-center sm:items-end -mt-16 mb-6">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center">
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold">
+                  <div className="w-full h-full rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold">
                     {profileData.displayName
                       ? profileData.displayName.charAt(0).toUpperCase()
                       : "U"}
@@ -268,7 +269,7 @@ const Profile = () => {
                   <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
+                    className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
                   >
                     {loading ? "Saving..." : "Save Changes"}
                   </button>

@@ -333,33 +333,44 @@ const RoleBasedLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-background-softGray pb-24">
       {/* Top Header */}
-      <header className="bg-background-white border-b border-border-light sticky top-0 z-40 shadow-lg">
+      <header className="bg-primary-navy border-b border-border-light sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo Section with Enhanced Styling */}
             <div
               className="flex items-center space-x-3 group cursor-pointer"
-              onClick={() => navigate(isAdmin ? "/company/dashboard" : "/feed/creative")}
+              onClick={() =>
+                navigate(isAdmin ? "/company/dashboard" : "/feed/creative")
+              }
             >
               <div className="relative">
                 <div
-                  className={`absolute inset-0 ${isAdmin ? 'bg-blue-500' : 'bg-purple-500'} rounded-lg blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300`}
+                  className={`absolute inset-0 ${
+                    isAdmin ? "bg-blue-500" : "bg-purple-500"
+                  } rounded-lg blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300`}
                 ></div>
                 <div
-                  className={`bg-gradient-to-r ${themeColors.gradient} rounded-lg p-2 relative z-10`}
+                  className={`bg-linear-to-r ${themeColors.gradient} rounded-lg  relative z-10`}
                 >
                   <img
                     src="/logo.png"
                     alt="ANCHORA Logo"
-                    className="w-6 h-6 object-contain group-hover:scale-110 transition-transform duration-300"
+                    className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
               </div>
               <div>
-                <h1 className={`text-xl font-bold ${isAdmin ? 'text-blue-900' : 'text-purple-900'} group-hover:${themeColors.text} transition-colors duration-300`}>
+                <h1
+                  className={`text-xl font-bold ${
+                    isAdmin ? "text-text-onDark" : "text-text-onDark"
+                  } group-hover:${
+                    themeColors.text
+                  } transition-colors duration-300`}
+                >
                   ANCHORA
                 </h1>
-                <p className="text-xs text-text-secondary font-medium">
+
+                <p className="text-xs text-primary-teal font-medium">
                   Your Anchor in Every Storm
                 </p>
               </div>
@@ -373,14 +384,22 @@ const RoleBasedLayout = ({ children }) => {
 
               {/* User Info - Desktop */}
               <div className="hidden md:flex items-center space-x-3 px-3 py-2 bg-background-lightMist rounded-lg border border-border-light">
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${isAdmin ? 'from-blue-500 to-indigo-500' : 'from-purple-500 to-blue-500'} flex items-center justify-center text-text-onDark font-bold text-sm`}>
+                <div
+                  className={`w-8 h-8 rounded-full bg-linear-to-br ${
+                    isAdmin
+                      ? "from-blue-500 to-indigo-500"
+                      : "from-purple-500 to-blue-500"
+                  } flex items-center justify-center text-text-onDark font-bold text-sm`}
+                >
                   {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-text-primary">
                     {userData?.displayName}
                   </p>
-                  <div className="flex justify-end mt-0.5">{getRoleBadge()}</div>
+                  <div className="flex justify-end mt-0.5">
+                    {getRoleBadge()}
+                  </div>
                 </div>
               </div>
 
@@ -389,10 +408,18 @@ const RoleBasedLayout = ({ children }) => {
                 onClick={handleLogout}
                 disabled={loading}
                 className={`inline-flex items-center px-4 py-2 text-sm font-semibold
-                          ${isAdmin ? 'text-blue-700 border-blue-300 hover:bg-blue-50' : 'text-purple-700 border-purple-300 hover:bg-purple-50'}
+                          ${
+                            isAdmin
+                              ? "text-blue-700 border-blue-300 hover:bg-blue-50"
+                              : "text-purple-700 border-purple-300 hover:bg-purple-50"
+                          }
                           bg-background-white border-2 rounded-lg hover:shadow-lg
                           focus:outline-none focus:ring-2 focus:ring-offset-2
-                          ${isAdmin ? 'focus:ring-blue-500' : 'focus:ring-purple-500'}
+                          ${
+                            isAdmin
+                              ? "focus:ring-blue-500"
+                              : "focus:ring-purple-500"
+                          }
                           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
                           active:scale-95`}
               >
@@ -444,7 +471,7 @@ const RoleBasedLayout = ({ children }) => {
       <main className="max-w-7xl mx-auto">{children}</main>
 
       {/* Bottom Navigation - Enhanced with Better Mobile Support */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background-white border-t border-border-light z-50 safe-area-inset-bottom shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-border-light z-50 safe-area-inset-bottom shadow-2xl">
         <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${
@@ -460,7 +487,7 @@ const RoleBasedLayout = ({ children }) => {
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
                   className={`
-                    relative flex flex-col items-center justify-center py-2 px-1 min-h-[64px]
+                    relative flex flex-col items-center justify-center py-2 px-1 min-h-16
                     transition-all duration-300 group
                     ${
                       isActive
@@ -472,7 +499,7 @@ const RoleBasedLayout = ({ children }) => {
                   {/* Active Indicator - Top */}
                   {isActive && (
                     <div
-                      className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${themeColors.gradient} rounded-b-full animate-pulse`}
+                      className={`absolute top-0 left-0 right-0 h-1 bg-linear-to-r ${themeColors.gradient} rounded-b-full animate-pulse`}
                     />
                   )}
 
@@ -485,7 +512,11 @@ const RoleBasedLayout = ({ children }) => {
                   >
                     {/* Background Glow for Active Tab */}
                     {isActive && (
-                      <div className={`absolute inset-0 ${isAdmin ? 'bg-blue-500' : 'bg-purple-500'} rounded-full blur-lg opacity-20 -z-10`}></div>
+                      <div
+                        className={`absolute inset-0 ${
+                          isAdmin ? "bg-blue-500" : "bg-purple-500"
+                        } rounded-full blur-lg opacity-20 -z-10`}
+                      ></div>
                     )}
 
                     {/* Icon */}
@@ -511,7 +542,11 @@ const RoleBasedLayout = ({ children }) => {
 
                   {/* Active Badge Dot */}
                   {isActive && (
-                    <div className={`absolute bottom-1 w-1 h-1 ${isAdmin ? 'bg-blue-500' : 'bg-purple-500'} rounded-full animate-ping`}></div>
+                    <div
+                      className={`absolute bottom-1 w-1 h-1 ${
+                        isAdmin ? "bg-blue-500" : "bg-purple-500"
+                      } rounded-full animate-ping`}
+                    ></div>
                   )}
                 </button>
               );
