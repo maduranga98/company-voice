@@ -24,9 +24,11 @@
   /* ============================================
      BACKGROUND COLORS
      ============================================ */
-  --color-background-white: #ffffff;
+  --color-background-white: #faf9f7; /* Warm off-white, easier on eyes */
+  --color-background-cream: #faf9f7;
   --color-background-softGray: #f7f9fc;
   --color-background-lightMist: #eef2f7;
+  --color-background-offWhite: #f8f9fa;
 
   /* ============================================
      TEXT COLORS

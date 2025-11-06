@@ -203,14 +203,23 @@ const CompanyAdminLayout = () => {
       <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/logo.png"
-                alt="ANCHORA Logo"
-                className="w-10 h-10 object-contain"
-              />
+            {/* Logo Section with Enhanced Styling */}
+            <div
+              className="flex items-center space-x-3 group cursor-pointer"
+              onClick={() => navigate("/company/dashboard")}
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary-teal rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <img
+                  src="/logo.png"
+                  alt="ANCHORA Logo"
+                  className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
+                />
+              </div>
               <div>
-                <h1 className="text-xl font-bold text-text-onDark">ANCHORA</h1>
+                <h1 className="text-xl font-bold text-text-onDark group-hover:text-primary-teal transition-colors duration-300">
+                  ANCHORA
+                </h1>
                 <p className="text-xs text-primary-teal font-medium">
                   Your Anchor in Every Storm
                 </p>
@@ -218,31 +227,68 @@ const CompanyAdminLayout = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-text-onDark">
-                  {userData?.displayName}
-                </p>
-                <div className="flex justify-end mt-0.5">{getRoleBadge()}</div>
+              {/* User Info - Desktop */}
+              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-primary-navy bg-opacity-50 rounded-lg border border-primary-teal border-opacity-30">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-teal to-accent-coral flex items-center justify-center text-text-onDark font-bold text-sm">
+                  {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-text-onDark">
+                    {userData?.displayName}
+                  </p>
+                  <div className="flex justify-end mt-0.5">{getRoleBadge()}</div>
+                </div>
               </div>
+
+              {/* Logout Button */}
               <button
                 onClick={handleLogout}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-text-onDark bg-primary-teal border border-primary-teal rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-text-onDark
+                         bg-primary-teal border-2 border-primary-teal rounded-lg
+                         hover:bg-primary-teal hover:bg-opacity-90 hover:shadow-lg
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal
+                         transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+                         active:scale-95"
               >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                {loading ? "Logging out..." : "Logout"}
+                {loading ? (
+                  <svg
+                    className="animate-spin h-4 w-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">
+                  {loading ? "Logging out..." : "Logout"}
+                </span>
               </button>
             </div>
           </div>
@@ -254,13 +300,13 @@ const CompanyAdminLayout = () => {
         <Outlet />
       </main>
 
-      {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background-white border-t border-border-light z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4">
+      {/* Bottom Navigation - Mobile First with Enhanced Styling */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background-white border-t border-border-light z-50 safe-area-inset-bottom shadow-2xl">
+        <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${
               userData?.userTagId ? "grid-cols-7" : "grid-cols-6"
-            } gap-1`}
+            } gap-0`}
           >
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);
@@ -268,28 +314,66 @@ const CompanyAdminLayout = () => {
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
-                  className={`relative flex flex-col items-center justify-center py-3 px-2 transition-all duration-200 ${
-                    isActive
-                      ? "text-primary-teal bg-background-lightMist"
-                      : "text-text-tertiary hover:text-text-primary hover:bg-background-softGray"
-                  }`}
+                  className={`
+                    relative flex flex-col items-center justify-center py-2 px-1 min-h-[64px]
+                    transition-all duration-300 group
+                    ${
+                      isActive
+                        ? "text-primary-teal bg-background-lightMist"
+                        : "text-text-tertiary hover:text-text-primary hover:bg-background-softGray"
+                    }
+                  `}
                 >
+                  {/* Active Indicator - Top */}
+                  {isActive && (
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-navy to-primary-teal rounded-b-full animate-pulse" />
+                  )}
+
+                  {/* Icon Container */}
                   <div
-                    className={`transition-transform duration-200 ${
-                      isActive ? "scale-110" : ""
-                    }`}
+                    className={`
+                      relative transition-all duration-300
+                      ${isActive ? "scale-110" : "group-hover:scale-105"}
+                    `}
                   >
-                    {tab.icon}
+                    {/* Background Glow for Active Tab */}
+                    {isActive && (
+                      <div className="absolute inset-0 bg-primary-teal rounded-full blur-lg opacity-20 -z-10"></div>
+                    )}
+
+                    {/* Icon */}
+                    <div
+                      className={`
+                      w-6 h-6 transition-colors duration-300
+                      ${
+                        isActive
+                          ? "text-primary-teal"
+                          : "text-text-tertiary group-hover:text-text-primary"
+                      }
+                    `}
+                    >
+                      {tab.icon}
+                    </div>
                   </div>
+
+                  {/* Label */}
                   <span
-                    className={`text-xs mt-1 font-medium ${
-                      isActive ? "text-primary-teal" : "text-text-tertiary"
-                    }`}
+                    className={`
+                      text-[10px] sm:text-xs mt-1.5 font-medium leading-tight text-center
+                      transition-all duration-300
+                      ${
+                        isActive
+                          ? "text-primary-teal font-semibold"
+                          : "text-text-tertiary group-hover:text-text-primary"
+                      }
+                    `}
                   >
                     {tab.name}
                   </span>
+
+                  {/* Active Badge Dot */}
                   {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-primary rounded-t-full" />
+                    <div className="absolute bottom-1 w-1 h-1 bg-primary-teal rounded-full animate-ping"></div>
                   )}
                 </button>
               );

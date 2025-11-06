@@ -16,9 +16,11 @@ export default {
         },
         // Background Colors
         background: {
-          white: "#FFFFFF",
+          white: "#FAF9F7", // Warm off-white, easier on eyes
+          cream: "#FAF9F7",
           softGray: "#F7F9FC",
           lightMist: "#EEF2F7",
+          offWhite: "#F8F9FA",
         },
         // Text Colors
         text: {
