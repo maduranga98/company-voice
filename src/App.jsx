@@ -14,6 +14,9 @@ import CompanyAnalytics from "./pages/company/CompanyAnalytics";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
 import TagManagement from "./pages/company/TagManagement";
 import MemberManagement from "./pages/company/MemberManagement";
+import DepartmentManagement from "./pages/company/DepartmentManagement";
+import MemberManagementWithDepartments from "./pages/company/MemberManagementWithDepartments";
+
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
@@ -144,6 +147,23 @@ function App() {
               }
             />
             <Route
+              path="/company/departments"
+              element={
+                <PrivateRoute>
+                  <DepartmentManagement />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/company/members"
+              element={
+                <PrivateRoute>
+                  <MemberManagementWithDepartments />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/company/analytics"
               element={
                 <PrivateRoute>
@@ -177,7 +197,10 @@ function App() {
             />
 
             {/* Default route based on role */}
-            <Route path="/" element={<Navigate to="/feed/creative" replace />} />
+            <Route
+              path="/"
+              element={<Navigate to="/feed/creative" replace />}
+            />
           </Routes>
         </div>
       </Router>

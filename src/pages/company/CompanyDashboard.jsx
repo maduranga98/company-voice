@@ -200,7 +200,9 @@ const CompanyDashboard = () => {
                 </svg>
                 <div>
                   <p className="text-sm font-medium text-yellow-800">
-                    {pendingUsers} {pendingUsers === 1 ? 'employee' : 'employees'} pending approval
+                    {pendingUsers}{" "}
+                    {pendingUsers === 1 ? "employee" : "employees"} pending
+                    approval
                   </p>
                   <p className="text-xs text-yellow-700 mt-0.5">
                     Review and approve new employee registrations
@@ -208,7 +210,9 @@ const CompanyDashboard = () => {
                 </div>
               </div>
               <button
-                onClick={() => navigate("/company/member-management?filter=pending")}
+                onClick={() =>
+                  navigate("/company/member-management?filter=pending")
+                }
                 className="px-4 py-2 bg-yellow-400 text-yellow-900 rounded-lg hover:bg-yellow-500 transition font-medium text-sm"
               >
                 Review Now
@@ -573,6 +577,54 @@ const CompanyDashboard = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Tag Management</h3>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+              />
+            </svg>
+          </div>
+          <p className="text-indigo-100">
+            Create and manage tags for categorizing members
+          </p>
+        </button>
+        <button
+          onClick={() => navigate("/company/departments")}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Departments</h3>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+              />
+            </svg>
+          </div>
+          <p className="text-indigo-100">
+            Create and manage tags for categorizing members
+          </p>
+        </button>
+        <button
+          onClick={() => navigate("/company/members")}
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Member Management</h3>
             <svg
               className="w-8 h-8"
               fill="none"
