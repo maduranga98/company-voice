@@ -209,11 +209,14 @@ const CompanyAdminLayout = () => {
               onClick={() => navigate("/company/dashboard")}
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-primary-teal rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                {/* White background circle for better logo visibility */}
+                <div className="absolute inset-0 bg-white rounded-lg shadow-lg"></div>
+                {/* Teal glow effect */}
+                <div className="absolute inset-0 bg-primary-teal rounded-lg blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 <img
                   src="/logo.png"
                   alt="ANCHORA Logo"
-                  className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
+                  className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300 p-1"
                 />
               </div>
               <div>
@@ -301,7 +304,7 @@ const CompanyAdminLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First with Enhanced Styling */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background-white border-t border-border-light z-50 safe-area-inset-bottom shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-primary-navy z-50 safe-area-inset-bottom shadow-2xl">
         <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${
@@ -319,8 +322,8 @@ const CompanyAdminLayout = () => {
                     transition-all duration-300 group
                     ${
                       isActive
-                        ? "text-primary-teal bg-background-lightMist"
-                        : "text-text-tertiary hover:text-text-primary hover:bg-background-softGray"
+                        ? "text-primary-teal bg-primary-navy bg-opacity-70"
+                        : "text-text-onDark hover:text-primary-teal hover:bg-primary-navy hover:bg-opacity-50"
                     }
                   `}
                 >
@@ -348,7 +351,7 @@ const CompanyAdminLayout = () => {
                       ${
                         isActive
                           ? "text-primary-teal"
-                          : "text-text-tertiary group-hover:text-text-primary"
+                          : "text-text-onDark group-hover:text-primary-teal"
                       }
                     `}
                     >
@@ -364,7 +367,7 @@ const CompanyAdminLayout = () => {
                       ${
                         isActive
                           ? "text-primary-teal font-semibold"
-                          : "text-text-tertiary group-hover:text-text-primary"
+                          : "text-text-onDark group-hover:text-primary-teal"
                       }
                     `}
                   >
