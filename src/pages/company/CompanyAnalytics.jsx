@@ -15,6 +15,7 @@ import {
   PostPriority,
   PostType,
 } from "../../utils/constants";
+import { getDepartments, getDepartmentStats } from "../../services/departmentservice";
 
 const CompanyAnalytics = () => {
   const { userData } = useAuth();
@@ -37,7 +38,10 @@ const CompanyAnalytics = () => {
     departmentStats: [],
     userEngagement: [],
     trendsLast30Days: [],
+    trendsLast7Days: [],
+    happinessScore: 0,
   });
+  const [trendPeriod, setTrendPeriod] = useState("30"); // 7, 30, or 90 days
 
   useEffect(() => {
     if (userData?.companyId) {
@@ -229,6 +233,55 @@ const CompanyAnalytics = () => {
         count,
       }));
 
+      // Trends for last 7 days
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const trends7Map = {};
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(sevenDaysAgo.getTime() + i * 24 * 60 * 60 * 1000);
+        const dateKey = date.toISOString().split("T")[0];
+        trends7Map[dateKey] = 0;
+      }
+      posts.forEach((post) => {
+        const postDate = post.createdAt?.toDate?.() || new Date(post.createdAt);
+        const dateKey = postDate.toISOString().split("T")[0];
+        if (trends7Map[dateKey] !== undefined) {
+          trends7Map[dateKey] += 1;
+        }
+      });
+      const trendsLast7Days = Object.entries(trends7Map).map(([date, count]) => ({
+        date,
+        count,
+      }));
+
+      // Fetch department statistics
+      const departments = await getDepartments(userData.companyId, false);
+      const departmentStatsData = [];
+      for (const dept of departments) {
+        const stats = await getDepartmentStats(dept.id);
+        departmentStatsData.push({
+          id: dept.id,
+          name: dept.name,
+          icon: dept.icon || "🏢",
+          memberCount: dept.memberCount || 0,
+          totalPosts: stats.totalPosts || 0,
+          resolvedIssues: stats.resolvedIssues || 0,
+          pendingIssues: stats.pendingIssues || 0,
+          resolutionRate: stats.totalPosts > 0
+            ? ((stats.resolvedIssues / stats.totalPosts) * 100).toFixed(1)
+            : 0,
+        });
+      }
+
+      // Calculate happiness score (based on resolution rate, engagement, and response time)
+      const engagementRate = overview.totalPosts > 0
+        ? (companyComments.length / overview.totalPosts) * 10
+        : 0;
+      const resolutionScore = parseFloat(resolutionRate);
+      const responseScore = avgResponseHours > 0
+        ? Math.max(0, 100 - (avgResponseHours * 2)) // Lower response time = higher score
+        : 50;
+      const happinessScore = ((resolutionScore + Math.min(engagementRate * 10, 100) + responseScore) / 3).toFixed(1);
+
       setAnalytics({
         overview,
         postsByType,
@@ -236,9 +289,11 @@ const CompanyAnalytics = () => {
         postsByPriority,
         responseTimeAvg: avgResponseHours,
         resolutionRate,
-        departmentStats: [],
+        departmentStats: departmentStatsData,
         userEngagement,
         trendsLast30Days,
+        trendsLast7Days,
+        happinessScore,
       });
     } catch (error) {
       console.error("Error fetching analytics:", error);
@@ -299,7 +354,24 @@ const CompanyAnalytics = () => {
     );
   }
 
-  const maxTrendValue = Math.max(...analytics.trendsLast30Days.map((d) => d.count), 1);
+  const trendData = trendPeriod === "7" ? analytics.trendsLast7Days : analytics.trendsLast30Days;
+  const maxTrendValue = Math.max(...trendData.map((d) => d.count), 1);
+
+  const getHappinessEmoji = (score) => {
+    if (score >= 80) return "😊";
+    if (score >= 60) return "🙂";
+    if (score >= 40) return "😐";
+    if (score >= 20) return "😟";
+    return "😢";
+  };
+
+  const getHappinessColor = (score) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-blue-600";
+    if (score >= 40) return "text-yellow-600";
+    if (score >= 20) return "text-orange-600";
+    return "text-red-600";
+  };
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8">
@@ -442,6 +514,61 @@ const CompanyAnalytics = () => {
           <div>
             <p className="text-sm font-medium text-blue-100">Resolution Rate</p>
             <p className="text-3xl font-bold mt-1">{analytics.resolutionRate}%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Employee Happiness Indicator */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Employee Happiness Indicator
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Based on resolution rate, engagement, and response time
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-6xl">{getHappinessEmoji(analytics.happinessScore)}</span>
+            <div className="text-center">
+              <p className={`text-5xl font-bold ${getHappinessColor(analytics.happinessScore)}`}>
+                {analytics.happinessScore}
+              </p>
+              <p className="text-sm text-gray-500">out of 100</p>
+            </div>
+          </div>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+          <div
+            className={`h-4 rounded-full transition-all duration-500 ${
+              analytics.happinessScore >= 80
+                ? "bg-green-500"
+                : analytics.happinessScore >= 60
+                ? "bg-blue-500"
+                : analytics.happinessScore >= 40
+                ? "bg-yellow-500"
+                : analytics.happinessScore >= 20
+                ? "bg-orange-500"
+                : "bg-red-500"
+            }`}
+            style={{ width: `${analytics.happinessScore}%` }}
+          ></div>
+        </div>
+        <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600">Resolution</p>
+            <p className="text-xl font-bold text-gray-900">{analytics.resolutionRate}%</p>
+          </div>
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600">Engagement</p>
+            <p className="text-xl font-bold text-gray-900">
+              {((analytics.overview.totalComments / Math.max(analytics.overview.totalPosts, 1)) * 10).toFixed(1)}/10
+            </p>
+          </div>
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600">Response Time</p>
+            <p className="text-xl font-bold text-gray-900">{analytics.responseTimeAvg}h</p>
           </div>
         </div>
       </div>
@@ -596,13 +723,126 @@ const CompanyAnalytics = () => {
         </div>
       </div>
 
+      {/* Department Comparison */}
+      {analytics.departmentStats.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Department Comparison
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Compare performance metrics across departments
+          </p>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Department
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Members
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Posts
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Resolved
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Pending
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Resolution Rate
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {analytics.departmentStats
+                  .sort((a, b) => b.totalPosts - a.totalPosts)
+                  .map((dept) => (
+                    <tr key={dept.id} className="hover:bg-gray-50 transition cursor-pointer"
+                        onClick={() => navigate(`/departments/${dept.id}`)}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <span className="text-2xl mr-3">{dept.icon}</span>
+                          <span className="text-sm font-medium text-gray-900">
+                            {dept.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {dept.memberCount}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {dept.totalPosts}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                          {dept.resolvedIssues}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                          {dept.pendingIssues}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full"
+                              style={{ width: `${dept.resolutionRate}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">
+                            {dept.resolutionRate}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Trends Chart */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Post Activity - Last 30 Days
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Post Activity Trends
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Track post creation patterns over time
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTrendPeriod("7")}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                trendPeriod === "7"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              7 Days
+            </button>
+            <button
+              onClick={() => setTrendPeriod("30")}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                trendPeriod === "30"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              30 Days
+            </button>
+          </div>
+        </div>
         <div className="h-64 flex items-end justify-between gap-1">
-          {analytics.trendsLast30Days.map((data, index) => {
+          {trendData.map((data, index) => {
             const height = (data.count / maxTrendValue) * 100;
             const isWeekend =
               new Date(data.date).getDay() === 0 ||
@@ -630,8 +870,32 @@ const CompanyAnalytics = () => {
           })}
         </div>
         <div className="flex justify-between mt-4 text-xs text-gray-500">
-          <span>30 days ago</span>
+          <span>{trendPeriod} days ago</span>
           <span>Today</span>
+        </div>
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-blue-600 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900">Trend Insights</p>
+              <p className="text-sm text-blue-700 mt-1">
+                {trendData.reduce((sum, d) => sum + d.count, 0)} total posts in the last {trendPeriod} days.
+                Average: {(trendData.reduce((sum, d) => sum + d.count, 0) / trendData.length).toFixed(1)} posts/day
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
