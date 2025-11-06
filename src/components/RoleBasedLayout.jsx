@@ -331,64 +331,109 @@ const RoleBasedLayout = ({ children }) => {
       };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-background-softGray pb-24">
       {/* Top Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-background-white border-b border-border-light sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div
-                className={`bg-gradient-to-r ${themeColors.gradient} rounded-lg p-2`}
-              >
-                <img
-                  src="/logo.png"
-                  alt="ANCHORA Logo"
-                  className="w-6 h-6 object-contain bg-background-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl"
-                />
+            {/* Logo Section with Enhanced Styling */}
+            <div
+              className="flex items-center space-x-3 group cursor-pointer"
+              onClick={() => navigate(isAdmin ? "/company/dashboard" : "/feed/creative")}
+            >
+              <div className="relative">
+                <div
+                  className={`absolute inset-0 ${isAdmin ? 'bg-blue-500' : 'bg-purple-500'} rounded-lg blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300`}
+                ></div>
+                <div
+                  className={`bg-gradient-to-r ${themeColors.gradient} rounded-lg p-2 relative z-10`}
+                >
+                  <img
+                    src="/logo.png"
+                    alt="ANCHORA Logo"
+                    className="w-6 h-6 object-contain group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {isAdmin ? "ANCHORA" : "ANCHORA"}
+                <h1 className={`text-xl font-bold ${isAdmin ? 'text-blue-900' : 'text-purple-900'} group-hover:${themeColors.text} transition-colors duration-300`}>
+                  ANCHORA
                 </h1>
-                <p className="text-xs text-gray-500">
-                  {isAdmin
-                    ? "Your Anchor in Every Storm"
-                    : "Your Anchor in Every Storm"}
+                <p className="text-xs text-text-secondary font-medium">
+                  Your Anchor in Every Storm
                 </p>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
               {/* Language Switcher */}
-              <LanguageSwitcher />
-
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {userData?.displayName}
-                </p>
-                <div className="flex justify-end mt-0.5">{getRoleBadge()}</div>
+              <div className="hidden sm:block">
+                <LanguageSwitcher />
               </div>
+
+              {/* User Info - Desktop */}
+              <div className="hidden md:flex items-center space-x-3 px-3 py-2 bg-background-lightMist rounded-lg border border-border-light">
+                <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${isAdmin ? 'from-blue-500 to-indigo-500' : 'from-purple-500 to-blue-500'} flex items-center justify-center text-text-onDark font-bold text-sm`}>
+                  {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-text-primary">
+                    {userData?.displayName}
+                  </p>
+                  <div className="flex justify-end mt-0.5">{getRoleBadge()}</div>
+                </div>
+              </div>
+
+              {/* Logout Button */}
               <button
                 onClick={handleLogout}
                 disabled={loading}
-                className={`inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${
-                  isAdmin ? "blue" : "purple"
-                }-500 transition disabled:opacity-50`}
+                className={`inline-flex items-center px-4 py-2 text-sm font-semibold
+                          ${isAdmin ? 'text-blue-700 border-blue-300 hover:bg-blue-50' : 'text-purple-700 border-purple-300 hover:bg-purple-50'}
+                          bg-background-white border-2 rounded-lg hover:shadow-lg
+                          focus:outline-none focus:ring-2 focus:ring-offset-2
+                          ${isAdmin ? 'focus:ring-blue-500' : 'focus:ring-purple-500'}
+                          transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+                          active:scale-95`}
               >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                {loading ? t("auth.logout") + "..." : t("auth.logout")}
+                {loading ? (
+                  <svg
+                    className="animate-spin h-4 w-4 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">
+                  {loading ? t("common.loading") : t("auth.logout")}
+                </span>
               </button>
             </div>
           </div>
@@ -398,15 +443,15 @@ const RoleBasedLayout = ({ children }) => {
       {/* Main Content Area - RENDER CHILDREN DIRECTLY */}
       <main className="max-w-7xl mx-auto">{children}</main>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="max-w-7xl mx-auto px-4">
+      {/* Bottom Navigation - Enhanced with Better Mobile Support */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background-white border-t border-border-light z-50 safe-area-inset-bottom shadow-2xl">
+        <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${
               userData?.userTagId
                 ? `grid-cols-${tabs.length}`
                 : `grid-cols-${tabs.length}`
-            } gap-1`}
+            } gap-0`}
           >
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);
@@ -414,30 +459,59 @@ const RoleBasedLayout = ({ children }) => {
                 <button
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
-                  className={`flex flex-col items-center justify-center py-3 px-2 transition-all duration-200 ${
-                    isActive
-                      ? themeColors.active
-                      : `text-gray-600 ${themeColors.hover}`
-                  }`}
+                  className={`
+                    relative flex flex-col items-center justify-center py-2 px-1 min-h-[64px]
+                    transition-all duration-300 group
+                    ${
+                      isActive
+                        ? themeColors.active
+                        : `text-text-tertiary ${themeColors.hover}`
+                    }
+                  `}
                 >
+                  {/* Active Indicator - Top */}
+                  {isActive && (
+                    <div
+                      className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${themeColors.gradient} rounded-b-full animate-pulse`}
+                    />
+                  )}
+
+                  {/* Icon Container */}
                   <div
-                    className={`transition-transform duration-200 ${
-                      isActive ? "scale-110" : ""
-                    }`}
+                    className={`
+                      relative transition-all duration-300
+                      ${isActive ? "scale-110" : "group-hover:scale-105"}
+                    `}
                   >
-                    {tab.icon}
+                    {/* Background Glow for Active Tab */}
+                    {isActive && (
+                      <div className={`absolute inset-0 ${isAdmin ? 'bg-blue-500' : 'bg-purple-500'} rounded-full blur-lg opacity-20 -z-10`}></div>
+                    )}
+
+                    {/* Icon */}
+                    <div className="w-6 h-6 transition-colors duration-300">
+                      {tab.icon}
+                    </div>
                   </div>
+
+                  {/* Label */}
                   <span
-                    className={`text-xs mt-1 font-medium ${
-                      isActive ? themeColors.text : "text-gray-600"
-                    }`}
+                    className={`
+                      text-[10px] sm:text-xs mt-1.5 font-medium leading-tight text-center
+                      transition-all duration-300
+                      ${
+                        isActive
+                          ? `${themeColors.text} font-semibold`
+                          : "text-text-tertiary group-hover:text-text-primary"
+                      }
+                    `}
                   >
                     {tab.name}
                   </span>
+
+                  {/* Active Badge Dot */}
                   {isActive && (
-                    <div
-                      className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${themeColors.gradient} rounded-t-full`}
-                    />
+                    <div className={`absolute bottom-1 w-1 h-1 ${isAdmin ? 'bg-blue-500' : 'bg-purple-500'} rounded-full animate-ping`}></div>
                   )}
                 </button>
               );
