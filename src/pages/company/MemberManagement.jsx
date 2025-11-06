@@ -13,7 +13,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { UserRole } from "../../utils/constants";
-import { getDepartments, assignUserToDepartment } from "../../services/departmentservice";
+import {
+  getDepartments,
+  assignUserToDepartment,
+} from "../../services/departmentservice";
 
 const MemberManagement = () => {
   const { userData } = useAuth();
@@ -175,7 +178,11 @@ const MemberManagement = () => {
   };
 
   const handleRejectMember = async (memberId) => {
-    if (!confirm("Are you sure you want to reject this member? This will permanently delete their account.")) {
+    if (
+      !confirm(
+        "Are you sure you want to reject this member? This will permanently delete their account."
+      )
+    ) {
       return;
     }
 
@@ -262,13 +269,21 @@ const MemberManagement = () => {
 
   const getRoleBadge = (role) => {
     const roleConfig = {
-      [UserRole.COMPANY_ADMIN]: { label: "Admin", classes: "bg-blue-100 text-blue-800" },
+      [UserRole.COMPANY_ADMIN]: {
+        label: "Admin",
+        classes: "bg-blue-100 text-blue-800",
+      },
       [UserRole.HR]: { label: "HR", classes: "bg-green-100 text-green-800" },
-      [UserRole.EMPLOYEE]: { label: "Employee", classes: "bg-gray-100 text-gray-800" },
+      [UserRole.EMPLOYEE]: {
+        label: "Employee",
+        classes: "bg-gray-100 text-gray-800",
+      },
     };
     const config = roleConfig[role] || roleConfig[UserRole.EMPLOYEE];
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.classes}`}>
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.classes}`}
+      >
         {config.label}
       </span>
     );
@@ -292,14 +307,26 @@ const MemberManagement = () => {
           onClick={() => navigate(-1)}
           className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Back
         </button>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Member Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Member Management
+            </h1>
             <p className="text-gray-600">
               Manage team members, assign tags and departments
             </p>
@@ -309,17 +336,37 @@ const MemberManagement = () => {
               onClick={() => navigate("/company/tag-management")}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                />
               </svg>
               Manage Tags
             </button>
             <button
-              onClick={() => navigate("/company/department-management")}
+              onClick={() => navigate("/company/departments")}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
               </svg>
               Manage Departments
             </button>
@@ -358,7 +405,9 @@ const MemberManagement = () => {
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">Departments</p>
-            <p className="text-2xl font-bold text-purple-600">{departments.length}</p>
+            <p className="text-2xl font-bold text-purple-600">
+              {departments.length}
+            </p>
           </div>
         </div>
       </div>
@@ -368,7 +417,9 @@ const MemberManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {/* Search */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Search
+            </label>
             <input
               type="text"
               placeholder="Search by name or email..."
@@ -380,7 +431,9 @@ const MemberManagement = () => {
 
           {/* Role Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Role
+            </label>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
@@ -395,7 +448,9 @@ const MemberManagement = () => {
 
           {/* Tag Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tag</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tag
+            </label>
             <select
               value={selectedTag}
               onChange={(e) => setSelectedTag(e.target.value)}
@@ -413,7 +468,9 @@ const MemberManagement = () => {
 
           {/* Department Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Department
+            </label>
             <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
@@ -431,7 +488,9 @@ const MemberManagement = () => {
 
           {/* Status Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -445,14 +504,17 @@ const MemberManagement = () => {
         </div>
 
         <div className="mt-3 text-sm text-gray-600">
-          Showing <strong>{filteredMembers.length}</strong> of <strong>{members.length}</strong> members
+          Showing <strong>{filteredMembers.length}</strong> of{" "}
+          <strong>{members.length}</strong> members
         </div>
       </div>
 
       {/* Members List */}
       {filteredMembers.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
-          <p className="text-gray-600">No members found matching your filters</p>
+          <p className="text-gray-600">
+            No members found matching your filters
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -487,7 +549,13 @@ const MemberManagement = () => {
                   <tr key={member.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className={`w-10 h-10 ${member.status === "pending" ? "bg-yellow-500" : "bg-blue-600"} rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}>
+                        <div
+                          className={`w-10 h-10 ${
+                            member.status === "pending"
+                              ? "bg-yellow-500"
+                              : "bg-blue-600"
+                          } rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}
+                        >
                           {member.displayName?.charAt(0).toUpperCase() || "?"}
                         </div>
                         <div className="ml-3">
@@ -495,31 +563,43 @@ const MemberManagement = () => {
                             {member.displayName || "Unnamed"}
                           </div>
                           <div className="text-xs">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                              member.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-green-100 text-green-800"
-                            }`}>
-                              {member.status === "pending" ? "Pending Approval" : "Active"}
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                member.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
+                            >
+                              {member.status === "pending"
+                                ? "Pending Approval"
+                                : "Active"}
                             </span>
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{member.email}</div>
+                      <div className="text-sm text-gray-900">
+                        {member.email}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getRoleBadge(member.role)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {memberTag ? (
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${getColorClasses(memberTag.color).bgClass} ${getColorClasses(memberTag.color).textClass}`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${
+                            getColorClasses(memberTag.color).bgClass
+                          } ${getColorClasses(memberTag.color).textClass}`}
+                        >
                           <span className="mr-1">{memberTag.icon}</span>
                           {memberTag.name}
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-400 italic">Not tagged</span>
+                        <span className="text-sm text-gray-400 italic">
+                          Not tagged
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -529,7 +609,9 @@ const MemberManagement = () => {
                           {memberDepartment.name}
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-400 italic">No department</span>
+                        <span className="text-sm text-gray-400 italic">
+                          No department
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -591,7 +673,9 @@ const MemberManagement = () => {
 
               {tags.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-600 mb-4">No tags available. Create tags first.</p>
+                  <p className="text-gray-600 mb-4">
+                    No tags available. Create tags first.
+                  </p>
                   <button
                     onClick={() => navigate("/company/tag-management")}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -606,7 +690,9 @@ const MemberManagement = () => {
                     onClick={() => handleAssignTag(null)}
                     className="w-full p-3 text-left border-2 border-gray-200 rounded-lg hover:border-gray-400 transition"
                   >
-                    <span className="text-sm font-medium text-gray-600">Remove Tag</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Remove Tag
+                    </span>
                   </button>
 
                   {tags.map((tag) => {
@@ -622,14 +708,20 @@ const MemberManagement = () => {
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <div className={`inline-flex items-center px-2.5 py-1 rounded ${colorClasses.bgClass} ${colorClasses.textClass}`}>
+                          <div
+                            className={`inline-flex items-center px-2.5 py-1 rounded ${colorClasses.bgClass} ${colorClasses.textClass}`}
+                          >
                             <span className="text-lg mr-2">{tag.icon}</span>
                             <span className="font-semibold">{tag.name}</span>
                           </div>
-                          <span className="text-xs text-gray-500">Priority: {tag.priority}</span>
+                          <span className="text-xs text-gray-500">
+                            Priority: {tag.priority}
+                          </span>
                         </div>
                         {tag.description && (
-                          <p className="text-xs text-gray-600 mt-1">{tag.description}</p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {tag.description}
+                          </p>
                         )}
                       </button>
                     );
@@ -664,9 +756,11 @@ const MemberManagement = () => {
 
               {departments.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-600 mb-4">No departments available. Create departments first.</p>
+                  <p className="text-gray-600 mb-4">
+                    No departments available. Create departments first.
+                  </p>
                   <button
-                    onClick={() => navigate("/company/department-management")}
+                    onClick={() => navigate("/company/departments")}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                   >
                     Go to Department Management
@@ -679,7 +773,9 @@ const MemberManagement = () => {
                     onClick={() => handleAssignDepartment(null)}
                     className="w-full p-3 text-left border-2 border-gray-200 rounded-lg hover:border-gray-400 transition"
                   >
-                    <span className="text-sm font-medium text-gray-600">Remove from Department</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Remove from Department
+                    </span>
                   </button>
 
                   {departments.map((dept) => (
@@ -702,7 +798,9 @@ const MemberManagement = () => {
                         </span>
                       </div>
                       {dept.description && (
-                        <p className="text-xs text-gray-600 mt-1">{dept.description}</p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {dept.description}
+                        </p>
                       )}
                     </button>
                   ))}
