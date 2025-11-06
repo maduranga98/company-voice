@@ -21,11 +21,11 @@ const Dashboard = () => {
   }, [userData, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center">
       <div className="text-center">
         <div className="relative">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-24 h-24 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full animate-ping opacity-20"></div>
+            <div className="w-24 h-24 bg-linear-to-r from-purple-600 to-blue-600 rounded-full animate-ping opacity-20"></div>
           </div>
           <div className="relative bg-white rounded-full p-6 shadow-xl">
             <svg

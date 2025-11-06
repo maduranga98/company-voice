@@ -163,10 +163,10 @@ const EmployeeLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-background-softGray)] pb-20">
+    <div className="min-h-screen bg-background-softGray pb-20">
       {/* Top Header */}
-      <header className="bg-[var(--color-primary-navy)] border-b border-[var(--color-primary-navy)] sticky top-0 z-40 shadow-lg backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
           <div className="flex justify-between items-center h-16">
             {/* Logo Section */}
             <div
@@ -174,7 +174,7 @@ const EmployeeLayout = () => {
               onClick={() => navigate("/feed/creative")}
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-[var(--color-primary-teal)] rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-(--color-primary-teal) rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
                 <img
                   src="/logo.png"
                   alt="ANCHORA Logo"
@@ -182,10 +182,10 @@ const EmployeeLayout = () => {
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-[var(--color-text-onDark)] group-hover:text-[var(--color-primary-teal)] transition-colors duration-300">
+                <h1 className="text-xl font-bold text-text-onDark group-hover:text-(--color-primary-teal) transition-colors duration-300">
                   ANCHORA
                 </h1>
-                <p className="text-xs text-[var(--color-primary-teal)] font-medium">
+                <p className="text-xs text-(--color-primary-teal) font-medium">
                   Your Anchor in Every Storm
                 </p>
               </div>
@@ -199,15 +199,15 @@ const EmployeeLayout = () => {
               </div>
 
               {/* User Info - Desktop */}
-              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-[var(--color-primary-navy)] bg-opacity-50 rounded-lg border border-[var(--color-primary-teal)] border-opacity-30">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-primary-teal)] to-[var(--color-accent-coral)] flex items-center justify-center text-[var(--color-text-onDark)] font-bold text-sm">
+              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-primary-navy bg-opacity-50 rounded-lg border border-(--color-primary-teal)er-opacity-30">
+                <div className="w-8 h-8 rounded-full bg-linear-to-br from-(--color-primary-teal) to-(--color-accent-coral) flex items-center justify-center text-text-onDark-sm">
                   {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-[var(--color-text-onDark)]">
+                  <p className="text-sm font-semibold text-text-onDark">
                     {userData?.displayName}
                   </p>
-                  <p className="text-xs text-[var(--color-primary-teal)] capitalize">
+                  <p className="text-xs text-(--color-primary-teal) capitalize">
                     {userData?.role?.replace("_", " ")}
                   </p>
                 </div>
@@ -217,10 +217,10 @@ const EmployeeLayout = () => {
               <button
                 onClick={handleLogout}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-[var(--color-text-onDark)] 
-                         bg-[var(--color-primary-teal)] border-2 border-[var(--color-primary-teal)] rounded-lg 
-                         hover:bg-[var(--color-primary-teal)] hover:bg-opacity-90 hover:shadow-lg
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-teal)]
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-text-onDark 
+                         bg-(--color-primary-teal) border-2 border-(--color-primary-teal) rounded-lg 
+                         hover:bg-(--color-primary-teal) hover:bg-opacity-90 hover:shadow-lg
+                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-(--color-primary-teal)
                          transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
                          active:scale-95"
               >
@@ -274,7 +274,7 @@ const EmployeeLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[var(--color-background-white)] border-t border-[var(--color-border-light)] z-50 safe-area-inset-bottom shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-(--color-background-white) border-t border-border-light-inset-bottom shadow-2xl">
         <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${
@@ -288,18 +288,18 @@ const EmployeeLayout = () => {
                   key={tab.id}
                   onClick={() => navigate(tab.path)}
                   className={`
-                    relative flex flex-col items-center justify-center py-2 px-1 min-h-[64px] 
+                    relative flex flex-col items-center justify-center py-2 px-1 min-h-16 
                     transition-all duration-300 group
                     ${
                       isActive
-                        ? "text-[var(--color-primary-teal)] bg-[var(--color-background-lightMist)]"
-                        : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-softGray)]"
+                        ? "text-(--color-primary-teal) bg-background-lightMist"
+                        : "text-text-tertiary hover:text-text-primary--color-background-softGray)]"
                     }
                   `}
                 >
                   {/* Active Indicator - Top */}
                   {isActive && (
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-primary-navy)] to-[var(--color-primary-teal)] rounded-b-full animate-pulse" />
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary-navy to-(--color-primary-teal) rounded-b-full animate-pulse" />
                   )}
 
                   {/* Icon Container */}
@@ -311,7 +311,7 @@ const EmployeeLayout = () => {
                   >
                     {/* Background Glow for Active Tab */}
                     {isActive && (
-                      <div className="absolute inset-0 bg-[var(--color-primary-teal)] rounded-full blur-lg opacity-20 -z-10"></div>
+                      <div className="absolute inset-0 bg-(--color-primary-teal) rounded-full blur-lg opacity-20 -z-10"></div>
                     )}
 
                     {/* Icon */}
@@ -320,8 +320,8 @@ const EmployeeLayout = () => {
                       w-6 h-6 transition-colors duration-300
                       ${
                         isActive
-                          ? "text-[var(--color-primary-teal)]"
-                          : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-primary)]"
+                          ? "text-(--color-primary-teal)"
+                          : "text-text-tertiary group-hover:text-text-primary"
                       }
                     `}
                     >
@@ -336,8 +336,8 @@ const EmployeeLayout = () => {
                       transition-all duration-300
                       ${
                         isActive
-                          ? "text-[var(--color-primary-teal)] font-semibold"
-                          : "text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-primary)]"
+                          ? "text-(--color-primary-teal) font-semibold"
+                          : "text-text-tertiary group-hover:text-text-primary"
                       }
                     `}
                   >
@@ -346,7 +346,7 @@ const EmployeeLayout = () => {
 
                   {/* Active Badge Dot */}
                   {isActive && (
-                    <div className="absolute bottom-1 w-1 h-1 bg-[var(--color-primary-teal)] rounded-full animate-ping"></div>
+                    <div className="absolute bottom-1 w-1 h-1 bg-(--color-primary-teal) rounded-full animate-ping"></div>
                   )}
                 </button>
               );
@@ -356,16 +356,16 @@ const EmployeeLayout = () => {
       </nav>
 
       {/* Mobile User Info Overlay - Shown on Language Switcher tap */}
-      <div className="md:hidden fixed top-16 right-4 bg-[var(--color-background-white)] rounded-lg shadow-xl border border-[var(--color-border-light)] p-3 z-30 hidden group-hover:block">
+      <div className="md:hidden fixed top-16 right-4 bg-(--color-background-white) rounded-lg shadow-xl border border-border-light p-3 z-30 hidden group-hover:block">
         <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary-teal)] to-[var(--color-accent-coral)] flex items-center justify-center text-[var(--color-text-onDark)] font-bold">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-(--color-primary-teal) to-(--color-accent-coral) flex items-center justify-center text-text-onDark font-bold">
             {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
           </div>
           <div>
-            <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+            <p className="text-sm font-semibold text-text-primary">
               {userData?.displayName}
             </p>
-            <p className="text-xs text-[var(--color-text-secondary)] capitalize">
+            <p className="text-xs text-text-secondary capitalize">
               {userData?.role?.replace("_", " ")}
             </p>
           </div>
