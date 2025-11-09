@@ -646,6 +646,31 @@ const CompanyDashboard = () => {
         </button>
 
         <button
+          onClick={() => navigate("/company/audit-log")}
+          className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Audit Log</h3>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <p className="text-amber-100">
+            View comprehensive audit history and compliance logs
+          </p>
+        </button>
+
+        <button
           onClick={() => navigate("/my-posts")}
           className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >

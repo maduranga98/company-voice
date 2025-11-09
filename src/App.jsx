@@ -17,6 +17,7 @@ import MemberManagement from "./pages/company/MemberManagement";
 import DepartmentManagement from "./pages/company/DepartmentManagement";
 import DepartmentDetails from "./pages/company/DepartmentDetails";
 import MemberManagementWithDepartments from "./pages/company/MemberManagementWithDepartments";
+import AuditLog from "./pages/admin/AuditLog";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
@@ -177,6 +178,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <CompanyAnalytics />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/audit-log"
+              element={
+                <PrivateRoute>
+                  <AuditLog />
                 </PrivateRoute>
               }
             />

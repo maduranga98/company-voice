@@ -459,10 +459,27 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
  */
 export const logPostActivity = async (postId, activityType, metadata = {}) => {
   try {
+    // Get post to retrieve companyId for better audit querying
+    let companyId = metadata.companyId;
+    if (!companyId) {
+      try {
+        const postRef = doc(db, "posts", postId);
+        const postSnap = await getDoc(postRef);
+        if (postSnap.exists()) {
+          companyId = postSnap.data().companyId;
+        }
+      } catch (err) {
+        console.warn("Could not fetch companyId for activity log:", err);
+      }
+    }
+
     const activityData = {
       postId,
       type: activityType,
-      metadata,
+      metadata: {
+        ...metadata,
+        companyId, // Add companyId for easier filtering
+      },
       createdAt: serverTimestamp(),
     };
 
