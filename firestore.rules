@@ -261,6 +261,171 @@ service cloud.firestore {
     }
 
     // ============================================
+    // BILLING: SUBSCRIPTIONS COLLECTION
+    // ============================================
+    match /subscriptions/{subscriptionId} {
+      // Company admins can read their company's subscription
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all subscriptions
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+
+    // ============================================
+    // BILLING: INVOICES COLLECTION
+    // ============================================
+    match /invoices/{invoiceId} {
+      // Company admins can read their company's invoices
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all invoices
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+
+    // ============================================
+    // BILLING: USAGE RECORDS COLLECTION
+    // ============================================
+    match /usageRecords/{recordId} {
+      // Company admins can read their company's usage records
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all usage records
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+
+    // ============================================
+    // BILLING: PAYMENTS COLLECTION
+    // ============================================
+    match /payments/{paymentId} {
+      // Company admins can read their company's payments
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all payments
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+
+    // ============================================
+    // BILLING: PAYMENT METHODS COLLECTION
+    // ============================================
+    match /paymentMethods/{methodId} {
+      // Company admins can read their company's payment methods
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all payment methods
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+
+    // ============================================
+    // BILLING: BILLING HISTORY COLLECTION
+    // ============================================
+    match /billingHistory/{historyId} {
+      // Company admins can read their company's billing history
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all billing history
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create (immutable)
+      allow create: if false;
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // BILLING: PRICING TIERS COLLECTION
+    // ============================================
+    match /pricingTiers/{tierId} {
+      // All authenticated users can read active pricing tiers
+      allow read: if isAuthenticated() && resource.data.isActive == true;
+
+      // Super admins can read all pricing tiers
+      allow read: if isSuperAdmin();
+
+      // Only super admins can create/update/delete
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // BILLING: BILLING DISPUTES COLLECTION
+    // ============================================
+    match /billingDisputes/{disputeId} {
+      // Company admins can read their company's disputes
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all disputes
+      allow read: if isSuperAdmin();
+
+      // Company admins can create disputes for their company
+      allow create: if isAuthenticated() &&
+                       isCompanyAdmin(request.resource.data.companyId) &&
+                       request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+
+      // Only super admins can update/delete disputes
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // BILLING: REVENUE REPORTS COLLECTION
+    // ============================================
+    match /revenueReports/{reportId} {
+      // Only super admins can read revenue reports
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create/update
+      allow create, update: if false;
+      allow delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // SYSTEM AUDIT LOGS COLLECTION
+    // ============================================
+    match /systemAuditLogs/{logId} {
+      // Company admins can read their company's audit logs
+      allow read: if isAuthenticated() &&
+                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
+
+      // Super admins can read all audit logs
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create (immutable)
+      allow create: if false;
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // USER TAGS COLLECTION
+    // ============================================
+    match /userTags/{tagId} {
+      // Anyone in the same company can read tags
+      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
+
+      // Only admins can create/update/delete tags
+      allow create, update, delete: if isAdmin() &&
+                                        isSameCompany(resource.data.companyId);
+    }
+
+    // ============================================
     // DENY ALL OTHER COLLECTIONS
     // ============================================
     match /{document=**} {
