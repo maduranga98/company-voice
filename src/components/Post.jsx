@@ -1,18 +1,24 @@
 import { useState } from "react";
+import { Flag } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import CommentsSection from "./CommentsSection";
+import ReportContentModal from "./ReportContentModal";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../contexts/AuthContext";
 
 import {
   PostStatusConfig,
   PostPriorityConfig,
   PostType,
+  ReportableContentType,
 } from "../utils/constants";
 
 const Post = ({ post }) => {
   const { t } = useTranslation();
+  const { userData } = useAuth();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
@@ -391,8 +397,31 @@ const Post = ({ post }) => {
             postAuthorName={post.authorName}
             postTitle={post.title}
           />
+
+          {/* Report Button - Only show if not the author */}
+          {userData && userData.uid !== post.authorId && !post.isRemoved && (
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="ml-auto flex items-center gap-1 px-3 py-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
+              title="Report this post"
+            >
+              <Flag className="w-4 h-4" />
+              <span className="hidden sm:inline">Report</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <ReportContentModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          contentType={ReportableContentType.POST}
+          contentId={post.id}
+          companyId={userData?.companyId}
+        />
+      )}
     </article>
   );
 };

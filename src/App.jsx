@@ -36,6 +36,10 @@ import DiscussionsFeed from "./pages/feed/DiscussionsFeed";
 import MyPosts from "./pages/MyPosts";
 import AssignedToMe from "./pages/AssignedToMe";
 
+// Moderation Pages
+import ModerationDashboard from "./pages/ModerationDashboard";
+import ReportDetailView from "./pages/ReportDetailView";
+
 function App() {
   return (
     <AuthProvider>
@@ -115,6 +119,28 @@ function App() {
                 <PrivateRoute>
                   <RoleBasedLayout>
                     <AssignedToMe />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Moderation Routes (for admins and HR) */}
+            <Route
+              path="/moderation"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <ModerationDashboard />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/moderation/report/:reportId"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <ReportDetailView />
                   </RoleBasedLayout>
                 </PrivateRoute>
               }
