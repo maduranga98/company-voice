@@ -3,8 +3,8 @@
  * Platform-wide billing management and revenue monitoring
  */
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getAllSubscriptions,
   getSuperAdminInvoices,
@@ -16,12 +16,12 @@ import {
   formatDate,
   getStatusColor,
   getPaymentStatusColor,
-} from '../../services/billingService';
+} from "../../services/billingService";
 
 function BillingDashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
   const [subscriptions, setSubscriptions] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [disputes, setDisputes] = useState([]);
@@ -31,9 +31,9 @@ function BillingDashboard() {
   const [success, setSuccess] = useState(null);
 
   // Filters
-  const [subscriptionFilter, setSubscriptionFilter] = useState('all');
-  const [invoiceFilter, setInvoiceFilter] = useState('all');
-  const [disputeFilter, setDisputeFilter] = useState('open');
+  const [subscriptionFilter, setSubscriptionFilter] = useState("all");
+  const [invoiceFilter, setInvoiceFilter] = useState("all");
+  const [disputeFilter, setDisputeFilter] = useState("open");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -46,13 +46,14 @@ function BillingDashboard() {
       setLoading(true);
       setError(null);
 
-      const [subsData, invoicesData, disputesData, reportData, historyData] = await Promise.all([
-        getAllSubscriptions({ limit: 100 }),
-        getSuperAdminInvoices({ limit: 100 }),
-        getBillingDisputes({ status: 'open', limit: 50 }),
-        getRevenueReport(new Date().getMonth() + 1, new Date().getFullYear()),
-        getAllBillingHistory({ limit: 100 }),
-      ]);
+      const [subsData, invoicesData, disputesData, reportData, historyData] =
+        await Promise.all([
+          getAllSubscriptions({ limit: 100 }),
+          getSuperAdminInvoices({ limit: 100 }),
+          getBillingDisputes({ status: "open", limit: 50 }),
+          getRevenueReport(new Date().getMonth() + 1, new Date().getFullYear()),
+          getAllBillingHistory({ limit: 100 }),
+        ]);
 
       setSubscriptions(subsData?.data || []);
       setInvoices(invoicesData?.data || []);
@@ -60,7 +61,7 @@ function BillingDashboard() {
       setRevenueReport(reportData?.data);
       setBillingHistory(historyData?.data || []);
     } catch (err) {
-      console.error('Error loading dashboard data:', err);
+      console.error("Error loading dashboard data:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -73,33 +74,43 @@ function BillingDashboard() {
       const reportData = await getRevenueReport(selectedMonth, selectedYear);
       setRevenueReport(reportData?.data);
     } catch (err) {
-      console.error('Error loading revenue report:', err);
+      console.error("Error loading revenue report:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleResolveDispute(disputeId, resolution, resolutionNotes, refundAmount = null) {
+  async function handleResolveDispute(
+    disputeId,
+    resolution,
+    resolutionNotes,
+    refundAmount = null
+  ) {
     try {
       setLoading(true);
-      await resolveBillingDispute({ disputeId, resolution, resolutionNotes, refundAmount });
-      setSuccess('Dispute resolved successfully');
+      await resolveBillingDispute({
+        disputeId,
+        resolution,
+        resolutionNotes,
+        refundAmount,
+      });
+      setSuccess("Dispute resolved successfully");
       await loadDashboardData();
     } catch (err) {
-      console.error('Error resolving dispute:', err);
+      console.error("Error resolving dispute:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   }
 
-  const filteredSubscriptions = subscriptions.filter(sub =>
-    subscriptionFilter === 'all' || sub.status === subscriptionFilter
+  const filteredSubscriptions = subscriptions.filter(
+    (sub) => subscriptionFilter === "all" || sub.status === subscriptionFilter
   );
 
-  const filteredInvoices = invoices.filter(inv =>
-    invoiceFilter === 'all' || inv.status === invoiceFilter
+  const filteredInvoices = invoices.filter(
+    (inv) => invoiceFilter === "all" || inv.status === invoiceFilter
   );
 
   if (loading && !revenueReport) {
@@ -144,12 +155,14 @@ function BillingDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         {/* Alert Messages */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
             <span className="block sm:inline">{error}</span>
-            <button onClick={() => setError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <button
+              onClick={() => setError(null)}
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+            >
               <span className="text-xl">&times;</span>
             </button>
           </div>
@@ -158,7 +171,10 @@ function BillingDashboard() {
         {success && (
           <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
             <span className="block sm:inline">{success}</span>
-            <button onClick={() => setSuccess(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <button
+              onClick={() => setSuccess(null)}
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+            >
               <span className="text-xl">&times;</span>
             </button>
           </div>
@@ -172,7 +188,7 @@ function BillingDashboard() {
               value={formatCurrency(revenueReport.totalRevenue)}
               subtitle={`${revenueReport.activeCompanies} active companies`}
               icon="💰"
-              trend={revenueReport.totalRevenue > 0 ? 'up' : 'neutral'}
+              trend={revenueReport.totalRevenue > 0 ? "up" : "neutral"}
             />
             <MetricCard
               title="Total Active Users"
@@ -184,16 +200,20 @@ function BillingDashboard() {
             <MetricCard
               title="Payment Success Rate"
               value={`${revenueReport.paymentSuccessRate}%`}
-              subtitle={`${revenueReport.successfulPayments}/${revenueReport.successfulPayments + revenueReport.failedPayments} successful`}
+              subtitle={`${revenueReport.successfulPayments}/${
+                revenueReport.successfulPayments + revenueReport.failedPayments
+              } successful`}
               icon="✅"
-              trend={revenueReport.paymentSuccessRate >= 90 ? 'up' : 'down'}
+              trend={revenueReport.paymentSuccessRate >= 90 ? "up" : "down"}
             />
             <MetricCard
               title="Outstanding Invoices"
               value={formatCurrency(revenueReport.totalOutstanding)}
               subtitle={`${revenueReport.companiesInGracePeriod} in grace period`}
               icon="⚠️"
-              trend={revenueReport.companiesInGracePeriod > 0 ? 'down' : 'neutral'}
+              trend={
+                revenueReport.companiesInGracePeriod > 0 ? "down" : "neutral"
+              }
             />
           </div>
         )}
@@ -201,18 +221,25 @@ function BillingDashboard() {
         {/* Tabs */}
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
-            {['overview', 'subscriptions', 'invoices', 'disputes', 'revenue', 'history'].map((tab) => (
+            {[
+              "overview",
+              "subscriptions",
+              "invoices",
+              "disputes",
+              "revenue",
+              "history",
+            ].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`${
                   activeTab === tab
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? "border-indigo-500 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm capitalize`}
               >
                 {tab}
-                {tab === 'disputes' && disputes.length > 0 && (
+                {tab === "disputes" && disputes.length > 0 && (
                   <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs">
                     {disputes.length}
                   </span>
@@ -224,30 +251,34 @@ function BillingDashboard() {
 
         {/* Tab Content */}
         <div className="mt-6">
-          {activeTab === 'overview' && <OverviewTab revenueReport={revenueReport} />}
-          {activeTab === 'subscriptions' && (
+          {activeTab === "overview" && (
+            <OverviewTab revenueReport={revenueReport} />
+          )}
+          {activeTab === "subscriptions" && (
             <SubscriptionsTab
               subscriptions={filteredSubscriptions}
               filter={subscriptionFilter}
               onFilterChange={setSubscriptionFilter}
             />
           )}
-          {activeTab === 'invoices' && (
+          {activeTab === "invoices" && (
             <InvoicesTab
               invoices={filteredInvoices}
               filter={invoiceFilter}
               onFilterChange={setInvoiceFilter}
             />
           )}
-          {activeTab === 'disputes' && (
+          {activeTab === "disputes" && (
             <DisputesTab
-              disputes={disputes.filter(d => disputeFilter === 'all' || d.status === disputeFilter)}
+              disputes={disputes.filter(
+                (d) => disputeFilter === "all" || d.status === disputeFilter
+              )}
               filter={disputeFilter}
               onFilterChange={setDisputeFilter}
               onResolve={handleResolveDispute}
             />
           )}
-          {activeTab === 'revenue' && (
+          {activeTab === "revenue" && (
             <RevenueTab
               report={revenueReport}
               selectedMonth={selectedMonth}
@@ -257,10 +288,9 @@ function BillingDashboard() {
               onLoadReport={loadRevenueReport}
             />
           )}
-          {activeTab === 'history' && <HistoryTab history={billingHistory} />}
+          {activeTab === "history" && <HistoryTab history={billingHistory} />}
         </div>
       </div>
-    </div>
     </div>
   );
 }
@@ -268,9 +298,9 @@ function BillingDashboard() {
 // Metric Card Component
 function MetricCard({ title, value, subtitle, icon, trend }) {
   const trendColors = {
-    up: 'text-green-600',
-    down: 'text-red-600',
-    neutral: 'text-gray-600',
+    up: "text-green-600",
+    down: "text-red-600",
+    neutral: "text-gray-600",
   };
 
   return (
@@ -278,9 +308,9 @@ function MetricCard({ title, value, subtitle, icon, trend }) {
       <div className="flex items-center justify-between mb-2">
         <span className="text-2xl">{icon}</span>
         <span className={`text-sm font-medium ${trendColors[trend]}`}>
-          {trend === 'up' && '↑'}
-          {trend === 'down' && '↓'}
-          {trend === 'neutral' && '—'}
+          {trend === "up" && "↑"}
+          {trend === "down" && "↓"}
+          {trend === "neutral" && "—"}
         </span>
       </div>
       <h3 className="text-sm font-medium text-gray-600">{title}</h3>
@@ -293,25 +323,34 @@ function MetricCard({ title, value, subtitle, icon, trend }) {
 // Tab Components
 
 function OverviewTab({ revenueReport }) {
-  if (!revenueReport) return <div className="text-center py-12 text-gray-500">Loading...</div>;
+  if (!revenueReport)
+    return <div className="text-center py-12 text-gray-500">Loading...</div>;
 
   return (
     <div className="space-y-6">
       {/* Revenue Breakdown */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Revenue Breakdown</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Revenue Breakdown
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <p className="text-sm text-gray-600">Total Invoiced</p>
-            <p className="text-2xl font-bold text-gray-900">{formatCurrency(revenueReport.totalInvoiced)}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {formatCurrency(revenueReport.totalInvoiced)}
+            </p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Total Paid</p>
-            <p className="text-2xl font-bold text-green-600">{formatCurrency(revenueReport.totalPaid)}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {formatCurrency(revenueReport.totalPaid)}
+            </p>
           </div>
           <div>
             <p className="text-sm text-gray-600">Outstanding</p>
-            <p className="text-2xl font-bold text-orange-600">{formatCurrency(revenueReport.totalOutstanding)}</p>
+            <p className="text-2xl font-bold text-orange-600">
+              {formatCurrency(revenueReport.totalOutstanding)}
+            </p>
           </div>
         </div>
       </div>
@@ -319,16 +358,26 @@ function OverviewTab({ revenueReport }) {
       {/* Company Breakdown */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Top Companies by Revenue</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            Top Companies by Revenue
+          </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Users</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Users
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Revenue
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -340,12 +389,18 @@ function OverviewTab({ revenueReport }) {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {company.companyName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{company.userCount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {company.userCount}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {formatCurrency(company.revenue)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(company.status)}`}>
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                          company.status
+                        )}`}
+                      >
                         {company.status}
                       </span>
                     </td>
@@ -364,7 +419,9 @@ function SubscriptionsTab({ subscriptions, filter, onFilterChange }) {
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex items-center space-x-4">
-        <label className="text-sm font-medium text-gray-700">Filter by status:</label>
+        <label className="text-sm font-medium text-gray-700">
+          Filter by status:
+        </label>
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
@@ -385,12 +442,24 @@ function SubscriptionsTab({ subscriptions, filter, onFilterChange }) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Users</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Billing</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Users
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Next Billing
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -399,12 +468,18 @@ function SubscriptionsTab({ subscriptions, filter, onFilterChange }) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {sub.companyName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{sub.currentUserCount}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {sub.currentUserCount}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {formatCurrency(sub.amount)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(sub.status)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                        sub.status
+                      )}`}
+                    >
                       {sub.status}
                     </span>
                   </td>
@@ -431,7 +506,9 @@ function SubscriptionsTab({ subscriptions, filter, onFilterChange }) {
 
 function InvoicesTab({ invoices, filter, onFilterChange }) {
   const totalAmount = invoices.reduce((sum, inv) => sum + inv.total, 0);
-  const paidAmount = invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.amountPaid, 0);
+  const paidAmount = invoices
+    .filter((inv) => inv.status === "paid")
+    .reduce((sum, inv) => sum + inv.amountPaid, 0);
 
   return (
     <div className="space-y-4">
@@ -439,21 +516,29 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-600">Total Invoiced</p>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalAmount)}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {formatCurrency(totalAmount)}
+          </p>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-600">Total Paid</p>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(paidAmount)}</p>
+          <p className="text-2xl font-bold text-green-600">
+            {formatCurrency(paidAmount)}
+          </p>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-600">Outstanding</p>
-          <p className="text-2xl font-bold text-orange-600">{formatCurrency(totalAmount - paidAmount)}</p>
+          <p className="text-2xl font-bold text-orange-600">
+            {formatCurrency(totalAmount - paidAmount)}
+          </p>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex items-center space-x-4">
-        <label className="text-sm font-medium text-gray-700">Filter by status:</label>
+        <label className="text-sm font-medium text-gray-700">
+          Filter by status:
+        </label>
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
@@ -472,11 +557,21 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Invoice #
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -485,13 +580,21 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {invoice.invoiceNumber}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{invoice.companyName || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(invoice.createdAt)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {invoice.companyName || "-"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {formatDate(invoice.createdAt)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {formatCurrency(invoice.total)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor(invoice.status)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getPaymentStatusColor(
+                        invoice.status
+                      )}`}
+                    >
                       {invoice.status}
                     </span>
                   </td>
@@ -512,9 +615,9 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
 
 function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
   const [selectedDispute, setSelectedDispute] = useState(null);
-  const [resolution, setResolution] = useState('');
-  const [resolutionNotes, setResolutionNotes] = useState('');
-  const [refundAmount, setRefundAmount] = useState('');
+  const [resolution, setResolution] = useState("");
+  const [resolutionNotes, setResolutionNotes] = useState("");
+  const [refundAmount, setRefundAmount] = useState("");
 
   function handleResolve() {
     if (!selectedDispute || !resolution) return;
@@ -525,16 +628,18 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
       refundAmount ? parseFloat(refundAmount) : null
     );
     setSelectedDispute(null);
-    setResolution('');
-    setResolutionNotes('');
-    setRefundAmount('');
+    setResolution("");
+    setResolutionNotes("");
+    setRefundAmount("");
   }
 
   return (
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex items-center space-x-4">
-        <label className="text-sm font-medium text-gray-700">Filter by status:</label>
+        <label className="text-sm font-medium text-gray-700">
+          Filter by status:
+        </label>
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
@@ -552,12 +657,24 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opened</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Reason
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Opened
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -569,15 +686,25 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {formatCurrency(dispute.amount)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{dispute.reason}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(dispute.openedAt)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {dispute.reason}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {formatDate(dispute.openedAt)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${dispute.status === 'open' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        dispute.status === "open"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
                       {dispute.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {dispute.status === 'open' && (
+                    {dispute.status === "open" && (
                       <button
                         onClick={() => setSelectedDispute(dispute)}
                         className="text-indigo-600 hover:text-indigo-900"
@@ -602,10 +729,14 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
       {selectedDispute && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Resolve Dispute</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Resolve Dispute
+            </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Resolution</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Resolution
+                </label>
                 <select
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value)}
@@ -617,9 +748,11 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
                   <option value="rejected">Dispute Rejected</option>
                 </select>
               </div>
-              {resolution === 'refunded' && (
+              {resolution === "refunded" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Refund Amount</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Refund Amount
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -631,7 +764,9 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notes
+                </label>
                 <textarea
                   value={resolutionNotes}
                   onChange={(e) => setResolutionNotes(e.target.value)}
@@ -663,13 +798,33 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
   );
 }
 
-function RevenueTab({ report, selectedMonth, selectedYear, onMonthChange, onYearChange, onLoadReport }) {
+function RevenueTab({
+  report,
+  selectedMonth,
+  selectedYear,
+  onMonthChange,
+  onYearChange,
+  onLoadReport,
+}) {
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from(
+    { length: 5 },
+    (_, i) => new Date().getFullYear() - i
+  );
 
   return (
     <div className="space-y-6">
@@ -677,26 +832,34 @@ function RevenueTab({ report, selectedMonth, selectedYear, onMonthChange, onYear
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center space-x-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Month
+            </label>
             <select
               value={selectedMonth}
               onChange={(e) => onMonthChange(parseInt(e.target.value))}
               className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             >
               {months.map((month, index) => (
-                <option key={month} value={index + 1}>{month}</option>
+                <option key={month} value={index + 1}>
+                  {month}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Year
+            </label>
             <select
               value={selectedYear}
               onChange={(e) => onYearChange(parseInt(e.target.value))}
               className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             >
               {years.map((year) => (
-                <option key={year} value={year}>{year}</option>
+                <option key={year} value={year}>
+                  {year}
+                </option>
               ))}
             </select>
           </div>
@@ -718,25 +881,35 @@ function RevenueTab({ report, selectedMonth, selectedYear, onMonthChange, onYear
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Total Revenue</p>
-              <p className="text-3xl font-bold text-gray-900">{formatCurrency(report.totalRevenue)}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {formatCurrency(report.totalRevenue)}
+              </p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Active Companies</p>
-              <p className="text-3xl font-bold text-gray-900">{report.activeCompanies}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {report.activeCompanies}
+              </p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900">{report.totalActiveUsers}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {report.totalActiveUsers}
+              </p>
             </div>
             <div className="bg-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Avg Users/Company</p>
-              <p className="text-3xl font-bold text-gray-900">{report.averageUsersPerCompany}</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {report.averageUsersPerCompany}
+              </p>
             </div>
           </div>
 
           {/* Export Options */}
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Export Report</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Export Report
+            </h3>
             <div className="flex space-x-3">
               <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                 Export as CSV
@@ -762,23 +935,37 @@ function HistoryTab({ history }) {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Timestamp
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Company
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Event Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Description
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {history.map((event) => (
               <tr key={event.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(event.timestamp)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{event.companyName || '-'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  {formatDate(event.timestamp)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {event.companyName || "-"}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs font-medium">
                     {event.eventType}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{event.description}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {event.description}
+                </td>
               </tr>
             ))}
           </tbody>
