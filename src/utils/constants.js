@@ -276,6 +276,11 @@ export const PostActivityType = {
   ADMIN_COMMENT: "admin_comment",
   RESOLVED: "resolved",
   REOPENED: "reopened",
+  EDITED: "edited",
+  PINNED: "pinned",
+  UNPINNED: "unpinned",
+  ARCHIVED: "archived",
+  UNARCHIVED: "unarchived",
 };
 
 // Post activity type display configuration
@@ -359,6 +364,46 @@ export const PostActivityTypeConfig = {
     bgColor: "bg-red-100",
     textColor: "text-red-800",
     description: "Post was reopened",
+  },
+  [PostActivityType.EDITED]: {
+    label: "Edited",
+    icon: "✏️",
+    color: "blue",
+    bgColor: "bg-blue-100",
+    textColor: "text-blue-800",
+    description: "Post was edited",
+  },
+  [PostActivityType.PINNED]: {
+    label: "Pinned",
+    icon: "📌",
+    color: "purple",
+    bgColor: "bg-purple-100",
+    textColor: "text-purple-800",
+    description: "Post was pinned",
+  },
+  [PostActivityType.UNPINNED]: {
+    label: "Unpinned",
+    icon: "📍",
+    color: "gray",
+    bgColor: "bg-gray-100",
+    textColor: "text-gray-800",
+    description: "Post was unpinned",
+  },
+  [PostActivityType.ARCHIVED]: {
+    label: "Archived",
+    icon: "📦",
+    color: "slate",
+    bgColor: "bg-slate-100",
+    textColor: "text-slate-800",
+    description: "Post was archived",
+  },
+  [PostActivityType.UNARCHIVED]: {
+    label: "Unarchived",
+    icon: "📤",
+    color: "green",
+    bgColor: "bg-green-100",
+    textColor: "text-green-800",
+    description: "Post was unarchived",
   },
 };
 

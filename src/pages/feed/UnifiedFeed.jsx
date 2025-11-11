@@ -3,16 +3,18 @@ import { useState, useEffect } from "react";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { useAuth } from "../../contexts/AuthContext";
-import Post from "../../components/Post";
+import PostEnhanced from "../../components/PostEnhanced";
 import CreatePost from "../../components/CreatePost";
 import AdminActionPanel from "../../components/AdminActionPanel";
 import { isAdmin } from "../../services/postManagementService";
 import { useTranslation } from "react-i18next";
+import { getPinnedPosts } from "../../services/postEnhancedFeaturesService";
 
 const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const { t } = useTranslation();
   const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [pinnedPosts, setPinnedPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -34,6 +36,8 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
 
     try {
       setLoading(true);
+
+      // Load regular posts (exclude pinned and archived)
       const postsQuery = query(
         collection(db, "posts"),
         where("companyId", "==", userData.companyId),
@@ -47,7 +51,11 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate(),
         updatedAt: doc.data().updatedAt?.toDate(),
-      }));
+      })).filter(post => !post.isArchived); // Filter out archived posts
+
+      // Load pinned posts for this feed type
+      const pinned = await getPinnedPosts(userData.companyId, feedType);
+      setPinnedPosts(pinned.filter(post => !post.isArchived)); // Exclude archived from pinned
 
       setPosts(postsData);
     } catch (error) {
@@ -354,15 +362,42 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
               </p>
             </div>
 
-            {/* Posts Grid */}
+            {/* Pinned Posts */}
+            {pinnedPosts.length > 0 && (
+              <div className="space-y-4 mb-6">
+                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                  Pinned Posts
+                </h3>
+                {pinnedPosts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="bg-[var(--color-background-white)] rounded-xl shadow-md border-2 border-purple-200
+                             hover:shadow-lg hover:border-purple-300 transition-all duration-200"
+                  >
+                    {userIsAdmin && (
+                      <div className="p-3 sm:p-4 border-b border-[var(--color-border-light)] bg-[var(--color-background-lightMist)] bg-opacity-50 rounded-t-xl">
+                        <AdminActionPanel
+                          post={post}
+                          currentUser={userData}
+                          onUpdate={handlePostUpdate}
+                        />
+                      </div>
+                    )}
+                    <PostEnhanced post={post} />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Regular Posts Grid */}
             {filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-[var(--color-background-white)] rounded-xl shadow-sm border border-[var(--color-border-light)] 
+                className="bg-[var(--color-background-white)] rounded-xl shadow-sm border border-[var(--color-border-light)]
                          hover:shadow-md hover:border-[var(--color-border-medium)] transition-all duration-200"
               >
                 {userIsAdmin && (
-                  <div className="p-4 pb-0 border-b border-[var(--color-border-light)] bg-[var(--color-background-lightMist)] bg-opacity-50 rounded-t-xl">
+                  <div className="p-3 sm:p-4 border-b border-[var(--color-border-light)] bg-[var(--color-background-lightMist)] bg-opacity-50 rounded-t-xl">
                     <AdminActionPanel
                       post={post}
                       currentUser={userData}
@@ -370,7 +405,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                     />
                   </div>
                 )}
-                <Post post={post} getTimeAgo={getTimeAgo} />
+                <PostEnhanced post={post} />
               </div>
             ))}
           </>
