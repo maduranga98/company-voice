@@ -413,13 +413,13 @@ const Post = ({ post }) => {
       </div>
 
       {/* Report Modal */}
-      {showReportModal && (
+      {showReportModal && userData?.companyId && (
         <ReportContentModal
           isOpen={showReportModal}
           onClose={() => setShowReportModal(false)}
           contentType={ReportableContentType.POST}
           contentId={post.id}
-          companyId={userData?.companyId}
+          companyId={userData.companyId}
         />
       )}
     </article>
