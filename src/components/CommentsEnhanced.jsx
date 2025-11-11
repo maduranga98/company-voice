@@ -48,7 +48,7 @@ const CommentsEnhanced = ({
 
   // Real-time comments listener
   useEffect(() => {
-    if (!showComments) return;
+    if (!showComments || !postId) return;
 
     const commentsRef = collection(db, "comments");
     const q = query(
@@ -57,14 +57,21 @@ const CommentsEnhanced = ({
       orderBy("createdAt", "asc")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedComments = [];
-      snapshot.forEach((doc) => {
-        fetchedComments.push({ id: doc.id, ...doc.data() });
-      });
-      setComments(fetchedComments);
-      setCommentCount(fetchedComments.length);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const fetchedComments = [];
+        snapshot.forEach((doc) => {
+          fetchedComments.push({ id: doc.id, ...doc.data() });
+        });
+        setComments(fetchedComments);
+        setCommentCount(fetchedComments.length);
+      },
+      (error) => {
+        console.error("Error fetching comments:", error);
+        setError("Failed to load comments. Please try again.");
+      }
+    );
 
     return () => unsubscribe();
   }, [postId, showComments]);
@@ -232,12 +239,12 @@ const CommentsEnhanced = ({
 
       {/* Comments Section */}
       {showComments && (
-        <div className="px-3 sm:px-4 pb-4 border-t border-slate-100 mt-3">
+        <div className="px-3 sm:px-4 pb-4 border-t border-slate-100 mt-3 bg-white">
           {/* Comments List */}
           <div className="mt-4 space-y-3 max-h-96 overflow-y-auto">
             {comments.length === 0 ? (
               <p className="text-sm text-slate-500 text-center py-4">
-                No comments yet. Be the first to comment!
+                {commentCount > 0 ? "Loading comments..." : "No comments yet. Be the first to comment!"}
               </p>
             ) : (
               comments.map((comment) => (
