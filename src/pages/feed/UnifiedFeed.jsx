@@ -110,7 +110,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-background-softGray)] pb-20">
+    <div className="min-h-screen bg-[var(--color-background-softGray)] pb-24">
       {/* Header with gradient and modern design */}
       <div className="bg-[var(--color-background-white)] border-b border-[var(--color-border-light)] sticky top-0 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -396,8 +396,8 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
       <button
         onClick={() => setShowCreateModal(true)}
         className={`
-          fixed bottom-20 right-6 
-          sm:bottom-24 sm:right-8 
+          fixed bottom-24 right-6
+          sm:bottom-28 sm:right-8 
           bg-gradient-to-r ${colors.gradient} 
           text-[var(--color-text-onDark)]
           w-14 h-14 

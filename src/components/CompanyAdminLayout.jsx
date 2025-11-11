@@ -218,7 +218,7 @@ const CompanyAdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-softGray pb-20">
+    <div className="min-h-screen bg-background-softGray pb-24">
       {/* Top Header */}
       <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
