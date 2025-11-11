@@ -20,6 +20,9 @@ import DepartmentManagement from "./pages/company/DepartmentManagement";
 import DepartmentDetails from "./pages/company/DepartmentDetails";
 import MemberManagementWithDepartments from "./pages/company/MemberManagementWithDepartments";
 import AuditLog from "./pages/admin/AuditLog";
+import TemplatesPage from "./pages/TemplatesPage";
+import DraftsPage from "./pages/DraftsPage";
+import ScheduledPostsPage from "./pages/ScheduledPostsPage";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
@@ -141,6 +144,40 @@ function App() {
                 <PrivateRoute>
                   <RoleBasedLayout>
                     <ReportDetailView />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Post Management Routes (for all users) */}
+            <Route
+              path="/drafts"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <DraftsPage />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/scheduled"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <ScheduledPostsPage />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Templates Route (for admins) */}
+            <Route
+              path="/templates"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <TemplatesPage />
                   </RoleBasedLayout>
                 </PrivateRoute>
               }

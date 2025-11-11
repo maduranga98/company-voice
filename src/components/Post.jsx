@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Flag } from "lucide-react";
 import ReactionButton from "./ReactionButton";
-import CommentsSection from "./CommentsSection";
+import CommentsEnhanced from "./CommentsEnhanced";
 import ReportContentModal from "./ReportContentModal";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
@@ -390,7 +390,7 @@ const Post = ({ post }) => {
             postAuthorName={post.authorName}
             postTitle={post.title}
           />
-          <CommentsSection
+          <CommentsEnhanced
             postId={post.id}
             initialCommentCount={post.comments || 0}
             postAuthorId={post.authorId}
