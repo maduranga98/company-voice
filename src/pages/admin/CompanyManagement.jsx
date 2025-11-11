@@ -138,11 +138,25 @@ const CompanyManagement = () => {
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
-            {/* Title */}
-            <div>
+            {/* Title & Navigation */}
+            <div className="flex flex-col space-y-2">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Super Admin Panel
               </h1>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => navigate("/admin/companies")}
+                  className="text-sm font-medium text-indigo-600 border-b-2 border-indigo-600"
+                >
+                  Companies
+                </button>
+                <button
+                  onClick={() => navigate("/admin/billing")}
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition"
+                >
+                  Billing
+                </button>
+              </div>
             </div>
 
             {/* User Info & Actions */}

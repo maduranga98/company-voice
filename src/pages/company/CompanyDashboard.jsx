@@ -694,6 +694,31 @@ const CompanyDashboard = () => {
             View and manage your own posts and updates
           </p>
         </button>
+
+        <button
+          onClick={() => navigate("/company/billing")}
+          className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Billing & Subscription</h3>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+              />
+            </svg>
+          </div>
+          <p className="text-teal-100">
+            Manage subscription, invoices, and payment methods
+          </p>
+        </button>
       </div>
     </div>
   );
