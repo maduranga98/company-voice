@@ -123,7 +123,8 @@ service cloud.firestore {
                        !request.resource.data.diff(resource.data).affectedKeys()
                          .hasAny(['authorId', 'companyId', 'createdAt', 'status', 'priority', 'assignedTo']);
 
-      // Admins can update post status, priority, assignment
+      // Admins can update post status, priority, assignment, pin, archive
+      // Also allow updating editHistory, pinnedAt, archivedAt fields
       allow update: if isAuthenticated() &&
                        isSameCompany(resource.data.companyId) &&
                        isAdmin();

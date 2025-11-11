@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Pin, Archive } from "lucide-react";
 import {
   PostStatus,
   PostStatusConfig,
@@ -16,6 +17,13 @@ import {
   addAdminComment,
   getCompanyDepartments,
 } from "../services/postManagementService";
+import {
+  pinPost,
+  unpinPost,
+  archivePost,
+  unarchivePost,
+} from "../services/postEnhancedFeaturesService";
+import { showSuccess, showError } from "../services/toastService";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebase";
 
@@ -120,10 +128,10 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       setStatus(newStatus);
       setComment("");
       if (onUpdate) onUpdate();
-      alert("Status updated successfully!");
+      showSuccess("Status updated successfully!");
     } catch (error) {
       console.error("Error updating status:", error);
-      alert(`Failed to update status: ${error.message}`);
+      showError(`Failed to update status: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -135,10 +143,10 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       await updatePostPriority(post.id, newPriority, currentUser);
       setPriority(newPriority);
       if (onUpdate) onUpdate();
-      alert("Priority updated successfully!");
+      showSuccess("Priority updated successfully!");
     } catch (error) {
       console.error("Error updating priority:", error);
-      alert(`Failed to update priority: ${error.message}`);
+      showError(`Failed to update priority: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -153,7 +161,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
         await unassignPost(post.id, currentUser);
         setSelectedAssignee(null);
         setSelectedDueDate("");
-        alert("Post unassigned successfully!");
+        showSuccess("Post unassigned successfully!");
       } else {
         // Assign
         const assignment = {
@@ -165,14 +173,14 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
         await assignPost(post.id, assignment, currentUser);
         setSelectedAssignee(assignee);
-        alert("Post assigned successfully!");
+        showSuccess("Post assigned successfully!");
       }
 
       setShowAssignDropdown(false);
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error with assignment:", error);
-      alert(`Failed to assign: ${error.message}`);
+      showError(`Failed to assign: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -185,13 +193,13 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
       if (newDate) {
         await setDueDate(post.id, new Date(newDate), currentUser);
-        alert("Due date set successfully!");
+        showSuccess("Due date set successfully!");
       }
 
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error setting due date:", error);
-      alert(`Failed to set due date: ${error.message}`);
+      showError(`Failed to set due date: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -199,7 +207,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
   const handleAddComment = async () => {
     if (!comment.trim()) {
-      alert("Please enter a comment");
+      showError("Please enter a comment");
       return;
     }
 
@@ -207,11 +215,49 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       setLoading(true);
       await addAdminComment(post.id, comment, currentUser);
       setComment("");
-      alert("Admin comment added successfully!");
+      showSuccess("Admin comment added successfully!");
       if (onUpdate) onUpdate();
     } catch (error) {
       console.error("Error adding comment:", error);
-      alert(`Failed to add comment: ${error.message}`);
+      showError(`Failed to add comment: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePinToggle = async () => {
+    try {
+      setLoading(true);
+      if (post.isPinned) {
+        await unpinPost(post.id, currentUser.id, currentUser.displayName);
+        showSuccess("Post unpinned successfully!");
+      } else {
+        await pinPost(post.id, currentUser.id, currentUser.displayName, currentUser.companyId);
+        showSuccess("Post pinned successfully!");
+      }
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      console.error("Error toggling pin:", error);
+      showError(`Failed to ${post.isPinned ? 'unpin' : 'pin'} post`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleArchiveToggle = async () => {
+    try {
+      setLoading(true);
+      if (post.isArchived) {
+        await unarchivePost(post.id, currentUser.id, currentUser.displayName);
+        showSuccess("Post unarchived successfully!");
+      } else {
+        await archivePost(post.id, currentUser.id, currentUser.displayName, "Archived by admin");
+        showSuccess("Post archived successfully!");
+      }
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      console.error("Error toggling archive:", error);
+      showError(`Failed to ${post.isArchived ? 'unarchive' : 'archive'} post`);
     } finally {
       setLoading(false);
     }
@@ -318,6 +364,34 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Pin and Archive Actions */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        <button
+          onClick={handlePinToggle}
+          disabled={loading}
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition ${
+            post.isPinned
+              ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <Pin className={`w-4 h-4 ${post.isPinned ? 'fill-current' : ''}`} />
+          {post.isPinned ? 'Unpin' : 'Pin'} Post
+        </button>
+        <button
+          onClick={handleArchiveToggle}
+          disabled={loading}
+          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition ${
+            post.isArchived
+              ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <Archive className="w-4 h-4" />
+          {post.isArchived ? 'Unarchive' : 'Archive'} Post
+        </button>
       </div>
 
       {/* Expanded Section */}
