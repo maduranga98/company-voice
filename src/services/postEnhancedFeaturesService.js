@@ -12,7 +12,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { logPostActivity } from "./auditService";
+import { logPostActivity } from "./postManagementService";
 import { PostActivityType } from "../utils/constants";
 
 // ============================================

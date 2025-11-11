@@ -139,24 +139,25 @@ export const showWithAction = (message, actionLabel, onAction, type = "info") =>
     warning: toast.warning,
   }[type] || toast.info;
 
-  toastFn(
+  const ActionToast = ({ closeToast }) => (
     <div className="flex items-center justify-between gap-3">
       <span>{message}</span>
       <button
         onClick={() => {
           onAction();
-          toast.dismiss();
+          closeToast();
         }}
         className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-sm font-medium transition"
       >
         {actionLabel}
       </button>
-    </div>,
-    {
-      ...defaultOptions,
-      closeButton: false,
-    }
+    </div>
   );
+
+  toastFn(ActionToast, {
+    ...defaultOptions,
+    closeButton: false,
+  });
 };
 
 /**
@@ -180,25 +181,26 @@ export const showNetworkError = (message, onRetry) => {
  * @param {number} duration - Auto-close duration in ms
  */
 export const showUndo = (message, onUndo, duration = 5000) => {
-  toast.info(
+  const UndoToast = ({ closeToast }) => (
     <div className="flex items-center justify-between gap-3">
       <span>{message}</span>
       <button
         onClick={() => {
           onUndo();
-          toast.dismiss();
+          closeToast();
         }}
         className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-sm font-medium transition"
       >
         Undo
       </button>
-    </div>,
-    {
-      ...defaultOptions,
-      autoClose: duration,
-      closeButton: false,
-    }
+    </div>
   );
+
+  toast.info(UndoToast, {
+    ...defaultOptions,
+    autoClose: duration,
+    closeButton: false,
+  });
 };
 
 export default {
