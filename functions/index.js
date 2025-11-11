@@ -1,6 +1,6 @@
 /**
  * Firebase Cloud Functions for Company Voice Platform
- * Stripe Billing System
+ * Stripe Billing System, Search, and Notifications
  */
 
 // Company Admin API
@@ -29,6 +29,27 @@ const {
   updatePricingTier,
 } = require('./api/superAdminApi');
 
+// Search API
+const {
+  advancedSearch,
+  saveSearch,
+  getSavedSearches,
+  deleteSavedSearch,
+  useSavedSearch,
+  getSearchAnalytics,
+} = require('./api/searchApi');
+
+// Notification API
+const {
+  getNotificationPreferences,
+  updateNotificationPreferences,
+  getNotifications,
+  markNotificationsAsRead,
+  markNotificationsAsUnread,
+  deleteNotifications,
+  getUnreadCount,
+} = require('./api/notificationApi');
+
 // Webhooks
 const { handleStripeWebhook } = require('./webhooks/stripeWebhook');
 
@@ -40,6 +61,11 @@ const {
   trialExpirationCheckJob,
   usageTrackingSyncJob,
 } = require('./scheduled/billingJobs');
+
+const {
+  dailyEmailDigestJob,
+  weeklyEmailDigestJob,
+} = require('./scheduled/notificationJobs');
 
 // Export Company Admin Functions
 exports.createCompanySubscription = createCompanySubscription;
@@ -72,3 +98,22 @@ exports.gracePeriodCheckJob = gracePeriodCheckJob;
 exports.paymentRetryJob = paymentRetryJob;
 exports.trialExpirationCheckJob = trialExpirationCheckJob;
 exports.usageTrackingSyncJob = usageTrackingSyncJob;
+exports.dailyEmailDigestJob = dailyEmailDigestJob;
+exports.weeklyEmailDigestJob = weeklyEmailDigestJob;
+
+// Export Search Functions
+exports.advancedSearch = advancedSearch;
+exports.saveSearch = saveSearch;
+exports.getSavedSearches = getSavedSearches;
+exports.deleteSavedSearch = deleteSavedSearch;
+exports.useSavedSearch = useSavedSearch;
+exports.getSearchAnalytics = getSearchAnalytics;
+
+// Export Notification Functions
+exports.getNotificationPreferences = getNotificationPreferences;
+exports.updateNotificationPreferences = updateNotificationPreferences;
+exports.getNotifications = getNotifications;
+exports.markNotificationsAsRead = markNotificationsAsRead;
+exports.markNotificationsAsUnread = markNotificationsAsUnread;
+exports.deleteNotifications = deleteNotifications;
+exports.getUnreadCount = getUnreadCount;

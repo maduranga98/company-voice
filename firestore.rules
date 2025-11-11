@@ -520,6 +520,77 @@ service cloud.firestore {
     }
 
     // ============================================
+    // SEARCH: SAVED SEARCHES COLLECTION
+    // ============================================
+    match /savedSearches/{searchId} {
+      // Users can read their own saved searches
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Admins can read all saved searches in their company
+      allow read: if isAuthenticated() &&
+                     isAdmin() &&
+                     isSameCompany(resource.data.companyId);
+
+      // Users can create their own saved searches (admins only)
+      allow create: if isAuthenticated() &&
+                       isAdmin() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       isSameCompany(request.resource.data.companyId);
+
+      // Users can update their own saved searches
+      allow update: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+
+      // Users can delete their own saved searches
+      allow delete: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================
+    // SEARCH: ANALYTICS COLLECTION
+    // ============================================
+    match /searchAnalytics/{analyticsId} {
+      // Only admins can read search analytics
+      allow read: if isAuthenticated() &&
+                     isAdmin() &&
+                     isSameCompany(resource.data.companyId);
+
+      // Super admins can read all analytics
+      allow read: if isSuperAdmin();
+
+      // Only backend functions can create analytics
+      allow create: if false;
+
+      // No updates or deletes allowed (immutable analytics)
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // NOTIFICATION PREFERENCES COLLECTION
+    // ============================================
+    match /notificationPreferences/{userId} {
+      // Users can read their own notification preferences
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can create/update their own notification preferences
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can delete their own preferences
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ============================================
+    // EMAIL QUEUE COLLECTION
+    // ============================================
+    match /emailQueue/{emailId} {
+      // No direct read access (backend only)
+      allow read: if false;
+
+      // Only backend functions can create/update/delete
+      allow create, update, delete: if false;
+    }
+
+    // ============================================
     // DENY ALL OTHER COLLECTIONS
     // ============================================
     match /{document=**} {
