@@ -9,8 +9,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
+import BillingDashboard from "./pages/admin/BillingDashboard";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyAnalytics from "./pages/company/CompanyAnalytics";
+import CompanyBilling from "./pages/company/CompanyBilling";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
 import TagManagement from "./pages/company/TagManagement";
 import MemberManagement from "./pages/company/MemberManagement";
@@ -50,6 +52,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <CompanyManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/billing"
+              element={
+                <PrivateRoute>
+                  <BillingDashboard />
                 </PrivateRoute>
               }
             />
@@ -186,6 +196,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <AuditLog />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/billing"
+              element={
+                <PrivateRoute>
+                  <CompanyBilling />
                 </PrivateRoute>
               }
             />
