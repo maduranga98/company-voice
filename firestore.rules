@@ -426,6 +426,100 @@ service cloud.firestore {
     }
 
     // ============================================
+    // CONTENT MODERATION: REPORTS COLLECTION
+    // ============================================
+    match /contentReports/{reportId} {
+      // Admins can read reports for their company
+      allow read: if isAuthenticated() &&
+                     isAdmin() &&
+                     isSameCompany(resource.data.companyId);
+
+      // Super admins can read all reports
+      allow read: if isSuperAdmin();
+
+      // Any authenticated user can create a report
+      allow create: if isAuthenticated() &&
+                       request.resource.data.reportedBy == request.auth.uid &&
+                       isSameCompany(request.resource.data.companyId) &&
+                       request.resource.data.keys().hasAll(['contentType', 'contentId', 'reason', 'reportedBy', 'companyId']);
+
+      // Only admins can update reports (review them)
+      allow update: if isAuthenticated() &&
+                       isAdmin() &&
+                       isSameCompany(resource.data.companyId);
+
+      // Super admins can update any report
+      allow update: if isSuperAdmin();
+
+      // No deletes allowed (audit trail)
+      allow delete: if false;
+    }
+
+    // ============================================
+    // CONTENT MODERATION: USER STRIKES COLLECTION
+    // ============================================
+    match /userStrikes/{strikeId} {
+      // Users can read their own strikes
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Admins can read strikes for their company
+      allow read: if isAuthenticated() &&
+                     isAdmin() &&
+                     isSameCompany(resource.data.companyId);
+
+      // Super admins can read all strikes
+      allow read: if isSuperAdmin();
+
+      // Only admins can create strikes
+      allow create: if isAuthenticated() &&
+                       isAdmin() &&
+                       isSameCompany(request.resource.data.companyId);
+
+      // No updates or deletes allowed (immutable audit trail)
+      allow update, delete: if false;
+    }
+
+    // ============================================
+    // CONTENT MODERATION: USER RESTRICTIONS COLLECTION
+    // ============================================
+    match /userRestrictions/{restrictionId} {
+      // Users can read their own restrictions
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Admins can read restrictions for their company users
+      allow read: if isAuthenticated() &&
+                     isAdmin();
+
+      // Super admins can read all restrictions
+      allow read: if isSuperAdmin();
+
+      // Only admins can create/update restrictions
+      allow create, update: if isAuthenticated() && isAdmin();
+
+      // No deletes allowed (restrictions are deactivated, not deleted)
+      allow delete: if false;
+    }
+
+    // ============================================
+    // CONTENT MODERATION: ACTIVITY LOGS COLLECTION
+    // ============================================
+    match /moderationActivities/{activityId} {
+      // Admins can read moderation activities for their company
+      allow read: if isAuthenticated() &&
+                     isAdmin() &&
+                     isSameCompany(resource.data.companyId);
+
+      // Super admins can read all moderation activities
+      allow read: if isSuperAdmin();
+
+      // Only admins can create activity logs
+      allow create: if isAuthenticated() && isAdmin();
+
+      // No updates or deletes allowed (immutable audit trail)
+      allow update, delete: if false;
+    }
+
+    // ============================================
     // DENY ALL OTHER COLLECTIONS
     // ============================================
     match /{document=**} {

@@ -529,6 +529,10 @@ export const NotificationType = {
   DUE_DATE_REMINDER: "due_date_reminder",
   ADMIN_COMMENT: "admin_comment",
   MODERATION: "moderation",
+  CONTENT_REPORTED: "content_reported",
+  STRIKE_RECEIVED: "strike_received",
+  ACCOUNT_RESTRICTED: "account_restricted",
+  ACCOUNT_SUSPENDED: "account_suspended",
 };
 
 // Reaction types
@@ -539,6 +543,215 @@ export const ReactionType = {
   SUPPORT: "support",
   INSIGHTFUL: "insightful",
   CONCERNED: "concerned",
+};
+
+// ============================================
+// CONTENT MODERATION SYSTEM
+// ============================================
+
+// Report reasons
+export const ReportReason = {
+  HARASSMENT: "harassment",
+  INAPPROPRIATE: "inappropriate",
+  SPAM: "spam",
+  FALSE_INFO: "false_info",
+  DISCRIMINATION: "discrimination",
+  VIOLENCE: "violence",
+  OTHER: "other",
+};
+
+// Report reason display configuration
+export const ReportReasonConfig = {
+  [ReportReason.HARASSMENT]: {
+    label: "Harassment or bullying",
+    description: "Threatening, bullying, or harassing behavior",
+    icon: "🚫",
+  },
+  [ReportReason.INAPPROPRIATE]: {
+    label: "Inappropriate content",
+    description: "Offensive or inappropriate material",
+    icon: "⚠️",
+  },
+  [ReportReason.SPAM]: {
+    label: "Spam",
+    description: "Unsolicited or repetitive content",
+    icon: "📧",
+  },
+  [ReportReason.FALSE_INFO]: {
+    label: "False information",
+    description: "Misleading or false information",
+    icon: "❌",
+  },
+  [ReportReason.DISCRIMINATION]: {
+    label: "Discrimination",
+    description: "Discriminatory content based on protected characteristics",
+    icon: "⛔",
+  },
+  [ReportReason.VIOLENCE]: {
+    label: "Violence or threats",
+    description: "Content containing violence or threatening language",
+    icon: "🔴",
+  },
+  [ReportReason.OTHER]: {
+    label: "Other",
+    description: "Other policy violation",
+    icon: "🔍",
+  },
+};
+
+// Content types that can be reported
+export const ReportableContentType = {
+  POST: "post",
+  COMMENT: "comment",
+};
+
+// Report status
+export const ReportStatus = {
+  PENDING: "pending",
+  UNDER_REVIEW: "under_review",
+  RESOLVED: "resolved",
+  DISMISSED: "dismissed",
+};
+
+// Report status display configuration
+export const ReportStatusConfig = {
+  [ReportStatus.PENDING]: {
+    label: "Pending Review",
+    color: "yellow",
+    bgColor: "bg-yellow-100",
+    textColor: "text-yellow-800",
+    borderColor: "border-yellow-300",
+    description: "Awaiting moderator review",
+  },
+  [ReportStatus.UNDER_REVIEW]: {
+    label: "Under Review",
+    color: "blue",
+    bgColor: "bg-blue-100",
+    textColor: "text-blue-800",
+    borderColor: "border-blue-300",
+    description: "Being reviewed by a moderator",
+  },
+  [ReportStatus.RESOLVED]: {
+    label: "Resolved",
+    color: "green",
+    bgColor: "bg-green-100",
+    textColor: "text-green-800",
+    borderColor: "border-green-300",
+    description: "Action has been taken",
+  },
+  [ReportStatus.DISMISSED]: {
+    label: "Dismissed",
+    color: "gray",
+    bgColor: "bg-gray-100",
+    textColor: "text-gray-800",
+    borderColor: "border-gray-300",
+    description: "No violation found",
+  },
+};
+
+// Moderation action types
+export const ModerationActionType = {
+  DISMISS: "dismiss",
+  REMOVE_CONTENT: "remove_content",
+  REMOVE_AND_WARN: "remove_and_warn",
+  ESCALATE: "escalate",
+  REMOVE_AND_SUSPEND: "remove_and_suspend",
+};
+
+// Moderation action display configuration
+export const ModerationActionConfig = {
+  [ModerationActionType.DISMISS]: {
+    label: "Dismiss Report",
+    description: "No violation found",
+    icon: "✓",
+    color: "gray",
+  },
+  [ModerationActionType.REMOVE_CONTENT]: {
+    label: "Remove Content",
+    description: "Take down content without warning",
+    icon: "🗑️",
+    color: "orange",
+  },
+  [ModerationActionType.REMOVE_AND_WARN]: {
+    label: "Remove & Warn",
+    description: "Remove content and issue strike",
+    icon: "⚠️",
+    color: "red",
+  },
+  [ModerationActionType.ESCALATE]: {
+    label: "Escalate",
+    description: "Forward to super admin",
+    icon: "⬆️",
+    color: "purple",
+  },
+  [ModerationActionType.REMOVE_AND_SUSPEND]: {
+    label: "Remove & Suspend",
+    description: "Immediate suspension (severe violations)",
+    icon: "🔒",
+    color: "red",
+  },
+};
+
+// Strike levels (3-strike policy)
+export const StrikeLevel = {
+  FIRST: 1,
+  SECOND: 2,
+  THIRD: 3,
+};
+
+// Strike configuration
+export const StrikeConfig = {
+  [StrikeLevel.FIRST]: {
+    label: "Strike 1 - Warning",
+    action: "Warning notification",
+    consequence: "Content removed, warning issued",
+    duration: null,
+    icon: "⚠️",
+    color: "yellow",
+    bgColor: "bg-yellow-100",
+    textColor: "text-yellow-800",
+  },
+  [StrikeLevel.SECOND]: {
+    label: "Strike 2 - Temporary Restriction",
+    action: "7-day posting restriction",
+    consequence: "Cannot post or comment for 7 days",
+    duration: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    icon: "🚫",
+    color: "orange",
+    bgColor: "bg-orange-100",
+    textColor: "text-orange-800",
+  },
+  [StrikeLevel.THIRD]: {
+    label: "Strike 3 - Account Suspension",
+    action: "30-day account suspension",
+    consequence: "Account suspended for 30 days",
+    duration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+    icon: "🔒",
+    color: "red",
+    bgColor: "bg-red-100",
+    textColor: "text-red-800",
+  },
+};
+
+// User restriction types
+export const RestrictionType = {
+  POSTING: "posting",
+  COMMENTING: "commenting",
+  FULL_SUSPENSION: "full_suspension",
+};
+
+// Moderation activity types (for audit trail)
+export const ModerationActivityType = {
+  REPORT_CREATED: "report_created",
+  REPORT_ASSIGNED: "report_assigned",
+  REPORT_REVIEWED: "report_reviewed",
+  CONTENT_REMOVED: "content_removed",
+  STRIKE_ISSUED: "strike_issued",
+  USER_WARNED: "user_warned",
+  USER_RESTRICTED: "user_restricted",
+  USER_SUSPENDED: "user_suspended",
+  REPORT_DISMISSED: "report_dismissed",
+  REPORT_ESCALATED: "report_escalated",
 };
 
 // ============================================

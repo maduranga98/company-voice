@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Flag } from "lucide-react";
 import {
   collection,
   addDoc,
@@ -13,6 +14,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
+import ReportContentModal from "./ReportContentModal";
+import { ReportableContentType } from "../utils/constants";
 
 const CommentsSection = ({
   postId,
@@ -27,6 +30,7 @@ const CommentsSection = ({
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [reportCommentId, setReportCommentId] = useState(null);
 
   useEffect(() => {
     if (!showComments || !postId) return;
@@ -290,6 +294,17 @@ const CommentsSection = ({
                           {comment.text}
                         </p>
                       </div>
+                      {/* Report Button - Only show if not the author */}
+                      {userData && userData.id !== comment.authorId && !comment.isRemoved && (
+                        <button
+                          onClick={() => setReportCommentId(comment.id)}
+                          className="mt-1 flex items-center gap-1 px-2 py-1 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors text-xs"
+                          title="Report this comment"
+                        >
+                          <Flag className="w-3 h-3" />
+                          <span>Report</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -297,6 +312,17 @@ const CommentsSection = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Report Comment Modal */}
+      {reportCommentId && (
+        <ReportContentModal
+          isOpen={!!reportCommentId}
+          onClose={() => setReportCommentId(null)}
+          contentType={ReportableContentType.COMMENT}
+          contentId={reportCommentId}
+          companyId={userData?.companyId}
+        />
       )}
     </>
   );
