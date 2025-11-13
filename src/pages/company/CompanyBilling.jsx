@@ -134,8 +134,19 @@ function CompanyBillingContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Billing & Subscription</h1>
-          <p className="mt-2 text-gray-600">Manage your subscription, invoices, and payment methods</p>
+          <div className="flex items-center space-x-4 mb-4">
+            <button
+              onClick={() => window.history.back()}
+              className="text-gray-600 hover:text-gray-900 transition"
+              title="Back"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h1 className="text-3xl font-bold text-gray-900">Billing & Subscription</h1>
+          </div>
+          <p className="text-gray-600">Manage your subscription, invoices, and payment methods</p>
         </div>
 
         {/* Alert Messages */}

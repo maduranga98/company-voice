@@ -251,8 +251,19 @@ const AuditLog = () => {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Audit Log</h1>
-        <p className="text-gray-600 mt-2">
+        <div className="flex items-center space-x-4 mb-4">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="text-gray-600 hover:text-gray-900 transition"
+            title="Back to Dashboard"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Audit Log</h1>
+        </div>
+        <p className="text-gray-600">
           Comprehensive chronological history of all actions in the system
         </p>
       </div>

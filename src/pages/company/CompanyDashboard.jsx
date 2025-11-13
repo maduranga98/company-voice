@@ -90,7 +90,7 @@ const CompanyDashboard = () => {
 
       setStats(stats);
 
-      // Get recent posts that need attention
+      // Get recent posts that need attention (limited to 5)
       const recentQuery = query(
         postsRef,
         where("companyId", "==", userData.companyId),
@@ -100,7 +100,7 @@ const CompanyDashboard = () => {
           PostStatus.WORKING_ON,
         ]),
         orderBy("createdAt", "desc"),
-        limit(10)
+        limit(5)
       );
 
       const recentSnapshot = await getDocs(recentQuery);
@@ -397,7 +397,7 @@ const CompanyDashboard = () => {
             Recent Posts Needing Attention
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Posts that are open, in progress, or being worked on
+            Latest 5 posts that are open, in progress, or being worked on
           </p>
         </div>
 
