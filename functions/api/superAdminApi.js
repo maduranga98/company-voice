@@ -11,7 +11,7 @@ const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
 /**
  * Get all company subscriptions
  */
-const getAllSubscriptions = onCall({ cors: true }, async (request) => {
+const getAllSubscriptions = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -64,7 +64,7 @@ const getAllSubscriptions = onCall({ cors: true }, async (request) => {
 /**
  * Get all invoices (Super Admin)
  */
-const getSuperAdminInvoices = onCall({ cors: true }, async (request) => {
+const getSuperAdminInvoices = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -97,7 +97,7 @@ const getSuperAdminInvoices = onCall({ cors: true }, async (request) => {
 /**
  * Get revenue report
  */
-const getRevenueReport = onCall({ cors: true }, async (request) => {
+const getRevenueReport = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -236,7 +236,7 @@ async function generateRevenueReport(month, year) {
 /**
  * Get billing disputes
  */
-const getBillingDisputes = onCall({ cors: true }, async (request) => {
+const getBillingDisputes = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -289,7 +289,7 @@ const getBillingDisputes = onCall({ cors: true }, async (request) => {
 /**
  * Resolve billing dispute
  */
-const resolveBillingDispute = onCall({ cors: true }, async (request) => {
+const resolveBillingDispute = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -329,7 +329,7 @@ const resolveBillingDispute = onCall({ cors: true }, async (request) => {
 /**
  * Get billing history for all companies
  */
-const getAllBillingHistory = onCall({ cors: true }, async (request) => {
+const getAllBillingHistory = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -376,7 +376,7 @@ const getAllBillingHistory = onCall({ cors: true }, async (request) => {
 /**
  * Update pricing tier
  */
-const updatePricingTier = onCall({ cors: true }, async (request) => {
+const updatePricingTier = onCall({ cors: true, memory: '128MiB' }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {

@@ -18,7 +18,7 @@ const monthlyBillingJob = onSchedule(
   {
     schedule: '0 2 * * *', // Daily at 2 AM UTC
     timeZone: 'UTC',
-    memory: '512MiB',
+    memory: '256MiB',
   },
   async (event) => {
     console.log('Running monthly billing job...');
@@ -99,7 +99,7 @@ const gracePeriodCheckJob = onSchedule(
   {
     schedule: '0 3 * * *', // Daily at 3 AM UTC
     timeZone: 'UTC',
-    memory: '256MiB',
+    memory: '128MiB',
   },
   async (event) => {
     console.log('Running grace period check job...');
@@ -150,7 +150,7 @@ const paymentRetryJob = onSchedule(
   {
     schedule: '0 4 * * *', // Daily at 4 AM UTC
     timeZone: 'UTC',
-    memory: '256MiB',
+    memory: '128MiB',
   },
   async (event) => {
     console.log('Running payment retry job...');
@@ -205,7 +205,7 @@ const trialExpirationCheckJob = onSchedule(
   {
     schedule: '0 1 * * *', // Daily at 1 AM UTC
     timeZone: 'UTC',
-    memory: '256MiB',
+    memory: '128MiB',
   },
   async (event) => {
     console.log('Running trial expiration check job...');
@@ -256,7 +256,7 @@ const usageTrackingSyncJob = onSchedule(
   {
     schedule: '0 * * * *', // Every hour
     timeZone: 'UTC',
-    memory: '256MiB',
+    memory: '128MiB',
   },
   async (event) => {
     console.log('Running usage tracking sync job...');

@@ -179,6 +179,7 @@ const handleStripeWebhook = onRequest(
   {
     secrets: [stripeWebhookSecret],
     cors: false,
+    memory: '256MiB',
   },
   async (req, res) => {
     const stripe = initializeStripe();
