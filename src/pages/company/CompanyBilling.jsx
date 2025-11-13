@@ -396,8 +396,8 @@ function InvoicesTab({ invoices }) {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {invoice.pdfUrl && (
-                    <a href={invoice.pdfUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-900">
+                  {invoice.invoicePdfUrl && (
+                    <a href={invoice.invoicePdfUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-900">
                       Download PDF
                     </a>
                   )}
@@ -438,10 +438,11 @@ function PaymentMethodsTab({ paymentMethods, onAdd, onRemove }) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {method.brand?.toUpperCase()} •••• {method.last4}
+                    {method.card?.brand?.toUpperCase() || method.bankAccount?.bankName || 'Payment Method'} •••• {method.card?.last4 || method.bankAccount?.last4 || '****'}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Expires {method.expMonth}/{method.expYear}
+                    {method.card && `Expires ${method.card.expiryMonth}/${method.card.expiryYear}`}
+                    {method.bankAccount && `Bank Account`}
                   </p>
                 </div>
               </div>
