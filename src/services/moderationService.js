@@ -5,7 +5,6 @@ import {
   getDoc,
   getDocs,
   updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
@@ -162,39 +161,43 @@ export const getCompanyReports = async (companyId, status = null) => {
     const snapshot = await getDocs(reportsQuery);
     const reports = [];
 
-    for (const doc of snapshot.docs) {
-      const reportData = { id: doc.id, ...doc.data() };
+    for (const docSnap of snapshot.docs) {
+      const reportData = { id: docSnap.id, ...docSnap.data() };
 
-      // Get reporter info (without revealing identity to avoid retaliation)
+      // Mask reporter identity
       reportData.reporterDisplayName = "Anonymous Reporter";
 
-      // Get content author info (respecting anonymity)
-      if (reportData.contentType === ReportableContentType.POST) {
-        const postDoc = await getDoc(db.collection("posts").doc(reportData.contentId));
+      // Get content author info
+      if (reportData.contentType === "POST") {
+        const postDocRef = doc(db, "posts", reportData.contentId);
+        const postDoc = await getDoc(postDocRef);
+
         if (postDoc.exists()) {
           const postData = postDoc.data();
           if (postData.isAnonymous) {
             reportData.contentAuthorName = "Anonymous User";
           } else {
-            const authorDoc = await getDoc(db.collection("users").doc(postData.authorId));
+            const authorDocRef = doc(db, "users", postData.authorId);
+            const authorDoc = await getDoc(authorDocRef);
             reportData.contentAuthorName = authorDoc.exists()
               ? authorDoc.data().displayName
               : "Unknown";
           }
         }
       } else {
-        const commentDoc = await getDoc(db.collection("comments").doc(reportData.contentId));
+        const commentDocRef = doc(db, "comments", reportData.contentId);
+        const commentDoc = await getDoc(commentDocRef);
+
         if (commentDoc.exists()) {
-          const authorDoc = await getDoc(
-            db.collection("users").doc(commentDoc.data().authorId)
-          );
+          const authorDocRef = doc(db, "users", commentDoc.data().authorId);
+          const authorDoc = await getDoc(authorDocRef);
           reportData.contentAuthorName = authorDoc.exists()
             ? authorDoc.data().displayName
             : "Unknown";
         }
       }
 
-      // Get count of reports for same content
+      // Count reports for same content
       const sameContentReportsQuery = query(
         collection(db, "contentReports"),
         where("contentId", "==", reportData.contentId)
@@ -266,7 +269,9 @@ export const getReportById = async (reportId) => {
         reportData.content = { id: postDoc.id, ...postDoc.data() };
       }
     } else {
-      const commentDoc = await getDoc(doc(db, "comments", reportData.contentId));
+      const commentDoc = await getDoc(
+        doc(db, "comments", reportData.contentId)
+      );
       if (commentDoc.exists()) {
         reportData.content = { id: commentDoc.id, ...commentDoc.data() };
       }
@@ -532,19 +537,14 @@ const removeAndSuspend = async (report, moderatorId, notes, strikeInfo) => {
     });
 
     // Issue third strike automatically
-    await issueStrikeDirectly(
-      contentAuthorId,
-      companyId,
-      StrikeLevel.THIRD,
-      {
-        contentType,
-        contentId,
-        reportId: report.id,
-        violationType: strikeInfo.violationType,
-        explanation: strikeInfo.explanation,
-        moderatorId,
-      }
-    );
+    await issueStrikeDirectly(contentAuthorId, companyId, StrikeLevel.THIRD, {
+      contentType,
+      contentId,
+      reportId: report.id,
+      violationType: strikeInfo.violationType,
+      explanation: strikeInfo.explanation,
+      moderatorId,
+    });
 
     // Notify user
     await createNotification({
@@ -667,7 +667,12 @@ const issueStrike = async (userId, companyId, strikeInfo) => {
 /**
  * Issue a specific strike level directly (for severe violations)
  */
-const issueStrikeDirectly = async (userId, companyId, strikeLevel, strikeInfo) => {
+const issueStrikeDirectly = async (
+  userId,
+  companyId,
+  strikeLevel,
+  strikeInfo
+) => {
   const strike = {
     userId,
     companyId,
@@ -856,7 +861,10 @@ const logModerationActivity = async (activityData) => {
 /**
  * Get moderation activity logs
  */
-export const getModerationActivityLogs = async (companyId = null, limit = 50) => {
+export const getModerationActivityLogs = async (
+  companyId = null,
+  limit = 50
+) => {
   try {
     let logsQuery;
 
@@ -985,9 +993,11 @@ export const getModerationStats = async (companyId) => {
     reportsSnapshot.forEach((doc) => {
       const report = doc.data();
       if (report.status === ReportStatus.PENDING) stats.pendingReports++;
-      else if (report.status === ReportStatus.UNDER_REVIEW) stats.underReviewReports++;
+      else if (report.status === ReportStatus.UNDER_REVIEW)
+        stats.underReviewReports++;
       else if (report.status === ReportStatus.RESOLVED) stats.resolvedReports++;
-      else if (report.status === ReportStatus.DISMISSED) stats.dismissedReports++;
+      else if (report.status === ReportStatus.DISMISSED)
+        stats.dismissedReports++;
     });
 
     // Get strikes issued
