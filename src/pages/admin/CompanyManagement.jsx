@@ -8,6 +8,10 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  doc,
+  updateDoc,
+  deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { hashPassword, checkUsernameExists } from "../../services/authService";
@@ -20,6 +24,13 @@ const CompanyManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+  const [newCredentials, setNewCredentials] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -104,7 +115,15 @@ const CompanyManagement = () => {
         updatedAt: serverTimestamp(),
       });
 
-      setSuccess(`Company "${formData.companyName}" created successfully!`);
+      // Store credentials to display to user
+      setNewCredentials({
+        companyName: formData.companyName,
+        username: formData.username,
+        password: formData.password,
+        adminName: formData.adminName,
+        adminEmail: formData.adminEmail,
+      });
+
       setFormData({
         companyName: "",
         industry: "",
@@ -115,10 +134,8 @@ const CompanyManagement = () => {
       });
 
       setShowModal(false);
+      setShowCredentialsModal(true);
       loadCompanies();
-
-      // Clear success message after 5 seconds
-      setTimeout(() => setSuccess(""), 5000);
     } catch (error) {
       console.error("Error creating company:", error);
       setError("Failed to create company. Please try again.");
@@ -130,6 +147,72 @@ const CompanyManagement = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+  };
+
+  const handleViewDetails = async (company) => {
+    try {
+      // Fetch the complete company details
+      const companyDoc = await getDoc(doc(db, "companies", company.id));
+      if (companyDoc.exists()) {
+        setSelectedCompany({ id: companyDoc.id, ...companyDoc.data() });
+        setShowDetailsModal(true);
+      }
+    } catch (error) {
+      console.error("Error loading company details:", error);
+      setError("Failed to load company details.");
+    }
+  };
+
+  const handleToggleStatus = async (company) => {
+    try {
+      setLoading(true);
+      const companyRef = doc(db, "companies", company.id);
+      await updateDoc(companyRef, {
+        isActive: !company.isActive,
+        updatedAt: serverTimestamp(),
+      });
+
+      setSuccess(`Company ${!company.isActive ? 'activated' : 'deactivated'} successfully!`);
+      loadCompanies();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      console.error("Error updating company status:", error);
+      setError("Failed to update company status.");
+      setTimeout(() => setError(""), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteClick = (company) => {
+    setCompanyToDelete(company);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!companyToDelete) return;
+
+    try {
+      setLoading(true);
+
+      // Delete company
+      await deleteDoc(doc(db, "companies", companyToDelete.id));
+
+      // Note: In production, you should also delete or deactivate all associated users and data
+      // For now, we'll just delete the company document
+
+      setSuccess(`Company "${companyToDelete.name}" deleted successfully!`);
+      setShowDeleteModal(false);
+      setCompanyToDelete(null);
+      loadCompanies();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      setError("Failed to delete company. Please try again.");
+      setTimeout(() => setError(""), 3000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -253,12 +336,15 @@ const CompanyManagement = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Created
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {companies.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-6 py-12 text-center">
+                    <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <svg
                           className="w-12 h-12 text-gray-400 mb-4"
@@ -289,9 +375,12 @@ const CompanyManagement = () => {
                       className="hover:bg-gray-50 transition"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+                        <button
+                          onClick={() => handleViewDetails(company)}
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-900"
+                        >
                           {company.name}
-                        </div>
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
@@ -314,6 +403,45 @@ const CompanyManagement = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {company.createdAt?.toDate().toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleViewDetails(company)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                            title="View Details"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleToggleStatus(company)}
+                            className={company.isActive ? "text-yellow-600 hover:text-yellow-900" : "text-green-600 hover:text-green-900"}
+                            title={company.isActive ? "Deactivate" : "Activate"}
+                          >
+                            {company.isActive ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(company)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -518,16 +646,34 @@ const CompanyManagement = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Password *
                         </label>
-                        <input
-                          type="password"
-                          name="password"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          required
-                          minLength={6}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm sm:text-base"
-                          placeholder="••••••••"
-                        />
+                        <div className="relative">
+                          <input
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            required
+                            minLength={6}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm sm:text-base pr-10"
+                            placeholder="••••••••"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                          >
+                            {showPassword ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -609,6 +755,245 @@ const CompanyManagement = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Credentials Display Modal */}
+      {showCredentialsModal && newCredentials && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                Company Created Successfully!
+              </h3>
+              <p className="text-sm text-gray-600 text-center mb-6">
+                Please save these credentials securely
+              </p>
+
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3 mb-6">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Company Name</label>
+                  <p className="text-sm font-semibold text-gray-900">{newCredentials.companyName}</p>
+                </div>
+                <div className="border-t border-gray-200 pt-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Admin Name</label>
+                  <p className="text-sm font-semibold text-gray-900">{newCredentials.adminName}</p>
+                </div>
+                <div className="border-t border-gray-200 pt-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Admin Email</label>
+                  <p className="text-sm font-semibold text-gray-900">{newCredentials.adminEmail}</p>
+                </div>
+                <div className="border-t border-gray-200 pt-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Username</label>
+                  <div className="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-200">
+                    <code className="text-sm font-mono text-gray-900">{newCredentials.username}</code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(newCredentials.username);
+                      }}
+                      className="text-indigo-600 hover:text-indigo-800"
+                      title="Copy username"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div className="border-t border-gray-200 pt-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Password</label>
+                  <div className="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-200">
+                    <code className="text-sm font-mono text-gray-900">{newCredentials.password}</code>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(newCredentials.password);
+                      }}
+                      className="text-indigo-600 hover:text-indigo-800"
+                      title="Copy password"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-xs text-yellow-800">
+                    <strong>Important:</strong> These credentials will not be shown again. Please save them securely.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowCredentialsModal(false);
+                  setNewCredentials(null);
+                  setSuccess(`Company "${newCredentials.companyName}" created successfully!`);
+                  setTimeout(() => setSuccess(""), 5000);
+                }}
+                className="w-full px-4 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition"
+              >
+                I've Saved These Credentials
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Company Details Modal */}
+      {showDetailsModal && selectedCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">{selectedCompany.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">Company Details</p>
+                </div>
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Company ID</label>
+                    <code className="text-sm font-mono text-gray-900 break-all">{selectedCompany.id}</code>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      selectedCompany.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    }`}>
+                      {selectedCompany.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Industry</label>
+                  <p className="text-sm font-semibold text-gray-900">{selectedCompany.industry || "Not specified"}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Employees</label>
+                    <p className="text-sm font-semibold text-gray-900">{selectedCompany.employeeCount || 0}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Subscription</label>
+                    <p className="text-sm font-semibold text-gray-900 capitalize">{selectedCompany.subscriptionStatus || "trial"}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Created At</label>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {selectedCompany.createdAt?.toDate ? selectedCompany.createdAt.toDate().toLocaleString() : "N/A"}
+                  </p>
+                </div>
+
+                {selectedCompany.updatedAt && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Last Updated</label>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {selectedCompany.updatedAt.toDate ? selectedCompany.updatedAt.toDate().toLocaleString() : "N/A"}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex space-x-3 mt-6 pt-6 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    handleToggleStatus(selectedCompany);
+                  }}
+                  className={`flex-1 px-4 py-3 ${
+                    selectedCompany.isActive
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-green-600 hover:bg-green-700"
+                  } text-white font-medium rounded-lg transition`}
+                >
+                  {selectedCompany.isActive ? "Deactivate" : "Activate"}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    handleDeleteClick(selectedCompany);
+                  }}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition"
+                >
+                  Delete Company
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && companyToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+                Delete Company?
+              </h3>
+              <p className="text-sm text-gray-600 text-center mb-6">
+                Are you sure you want to delete <strong>{companyToDelete.name}</strong>? This action cannot be undone.
+              </p>
+
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+                <p className="text-xs text-red-800">
+                  <strong>Warning:</strong> This will permanently delete the company and may affect associated users and data.
+                </p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setCompanyToDelete(null);
+                  }}
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                >
+                  {loading ? "Deleting..." : "Delete"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

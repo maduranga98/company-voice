@@ -67,10 +67,204 @@ const CompanyQRCode = () => {
   const downloadQRCode = () => {
     if (!qrCodeUrl || !company) return;
 
-    const link = document.createElement("a");
-    link.download = `${company.name.replace(/\s+/g, "_")}_QR_Code.png`;
-    link.href = qrCodeUrl;
-    link.click();
+    // Create a canvas to render the full document
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size for a document (2 pages at 800px width)
+    canvas.width = 800;
+    canvas.height = 2200; // Increased height for 2 pages
+
+    // Fill white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Load QR code image
+    const qrImage = new Image();
+    qrImage.crossOrigin = 'anonymous';
+    qrImage.onload = () => {
+      // PAGE 1 - QR Code and Company Info
+      let yPosition = 60;
+
+      // Draw Anchora Logo (circle with gradient)
+      const logoX = 400;
+      const logoY = 80;
+      const logoRadius = 40;
+      const gradient = ctx.createLinearGradient(logoX - logoRadius, logoY - logoRadius, logoX + logoRadius, logoY + logoRadius);
+      gradient.addColorStop(0, '#0ea5e9');
+      gradient.addColorStop(1, '#0284c7');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(logoX, logoY, logoRadius, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Draw logo icon (simplified group icon)
+      ctx.strokeStyle = '#ffffff';
+      ctx.fillStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      // Draw simplified people icon
+      ctx.beginPath();
+      ctx.arc(logoX, logoY - 8, 8, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(logoX - 15, logoY, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(logoX + 15, logoY, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(logoX - 10, logoY + 8);
+      ctx.lineTo(logoX - 10, logoY + 20);
+      ctx.lineTo(logoX + 10, logoY + 20);
+      ctx.lineTo(logoX + 10, logoY + 8);
+      ctx.stroke();
+
+      yPosition = 150;
+
+      // Title
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 48px Inter, system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(company.name, 400, yPosition);
+
+      yPosition += 50;
+
+      // Subtitle - Anchora
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '600 24px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('Anchora', 400, yPosition);
+
+      yPosition += 40;
+
+      // Employee Voice Platform
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '20px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('Employee Voice Platform', 400, yPosition);
+
+      yPosition += 60;
+
+      // Draw QR code
+      const qrSize = 400;
+      const qrX = (canvas.width - qrSize) / 2;
+      ctx.drawImage(qrImage, qrX, yPosition, qrSize, qrSize);
+
+      yPosition += qrSize + 40;
+
+      // Scan instruction
+      ctx.fillStyle = '#374151';
+      ctx.font = '600 22px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('📱 Scan this code with your phone camera', 400, yPosition);
+
+      yPosition += 60;
+
+      // Company details box
+      ctx.fillStyle = '#f0f9ff';
+      ctx.fillRect(60, yPosition, 680, 160);
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(60, yPosition, 680, 160);
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#0369a1';
+      ctx.font = 'bold 20px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('Company Details', 90, yPosition + 40);
+
+      ctx.fillStyle = '#1f2937';
+      ctx.font = '18px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText(`Industry: ${company.industry || 'Not specified'}`, 90, yPosition + 75);
+      ctx.fillText(`Employees: ${company.employeeCount || 0}`, 90, yPosition + 105);
+      ctx.fillText(`Status: ${company.isActive ? 'Active' : 'Inactive'}`, 90, yPosition + 135);
+
+      // PAGE 2 - Instructions (starts at y = 1100)
+      yPosition = 1150;
+
+      // Page 2 title
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 36px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('How to Join ' + company.name, 400, yPosition);
+
+      yPosition += 70;
+
+      // Instructions box
+      ctx.fillStyle = '#f0f9ff';
+      ctx.fillRect(60, yPosition, 680, 350);
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(60, yPosition, 680, 350);
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#0369a1';
+      ctx.font = 'bold 22px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('📋 Registration Steps', 90, yPosition + 45);
+
+      ctx.fillStyle = '#1f2937';
+      ctx.font = '18px Inter, system-ui, -apple-system, sans-serif';
+      const instructions = [
+        '1. Open your phone camera or QR scanner app',
+        '2. Point your camera at the QR code above',
+        '3. Tap the notification that appears',
+        '4. Complete the registration form with your details',
+        '5. Wait for HR administrator approval',
+        '6. Start engaging with your team!'
+      ];
+
+      let instrY = yPosition + 90;
+      instructions.forEach((instruction) => {
+        ctx.fillText(instruction, 90, instrY);
+        instrY += 40;
+      });
+
+      yPosition += 380;
+
+      // Benefits box
+      ctx.fillStyle = '#fef3c7';
+      ctx.fillRect(60, yPosition, 680, 240);
+      ctx.strokeStyle = '#fcd34d';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(60, yPosition, 680, 240);
+
+      ctx.fillStyle = '#92400e';
+      ctx.font = 'bold 22px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText('🌟 What You Will Get', 90, yPosition + 45);
+
+      ctx.fillStyle = '#78350f';
+      ctx.font = '17px Inter, system-ui, -apple-system, sans-serif';
+      const benefits = [
+        '✓ Share ideas anonymously        ✓ Report workplace issues',
+        '✓ Engage with colleagues          ✓ Track your contributions',
+        '✓ Get recognized for input        ✓ Shape company culture'
+      ];
+
+      let benefitY = yPosition + 90;
+      benefits.forEach((benefit) => {
+        ctx.fillText(benefit, 90, benefitY);
+        benefitY += 45;
+      });
+
+      yPosition += 270;
+
+      // Footer
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '16px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText(`© 2025 ${company.name} • Anchora Employee Voice Platform`, 400, yPosition);
+
+      ctx.font = '14px Courier New, monospace';
+      ctx.fillText(`Company ID: ${company.id}`, 400, yPosition + 30);
+
+      // Download the canvas as image
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${company.name.replace(/\s+/g, '_')}_Anchora_QR_Code.png`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+    };
+
+    qrImage.src = qrCodeUrl;
   };
 
   const printQRCode = () => {
@@ -418,20 +612,31 @@ const CompanyQRCode = () => {
     try {
       const response = await fetch(qrCodeUrl);
       const blob = await response.blob();
-      const file = new File([blob], `${company.name}_QR.png`, {
+      const file = new File([blob], `${company.name}_Anchora_QR.png`, {
         type: "image/png",
       });
 
+      const shareText = `Join ${company.name} on Anchora!\n\n` +
+        `📱 Scan the QR code to register:\n` +
+        `1. Open your phone camera\n` +
+        `2. Point at the QR code\n` +
+        `3. Tap the notification\n` +
+        `4. Complete registration\n` +
+        `5. Wait for HR approval\n` +
+        `6. Start engaging with your team!\n\n` +
+        `Anchora - Employee Voice Platform`;
+
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: `Join ${company.name} on Employee Voice Platform`,
-          text: `Scan this QR code to join ${company.name} and start sharing your voice!`,
+          title: `Join ${company.name} on Anchora`,
+          text: shareText,
           files: [file],
         });
       } else {
         const shareUrl = `${window.location.origin}/join/${company.id}`;
-        await navigator.clipboard.writeText(shareUrl);
-        alert("Share link copied to clipboard!");
+        const fullShareText = `${shareText}\n\nOr visit: ${shareUrl}`;
+        await navigator.clipboard.writeText(fullShareText);
+        alert("Share information copied to clipboard!");
       }
     } catch (error) {
       console.error("Error sharing:", error);
@@ -617,27 +822,6 @@ const CompanyQRCode = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl shadow-sm p-6 border-2 border-primary-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                QR Code Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Downloads</span>
-                  <span className="text-lg font-bold text-gray-900">-</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Scans</span>
-                  <span className="text-lg font-bold text-gray-900">-</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Registrations</span>
-                  <span className="text-lg font-bold text-gray-900">-</span>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-4">Stats coming soon</p>
-            </div>
           </div>
 
           {/* Right Side - QR Code */}
@@ -663,10 +847,10 @@ const CompanyQRCode = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-2xl">
                   <button
                     onClick={downloadQRCode}
-                    className="flex items-center justify-center px-6 py-4 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition shadow-lg shadow-primary-500/30"
+                    className="flex items-center justify-center px-6 py-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition shadow-lg"
                   >
                     <svg
-                      className="w-5 h-5 mr-2"
+                      className="w-6 h-6 mr-2 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -674,19 +858,19 @@ const CompanyQRCode = () => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth="2"
+                        strokeWidth="2.5"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                       />
                     </svg>
-                    Download
+                    <span className="text-base">Download</span>
                   </button>
 
                   <button
                     onClick={printQRCode}
-                    className="flex items-center justify-center px-6 py-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+                    className="flex items-center justify-center px-6 py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 active:bg-green-800 transition shadow-lg"
                   >
                     <svg
-                      className="w-5 h-5 mr-2"
+                      className="w-6 h-6 mr-2 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -694,19 +878,19 @@ const CompanyQRCode = () => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth="2"
+                        strokeWidth="2.5"
                         d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                       />
                     </svg>
-                    Print
+                    <span className="text-base">Print</span>
                   </button>
 
                   <button
                     onClick={shareQRCode}
-                    className="flex items-center justify-center px-6 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+                    className="flex items-center justify-center px-6 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition shadow-lg"
                   >
                     <svg
-                      className="w-5 h-5 mr-2"
+                      className="w-6 h-6 mr-2 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -714,11 +898,11 @@ const CompanyQRCode = () => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth="2"
+                        strokeWidth="2.5"
                         d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                       />
                     </svg>
-                    Share
+                    <span className="text-base">Share</span>
                   </button>
                 </div>
               </div>
