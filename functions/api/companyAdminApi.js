@@ -14,7 +14,7 @@ const { db, COLLECTIONS } = require('../config/firebase');
 /**
  * Create subscription for company
  */
-const createCompanySubscription = onCall(async (request) => {
+const createCompanySubscription = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -51,7 +51,7 @@ const createCompanySubscription = onCall(async (request) => {
 /**
  * Cancel company subscription
  */
-const cancelCompanySubscription = onCall(async (request) => {
+const cancelCompanySubscription = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -95,7 +95,7 @@ const cancelCompanySubscription = onCall(async (request) => {
 /**
  * Reactivate canceled subscription
  */
-const reactivateCompanySubscription = onCall(async (request) => {
+const reactivateCompanySubscription = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -138,7 +138,7 @@ const reactivateCompanySubscription = onCall(async (request) => {
 /**
  * Get company subscription details
  */
-const getCompanySubscription = onCall(async (request) => {
+const getCompanySubscription = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -185,7 +185,7 @@ const getCompanySubscription = onCall(async (request) => {
 /**
  * Get company invoices
  */
-const getInvoices = onCall(async (request) => {
+const getInvoices = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -216,7 +216,7 @@ const getInvoices = onCall(async (request) => {
 /**
  * Get specific invoice details
  */
-const getInvoice = onCall(async (request) => {
+const getInvoice = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -252,7 +252,7 @@ const getInvoice = onCall(async (request) => {
 /**
  * Add payment method
  */
-const addCompanyPaymentMethod = onCall(async (request) => {
+const addCompanyPaymentMethod = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -289,7 +289,7 @@ const addCompanyPaymentMethod = onCall(async (request) => {
 /**
  * Get payment methods
  */
-const getCompanyPaymentMethods = onCall(async (request) => {
+const getCompanyPaymentMethods = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -320,7 +320,7 @@ const getCompanyPaymentMethods = onCall(async (request) => {
 /**
  * Remove payment method
  */
-const removeCompanyPaymentMethod = onCall(async (request) => {
+const removeCompanyPaymentMethod = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -363,7 +363,7 @@ const removeCompanyPaymentMethod = onCall(async (request) => {
 /**
  * Get payment history
  */
-const getCompanyPaymentHistory = onCall(async (request) => {
+const getCompanyPaymentHistory = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -394,7 +394,7 @@ const getCompanyPaymentHistory = onCall(async (request) => {
 /**
  * Get usage summary for current billing period
  */
-const getUsageSummary = onCall(async (request) => {
+const getUsageSummary = onCall({ cors: true }, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
