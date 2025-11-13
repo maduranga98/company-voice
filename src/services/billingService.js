@@ -3,10 +3,9 @@
  * Frontend service for interacting with billing Firebase Functions
  */
 
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../config/firebase';
 import { loadStripe } from '@stripe/stripe-js';
-
-const functions = getFunctions();
 
 // Initialize Stripe (publishable key should be in environment variables)
 let stripePromise = null;

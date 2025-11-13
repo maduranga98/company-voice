@@ -3,7 +3,7 @@
  * Frontend service for notification management and preferences
  */
 
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 import {
   collection,
   query,
@@ -12,9 +12,7 @@ import {
   onSnapshot,
   limit as firestoreLimit,
 } from 'firebase/firestore';
-import { db } from '../config/firebase';
-
-const functions = getFunctions();
+import { db, functions } from '../config/firebase';
 
 /**
  * Get notification preferences

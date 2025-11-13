@@ -3,9 +3,8 @@
  * Frontend service for advanced search functionality
  */
 
-import { getFunctions, httpsCallable } from 'firebase/functions';
-
-const functions = getFunctions();
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../config/firebase';
 
 /**
  * Perform advanced search

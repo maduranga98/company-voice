@@ -21,6 +21,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const functions = getFunctions(app);
+// Initialize Functions with explicit region configuration
+// us-central1 is the default region for Cloud Functions
+export const functions = getFunctions(app, 'us-central1');
 
 export default app;
