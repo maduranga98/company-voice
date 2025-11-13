@@ -83,8 +83,8 @@ export const searchUsersForMention = async (
     snapshot.forEach((doc) => {
       const user = doc.data();
       if (
-        user.username?.toLowerCase().includes(searchLower) ||
-        user.displayName?.toLowerCase().includes(searchLower)
+        (user.username || '').toLowerCase().includes(searchLower) ||
+        (user.displayName || '').toLowerCase().includes(searchLower)
       ) {
         users.push({
           id: doc.id,
