@@ -79,45 +79,37 @@ const CompanyQRCode = () => {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Load logo image
+    const logoImage = new Image();
+    logoImage.crossOrigin = 'anonymous';
+    logoImage.src = window.location.origin + '/logo.png';
+
     // Load QR code image
     const qrImage = new Image();
     qrImage.crossOrigin = 'anonymous';
-    qrImage.onload = () => {
+
+    let imagesLoaded = 0;
+    const totalImages = 2;
+
+    const onImageLoad = () => {
+      imagesLoaded++;
+      if (imagesLoaded === totalImages) {
+        drawCanvas();
+      }
+    };
+
+    logoImage.onload = onImageLoad;
+    qrImage.onload = onImageLoad;
+
+    const drawCanvas = () => {
       // PAGE 1 - QR Code and Company Info
       let yPosition = 60;
 
-      // Draw Anchora Logo (circle with gradient)
-      const logoX = 400;
-      const logoY = 80;
-      const logoRadius = 40;
-      const gradient = ctx.createLinearGradient(logoX - logoRadius, logoY - logoRadius, logoX + logoRadius, logoY + logoRadius);
-      gradient.addColorStop(0, '#0ea5e9');
-      gradient.addColorStop(1, '#0284c7');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(logoX, logoY, logoRadius, 0, 2 * Math.PI);
-      ctx.fill();
-
-      // Draw logo icon (simplified group icon)
-      ctx.strokeStyle = '#ffffff';
-      ctx.fillStyle = '#ffffff';
-      ctx.lineWidth = 3;
-      // Draw simplified people icon
-      ctx.beginPath();
-      ctx.arc(logoX, logoY - 8, 8, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(logoX - 15, logoY, 6, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(logoX + 15, logoY, 6, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(logoX - 10, logoY + 8);
-      ctx.lineTo(logoX - 10, logoY + 20);
-      ctx.lineTo(logoX + 10, logoY + 20);
-      ctx.lineTo(logoX + 10, logoY + 8);
-      ctx.stroke();
+      // Draw Anchora Logo
+      const logoSize = 80;
+      const logoX = (canvas.width - logoSize) / 2;
+      const logoY = yPosition;
+      ctx.drawImage(logoImage, logoX, logoY, logoSize, logoSize);
 
       yPosition = 150;
 
@@ -176,7 +168,14 @@ const CompanyQRCode = () => {
       ctx.fillText(`Status: ${company.isActive ? 'Active' : 'Inactive'}`, 90, yPosition + 135);
 
       // PAGE 2 - Instructions (starts at y = 1100)
-      yPosition = 1150;
+      yPosition = 1100;
+
+      // Draw logo on page 2
+      const logoSize2 = 60;
+      const logoX2 = (canvas.width - logoSize2) / 2;
+      ctx.drawImage(logoImage, logoX2, yPosition, logoSize2, logoSize2);
+
+      yPosition = 1200;
 
       // Page 2 title
       ctx.textAlign = 'center';
@@ -271,6 +270,7 @@ const CompanyQRCode = () => {
     if (!qrCodeUrl || !company) return;
 
     const printWindow = window.open("", "_blank");
+    const logoUrl = window.location.origin + '/logo.png';
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -278,28 +278,35 @@ const CompanyQRCode = () => {
           <title>Print QR Code - ${company.name}</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-            
+
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
             }
-            
+
             body {
               font-family: 'Inter', system-ui, -apple-system, sans-serif;
+              background: white;
+              padding: 0;
+            }
+
+            .page {
+              min-height: 100vh;
               display: flex;
+              flex-direction: column;
               justify-content: center;
               align-items: center;
-              min-height: 100vh;
-              background: #f9fafb;
-              padding: 20px;
+              padding: 60px 40px;
+              page-break-after: always;
             }
-            
+
+            .page:last-child {
+              page-break-after: auto;
+            }
+
             .print-container {
               background: white;
-              border-radius: 20px;
-              box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-              padding: 60px 40px;
               max-width: 700px;
               width: 100%;
               text-align: center;
@@ -310,21 +317,11 @@ const CompanyQRCode = () => {
             }
             
             .logo {
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              width: 80px;
-              height: 80px;
-              background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-              border-radius: 20px;
-              margin-bottom: 24px;
-              box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
-            }
-            
-            .logo svg {
-              width: 40px;
-              height: 40px;
-              color: white;
+              width: 100px;
+              height: 100px;
+              margin: 0 auto 24px;
+              display: block;
+              object-fit: contain;
             }
             
             .company-name {
@@ -518,18 +515,27 @@ const CompanyQRCode = () => {
                 background: white;
                 padding: 0;
               }
-              
+
+              .page {
+                min-height: 100vh;
+                page-break-after: always;
+                page-break-inside: avoid;
+              }
+
+              .page:last-child {
+                page-break-after: auto;
+              }
+
               .print-container {
                 box-shadow: none;
                 max-width: 100%;
-                page-break-inside: avoid;
               }
-              
+
               .qr-container {
                 box-shadow: none;
               }
             }
-            
+
             @page {
               size: A4;
               margin: 1cm;
@@ -537,27 +543,44 @@ const CompanyQRCode = () => {
           </style>
         </head>
         <body>
-          <div class="print-container">
-            <div class="header">
-              <div class="logo">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+          <!-- PAGE 1: QR CODE -->
+          <div class="page">
+            <div class="print-container">
+              <div class="header">
+                <img src="${logoUrl}" alt="Anchora Logo" class="logo" />
+
+                <h1 class="company-name">${company.name}</h1>
+                <p class="platform-name">Employee Voice Platform</p>
+                <p class="subtitle">Scan to Join Our Team</p>
+                <div class="divider"></div>
               </div>
-              
-              <h1 class="company-name">${company.name}</h1>
-              <p class="platform-name">Employee Voice Platform</p>
-              <p class="subtitle">Scan to Join Our Team</p>
-              <div class="divider"></div>
+
+              <div class="qr-container">
+                <img src="${qrCodeUrl}" alt="Company QR Code" />
+              </div>
+
+              <p class="scan-text">📱 Scan this code with your phone camera</p>
+
+              <div class="footer">
+                <div class="company-id">
+                  <strong>Company ID:</strong>
+                  <span>${company.id}</span>
+                </div>
+                <p class="copyright">© 2025 ${company.name} • Employee Voice Platform</p>
+              </div>
             </div>
-            
-            <div class="qr-container">
-              <img src="${qrCodeUrl}" alt="Company QR Code" />
-            </div>
-            
-            <p class="scan-text">📱 Scan this code with your phone camera</p>
-            
-            <div class="instructions">
+          </div>
+
+          <!-- PAGE 2: INSTRUCTIONS -->
+          <div class="page">
+            <div class="print-container">
+              <div class="header">
+                <img src="${logoUrl}" alt="Anchora Logo" class="logo" />
+                <h1 class="company-name">How to Join</h1>
+                <div class="divider"></div>
+              </div>
+
+              <div class="instructions">
               <div class="instructions-header">
                 <div class="instructions-icon">
                   <svg width="16" height="16" fill="white" viewBox="0 0 20 20">
@@ -576,24 +599,21 @@ const CompanyQRCode = () => {
               </ol>
             </div>
             
-            <div class="benefits">
-              <h4>🌟 What You'll Get:</h4>
-              <ul>
-                <li>Share ideas anonymously</li>
-                <li>Report workplace issues</li>
-                <li>Engage with colleagues</li>
-                <li>Track your contributions</li>
-                <li>Get recognized for input</li>
-                <li>Shape company culture</li>
-              </ul>
-            </div>
-            
-            <div class="footer">
-              <div class="company-id">
-                <strong>Company ID:</strong>
-                <span>${company.id}</span>
+              <div class="benefits">
+                <h4>🌟 What You'll Get:</h4>
+                <ul>
+                  <li>Share ideas anonymously</li>
+                  <li>Report workplace issues</li>
+                  <li>Engage with colleagues</li>
+                  <li>Track your contributions</li>
+                  <li>Get recognized for input</li>
+                  <li>Shape company culture</li>
+                </ul>
               </div>
-              <p class="copyright">© 2025 ${company.name} • Employee Voice Platform • All rights reserved.</p>
+
+              <div class="footer">
+                <p class="copyright">© 2025 ${company.name} • Employee Voice Platform</p>
+              </div>
             </div>
           </div>
         </body>

@@ -95,14 +95,14 @@ const Login = () => {
           );
         } catch (err) {
           console.error("Error starting scanner:", err);
-          setError("Unable to access camera. Please check permissions.");
+          setError(t("auth.login.cameraAccessError"));
           setScanning(false);
           setShowQRScanner(false);
         }
       }, 100);
     } catch (error) {
       console.error("QR Scanner error:", error);
-      setError("Failed to start QR scanner. Please try manual login.");
+      setError(t("auth.login.qrScannerError"));
       setScanning(false);
       setShowQRScanner(false);
     }
@@ -148,25 +148,22 @@ const Login = () => {
               className="w-36 h-36 object-contain bg-background-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl"
             />
             <div>
-              <h1 className="text-5xl font-bold text-text-onDark mb-2">
+              <h1 className="text-3xl font-bold text-text-onDark mb-2">
                 ANCHORA
               </h1>
-              <p className="text-primary-teal font-bold text-xl">
-                Your Anchor in Every Storm
+              <p className="text-primary-teal font-bold text-base">
+                {t("auth.login.tagline")}
               </p>
             </div>
           </div>
 
           {/* Main Heading */}
-          <h2 className="text-5xl font-bold text-text-onDark mb-6 leading-tight">
-            Empower Your
-            <br />
-            Workplace Voice
+          <h2 className="text-3xl font-bold text-text-onDark mb-6 leading-tight">
+            {t("auth.login.mainHeading")}
           </h2>
 
-          <p className="text-xl text-text-onDark mb-12 leading-relaxed font-medium">
-            A secure platform where every employee can share ideas, report
-            concerns, and collaborate to build a better workplace together.
+          <p className="text-base text-text-onDark mb-12 leading-relaxed font-medium">
+            {t("auth.login.mainDescription")}
           </p>
 
           {/* Feature List - MAXIMUM CONTRAST */}
@@ -188,8 +185,8 @@ const Login = () => {
                     />
                   </svg>
                 ),
-                title: "Creative Ideas",
-                text: "Share innovative solutions and creative concepts",
+                titleKey: "auth.login.featureCreativeTitle",
+                textKey: "auth.login.featureCreativeText",
               },
               {
                 icon: (
@@ -207,8 +204,8 @@ const Login = () => {
                     />
                   </svg>
                 ),
-                title: "Secure Reporting",
-                text: "Report workplace issues safely and anonymously",
+                titleKey: "auth.login.featureSecureTitle",
+                textKey: "auth.login.featureSecureText",
               },
               {
                 icon: (
@@ -226,8 +223,8 @@ const Login = () => {
                     />
                   </svg>
                 ),
-                title: "Open Discussions",
-                text: "Engage in meaningful team conversations",
+                titleKey: "auth.login.featureDiscussionsTitle",
+                textKey: "auth.login.featureDiscussionsText",
               },
             ].map((feature, index) => (
               <div
@@ -238,11 +235,11 @@ const Login = () => {
                   {feature.icon}
                 </div>
                 <div>
-                  <h3 className="font-bold text-text-primary text-xl mb-2">
-                    {feature.title}
+                  <h3 className="font-bold text-text-primary text-base mb-2">
+                    {t(feature.titleKey)}
                   </h3>
-                  <p className="text-text-secondary text-base leading-relaxed font-medium">
-                    {feature.text}
+                  <p className="text-text-secondary text-sm leading-relaxed font-medium">
+                    {t(feature.textKey)}
                   </p>
                 </div>
               </div>
@@ -263,11 +260,11 @@ const Login = () => {
                 className="w-28 h-28 object-contain"
               />
             </div>
-            <h2 className="text-4xl font-bold text-primary-navy mb-2">
+            <h2 className="text-2xl font-bold text-primary-navy mb-2">
               ANCHORA
             </h2>
-            <p className="text-primary-teal font-bold text-lg">
-              Your Anchor in Every Storm
+            <p className="text-primary-teal font-bold text-sm">
+              {t("auth.login.tagline")}
             </p>
           </div>
 
@@ -278,12 +275,12 @@ const Login = () => {
                 {/* Header */}
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-3xl font-bold text-text-primary">
+                    <h1 className="text-2xl font-bold text-text-primary">
                       {t("auth.login.welcome")}
                     </h1>
                     <LanguageSwitcher />
                   </div>
-                  <p className="text-text-secondary text-base">
+                  <p className="text-text-secondary text-sm">
                     {t("auth.login.title")}
                   </p>
                 </div>
@@ -343,7 +340,7 @@ const Login = () => {
                         onChange={(e) => setUsername(e.target.value)}
                         required
                         className="w-full pl-12 pr-4 py-3.5 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition-all bg-background-softGray hover:bg-background-white text-text-primary placeholder-text-tertiary"
-                        placeholder="Enter your username"
+                        placeholder={t("auth.login.usernamePlaceholder")}
                       />
                     </div>
                   </div>
@@ -379,7 +376,7 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         className="w-full pl-12 pr-12 py-3.5 border border-border-light rounded-xl focus:ring-2 focus:ring-primary-teal focus:border-transparent transition-all bg-background-softGray hover:bg-background-white text-text-primary placeholder-text-tertiary"
-                        placeholder="Enter your password"
+                        placeholder={t("auth.login.passwordPlaceholder")}
                       />
                       <button
                         type="button"
@@ -433,14 +430,14 @@ const Login = () => {
                         className="w-4 h-4 text-primary-teal border-border-medium rounded focus:ring-primary-teal cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-text-secondary group-hover:text-text-primary transition">
-                        Remember me
+                        {t("auth.login.rememberMe")}
                       </span>
                     </label>
                     <a
                       href="#"
                       className="text-sm font-semibold text-primary-teal hover:opacity-80 transition"
                     >
-                      Forgot password?
+                      {t("auth.login.forgotPassword")}
                     </a>
                   </div>
 
@@ -448,7 +445,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-primary-teal text-text-onDark py-4 rounded-xl font-bold text-lg hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-primary-teal focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-teal/30 transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full bg-primary-teal text-text-onDark py-4 rounded-xl font-bold text-base hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-primary-teal focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-teal/30 transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center space-x-2">
@@ -471,7 +468,7 @@ const Login = () => {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                           ></path>
                         </svg>
-                        <span>Signing in...</span>
+                        <span>{t("auth.login.signingIn")}</span>
                       </div>
                     ) : (
                       t("auth.login.signIn")
@@ -486,7 +483,7 @@ const Login = () => {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-background-white text-text-tertiary font-medium">
-                      or continue with
+                      {t("auth.login.orContinueWith")}
                     </span>
                   </div>
                 </div>
@@ -516,12 +513,12 @@ const Login = () => {
 
                 {/* Footer */}
                 <p className="mt-8 text-center text-sm text-text-tertiary">
-                  New to ANCHORA?{" "}
+                  {t("auth.login.newToAnchora")}{" "}
                   <a
                     href="#"
                     className="font-semibold text-primary-teal hover:opacity-80 transition"
                   >
-                    Contact your HR
+                    {t("auth.login.contactHR")}
                   </a>
                 </p>
               </>
@@ -565,10 +562,10 @@ const Login = () => {
                         />
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold text-text-primary mb-2">
+                    <h3 className="text-xl font-bold text-text-primary mb-2">
                       {t("qr.scan")}
                     </h3>
-                    <p className="text-text-secondary">
+                    <p className="text-text-secondary text-sm">
                       {t("qr.scanInstructions")}
                     </p>
                   </div>
@@ -601,25 +598,25 @@ const Login = () => {
                         />
                       </svg>
                       <div className="text-sm">
-                        <p className="font-bold text-primary-navy mb-3 text-base">
-                          How to scan:
+                        <p className="font-bold text-primary-navy mb-3 text-sm">
+                          {t("qr.howToScan")}
                         </p>
-                        <ul className="space-y-2 text-text-secondary">
+                        <ul className="space-y-2 text-text-secondary text-xs">
                           <li className="flex items-start">
                             <span className="text-primary-teal mr-2">•</span>
-                            <span>Get QR code from your HR department</span>
+                            <span>{t("qr.instruction1")}</span>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary-teal mr-2">•</span>
-                            <span>Hold it steady within the frame</span>
+                            <span>{t("qr.instruction2")}</span>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary-teal mr-2">•</span>
-                            <span>Ensure good lighting</span>
+                            <span>{t("qr.instruction3")}</span>
                           </li>
                           <li className="flex items-start">
                             <span className="text-primary-teal mr-2">•</span>
-                            <span>Auto-redirect upon successful scan</span>
+                            <span>{t("qr.instruction4")}</span>
                           </li>
                         </ul>
                       </div>
@@ -632,7 +629,7 @@ const Login = () => {
 
           {/* Copyright */}
           <p className="mt-8 text-center text-sm text-text-tertiary">
-            © 2025 ANCHORA. All rights reserved.
+            {t("auth.login.copyright")}
           </p>
         </div>
       </div>
