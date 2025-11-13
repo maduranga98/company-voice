@@ -1,10 +1,20 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
-import { ReportReason, ReportReasonConfig, ReportableContentType } from "../utils/constants";
+import {
+  ReportReason,
+  ReportReasonConfig,
+  ReportableContentType,
+} from "../utils/constants";
 import { createContentReport } from "../services/moderationService";
 import { useAuth } from "../contexts/AuthContext";
 
-const ReportContentModal = ({ isOpen, onClose, contentType, contentId, companyId }) => {
+const ReportContentModal = ({
+  isOpen,
+  onClose,
+  contentType,
+  contentId,
+  companyId,
+}) => {
   const { currentUser } = useAuth();
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
@@ -36,7 +46,7 @@ const ReportContentModal = ({ isOpen, onClose, contentType, contentId, companyId
         contentId,
         reason,
         description: description.trim(),
-        reportedBy: currentUser.uid,
+        reportedBy: currentUser.id,
         companyId,
       });
 
@@ -72,7 +82,8 @@ const ReportContentModal = ({ isOpen, onClose, contentType, contentId, companyId
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            Report {contentType === ReportableContentType.POST ? "Post" : "Comment"}
+            Report{" "}
+            {contentType === ReportableContentType.POST ? "Post" : "Comment"}
           </h2>
           <button
             onClick={handleClose}
@@ -124,9 +135,13 @@ const ReportContentModal = ({ isOpen, onClose, contentType, contentId, companyId
                       <div className="ml-3 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="text-lg">{config.icon}</span>
-                          <span className="font-medium text-gray-900">{config.label}</span>
+                          <span className="font-medium text-gray-900">
+                            {config.label}
+                          </span>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">{config.description}</p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {config.description}
+                        </p>
                       </div>
                     </label>
                   );
@@ -136,9 +151,14 @@ const ReportContentModal = ({ isOpen, onClose, contentType, contentId, companyId
 
             {/* Description (Optional/Required for "Other") */}
             <div className="mb-4">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Additional details {reason === ReportReason.OTHER && "*"}
-                <span className="text-gray-500 font-normal ml-1">(500 characters max)</span>
+                <span className="text-gray-500 font-normal ml-1">
+                  (500 characters max)
+                </span>
               </label>
               <textarea
                 id="description"
@@ -165,8 +185,8 @@ const ReportContentModal = ({ isOpen, onClose, contentType, contentId, companyId
             {/* Info */}
             <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
-                Reports are reviewed by company moderators. You will be notified when action is
-                taken.
+                Reports are reviewed by company moderators. You will be notified
+                when action is taken.
               </p>
             </div>
 
