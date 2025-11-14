@@ -1,5 +1,18 @@
 import { useState } from "react";
-import { Flag, Pin, Archive, History, Eye, X, Download, FileText, Image as ImageIcon, Edit2, Trash2, MoreVertical } from "lucide-react";
+import {
+  Flag,
+  Pin,
+  Archive,
+  History,
+  Eye,
+  X,
+  Download,
+  FileText,
+  Image as ImageIcon,
+  Edit2,
+  Trash2,
+  MoreVertical,
+} from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import VotingButton from "./VotingButton";
 import PollDisplay from "./PollDisplay";
@@ -17,6 +30,7 @@ import { getEditHistory } from "../services/postEnhancedFeaturesService";
 import { editPost } from "../services/postEnhancementsService";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../config/firebase";
+import CommentsEnhanced from "./CommentsEnhanced";
 
 const PostEnhanced = ({ post }) => {
   const { t } = useTranslation();
@@ -359,7 +373,8 @@ const PostEnhanced = ({ post }) => {
                 />
               </svg>
               <span className="truncate">
-                Assigned to: <span className="font-medium">{post.assignedTo.name}</span>
+                Assigned to:{" "}
+                <span className="font-medium">{post.assignedTo.name}</span>
               </span>
             </div>
           )}
@@ -436,8 +451,18 @@ const PostEnhanced = ({ post }) => {
           <div className="px-4 sm:px-6 pb-4 sm:pb-6">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
               <div className="flex items-center gap-2 mb-3">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
                 </svg>
                 <h4 className="font-semibold text-blue-900">Poll</h4>
               </div>
@@ -593,7 +618,9 @@ const PostEnhanced = ({ post }) => {
             </div>
             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               {editHistory.length === 0 ? (
-                <p className="text-center text-slate-500 py-8">No edit history available</p>
+                <p className="text-center text-slate-500 py-8">
+                  No edit history available
+                </p>
               ) : (
                 <div className="space-y-4">
                   {editHistory.map((entry, index) => (
@@ -603,11 +630,13 @@ const PostEnhanced = ({ post }) => {
                           {entry.editedByName}
                         </span>
                         <span className="text-xs text-slate-500">
-                          {entry.timestamp?.toDate?.()?.toLocaleString() || "Unknown time"}
+                          {entry.timestamp?.toDate?.()?.toLocaleString() ||
+                            "Unknown time"}
                         </span>
                       </div>
                       <div className="text-sm text-slate-700">
-                        <strong>Changed fields:</strong> {Object.keys(entry.changes).join(", ")}
+                        <strong>Changed fields:</strong>{" "}
+                        {Object.keys(entry.changes).join(", ")}
                       </div>
                     </div>
                   ))}
@@ -620,7 +649,10 @@ const PostEnhanced = ({ post }) => {
 
       {/* Attachment Preview Modal */}
       {showAttachmentModal && selectedAttachment && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[9999]" onClick={() => setShowAttachmentModal(false)}>
+        <div
+          className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-[9999]"
+          onClick={() => setShowAttachmentModal(false)}
+        >
           <div className="relative w-full h-full flex items-center justify-center">
             <button
               onClick={() => setShowAttachmentModal(false)}
@@ -649,19 +681,30 @@ const PostEnhanced = ({ post }) => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]" onClick={() => !deleting && setShowDeleteConfirm(false)}>
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]"
+          onClick={() => !deleting && setShowDeleteConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-red-100 rounded-full">
                 <Trash2 className="w-6 h-6 text-red-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">Delete Post</h3>
-                <p className="text-sm text-slate-500">This action cannot be undone</p>
+                <h3 className="text-lg font-semibold text-slate-900">
+                  Delete Post
+                </h3>
+                <p className="text-sm text-slate-500">
+                  This action cannot be undone
+                </p>
               </div>
             </div>
             <p className="text-slate-700 mb-6">
-              Are you sure you want to delete this post? All comments and reactions will also be removed.
+              Are you sure you want to delete this post? All comments and
+              reactions will also be removed.
             </p>
             <div className="flex gap-3 justify-end">
               <button
