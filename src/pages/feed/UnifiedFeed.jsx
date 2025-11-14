@@ -250,11 +250,23 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                 Active filters:
               </span>
               {searchTerm && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--color-primary-teal)] bg-opacity-10 text-[var(--color-primary-teal)] text-sm rounded-full border border-[var(--color-primary-teal)] border-opacity-20">
+                <span
+                  className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full font-medium"
+                  style={{
+                    backgroundColor: 'rgba(26, 188, 156, 0.1)',
+                    color: '#1abc9c',
+                    border: '1px solid rgba(26, 188, 156, 0.3)'
+                  }}
+                >
                   Search: "{searchTerm}"
                   <button
                     onClick={() => setSearchTerm("")}
-                    className="hover:bg-[var(--color-primary-teal)] hover:bg-opacity-20 rounded-full p-0.5"
+                    className="rounded-full p-0.5 transition-colors"
+                    style={{
+                      color: '#1abc9c'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(26, 188, 156, 0.2)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <svg
                       className="w-3 h-3"
@@ -271,11 +283,23 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                 </span>
               )}
               {selectedCategory !== "all" && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--color-primary-navy)] bg-opacity-10 text-[var(--color-primary-navy)] text-sm rounded-full border border-[var(--color-primary-navy)] border-opacity-20">
+                <span
+                  className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full font-medium"
+                  style={{
+                    backgroundColor: 'rgba(45, 62, 80, 0.1)',
+                    color: '#2d3e50',
+                    border: '1px solid rgba(45, 62, 80, 0.3)'
+                  }}
+                >
                   Category: {selectedCategory}
                   <button
                     onClick={() => setSelectedCategory("all")}
-                    className="hover:bg-[var(--color-primary-navy)] hover:bg-opacity-20 rounded-full p-0.5"
+                    className="rounded-full p-0.5 transition-colors"
+                    style={{
+                      color: '#2d3e50'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(45, 62, 80, 0.2)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <svg
                       className="w-3 h-3"

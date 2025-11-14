@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Flag, Pin, Archive, History, Eye, X, Download, FileText, Image as ImageIcon } from "lucide-react";
 import ReactionButton from "./ReactionButton";
-import CommentsEnhanced from "./CommentsEnhanced";
+import VotingButton from "./VotingButton";
+import PollDisplay from "./PollDisplay";
+import CommentsThreaded from "./CommentsThreaded";
 import ReportContentModal from "./ReportContentModal";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
@@ -356,6 +358,13 @@ const PostEnhanced = ({ post }) => {
           )}
         </div>
 
+        {/* Poll Display */}
+        {post.poll && post.poll.options && post.poll.options.length > 0 && (
+          <div className="px-3 sm:px-4">
+            <PollDisplay poll={post.poll} postId={post.id} />
+          </div>
+        )}
+
         {/* Post Attachments with Enhanced Preview */}
         {post.attachments && post.attachments.length > 0 && (
           <div className="px-3 sm:px-4 pb-3 sm:pb-4">
@@ -431,7 +440,18 @@ const PostEnhanced = ({ post }) => {
         {/* Post Actions & Comments */}
         <div className="border-t border-slate-100">
           {/* Action Bar */}
-          <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 bg-white flex-wrap sm:flex-nowrap">
+          <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 bg-white flex-wrap sm:flex-nowrap">
+            {/* Voting System */}
+            <VotingButton
+              postId={post.id}
+              initialUpvotes={post.upvotes || []}
+              initialDownvotes={post.downvotes || []}
+            />
+
+            {/* Divider */}
+            <div className="h-6 w-px bg-slate-200" />
+
+            {/* Reactions */}
             <ReactionButton
               postId={post.id}
               initialReactions={post.reactions || {}}
@@ -439,6 +459,8 @@ const PostEnhanced = ({ post }) => {
               postAuthorName={post.authorName}
               postTitle={post.title}
             />
+
+            {/* Comments */}
             <CommentsEnhanced
               postId={post.id}
               initialCommentCount={post.comments || 0}
