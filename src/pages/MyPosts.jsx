@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import Post from "../components/Post";
+import PostEnhanced from "../components/PostEnhanced";
 import {
   getUserPosts,
   markPostAsViewed,
@@ -11,7 +11,6 @@ import {
   PostStatusConfig,
   PostPriorityConfig,
 } from "../utils/constants";
-import AdminActionPanel from "../components/AdminActionPanel";
 
 /**
  * My Posts Dashboard - Title-Only View
@@ -25,8 +24,6 @@ const MyPosts = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [expandedPost, setExpandedPost] = useState(null);
-
-  const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
     loadMyPosts();
@@ -403,19 +400,8 @@ const MyPosts = () => {
                         </div>
                       </div>
 
-                      {/* Admin Panel if user is admin */}
-                      {userIsAdmin && (
-                        <div className="px-4 pt-2">
-                          <AdminActionPanel
-                            post={post}
-                            currentUser={userData}
-                            onUpdate={loadMyPosts}
-                          />
-                        </div>
-                      )}
-
                       {/* Full Post Content */}
-                      <Post post={post} getTimeAgo={getTimeAgo} />
+                      <PostEnhanced post={post} />
 
                       {/* Stats Footer */}
                       <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
