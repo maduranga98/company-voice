@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Flag, Pin, Archive, History, Eye, X, Download, FileText, Image as ImageIcon } from "lucide-react";
+import { Flag, Pin, Archive, History, Eye, X, Download, FileText, Image as ImageIcon, Edit2, Trash2, MoreVertical } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import VotingButton from "./VotingButton";
 import PollDisplay from "./PollDisplay";
@@ -14,6 +14,9 @@ import {
   ReportableContentType,
 } from "../utils/constants";
 import { getEditHistory } from "../services/postEnhancedFeaturesService";
+import { editPost } from "../services/postEnhancementsService";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 const PostEnhanced = ({ post }) => {
   const { t } = useTranslation();
@@ -26,9 +29,15 @@ const PostEnhanced = ({ post }) => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
+
+  // Check if current user is the post author
+  const isAuthor = userData && userData.uid === post.authorId;
 
   const getTimeAgo = (timestamp) => {
     const now = new Date();
@@ -92,6 +101,32 @@ const PostEnhanced = ({ post }) => {
     } else {
       window.open(attachment.url, "_blank");
     }
+  };
+
+  // Delete post handler
+  const handleDeletePost = async () => {
+    if (!isAuthor) return;
+
+    setDeleting(true);
+    try {
+      const postRef = doc(db, "posts", post.id);
+      await deleteDoc(postRef);
+      // Optionally show success message
+      window.location.reload(); // Refresh to update the feed
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      alert("Failed to delete post. Please try again.");
+    } finally {
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  // Edit post handler (navigate to edit page or open modal)
+  const handleEditPost = () => {
+    // For now, we'll just alert - you can implement an edit modal later
+    alert("Edit functionality coming soon! This will open an edit modal.");
+    setShowOptionsMenu(false);
   };
 
   // Content length limit for "Read More"
@@ -208,7 +243,7 @@ const PostEnhanced = ({ post }) => {
         )}
 
         {/* Post Header */}
-        <div className="p-3 sm:p-4 border-b border-slate-100">
+        <div className="p-4 sm:p-5 border-b border-slate-100">
           <div className="flex items-start justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-900 rounded-full flex items-center justify-center text-white font-medium text-xs sm:text-sm flex-shrink-0">
@@ -236,9 +271,47 @@ const PostEnhanced = ({ post }) => {
               </div>
             </div>
             <div className="flex flex-col gap-1 items-end">
-              <span className="px-2 sm:px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
-                {post.category}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-2 sm:px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-full whitespace-nowrap flex-shrink-0">
+                  {post.category}
+                </span>
+
+                {/* Edit/Delete Menu for Post Author */}
+                {isAuthor && !post.isArchived && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                      className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                      title="Post options"
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+
+                    {/* Options Dropdown */}
+                    {showOptionsMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+                        <button
+                          onClick={handleEditPost}
+                          className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Edit Post
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowDeleteConfirm(true);
+                            setShowOptionsMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete Post
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Status & Priority Badges for Problem Reports */}
               {isProblemReport && (
@@ -293,8 +366,8 @@ const PostEnhanced = ({ post }) => {
         </div>
 
         {/* Post Content */}
-        <div className="p-3 sm:p-4">
-          <h2 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-2 break-words">
+        <div className="p-4 sm:p-6">
+          <h2 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-3 break-words">
             {post.title}
           </h2>
           <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
@@ -360,14 +433,22 @@ const PostEnhanced = ({ post }) => {
 
         {/* Poll Display */}
         {post.poll && post.poll.options && post.poll.options.length > 0 && (
-          <div className="px-3 sm:px-4">
-            <PollDisplay poll={post.poll} postId={post.id} />
+          <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <h4 className="font-semibold text-blue-900">Poll</h4>
+              </div>
+              <PollDisplay poll={post.poll} postId={post.id} />
+            </div>
           </div>
         )}
 
         {/* Post Attachments with Enhanced Preview */}
         {post.attachments && post.attachments.length > 0 && (
-          <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+          <div className="px-4 sm:px-6 pb-4 sm:pb-6">
             {post.attachments.length === 1 ? (
               post.attachments[0].type?.startsWith("image/") ? (
                 <div className="relative w-full h-48 sm:h-64 md:h-80 bg-slate-100 rounded-lg overflow-hidden group">
@@ -438,9 +519,9 @@ const PostEnhanced = ({ post }) => {
         )}
 
         {/* Post Actions & Comments */}
-        <div className="border-t border-slate-100 relative">
+        <div className="border-t border-slate-100">
           {/* Action Bar */}
-          <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 bg-white flex-wrap sm:flex-nowrap">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 bg-white flex-wrap sm:flex-nowrap">
             {/* Voting System */}
             <VotingButton
               postId={post.id}
@@ -562,6 +643,52 @@ const PostEnhanced = ({ post }) => {
               <Download className="w-5 h-5" />
               <span className="hidden sm:inline">Download</span>
             </a>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]" onClick={() => !deleting && setShowDeleteConfirm(false)}>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-red-100 rounded-full">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Delete Post</h3>
+                <p className="text-sm text-slate-500">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-slate-700 mb-6">
+              Are you sure you want to delete this post? All comments and reactions will also be removed.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeletePost}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

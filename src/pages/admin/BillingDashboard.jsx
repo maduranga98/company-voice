@@ -17,6 +17,7 @@ import {
   getStatusColor,
   getPaymentStatusColor,
 } from "../../services/billingService";
+import { ArrowLeft } from "lucide-react";
 
 function BillingDashboard() {
   const navigate = useNavigate();
@@ -132,10 +133,20 @@ function BillingDashboard() {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
             {/* Title & Navigation */}
             <div className="flex flex-col space-y-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Super Admin Panel
-              </h1>
-              <div className="flex space-x-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate("/admin/companies")}
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition flex items-center gap-2"
+                  title="Back to Companies"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  <span className="text-sm font-medium">Back</span>
+                </button>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  Super Admin Panel
+                </h1>
+              </div>
+              <div className="flex space-x-4 ml-14">
                 <button
                   onClick={() => navigate("/admin/companies")}
                   className="text-sm font-medium text-gray-600 hover:text-gray-900 transition"
