@@ -14,7 +14,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { PostStatus, PostActivityType } from "../utils/constants";
+import { PostStatus, PostActivityType, UserRole } from "../utils/constants";
 import { logPostActivity } from "./postManagementService";
 
 // ============================================
@@ -269,8 +269,11 @@ export const editPost = async (postId, updateData, editor) => {
 
     const oldData = postSnap.data();
 
-    // Verify editor is the author (or admin for problem reports)
-    if (oldData.authorId !== editor.id && editor.role !== "admin") {
+    // Verify editor is the author (or admin/HR/super admin)
+    const isAuthor = oldData.authorId === editor.id || oldData.authorId === editor.uid;
+    const isAdmin = [UserRole.SUPER_ADMIN, UserRole.COMPANY_ADMIN, UserRole.HR].includes(editor.role);
+
+    if (!isAuthor && !isAdmin) {
       throw new Error("Unauthorized to edit this post");
     }
 

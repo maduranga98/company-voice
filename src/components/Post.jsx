@@ -5,6 +5,7 @@ import CommentsEnhanced from "./CommentsEnhanced";
 import ReportContentModal from "./ReportContentModal";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
+import DOMPurify from "dompurify";
 
 import {
   PostStatusConfig,
@@ -66,10 +67,15 @@ const Post = ({ post }) => {
   const CONTENT_LIMIT = 300;
   const content = post.description || post.content || "";
   const shouldTruncate = content.length > CONTENT_LIMIT;
-  const displayContent =
+  const rawContent =
     shouldTruncate && !isExpanded
       ? content.substring(0, CONTENT_LIMIT) + "..."
       : content;
+  // Sanitize content to prevent XSS attacks
+  const displayContent = DOMPurify.sanitize(rawContent, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre'],
+    ALLOWED_ATTR: ['href', 'target', 'rel']
+  });
 
   // Get dynamic styling based on status and priority
   const getPostStyling = () => {

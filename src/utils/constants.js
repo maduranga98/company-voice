@@ -281,6 +281,7 @@ export const PostActivityType = {
   UNPINNED: "unpinned",
   ARCHIVED: "archived",
   UNARCHIVED: "unarchived",
+  POST_DELETED: "post_deleted",
 };
 
 // Post activity type display configuration
@@ -404,6 +405,14 @@ export const PostActivityTypeConfig = {
     bgColor: "bg-green-100",
     textColor: "text-green-800",
     description: "Post was unarchived",
+  },
+  [PostActivityType.POST_DELETED]: {
+    label: "Post Deleted",
+    icon: "🗑️",
+    color: "red",
+    bgColor: "bg-red-100",
+    textColor: "text-red-800",
+    description: "Post was permanently deleted",
   },
 };
 

@@ -11,6 +11,8 @@ import {
   limit,
   getDoc,
   increment,
+  deleteDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import CryptoJS from "crypto-js";
@@ -788,6 +790,136 @@ export const createDefaultDepartments = async (companyId, departments) => {
     return { success: true };
   } catch (error) {
     console.error("Error creating default departments:", error);
+    throw error;
+  }
+};
+
+// ============================================
+// DELETE POST WITH CASCADE CLEANUP
+// ============================================
+
+/**
+ * Delete a post with proper cascade cleanup
+ * Removes: post document, comments, likes, edit history, activities, views, and reactions
+ * @param {string} postId - Post ID to delete
+ * @param {object} user - User performing the deletion
+ * @returns {Promise<{success: boolean}>}
+ */
+export const deletePost = async (postId, user) => {
+  try {
+    if (!postId || !user) {
+      throw new Error("Post ID and user are required");
+    }
+
+    // Get post document to verify ownership/permissions
+    const postRef = doc(db, "posts", postId);
+    const postSnap = await getDoc(postRef);
+
+    if (!postSnap.exists()) {
+      throw new Error("Post not found");
+    }
+
+    const postData = postSnap.data();
+
+    // Check authorization: author or admin
+    const isAuthor = postData.authorId === user.id || postData.authorId === user.uid;
+    const isAdmin = [UserRole.SUPER_ADMIN, UserRole.COMPANY_ADMIN, UserRole.HR].includes(user.role);
+
+    if (!isAuthor && !isAdmin) {
+      throw new Error("Unauthorized: You can only delete your own posts");
+    }
+
+    // Check company isolation (non-super admins only)
+    if (user.role !== UserRole.SUPER_ADMIN && postData.companyId !== user.companyId) {
+      throw new Error("Unauthorized: Post belongs to a different company");
+    }
+
+    // Log deletion activity before deleting
+    await logPostActivity(postId, PostActivityType.POST_DELETED, {
+      deletedBy: {
+        id: user.id || user.uid,
+        name: user.displayName || user.username,
+        role: user.role,
+      },
+      postTitle: postData.title || "Untitled",
+      postType: postData.type,
+      deletedAt: new Date().toISOString(),
+    });
+
+    // Use batch for atomic deletion of related documents
+    const batch = writeBatch(db);
+
+    // 1. Delete all comments
+    const commentsQuery = query(collection(db, `posts/${postId}/comments`));
+    const commentsSnap = await getDocs(commentsQuery);
+    commentsSnap.forEach((commentDoc) => {
+      batch.delete(doc(db, `posts/${postId}/comments`, commentDoc.id));
+    });
+
+    // 2. Delete all likes
+    const likesQuery = query(collection(db, `posts/${postId}/likes`));
+    const likesSnap = await getDocs(likesQuery);
+    likesSnap.forEach((likeDoc) => {
+      batch.delete(doc(db, `posts/${postId}/likes`, likeDoc.id));
+    });
+
+    // 3. Delete all reactions (if separate collection)
+    const reactionsQuery = query(collection(db, `posts/${postId}/reactions`));
+    const reactionsSnap = await getDocs(reactionsQuery);
+    reactionsSnap.forEach((reactionDoc) => {
+      batch.delete(doc(db, `posts/${postId}/reactions`, reactionDoc.id));
+    });
+
+    // Commit the batch for subcollections
+    await batch.commit();
+
+    // 4. Delete edit history (separate collection)
+    const editHistoryQuery = query(
+      collection(db, "postEditHistory"),
+      where("postId", "==", postId)
+    );
+    const editHistorySnap = await getDocs(editHistoryQuery);
+    const historyBatch = writeBatch(db);
+    editHistorySnap.forEach((historyDoc) => {
+      historyBatch.delete(doc(db, "postEditHistory", historyDoc.id));
+    });
+    await historyBatch.commit();
+
+    // 5. Delete post activities (separate collection) - keep last one we just created for audit
+    const activitiesQuery = query(
+      collection(db, "postActivities"),
+      where("postId", "==", postId)
+    );
+    const activitiesSnap = await getDocs(activitiesQuery);
+    const activitiesBatch = writeBatch(db);
+    // Skip the last activity (deletion log) for audit trail
+    const activityDocs = activitiesSnap.docs.slice(0, -1);
+    activityDocs.forEach((activityDoc) => {
+      activitiesBatch.delete(doc(db, "postActivities", activityDoc.id));
+    });
+    await activitiesBatch.commit();
+
+    // 6. Delete post views (separate collection)
+    const viewsQuery = query(
+      collection(db, "postViews"),
+      where("postId", "==", postId)
+    );
+    const viewsSnap = await getDocs(viewsQuery);
+    const viewsBatch = writeBatch(db);
+    viewsSnap.forEach((viewDoc) => {
+      viewsBatch.delete(doc(db, "postViews", viewDoc.id));
+    });
+    await viewsBatch.commit();
+
+    // 7. Finally, delete the post document itself
+    await deleteDoc(postRef);
+
+    return {
+      success: true,
+      message: "Post and all related data deleted successfully"
+    };
+  } catch (error) {
+    console.error("Error deleting post:", error);
     throw error;
   }
 };
