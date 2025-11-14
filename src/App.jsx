@@ -12,7 +12,7 @@ import CompanyManagement from "./pages/admin/CompanyManagement";
 // import BillingDashboard from "./pages/admin/BillingDashboard"; // COMMENTED OUT FOR NOW
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyAnalytics from "./pages/company/CompanyAnalytics";
-// import CompanyBilling from "./pages/company/CompanyBilling"; // COMMENTED OUT FOR NOW
+import CompanyBilling from "./pages/company/CompanyBilling";
 import CompanyQRCode from "./pages/company/CompanyQRCode";
 import TagManagement from "./pages/company/TagManagement";
 import MemberManagement from "./pages/company/MemberManagement";
@@ -264,7 +264,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            {/* COMMENTED OUT FOR NOW - BILLING
             <Route
               path="/company/billing"
               element={
@@ -273,7 +272,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            */}
 
             {/* Employee Routes with Layout */}
             <Route
