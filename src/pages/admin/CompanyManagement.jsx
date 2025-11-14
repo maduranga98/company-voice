@@ -503,7 +503,7 @@ const CompanyManagement = () => {
                     </div>
 
                     {/* Details Grid */}
-                    <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                       <div>
                         <span className="text-gray-500">Employees:</span>
                         <span className="ml-2 font-medium text-gray-900">
@@ -516,6 +516,35 @@ const CompanyManagement = () => {
                           {company.createdAt?.toDate().toLocaleDateString()}
                         </span>
                       </div>
+                    </div>
+
+                    {/* Action Buttons - Mobile */}
+                    <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
+                      <button
+                        onClick={() => handleViewDetails(company)}
+                        className="flex-1 px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => handleToggleStatus(company)}
+                        className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition ${
+                          company.isActive
+                            ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                            : "bg-green-100 text-green-800 hover:bg-green-200"
+                        }`}
+                      >
+                        {company.isActive ? "Deactivate" : "Activate"}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(company)}
+                        className="px-3 py-2 bg-red-100 text-red-800 text-sm font-medium rounded-lg hover:bg-red-200 transition"
+                        title="Delete"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}
