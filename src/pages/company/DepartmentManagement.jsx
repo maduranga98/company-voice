@@ -37,11 +37,23 @@ const DepartmentManagement = () => {
       const depts = await getDepartments(userData.companyId, showInactive);
       setDepartments(depts);
 
-      // Load stats for each department
+      // Load stats for all departments in parallel
+      const statsPromises = depts.map((dept) =>
+        getDepartmentStats(dept.id)
+          .then((stat) => ({ id: dept.id, stat }))
+          .catch((error) => {
+            console.error(`Error loading stats for ${dept.id}:`, error);
+            return { id: dept.id, stat: null };
+          })
+      );
+
+      const statsResults = await Promise.all(statsPromises);
+
       const stats = {};
-      for (const dept of depts) {
-        stats[dept.id] = await getDepartmentStats(dept.id);
-      }
+      statsResults.forEach(({ id, stat }) => {
+        stats[id] = stat;
+      });
+
       setDepartmentStats(stats);
     } catch (error) {
       console.error("Error loading departments:", error);
@@ -103,7 +115,11 @@ const DepartmentManagement = () => {
   const handleSaveDepartment = async (departmentData) => {
     try {
       if (editingDepartment) {
-        await updateDepartment(editingDepartment.id, departmentData);
+        await updateDepartment(
+          editingDepartment.id,
+          departmentData,
+          userData.companyId
+        );
         alert("Department updated successfully");
       } else {
         await createDepartment(departmentData, userData.companyId);
@@ -114,7 +130,8 @@ const DepartmentManagement = () => {
       await loadDepartments();
     } catch (error) {
       console.error("Error saving department:", error);
-      alert("Failed to save department");
+      // Show specific error message if available
+      alert(error.message || "Failed to save department");
     }
   };
 

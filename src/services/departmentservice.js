@@ -25,6 +25,16 @@ import { db } from "../config/firebase";
  */
 export const createDepartment = async (departmentData, companyId) => {
   try {
+    // Validate department name is unique
+    const existingDepts = await getDepartments(companyId, false);
+    const nameExists = existingDepts.some(
+      (dept) => dept.name.toLowerCase() === departmentData.name.toLowerCase()
+    );
+
+    if (nameExists) {
+      throw new Error("A department with this name already exists");
+    }
+
     const department = {
       ...departmentData,
       companyId,
@@ -44,7 +54,7 @@ export const createDepartment = async (departmentData, companyId) => {
     };
   } catch (error) {
     console.error("Error creating department:", error);
-    throw new Error("Failed to create department");
+    throw error;
   }
 };
 
@@ -52,10 +62,25 @@ export const createDepartment = async (departmentData, companyId) => {
  * Update department information
  * @param {string} departmentId - Department ID
  * @param {object} updates - Fields to update
+ * @param {string} companyId - Company ID (for name validation)
  * @returns {Promise<{success: boolean}>}
  */
-export const updateDepartment = async (departmentId, updates) => {
+export const updateDepartment = async (departmentId, updates, companyId) => {
   try {
+    // Validate department name is unique if name is being updated
+    if (updates.name && companyId) {
+      const existingDepts = await getDepartments(companyId, false);
+      const nameExists = existingDepts.some(
+        (dept) =>
+          dept.id !== departmentId &&
+          dept.name.toLowerCase() === updates.name.toLowerCase()
+      );
+
+      if (nameExists) {
+        throw new Error("A department with this name already exists");
+      }
+    }
+
     const departmentRef = doc(db, "departments", departmentId);
 
     await updateDoc(departmentRef, {
@@ -69,7 +94,7 @@ export const updateDepartment = async (departmentId, updates) => {
     };
   } catch (error) {
     console.error("Error updating department:", error);
-    throw new Error("Failed to update department");
+    throw error;
   }
 };
 
@@ -147,22 +172,30 @@ export const getDepartments = async (companyId, includeInactive = false) => {
     }
 
     const snapshot = await getDocs(q);
-    const departments = [];
 
-    for (const doc of snapshot.docs) {
-      const deptData = { id: doc.id, ...doc.data() };
+    // Fetch all users once to avoid N+1 queries
+    const usersQuery = query(
+      collection(db, "users"),
+      where("companyId", "==", companyId),
+      where("status", "==", "active")
+    );
+    const usersSnapshot = await getDocs(usersQuery);
 
-      // Get member count
-      const membersQuery = query(
-        collection(db, "users"),
-        where("departmentId", "==", doc.id),
-        where("status", "==", "active")
-      );
-      const membersSnapshot = await getDocs(membersQuery);
-      deptData.memberCount = membersSnapshot.size;
+    // Count members per department
+    const memberCounts = {};
+    usersSnapshot.forEach((userDoc) => {
+      const deptId = userDoc.data().departmentId;
+      if (deptId) {
+        memberCounts[deptId] = (memberCounts[deptId] || 0) + 1;
+      }
+    });
 
-      departments.push(deptData);
-    }
+    // Build departments array with member counts
+    const departments = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      memberCount: memberCounts[doc.id] || 0,
+    }));
 
     return departments;
   } catch (error) {
