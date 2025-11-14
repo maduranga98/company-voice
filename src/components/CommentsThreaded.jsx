@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { MessageCircle, Send, CornerDownRight, Heart, Reply } from "lucide-react";
+import { MessageCircle, Send, CornerDownRight, Heart, Reply, X } from "lucide-react";
 import {
   addCommentReply,
   buildCommentTree,
@@ -344,11 +344,25 @@ const CommentsThreaded = ({
         </span>
       </button>
 
-      {/* Comments Section - Rendered outside action bar with absolute positioning */}
+      {/* Comments Section */}
       {showComments && (
-        <div className="absolute left-0 right-0 px-3 sm:px-4 pb-4 border-t border-slate-100 bg-white z-20">
+        <div className="px-3 sm:px-4 py-4 border-t border-slate-100 bg-slate-50">
+          {/* Comments Header with Close Button */}
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-semibold text-slate-900 text-sm">
+              Comments ({commentCount})
+            </h4>
+            <button
+              onClick={() => setShowComments(false)}
+              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition"
+              title="Close comments"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Comments List */}
-          <div className="mt-4 space-y-3 max-h-[600px] overflow-y-auto">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto">
             {comments.length === 0 ? (
               <p className="text-sm text-slate-500 text-center py-4">
                 {commentCount > 0
