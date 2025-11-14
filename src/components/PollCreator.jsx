@@ -5,6 +5,7 @@ import { validatePollData } from "../services/pollService";
 /**
  * PollCreator Component
  * Allows users to create polls when creating a post
+ * CORRECTED VERSION - Prevents form submission on Enter key
  */
 const PollCreator = ({ onPollChange, initialPoll = null }) => {
   const [showPollCreator, setShowPollCreator] = useState(!!initialPoll);
@@ -129,7 +130,8 @@ const PollCreator = ({ onPollChange, initialPoll = null }) => {
           value={question}
           onChange={(e) => handleQuestionChange(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            // Prevent Enter key from submitting the parent form
+            if (e.key === "Enter") {
               e.preventDefault();
             }
           }}
@@ -155,7 +157,8 @@ const PollCreator = ({ onPollChange, initialPoll = null }) => {
                 value={option}
                 onChange={(e) => updateOption(index, e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  // Prevent Enter key from submitting the parent form
+                  if (e.key === "Enter") {
                     e.preventDefault();
                   }
                 }}
@@ -199,9 +202,7 @@ const PollCreator = ({ onPollChange, initialPoll = null }) => {
             onChange={(e) => handleMultipleChoiceChange(e.target.checked)}
             className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
           />
-          <span className="text-sm text-slate-700">
-            Allow multiple choices
-          </span>
+          <span className="text-sm text-slate-700">Allow multiple choices</span>
         </label>
 
         {/* End Date */}
