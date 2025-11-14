@@ -9,6 +9,8 @@ import AdminActionPanel from "../../components/AdminActionPanel";
 import { isAdmin } from "../../services/postManagementService";
 import { useTranslation } from "react-i18next";
 import { getPinnedPosts } from "../../services/postEnhancedFeaturesService";
+import { PostSkeleton } from "../../components/SkeletonLoader";
+import PullToRefresh from "../../components/PullToRefresh";
 
 const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const { t } = useTranslation();
@@ -108,11 +110,8 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] bg-[var(--color-background-softGray)]">
-        <div className="relative">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[var(--color-border-light)]"></div>
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[var(--color-primary-teal)] absolute top-0 left-0"></div>
-        </div>
+      <div className="p-4 space-y-4 bg-[var(--color-background-softGray)]">
+        <PostSkeleton count={5} />
       </div>
     );
   }

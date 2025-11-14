@@ -198,7 +198,7 @@ const CompanyAdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-softGray pb-24">
+    <div className="min-h-screen bg-background-softGray pb-32">
       {/* Top Header */}
       <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -306,7 +306,7 @@ const CompanyAdminLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First with Enhanced Styling */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-primary-navy z-50 safe-area-inset-bottom shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-primary-navy z-50 shadow-2xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${

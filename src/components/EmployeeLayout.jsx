@@ -163,7 +163,7 @@ const EmployeeLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-softGray pb-24">
+    <div className="min-h-screen bg-background-softGray pb-32">
       {/* Top Header */}
       <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg backdrop-blur-sm">
 
@@ -275,7 +275,7 @@ const EmployeeLayout = () => {
       </main>
 
       {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-(--color-background-white) border-t border-border-light-inset-bottom shadow-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 bg-(--color-background-white) border-t border-border-light z-50 shadow-2xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-7xl mx-auto">
           <div
             className={`grid ${

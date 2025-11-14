@@ -57,15 +57,23 @@ const Register = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // For username, only allow alphanumeric characters
+    if (name === "username") {
+      const alphanumericValue = value.replace(/[^a-zA-Z0-9]/g, '');
+      setFormData((prev) => ({
+        ...prev,
+        [name]: alphanumericValue,
+      }));
+      setUsernameAvailable(null);
+      setUsernameChecked(false);
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-
-    if (name === "username") {
-      setUsernameAvailable(null);
-      setUsernameChecked(false);
-    }
   };
 
   const checkUsername = async () => {
@@ -101,6 +109,12 @@ const Register = () => {
 
     if (!formData.username || formData.username.length < 3) {
       setError("Username must be at least 3 characters long");
+      return false;
+    }
+
+    // Validate alphanumeric username
+    if (!/^[a-zA-Z0-9]+$/.test(formData.username)) {
+      setError("Username must contain only letters and numbers (no spaces or special characters)");
       return false;
     }
 
@@ -196,6 +210,27 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate("/login")}
+          className="flex items-center text-slate-600 hover:text-slate-900 transition-colors mb-6 group"
+        >
+          <svg
+            className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Login
+        </button>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-slate-900 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -286,6 +321,9 @@ const Register = () => {
                 {checkingUsername ? "Checking..." : "Check"}
               </button>
             </div>
+            <p className="text-xs text-slate-500 mt-1.5">
+              Only letters and numbers allowed (no spaces or special characters)
+            </p>
             {usernameChecked && (
               <div
                 className={`flex items-center gap-1.5 mt-2 text-sm ${
