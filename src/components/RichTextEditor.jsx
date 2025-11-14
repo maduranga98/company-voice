@@ -1,176 +1,141 @@
-import { useState, useRef } from "react";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import {
   Bold,
   Italic,
   List,
   ListOrdered,
-  Link as LinkIcon,
+  Heading2,
+  Undo,
+  Redo,
   Code,
   Quote,
 } from "lucide-react";
 
 /**
- * Simple Rich Text Editor Component
+ * Rich Text Editor Component using TipTap
  *
- * For production, consider integrating TipTap, Quill, or Draft.js
- * This is a basic implementation with toolbar controls
+ * A WYSIWYG editor with visual formatting controls
  */
 const RichTextEditor = ({ value, onChange, placeholder, rows = 8 }) => {
-  const [showLinkInput, setShowLinkInput] = useState(false);
-  const [linkUrl, setLinkUrl] = useState("");
-  const textareaRef = useRef(null);
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [2, 3],
+        },
+      }),
+      Placeholder.configure({
+        placeholder: placeholder || "Write something...",
+      }),
+    ],
+    content: value || '',
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      onChange(html);
+    },
+    editorProps: {
+      attributes: {
+        class: `prose prose-sm max-w-none px-4 py-3 focus:outline-none`,
+        style: `min-height: ${rows * 1.5}rem`,
+      },
+    },
+  });
 
-  const insertAtCursor = (before, after = "") => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+  if (!editor) {
+    return null;
+  }
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = value.substring(start, end);
-    const newText =
-      value.substring(0, start) +
-      before +
-      selectedText +
-      after +
-      value.substring(end);
-
-    onChange(newText);
-
-    // Restore focus and selection
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPos = start + before.length + selectedText.length;
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
-  };
-
-  const handleBold = () => {
-    insertAtCursor("**", "**");
-  };
-
-  const handleItalic = () => {
-    insertAtCursor("*", "*");
-  };
-
-  const handleCode = () => {
-    insertAtCursor("`", "`");
-  };
-
-  const handleQuote = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-    const newText = value.substring(0, lineStart) + "> " + value.substring(lineStart);
-
-    onChange(newText);
-  };
-
-  const handleList = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-    const newText = value.substring(0, lineStart) + "- " + value.substring(lineStart);
-
-    onChange(newText);
-  };
-
-  const handleOrderedList = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-    const newText = value.substring(0, lineStart) + "1. " + value.substring(lineStart);
-
-    onChange(newText);
-  };
-
-  const handleLink = () => {
-    if (linkUrl) {
-      insertAtCursor("[", `](${linkUrl})`);
-      setLinkUrl("");
-      setShowLinkInput(false);
-    } else {
-      setShowLinkInput(true);
-    }
-  };
-
-  const insertLink = () => {
-    if (linkUrl) {
-      handleLink();
-    }
-  };
-
-  const toolbarButtons = [
-    { icon: Bold, action: handleBold, title: "Bold (**text**)" },
-    { icon: Italic, action: handleItalic, title: "Italic (*text*)" },
-    { icon: Code, action: handleCode, title: "Code (`code`)" },
-    { icon: Quote, action: handleQuote, title: "Quote (> text)" },
-    { icon: List, action: handleList, title: "Bullet List (- item)" },
-    { icon: ListOrdered, action: handleOrderedList, title: "Numbered List (1. item)" },
-    { icon: LinkIcon, action: () => setShowLinkInput(!showLinkInput), title: "Insert Link" },
-  ];
+  const MenuButton = ({ onClick, active, disabled, icon: Icon, title }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className={`p-2 rounded hover:bg-slate-100 transition ${
+        active ? 'bg-slate-200 text-blue-600' : 'text-slate-600'
+      } ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
 
   return (
-    <div className="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+    <div className="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white">
       {/* Toolbar */}
-      <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-200">
-        {toolbarButtons.map(({ icon: Icon, action, title }, index) => (
-          <button
-            key={index}
-            type="button"
-            onClick={action}
-            title={title}
-            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded transition"
-          >
-            <Icon className="w-4 h-4" />
-          </button>
-        ))}
+      <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-200 flex-wrap">
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          active={editor.isActive('bold')}
+          icon={Bold}
+          title="Bold (Ctrl+B)"
+        />
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          active={editor.isActive('italic')}
+          icon={Italic}
+          title="Italic (Ctrl+I)"
+        />
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          active={editor.isActive('code')}
+          icon={Code}
+          title="Inline Code"
+        />
 
-        {/* Link Input */}
-        {showLinkInput && (
-          <div className="flex items-center gap-2 ml-2 flex-1">
-            <input
-              type="url"
-              value={linkUrl}
-              onChange={(e) => setLinkUrl(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  insertLink();
-                }
-              }}
-              placeholder="https://example.com"
-              className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded"
-            />
-            <button
-              type="button"
-              onClick={insertLink}
-              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-            >
-              Insert
-            </button>
-          </div>
-        )}
+        <div className="w-px h-6 bg-slate-300 mx-1" />
+
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          active={editor.isActive('heading', { level: 2 })}
+          icon={Heading2}
+          title="Heading"
+        />
+
+        <div className="w-px h-6 bg-slate-300 mx-1" />
+
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          active={editor.isActive('bulletList')}
+          icon={List}
+          title="Bullet List"
+        />
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          active={editor.isActive('orderedList')}
+          icon={ListOrdered}
+          title="Numbered List"
+        />
+        <MenuButton
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          active={editor.isActive('blockquote')}
+          icon={Quote}
+          title="Blockquote"
+        />
+
+        <div className="w-px h-6 bg-slate-300 mx-1" />
+
+        <MenuButton
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+          icon={Undo}
+          title="Undo (Ctrl+Z)"
+        />
+        <MenuButton
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
+          icon={Redo}
+          title="Redo (Ctrl+Y)"
+        />
       </div>
 
-      {/* Editor Area */}
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={rows}
-        className="w-full px-4 py-3 text-slate-900 placeholder-slate-400 resize-none focus:outline-none font-mono text-sm"
-      />
+      {/* Editor Content */}
+      <EditorContent editor={editor} />
 
       {/* Help Text */}
       <div className="px-4 py-2 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
-        Supports Markdown: **bold**, *italic*, `code`, [link](url), lists, and quotes
+        Rich text formatting with visual controls
       </div>
     </div>
   );

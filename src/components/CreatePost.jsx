@@ -4,6 +4,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import PollCreator from "./PollCreator";
+import RichTextEditor from "./RichTextEditor";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -487,19 +488,16 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
               />
             )}
 
-            {/* Description - Text Area with prominence */}
+            {/* Description - Rich Text Editor */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 What's on your mind?
               </label>
-              <textarea
-                name="description"
+              <RichTextEditor
                 value={formData.description}
-                onChange={handleInputChange}
-                required
-                rows="8"
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition resize-none"
+                onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
                 placeholder={currentConfig.placeholder.description}
+                rows={8}
               />
               <p className="text-xs text-slate-500 mt-1.5">
                 Share your thoughts, ideas, or stories
