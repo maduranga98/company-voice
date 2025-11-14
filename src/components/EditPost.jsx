@@ -42,7 +42,7 @@ const EditPost = ({ post, onClose, onSuccess }) => {
     setError("");
 
     try {
-      if (!userData?.id) {
+      if (!userData?.id && !userData?.uid) {
         throw new Error("User authentication required");
       }
 
@@ -57,7 +57,8 @@ const EditPost = ({ post, onClose, onSuccess }) => {
       };
 
       await editPost(post.id, updateData, {
-        id: userData.id,
+        id: userData.id || userData.uid,
+        uid: userData.uid || userData.id,
         displayName: userData.displayName,
         role: userData.role,
       });

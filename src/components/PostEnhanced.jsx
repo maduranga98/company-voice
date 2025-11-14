@@ -28,9 +28,10 @@ import {
 } from "../utils/constants";
 import { getEditHistory } from "../services/postEnhancedFeaturesService";
 import { editPost } from "../services/postEnhancementsService";
-import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { deletePost } from "../services/postManagementService";
+import { showSuccess, showError, showPromise } from "../services/toastService";
 import CommentsEnhanced from "./CommentsEnhanced";
+import EditPost from "./EditPost";
 
 const PostEnhanced = ({ post }) => {
   const { t } = useTranslation();
@@ -46,12 +47,13 @@ const PostEnhanced = ({ post }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
 
-  // Check if current user is the post author
-  const isAuthor = userData && userData.uid === post.authorId;
+  // Check if current user is the post author (handle both uid and id)
+  const isAuthor = userData && (userData.id === post.authorId || userData.uid === post.authorId);
 
   const getTimeAgo = (timestamp) => {
     const now = new Date();
@@ -117,30 +119,63 @@ const PostEnhanced = ({ post }) => {
     }
   };
 
-  // Delete post handler
+  // Delete post handler with proper cleanup and notifications
   const handleDeletePost = async () => {
-    if (!isAuthor) return;
+    if (!isAuthor) {
+      showError(t("posts.errors.unauthorizedDelete") || "You can only delete your own posts");
+      return;
+    }
 
     setDeleting(true);
+    setShowDeleteConfirm(false);
+
     try {
-      const postRef = doc(db, "posts", post.id);
-      await deleteDoc(postRef);
-      // Optionally show success message
-      window.location.reload(); // Refresh to update the feed
+      // Use toast promise for better UX
+      await showPromise(
+        deletePost(post.id, userData),
+        {
+          pending: t("posts.deleting") || "Deleting post...",
+          success: t("posts.deleteSuccess") || "Post deleted successfully",
+          error: t("posts.deleteError") || "Failed to delete post",
+        }
+      );
+
+      // Use callback instead of hard reload to update parent state
+      // Parent component should handle removing post from list
+      if (window.onPostDeleted) {
+        window.onPostDeleted(post.id);
+      } else {
+        // Fallback: wait a bit for Firestore to propagate, then soft reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
     } catch (error) {
       console.error("Error deleting post:", error);
-      alert("Failed to delete post. Please try again.");
+      showError(error.message || t("posts.deleteError") || "Failed to delete post");
     } finally {
       setDeleting(false);
-      setShowDeleteConfirm(false);
     }
   };
 
-  // Edit post handler (navigate to edit page or open modal)
+  // Edit post handler - open edit modal
   const handleEditPost = () => {
-    // For now, we'll just alert - you can implement an edit modal later
-    alert("Edit functionality coming soon! This will open an edit modal.");
+    if (!isAuthor) {
+      showError(t("posts.errors.unauthorizedEdit") || "You can only edit your own posts");
+      return;
+    }
+    setShowEditModal(true);
     setShowOptionsMenu(false);
+  };
+
+  // Handle successful edit
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    showSuccess(t("posts.editSuccess") || "Post updated successfully");
+    // Optionally refresh the post data
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   // Content length limit for "Read More"
@@ -788,6 +823,15 @@ const PostEnhanced = ({ post }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit Post Modal */}
+      {showEditModal && (
+        <EditPost
+          post={post}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={handleEditSuccess}
+        />
       )}
     </>
   );
