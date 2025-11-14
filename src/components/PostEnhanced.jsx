@@ -438,7 +438,7 @@ const PostEnhanced = ({ post }) => {
         )}
 
         {/* Post Actions & Comments */}
-        <div className="border-t border-slate-100">
+        <div className="border-t border-slate-100 relative">
           {/* Action Bar */}
           <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 bg-white flex-wrap sm:flex-nowrap">
             {/* Voting System */}

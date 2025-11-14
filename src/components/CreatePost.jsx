@@ -3,6 +3,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
+import PollCreator from "./PollCreator";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -10,6 +11,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const [error, setError] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [pollData, setPollData] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -313,6 +315,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         status: "open",
         priority: "medium",
         attachments: uploadedAttachments, // Save uploaded file URLs
+        poll: pollData, // Include poll data if present
         likes: [],
         comments: 0,
         views: 0,
@@ -582,6 +585,9 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 </div>
               )}
             </div>
+
+            {/* Poll Creator */}
+            <PollCreator onPollChange={setPollData} />
           </form>
         </div>
 

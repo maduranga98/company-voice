@@ -344,9 +344,9 @@ const CommentsThreaded = ({
         </span>
       </button>
 
-      {/* Comments Section */}
+      {/* Comments Section - Rendered outside action bar with absolute positioning */}
       {showComments && (
-        <div className="px-3 sm:px-4 pb-4 border-t border-slate-100 mt-3 bg-white">
+        <div className="absolute left-0 right-0 px-3 sm:px-4 pb-4 border-t border-slate-100 bg-white z-20">
           {/* Comments List */}
           <div className="mt-4 space-y-3 max-h-[600px] overflow-y-auto">
             {comments.length === 0 ? (
