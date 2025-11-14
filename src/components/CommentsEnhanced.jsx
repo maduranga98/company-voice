@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { MessageCircle, Send, AtSign } from "lucide-react";
+import { MessageCircle, Send, AtSign, X } from "lucide-react";
 import {
   searchUsersForMention,
   parseMentions,
@@ -240,8 +240,19 @@ const CommentsEnhanced = ({
       {/* Comments Section - Rendered outside action bar with absolute positioning */}
       {showComments && (
         <div className="absolute left-0 right-0 px-3 sm:px-4 pb-4 border-t border-slate-100 bg-white">
+          {/* Close Button */}
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => setShowComments(false)}
+              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-1.5 transition"
+              title="Close comments"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
           {/* Comments List */}
-          <div className="mt-4 space-y-3 max-h-96 overflow-y-auto">
+          <div className="mt-2 space-y-3 max-h-96 overflow-y-auto">
             {comments.length === 0 ? (
               <p className="text-sm text-slate-500 text-center py-4">
                 {commentCount > 0 ? "Loading comments..." : "No comments yet. Be the first to comment!"}
