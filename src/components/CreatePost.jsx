@@ -265,6 +265,13 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
     return results;
   };
 
+  const handleFormKeyDown = (e) => {
+    // Prevent form submission on Enter key unless it's in the RichTextEditor
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && !e.target.closest('.ProseMirror')) {
+      e.preventDefault();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -462,6 +469,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           <form
             id="create-post-form"
             onSubmit={handleSubmit}
+            onKeyDown={handleFormKeyDown}
             className="space-y-5"
           >
             {/* Title */}

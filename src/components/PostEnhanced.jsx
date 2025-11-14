@@ -385,12 +385,66 @@ const PostEnhanced = ({ post }) => {
           <h2 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-3 break-words">
             {post.title}
           </h2>
-          <div className="text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
-            {displayContent}
+          <div className="text-sm sm:text-base text-slate-700 leading-relaxed break-words">
+            <style>{`
+              .post-content ul {
+                list-style-type: disc;
+                padding-left: 1.5rem;
+                margin: 0.5rem 0;
+              }
+              .post-content ol {
+                list-style-type: decimal;
+                padding-left: 1.5rem;
+                margin: 0.5rem 0;
+              }
+              .post-content li {
+                margin: 0.25rem 0;
+              }
+              .post-content li p {
+                margin: 0;
+                display: inline;
+              }
+              .post-content h2 {
+                font-size: 1.5em;
+                font-weight: 600;
+                margin: 0.75rem 0 0.5rem 0;
+              }
+              .post-content h3 {
+                font-size: 1.25em;
+                font-weight: 600;
+                margin: 0.5rem 0;
+              }
+              .post-content blockquote {
+                border-left: 3px solid #e2e8f0;
+                padding-left: 1rem;
+                margin: 0.5rem 0;
+                color: #64748b;
+              }
+              .post-content code {
+                background-color: #f1f5f9;
+                padding: 0.125rem 0.375rem;
+                border-radius: 0.25rem;
+                font-family: monospace;
+                font-size: 0.875em;
+              }
+              .post-content p {
+                margin: 0.5rem 0;
+              }
+              .post-content strong {
+                font-weight: 600;
+              }
+              .post-content em {
+                font-style: italic;
+              }
+            `}</style>
+            <div
+              className="post-content"
+              dangerouslySetInnerHTML={{ __html: displayContent }}
+            />
             {shouldTruncate && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="ml-2 text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
+                className="ml-2 text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1 mt-2"
               >
                 {isExpanded ? (
                   <>

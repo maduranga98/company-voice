@@ -37,7 +37,7 @@ const RichTextEditor = ({ value, onChange, placeholder, rows = 8 }) => {
     },
     editorProps: {
       attributes: {
-        class: `prose prose-sm max-w-none px-4 py-3 focus:outline-none`,
+        class: `prose prose-sm max-w-none px-4 py-3 focus:outline-none prose-ul:list-disc prose-ol:list-decimal prose-li:ml-4`,
         style: `min-height: ${rows * 1.5}rem`,
       },
     },
@@ -63,6 +63,43 @@ const RichTextEditor = ({ value, onChange, placeholder, rows = 8 }) => {
 
   return (
     <div className="border border-slate-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white">
+      {/* Add custom styles for lists */}
+      <style>{`
+        .ProseMirror ul {
+          list-style-type: disc;
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+        .ProseMirror ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+        .ProseMirror li {
+          margin: 0.25rem 0;
+        }
+        .ProseMirror li p {
+          margin: 0;
+        }
+        .ProseMirror h2 {
+          font-size: 1.5em;
+          font-weight: 600;
+          margin: 0.5rem 0;
+        }
+        .ProseMirror blockquote {
+          border-left: 3px solid #e2e8f0;
+          padding-left: 1rem;
+          margin: 0.5rem 0;
+          color: #64748b;
+        }
+        .ProseMirror code {
+          background-color: #f1f5f9;
+          padding: 0.125rem 0.25rem;
+          border-radius: 0.25rem;
+          font-family: monospace;
+          font-size: 0.875em;
+        }
+      `}</style>
       {/* Toolbar */}
       <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-200 flex-wrap">
         <MenuButton
