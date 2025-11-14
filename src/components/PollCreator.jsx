@@ -128,6 +128,11 @@ const PollCreator = ({ onPollChange, initialPoll = null }) => {
           type="text"
           value={question}
           onChange={(e) => handleQuestionChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          }}
           placeholder="Ask a question..."
           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
           maxLength={200}
@@ -149,6 +154,11 @@ const PollCreator = ({ onPollChange, initialPoll = null }) => {
                 type="text"
                 value={option}
                 onChange={(e) => updateOption(index, e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                  }
+                }}
                 placeholder={`Option ${index + 1}`}
                 className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 maxLength={100}
