@@ -256,14 +256,23 @@ const MemberManagementWithDepartments = () => {
 
   const getRoleBadge = (role) => {
     const roleConfig = {
-      [UserRole.COMPANY_ADMIN]: { label: "Admin", color: "blue" },
-      [UserRole.HR]: { label: "HR", color: "green" },
-      [UserRole.EMPLOYEE]: { label: "Employee", color: "gray" },
+      [UserRole.COMPANY_ADMIN]: {
+        label: "Admin",
+        className: "bg-blue-100 text-blue-800",
+      },
+      [UserRole.HR]: {
+        label: "HR",
+        className: "bg-green-100 text-green-800",
+      },
+      [UserRole.EMPLOYEE]: {
+        label: "Employee",
+        className: "bg-gray-100 text-gray-800",
+      },
     };
     const config = roleConfig[role] || roleConfig[UserRole.EMPLOYEE];
     return (
       <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-${config.color}-100 text-${config.color}-800`}
+        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.className}`}
       >
         {config.label}
       </span>
@@ -272,14 +281,23 @@ const MemberManagementWithDepartments = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      active: { label: "Active", color: "green" },
-      pending: { label: "Pending", color: "yellow" },
-      suspended: { label: "Suspended", color: "red" },
+      active: {
+        label: "Active",
+        className: "bg-green-100 text-green-800",
+      },
+      pending: {
+        label: "Pending",
+        className: "bg-yellow-100 text-yellow-800",
+      },
+      suspended: {
+        label: "Suspended",
+        className: "bg-red-100 text-red-800",
+      },
     };
     const config = statusConfig[status] || statusConfig.active;
     return (
       <span
-        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-${config.color}-100 text-${config.color}-800`}
+        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.className}`}
       >
         {config.label}
       </span>
@@ -486,97 +504,108 @@ const MemberManagementWithDepartments = () => {
 
         {/* Members Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={
-                      filteredMembers.length > 0 &&
-                      selectedUsers.length === filteredMembers.length
-                    }
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Member
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Department
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Joined
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredMembers.map((member) => (
-                <tr key={member.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 sm:px-6 py-3 text-left">
                     <input
                       type="checkbox"
-                      checked={selectedUsers.includes(member.id)}
-                      onChange={() => handleSelectUser(member.id)}
+                      checked={
+                        filteredMembers.length > 0 &&
+                        selectedUsers.length === filteredMembers.length
+                      }
+                      onChange={handleSelectAll}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                     />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                          {member.displayName?.charAt(0).toUpperCase() || "U"}
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Member
+                  </th>
+                  <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Department
+                  </th>
+                  <th className="hidden lg:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="hidden xl:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Joined
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredMembers.map((member) => (
+                  <tr key={member.id} className="hover:bg-gray-50">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(member.id)}
+                        onChange={() => handleSelectUser(member.id)}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+                            {member.displayName?.charAt(0).toUpperCase() || "U"}
+                          </div>
+                        </div>
+                        <div className="ml-3 min-w-0 flex-1">
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {member.displayName || "Unknown"}
+                          </div>
+                          <div className="text-sm text-gray-500 truncate">
+                            {member.email}
+                          </div>
+                          {/* Show department and role on mobile */}
+                          <div className="md:hidden mt-1 flex flex-wrap gap-2">
+                            {member.departmentName && (
+                              <span className="text-xs text-gray-600 flex items-center gap-1">
+                                <span>{member.departmentIcon}</span>
+                                {member.departmentName}
+                              </span>
+                            )}
+                            <span className="lg:hidden">{getRoleBadge(member.role)}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {member.displayName || "Unknown"}
+                    </td>
+                    <td className="hidden md:table-cell px-4 sm:px-6 py-4 whitespace-nowrap">
+                      {member.departmentName ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{member.departmentIcon}</span>
+                          <span className="text-sm text-gray-900">
+                            {member.departmentName}
+                          </span>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {member.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {member.departmentName ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{member.departmentIcon}</span>
-                        <span className="text-sm text-gray-900">
-                          {member.departmentName}
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleAssignToDepartment(member)}
-                        className="text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        + Assign
-                      </button>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getRoleBadge(member.role)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(member.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {member.createdAt?.toDate
-                      ? member.createdAt.toDate().toLocaleDateString()
-                      : "N/A"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      ) : (
+                        <button
+                          onClick={() => handleAssignToDepartment(member)}
+                          className="text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          + Assign
+                        </button>
+                      )}
+                    </td>
+                    <td className="hidden lg:table-cell px-4 sm:px-6 py-4 whitespace-nowrap">
+                      {getRoleBadge(member.role)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(member.status)}
+                    </td>
+                    <td className="hidden xl:table-cell px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {member.createdAt?.toDate
+                        ? member.createdAt.toDate().toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
                       {member.status === "pending" && (
                         <>
@@ -685,12 +714,13 @@ const MemberManagementWithDepartments = () => {
                           </svg>
                         </button>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {filteredMembers.length === 0 && (
             <div className="text-center py-12">

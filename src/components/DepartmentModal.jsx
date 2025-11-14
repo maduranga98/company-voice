@@ -215,41 +215,106 @@ const DepartmentModal = ({ department, onClose, onSave }) => {
               Department Color
             </label>
             <div className="flex gap-2 flex-wrap">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, color }))}
-                  className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                    formData.color === color
-                      ? "border-gray-800 scale-110"
-                      : "border-gray-300"
-                  }`}
-                  style={{
-                    backgroundColor:
-                      color === "blue"
-                        ? "#3B82F6"
-                        : color === "purple"
-                        ? "#8B5CF6"
-                        : color === "green"
-                        ? "#10B981"
-                        : color === "red"
-                        ? "#EF4444"
-                        : color === "orange"
-                        ? "#F97316"
-                        : color === "yellow"
-                        ? "#EAB308"
-                        : color === "indigo"
-                        ? "#6366F1"
-                        : color === "pink"
-                        ? "#EC4899"
-                        : color === "teal"
-                        ? "#14B8A6"
-                        : "#6B7280",
-                  }}
-                  title={color}
-                />
-              ))}
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "blue" }))}
+                className={`w-12 h-12 bg-blue-500 rounded-lg border-2 transition-all ${
+                  formData.color === "blue"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Blue"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "purple" }))}
+                className={`w-12 h-12 bg-purple-500 rounded-lg border-2 transition-all ${
+                  formData.color === "purple"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Purple"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "green" }))}
+                className={`w-12 h-12 bg-green-500 rounded-lg border-2 transition-all ${
+                  formData.color === "green"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Green"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "red" }))}
+                className={`w-12 h-12 bg-red-500 rounded-lg border-2 transition-all ${
+                  formData.color === "red"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Red"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "orange" }))}
+                className={`w-12 h-12 bg-orange-500 rounded-lg border-2 transition-all ${
+                  formData.color === "orange"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Orange"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "yellow" }))}
+                className={`w-12 h-12 bg-yellow-500 rounded-lg border-2 transition-all ${
+                  formData.color === "yellow"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Yellow"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "indigo" }))}
+                className={`w-12 h-12 bg-indigo-500 rounded-lg border-2 transition-all ${
+                  formData.color === "indigo"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Indigo"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "pink" }))}
+                className={`w-12 h-12 bg-pink-500 rounded-lg border-2 transition-all ${
+                  formData.color === "pink"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Pink"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "teal" }))}
+                className={`w-12 h-12 bg-teal-500 rounded-lg border-2 transition-all ${
+                  formData.color === "teal"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Teal"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, color: "gray" }))}
+                className={`w-12 h-12 bg-gray-500 rounded-lg border-2 transition-all ${
+                  formData.color === "gray"
+                    ? "border-gray-800 scale-110 ring-2 ring-gray-400"
+                    : "border-gray-300"
+                }`}
+                title="Gray"
+              />
             </div>
           </div>
 

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { COLORS } from "../utils/constants";
 
 const DepartmentCard = ({
   department,
@@ -11,9 +10,96 @@ const DepartmentCard = ({
 }) => {
   const [showActions, setShowActions] = useState(false);
 
-  // Default department colors based on name
-  const getDepartmentColor = (name) => {
+  // Get color classes - complete class names for Tailwind JIT
+  const getColorClasses = (colorName) => {
     const colorMap = {
+      blue: {
+        bg: "bg-blue-100",
+        bgGradientFrom: "from-blue-500",
+        bgGradientTo: "to-blue-600",
+        bgLight: "bg-blue-50",
+        textDark: "text-blue-700",
+        hoverBg: "hover:bg-blue-100",
+      },
+      purple: {
+        bg: "bg-purple-100",
+        bgGradientFrom: "from-purple-500",
+        bgGradientTo: "to-purple-600",
+        bgLight: "bg-purple-50",
+        textDark: "text-purple-700",
+        hoverBg: "hover:bg-purple-100",
+      },
+      green: {
+        bg: "bg-green-100",
+        bgGradientFrom: "from-green-500",
+        bgGradientTo: "to-green-600",
+        bgLight: "bg-green-50",
+        textDark: "text-green-700",
+        hoverBg: "hover:bg-green-100",
+      },
+      orange: {
+        bg: "bg-orange-100",
+        bgGradientFrom: "from-orange-500",
+        bgGradientTo: "to-orange-600",
+        bgLight: "bg-orange-50",
+        textDark: "text-orange-700",
+        hoverBg: "hover:bg-orange-100",
+      },
+      red: {
+        bg: "bg-red-100",
+        bgGradientFrom: "from-red-500",
+        bgGradientTo: "to-red-600",
+        bgLight: "bg-red-50",
+        textDark: "text-red-700",
+        hoverBg: "hover:bg-red-100",
+      },
+      yellow: {
+        bg: "bg-yellow-100",
+        bgGradientFrom: "from-yellow-500",
+        bgGradientTo: "to-yellow-600",
+        bgLight: "bg-yellow-50",
+        textDark: "text-yellow-700",
+        hoverBg: "hover:bg-yellow-100",
+      },
+      indigo: {
+        bg: "bg-indigo-100",
+        bgGradientFrom: "from-indigo-500",
+        bgGradientTo: "to-indigo-600",
+        bgLight: "bg-indigo-50",
+        textDark: "text-indigo-700",
+        hoverBg: "hover:bg-indigo-100",
+      },
+      pink: {
+        bg: "bg-pink-100",
+        bgGradientFrom: "from-pink-500",
+        bgGradientTo: "to-pink-600",
+        bgLight: "bg-pink-50",
+        textDark: "text-pink-700",
+        hoverBg: "hover:bg-pink-100",
+      },
+      teal: {
+        bg: "bg-teal-100",
+        bgGradientFrom: "from-teal-500",
+        bgGradientTo: "to-teal-600",
+        bgLight: "bg-teal-50",
+        textDark: "text-teal-700",
+        hoverBg: "hover:bg-teal-100",
+      },
+      gray: {
+        bg: "bg-gray-100",
+        bgGradientFrom: "from-gray-500",
+        bgGradientTo: "to-gray-600",
+        bgLight: "bg-gray-50",
+        textDark: "text-gray-700",
+        hoverBg: "hover:bg-gray-100",
+      },
+    };
+    return colorMap[colorName] || colorMap.blue;
+  };
+
+  // Default department colors based on name
+  const getDepartmentColorName = (name) => {
+    const nameMap = {
       engineering: "blue",
       hr: "purple",
       finance: "green",
@@ -27,13 +113,14 @@ const DepartmentCard = ({
     };
 
     const key = name.toLowerCase();
-    for (const [dept, color] of Object.entries(colorMap)) {
+    for (const [dept, color] of Object.entries(nameMap)) {
       if (key.includes(dept)) return color;
     }
     return "blue"; // default color
   };
 
-  const color = getDepartmentColor(department.name);
+  const colorName = department.color || getDepartmentColorName(department.name);
+  const colorClasses = getColorClasses(colorName);
   const isInactive = department.isActive === false;
 
   if (viewMode === "list") {
@@ -47,7 +134,7 @@ const DepartmentCard = ({
           <div className="flex items-center gap-4 flex-1">
             {/* Department Icon */}
             <div
-              className={`w-12 h-12 bg-${color}-100 rounded-lg flex items-center justify-center`}
+              className={`w-12 h-12 ${colorClasses.bg} rounded-lg flex items-center justify-center`}
             >
               <span className="text-2xl">{department.icon || "🏢"}</span>
             </div>
@@ -185,7 +272,7 @@ const DepartmentCard = ({
     >
       {/* Header */}
       <div
-        className={`bg-linear-to-r from-${color}-500 to-${color}-600 p-4 relative`}
+        className={`bg-gradient-to-r ${colorClasses.bgGradientFrom} ${colorClasses.bgGradientTo} p-4 relative`}
       >
         <div className="flex items-center justify-between">
           <div
@@ -313,7 +400,7 @@ const DepartmentCard = ({
         {/* View Details Button */}
         <button
           onClick={() => onViewDetails(department)}
-          className={`w-full py-2 bg-${color}-50 text-${color}-700 rounded-lg hover:bg-${color}-100 transition-colors text-sm font-medium`}
+          className={`w-full py-2 ${colorClasses.bgLight} ${colorClasses.textDark} rounded-lg ${colorClasses.hoverBg} transition-colors text-sm font-medium`}
         >
           View Details
         </button>
