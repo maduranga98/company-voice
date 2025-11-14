@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -9,6 +9,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -142,20 +143,50 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => {
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    const maxFiles = 5;
+
+    // Validate each file
+    const validFiles = [];
+    const errors = [];
+
+    files.forEach((file) => {
       const isValidType =
         file.type.startsWith("image/") ||
         file.type.startsWith("video/") ||
         file.type === "application/pdf" ||
         file.type.includes("document") ||
-        file.type.includes("word");
-      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB
-      return isValidType && isValidSize;
+        file.type.includes("word") ||
+        file.type.includes("msword") ||
+        file.type.includes("officedocument");
+
+      const isValidSize = file.size <= maxFileSize;
+
+      if (!isValidType) {
+        errors.push(`${file.name}: Invalid file type. Only images, videos, PDFs, and documents are allowed.`);
+      } else if (!isValidSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        errors.push(`${file.name}: File too large (${fileSizeMB}MB). Maximum size is 10MB.`);
+      } else {
+        validFiles.push(file);
+      }
     });
 
-    if (validFiles.length + selectedFiles.length > 5) {
-      setError("Maximum 5 files allowed");
+    // Check total file count
+    if (validFiles.length + selectedFiles.length > maxFiles) {
+      setError(`Maximum ${maxFiles} files allowed. You selected ${validFiles.length + selectedFiles.length} files total.`);
       return;
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+      setError(errors.join("\n"));
+      // Still add valid files if there are any
+      if (validFiles.length === 0) {
+        return;
+      }
+    } else {
+      setError(""); // Clear any previous errors
     }
 
     const fileObjects = validFiles.map((file) => ({
@@ -165,6 +196,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         : null,
       name: file.name,
       type: file.type,
+      size: file.size,
     }));
 
     setSelectedFiles((prev) => [...prev, ...fileObjects]);
@@ -184,23 +216,50 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const uploadFiles = async () => {
     if (selectedFiles.length === 0) return [];
 
+    setUploadProgress(0);
+    const totalFiles = selectedFiles.length;
+    let completedFiles = 0;
+
     const uploadPromises = selectedFiles.map(async (fileObj) => {
       const file = fileObj.file;
       const fileRef = ref(
         storage,
         `posts/${userData.companyId}/${Date.now()}_${file.name}`
       );
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-      return {
-        url,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      };
+
+      return new Promise((resolve, reject) => {
+        const uploadTask = uploadBytesResumable(fileRef, file);
+
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            // Calculate overall progress
+            const fileProgress = (snapshot.bytesTransferred / snapshot.totalBytes);
+            const overallProgress = ((completedFiles + fileProgress) / totalFiles) * 100;
+            setUploadProgress(Math.round(overallProgress));
+          },
+          (error) => {
+            console.error('Upload error:', error);
+            reject(error);
+          },
+          async () => {
+            // Upload completed successfully
+            completedFiles++;
+            const url = await getDownloadURL(fileRef);
+            resolve({
+              url,
+              name: file.name,
+              type: file.type,
+              size: file.size,
+            });
+          }
+        );
+      });
     });
 
-    return await Promise.all(uploadPromises);
+    const results = await Promise.all(uploadPromises);
+    setUploadProgress(100);
+    return results;
   };
 
   const handleSubmit = async (e) => {
@@ -528,6 +587,22 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
 
         {/* STICKY FOOTER - Submit button always visible at bottom */}
         <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-slate-100 p-6 z-10">
+          {/* Upload Progress Bar */}
+          {loading && uploadProgress > 0 && uploadProgress < 100 && selectedFiles.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
+                <span>Uploading files...</span>
+                <span className="font-semibold">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             form="create-post-form"
@@ -537,7 +612,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Publishing...
+                {uploadProgress > 0 && uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Publishing...'}
               </span>
             ) : (
               currentConfig.buttonText
