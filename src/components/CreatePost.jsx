@@ -279,11 +279,6 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         throw new Error("Company information missing. Please contact support.");
       }
 
-      // Validate that title and description are filled if poll is present
-      if (pollData && (!formData.title.trim() || !formData.description.trim())) {
-        throw new Error("Title and description are required when creating a post with a poll.");
-      }
-
       // Upload files if any
       let uploadedAttachments = [];
       if (selectedFiles.length > 0) {
@@ -387,15 +382,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
               {!pollData ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    // Check if title and description are filled
-                    if (!formData.title.trim() || !formData.description.trim()) {
-                      setError("Please fill in the title and description before adding a poll.");
-                      return;
-                    }
-                    setError(""); // Clear any previous errors
-                    setPollData({ question: "", options: [{ text: "", votes: [] }, { text: "", votes: [] }], multipleChoice: false, endDate: null, totalVotes: 0, voters: [] });
-                  }}
+                  onClick={() => setPollData({ question: "", options: [{ text: "", votes: [] }, { text: "", votes: [] }], multipleChoice: false, endDate: null, totalVotes: 0, voters: [] })}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition"
                   title="Add Poll"
                 >
