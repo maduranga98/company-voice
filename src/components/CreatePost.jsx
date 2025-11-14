@@ -4,7 +4,6 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import PollCreator from "./PollCreator";
-import RichTextEditor from "./RichTextEditor";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -166,10 +165,14 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
       const isValidSize = file.size <= maxFileSize;
 
       if (!isValidType) {
-        errors.push(`${file.name}: Invalid file type. Only images, videos, PDFs, and documents are allowed.`);
+        errors.push(
+          `${file.name}: Invalid file type. Only images, videos, PDFs, and documents are allowed.`
+        );
       } else if (!isValidSize) {
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        errors.push(`${file.name}: File too large (${fileSizeMB}MB). Maximum size is 10MB.`);
+        errors.push(
+          `${file.name}: File too large (${fileSizeMB}MB). Maximum size is 10MB.`
+        );
       } else {
         validFiles.push(file);
       }
@@ -177,7 +180,11 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
 
     // Check total file count
     if (validFiles.length + selectedFiles.length > maxFiles) {
-      setError(`Maximum ${maxFiles} files allowed. You selected ${validFiles.length + selectedFiles.length} files total.`);
+      setError(
+        `Maximum ${maxFiles} files allowed. You selected ${
+          validFiles.length + selectedFiles.length
+        } files total.`
+      );
       return;
     }
 
@@ -234,15 +241,17 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         const uploadTask = uploadBytesResumable(fileRef, file);
 
         uploadTask.on(
-          'state_changed',
+          "state_changed",
           (snapshot) => {
             // Calculate overall progress
-            const fileProgress = (snapshot.bytesTransferred / snapshot.totalBytes);
-            const overallProgress = ((completedFiles + fileProgress) / totalFiles) * 100;
+            const fileProgress =
+              snapshot.bytesTransferred / snapshot.totalBytes;
+            const overallProgress =
+              ((completedFiles + fileProgress) / totalFiles) * 100;
             setUploadProgress(Math.round(overallProgress));
           },
           (error) => {
-            console.error('Upload error:', error);
+            console.error("Upload error:", error);
             reject(error);
           },
           async () => {
@@ -263,13 +272,6 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
     const results = await Promise.all(uploadPromises);
     setUploadProgress(100);
     return results;
-  };
-
-  const handleFormKeyDown = (e) => {
-    // Prevent form submission on Enter key unless it's in the RichTextEditor
-    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && !e.target.closest('.ProseMirror')) {
-      e.preventDefault();
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -314,15 +316,10 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           : userData.displayName || "Unknown User",
         authorEmail: userData.email || "",
         companyId: userData.companyId,
-        type:
-          type === "creative"
-            ? "creative_content"
-            : type === "complaint"
-            ? "problem_report"
-            : "team_discussion",
+        type: currentConfig.postType,
         status: "open",
         priority: "medium",
-        attachments: uploadedAttachments, // Save uploaded file URLs
+        attachments: uploadedAttachments,
         poll: pollData, // Include poll data if present
         likes: [],
         comments: 0,
@@ -331,7 +328,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         updatedAt: serverTimestamp(),
       };
 
-      // Save to posts collection - all post types go to the same collection
+      // Save to posts collection
       await addDoc(collection(db, "posts"), postData);
 
       // Success callbacks
@@ -365,9 +362,9 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-9999 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]">
-        {/* STICKY HEADER - Always visible at top */}
+        {/* STICKY HEADER */}
         <div className="sticky top-0 bg-white rounded-t-2xl border-b border-slate-100 p-6 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -385,74 +382,26 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 {currentConfig.title}
               </h2>
             </div>
-            <div className="flex items-center gap-2">
-              {/* Poll Creator Trigger Button */}
-              {!pollData ? (
-                <button
-                  type="button"
-                  onClick={() => setPollData({ question: "", options: [{ text: "", votes: [] }, { text: "", votes: [] }], multipleChoice: false, endDate: null, totalVotes: 0, voters: [] })}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                  title="Add Poll"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Add Poll</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setPollData(null)}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition"
-                  title="Remove Poll"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Remove Poll</span>
-                </button>
-              )}
-              <button
-                onClick={onClose}
-                type="button"
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-2 transition"
-                aria-label="Close modal"
+            <button
+              onClick={onClose}
+              type="button"
+              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-2 transition"
+              aria-label="Close modal"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -461,7 +410,9 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700 whitespace-pre-line">
+                {error}
+              </p>
             </div>
           )}
 
@@ -469,7 +420,6 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           <form
             id="create-post-form"
             onSubmit={handleSubmit}
-            onKeyDown={handleFormKeyDown}
             className="space-y-5"
           >
             {/* Title */}
@@ -488,24 +438,22 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
               />
             </div>
 
-            {/* Poll Creator - Moved to top for visibility */}
-            {pollData && (
-              <PollCreator
-                onPollChange={setPollData}
-                initialPoll={pollData}
-              />
-            )}
+            {/* Poll Creator - MOVED TO TOP */}
+            <PollCreator onPollChange={setPollData} initialPoll={pollData} />
 
-            {/* Description - Rich Text Editor */}
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 What's on your mind?
               </label>
-              <RichTextEditor
+              <textarea
+                name="description"
                 value={formData.description}
-                onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
+                onChange={handleInputChange}
+                required
+                rows="8"
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition resize-none"
                 placeholder={currentConfig.placeholder.description}
-                rows={8}
               />
               <p className="text-xs text-slate-500 mt-1.5">
                 Share your thoughts, ideas, or stories
@@ -563,7 +511,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
               </label>
             </div>
 
-            {/* Attachments (Optional) */}
+            {/* Attachments */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Add Attachments (Optional)
@@ -650,23 +598,26 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           </form>
         </div>
 
-        {/* STICKY FOOTER - Submit button always visible at bottom */}
+        {/* STICKY FOOTER */}
         <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-slate-100 p-6 z-10">
           {/* Upload Progress Bar */}
-          {loading && uploadProgress > 0 && uploadProgress < 100 && selectedFiles.length > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
-                <span>Uploading files...</span>
-                <span className="font-semibold">{uploadProgress}%</span>
+          {loading &&
+            uploadProgress > 0 &&
+            uploadProgress < 100 &&
+            selectedFiles.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
+                  <span>Uploading files...</span>
+                  <span className="font-semibold">{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
               </div>
-              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
+            )}
 
           <button
             type="submit"
@@ -677,7 +628,9 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                {uploadProgress > 0 && uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : 'Publishing...'}
+                {uploadProgress > 0 && uploadProgress < 100
+                  ? `Uploading... ${uploadProgress}%`
+                  : "Publishing..."}
               </span>
             ) : (
               currentConfig.buttonText

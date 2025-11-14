@@ -4,16 +4,19 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { Save, Calendar, FileText, Clock } from "lucide-react";
-import {
-  saveDraft,
-  schedulePost,
-} from "../services/postEnhancementsService";
+import { saveDraft, schedulePost } from "../services/postEnhancementsService";
 import {
   getTemplates,
   incrementTemplateUseCount,
 } from "../services/postTemplatesService";
 
-const CreatePostEnhanced = ({ type = "creative", onClose, onSuccess, editMode = false, existingPost = null }) => {
+const CreatePostEnhanced = ({
+  type = "creative",
+  onClose,
+  onSuccess,
+  editMode = false,
+  existingPost = null,
+}) => {
   const { userData } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +58,10 @@ const CreatePostEnhanced = ({ type = "creative", onClose, onSuccess, editMode = 
             : type === "complaint"
             ? "problem_report"
             : "team_discussion";
-        const fetchedTemplates = await getTemplates(userData.companyId, postType);
+        const fetchedTemplates = await getTemplates(
+          userData.companyId,
+          postType
+        );
         setTemplates(fetchedTemplates);
       }
     };
