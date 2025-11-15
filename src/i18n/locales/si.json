@@ -277,5 +277,68 @@
     "weeksAgo": "සති {{count}}කට පෙර",
     "monthsAgo": "මාස {{count}}කට පෙර",
     "yearsAgo": "අවුරුදු {{count}}කට පෙර"
+  },
+  "help": {
+    "center": {
+      "title": "උදව් මධ්‍යස්ථානය",
+      "subtitle": "Company Voice ඵලදායී ලෙස භාවිතා කරන්නේ කෙසේද යන්න ඉගෙන ගන්න",
+      "searchPlaceholder": "උදව් මාතෘකා සොයන්න...",
+      "viewRolesPermissions": "භූමිකා සහ අවසර බලන්න",
+      "topics": "මාතෘකා"
+    },
+    "sections": {
+      "gettingStarted": "ආරම්භ කිරීම",
+      "workingWithPosts": "පළ කිරීම් සමඟ වැඩ කිරීම",
+      "adminFeatures": "පරිපාලක විශේෂාංග"
+    },
+    "topics": {
+      "rolesPermissions": "භූමිකා සහ අවසර තේරුම් ගැනීම",
+      "navigation": "වේදිකාව අතරමං වීම",
+      "creatingPosts": "පළ කිරීම් නිර්මාණය කිරීම",
+      "postStatus": "පළ කිරීම් තත්ත්ව ප්‍රවාහය",
+      "priorityLevels": "ප්‍රමුඛතා මට්ටම්",
+      "assignedToMe": "මට පවරා ඇති",
+      "memberManagement": "සාමාජික කළමනාකරණය",
+      "departmentManagement": "දෙපාර්තමේන්තු කළමනාකරණය",
+      "userTags": "පරිශීලක ටැග්",
+      "postTemplates": "පළ කිරීම් අච්චු",
+      "contentModeration": "අන්තර්ගත මධ්‍යස්ථකරණය",
+      "analyticsReporting": "විශ්ලේෂණ සහ වාර්තාකරණය",
+      "qrCodeInvitations": "QR කේත ආරාධනා"
+    },
+    "roles": {
+      "title": "භූමිකා සහ අවසර තේරුම් ගැනීම",
+      "description": "Company Voice හි විවිධ පරිශීලක භූමිකා ඇත, සෑම එකක්ම විශේෂිත වගකීම් සහ අවසර ඇත.",
+      "superAdmin": {
+        "name": "සුපිරි පරිපාලක",
+        "description": "සියලුම සමාගම් වෙත ප්‍රවේශය ඇති වේදිකා මට්ටමේ පරිපාලක"
+      },
+      "companyAdmin": {
+        "name": "සමාගම් පරිපාලක",
+        "description": "සම්පූර්ණ පාලනයක් සහිත විශේෂිත සමාගමක් සඳහා පරිපාලක"
+      },
+      "hr": {
+        "name": "මානව සම්පත්",
+        "description": "පරිපාලන වරප්‍රසාද සහිත මානව සම්පත් විශේෂඥ"
+      },
+      "employee": {
+        "name": "සේවක",
+        "description": "අන්තර්ගත නිර්මාණ වරප්‍රසාද සහිත නිත්‍ය සමාගම් සේවක"
+      },
+      "viewFullMatrix": "සෑම භූමිකාවකටම කළ හැකි දේ පෙන්වන සම්පූර්ණ අවසර න්‍යාසය සඳහා, යන්න",
+      "roleDefinitionsPage": "භූමිකා අර්ථ දැක්වීම් පිටුව"
+    },
+    "common": {
+      "bestPractices": "හොඳම භාවිතයන්",
+      "howToUse": "භාවිතා කරන්නේ කෙසේද",
+      "howItWorks": "එය ක්‍රියා කරන්නේ කෙසේද",
+      "keyResponsibilities": "ප්‍රධාන වගකීම්",
+      "whenToUse": "භාවිතා කළ යුත්තේ කවදාද",
+      "useCase": "භාවිත අවස්ථාව",
+      "action": "ක්‍රියාව",
+      "criteria": "නිර්ණායක",
+      "examples": "උදාහරණ",
+      "tips": "ඉඟි"
+    }
   }
 }

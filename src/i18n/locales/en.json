@@ -277,5 +277,68 @@
     "weeksAgo": "{{count}} weeks ago",
     "monthsAgo": "{{count}} months ago",
     "yearsAgo": "{{count}} years ago"
+  },
+  "help": {
+    "center": {
+      "title": "Help Center",
+      "subtitle": "Learn how to use Company Voice effectively",
+      "searchPlaceholder": "Search for help topics...",
+      "viewRolesPermissions": "View Roles & Permissions",
+      "topics": "Topics"
+    },
+    "sections": {
+      "gettingStarted": "Getting Started",
+      "workingWithPosts": "Working with Posts",
+      "adminFeatures": "Admin Features"
+    },
+    "topics": {
+      "rolesPermissions": "Understanding Roles & Permissions",
+      "navigation": "Navigating the Platform",
+      "creatingPosts": "Creating Posts",
+      "postStatus": "Post Status Workflow",
+      "priorityLevels": "Priority Levels",
+      "assignedToMe": "Assigned to Me",
+      "memberManagement": "Member Management",
+      "departmentManagement": "Department Management",
+      "userTags": "User Tags",
+      "postTemplates": "Post Templates",
+      "contentModeration": "Content Moderation",
+      "analyticsReporting": "Analytics & Reporting",
+      "qrCodeInvitations": "QR Code Invitations"
+    },
+    "roles": {
+      "title": "Understanding Roles & Permissions",
+      "description": "Company Voice has different user roles, each with specific responsibilities and permissions.",
+      "superAdmin": {
+        "name": "Super Admin",
+        "description": "Platform-level administrator with access to all companies"
+      },
+      "companyAdmin": {
+        "name": "Company Admin",
+        "description": "Administrator for a specific company with full control"
+      },
+      "hr": {
+        "name": "HR",
+        "description": "Human Resources specialist with administrative privileges"
+      },
+      "employee": {
+        "name": "Employee",
+        "description": "Regular company employee with content creation privileges"
+      },
+      "viewFullMatrix": "For a complete permissions matrix showing what each role can do, visit the",
+      "roleDefinitionsPage": "Role Definitions page"
+    },
+    "common": {
+      "bestPractices": "Best Practices",
+      "howToUse": "How to Use",
+      "howItWorks": "How It Works",
+      "keyResponsibilities": "Key Responsibilities",
+      "whenToUse": "When to use",
+      "useCase": "Use case",
+      "action": "Action",
+      "criteria": "Criteria",
+      "examples": "Examples",
+      "tips": "Tips"
+    }
   }
 }
