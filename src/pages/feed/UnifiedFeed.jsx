@@ -33,6 +33,13 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
     filterPosts();
   }, [posts, searchTerm, selectedCategory]);
 
+  // Scroll to top when search or category filter changes
+  useEffect(() => {
+    if (searchTerm || selectedCategory !== "all") {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchTerm, selectedCategory]);
+
   const loadPosts = async () => {
     if (!userData?.companyId) return;
 

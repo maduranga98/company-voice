@@ -20,6 +20,12 @@ const CompanyAdminLayout = () => {
     }
   };
 
+  // Handle navigation with scroll to top
+  const handleNavigate = (path) => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    navigate(path);
+  };
+
   // Build tabs based on user's tag status
   const baseTabs = [
     {
@@ -206,7 +212,7 @@ const CompanyAdminLayout = () => {
             {/* Logo Section with Enhanced Styling */}
             <div
               className="flex items-center space-x-3 group cursor-pointer"
-              onClick={() => navigate("/company/dashboard")}
+              onClick={() => handleNavigate("/company/dashboard")}
             >
               <div className="relative">
                 {/* White background circle for better logo visibility */}
@@ -318,7 +324,7 @@ const CompanyAdminLayout = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => navigate(tab.path)}
+                  onClick={() => handleNavigate(tab.path)}
                   className={`
                     relative flex flex-col items-center justify-center py-2 px-1 min-h-16
                     transition-all duration-300 group

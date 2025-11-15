@@ -33,6 +33,7 @@ import CompanyAdminLayout from "./components/CompanyAdminLayout";
 import RoleBasedLayout from "./components/RoleBasedLayout";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
+import ScrollToTop from "./components/ScrollToTop";
 
 // New Unified Feed Pages
 import CreativeFeed from "./pages/feed/CreativeFeed";
@@ -49,6 +50,7 @@ function App() {
   return (
     <AuthProvider>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <ScrollToTop />
         <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/login" element={<Login />} />

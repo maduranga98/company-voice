@@ -723,6 +723,12 @@ const HelpCenter = () => {
 
   const [selectedTopic, setSelectedTopic] = useState(sections[0].topics[0]);
 
+  // Handle topic selection with scroll to top
+  const handleTopicSelect = (topic) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setSelectedTopic(topic);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -775,7 +781,7 @@ const HelpCenter = () => {
                       {section.topics.map((topic) => (
                         <button
                           key={topic.id}
-                          onClick={() => setSelectedTopic(topic)}
+                          onClick={() => handleTopicSelect(topic)}
                           className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors flex items-center justify-between ${
                             selectedTopic?.id === topic.id
                               ? 'bg-blue-50 text-blue-700 font-medium'
