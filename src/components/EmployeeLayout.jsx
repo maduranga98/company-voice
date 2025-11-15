@@ -23,6 +23,12 @@ const EmployeeLayout = () => {
     }
   };
 
+  // Handle navigation with scroll to top
+  const handleNavigate = (path) => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    navigate(path);
+  };
+
   const baseTabs = [
     {
       id: "creative",
@@ -172,7 +178,7 @@ const EmployeeLayout = () => {
             {/* Logo Section */}
             <div
               className="flex items-center space-x-3 group cursor-pointer"
-              onClick={() => navigate("/feed/creative")}
+              onClick={() => handleNavigate("/feed/creative")}
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-(--color-primary-teal) rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
@@ -287,7 +293,7 @@ const EmployeeLayout = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => navigate(tab.path)}
+                  onClick={() => handleNavigate(tab.path)}
                   className={`
                     relative flex flex-col items-center justify-center py-2 px-1 min-h-16 
                     transition-all duration-300 group

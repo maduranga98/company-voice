@@ -31,6 +31,12 @@ const RoleBasedLayout = ({ children }) => {
     }
   };
 
+  // Handle navigation with scroll to top
+  const handleNavigate = (path) => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    navigate(path);
+  };
+
   // Check if user is admin (company_admin or hr)
   const isAdmin = userData?.role === "company_admin" || userData?.role === "hr";
 
@@ -380,7 +386,7 @@ const RoleBasedLayout = ({ children }) => {
             <div className="flex items-center space-x-4">
               {/* Help Button */}
               <button
-                onClick={() => navigate('/help')}
+                onClick={() => handleNavigate('/help')}
                 className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors group relative"
                 title="Help Center"
               >
@@ -498,7 +504,7 @@ const RoleBasedLayout = ({ children }) => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => navigate(tab.path)}
+                  onClick={() => handleNavigate(tab.path)}
                   className={`
                     relative flex flex-col items-center justify-center py-2 px-1 min-h-16
                     transition-all duration-300 group
