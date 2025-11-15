@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Search, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import HelpPanel from '../components/help/HelpPanel';
+import { useAuth } from '../contexts/AuthContext';
 import {
   ROLE_DEFINITIONS,
   POST_STATUS_GUIDANCE,
@@ -19,59 +21,93 @@ import {
 
 const HelpCenter = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { userData } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('getting-started');
 
-  const sections = [
+  const userRole = userData?.role || 'employee';
+
+  // Helper function to check if user has access to a topic
+  const hasAccessToTopic = (topic) => {
+    if (!topic.requiredRoles) return true; // No role restriction
+    return topic.requiredRoles.includes(userRole);
+  };
+
+  const allSections = useMemo(() => [
     {
       id: 'getting-started',
-      title: 'Getting Started',
+      title: t('help.sections.gettingStarted'),
       icon: '🚀',
       topics: [
-        { id: 'roles', title: 'Understanding Roles & Permissions', content: 'role-definitions' },
-        { id: 'navigation', title: 'Navigating the Platform', content: 'navigation' },
+        { id: 'roles', title: t('help.topics.rolesPermissions'), content: 'role-definitions' },
+        { id: 'navigation', title: t('help.topics.navigation'), content: 'navigation' },
       ]
     },
     {
       id: 'posts',
-      title: 'Working with Posts',
+      title: t('help.sections.workingWithPosts'),
       icon: '📝',
       topics: [
-        { id: 'create-post', title: 'Creating Posts', content: 'post-creation' },
-        { id: 'post-status', title: 'Post Status Workflow', content: 'post-status' },
-        { id: 'post-priority', title: 'Priority Levels', content: 'priority' },
-        { id: 'assigned', title: 'Assigned to Me', content: 'assigned-to-me' },
+        { id: 'create-post', title: t('help.topics.creatingPosts'), content: 'post-creation' },
+        { id: 'post-status', title: t('help.topics.postStatus'), content: 'post-status', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'post-priority', title: t('help.topics.priorityLevels'), content: 'priority', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'assigned', title: t('help.topics.assignedToMe'), content: 'assigned-to-me' },
       ]
     },
     {
       id: 'admin',
-      title: 'Admin Features',
+      title: t('help.sections.adminFeatures'),
       icon: '⚙️',
       topics: [
-        { id: 'members', title: 'Member Management', content: 'member-management' },
-        { id: 'departments', title: 'Department Management', content: 'departments' },
-        { id: 'tags', title: 'User Tags', content: 'tags' },
-        { id: 'templates', title: 'Post Templates', content: 'templates' },
-        { id: 'moderation', title: 'Content Moderation', content: 'moderation' },
-        { id: 'analytics', title: 'Analytics & Reporting', content: 'analytics' },
-        { id: 'qr-code', title: 'QR Code Invitations', content: 'qr-code' },
+        { id: 'members', title: t('help.topics.memberManagement'), content: 'member-management', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'departments', title: t('help.topics.departmentManagement'), content: 'departments', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'tags', title: t('help.topics.userTags'), content: 'tags', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'templates', title: t('help.topics.postTemplates'), content: 'templates', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'moderation', title: t('help.topics.contentModeration'), content: 'moderation', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'analytics', title: t('help.topics.analyticsReporting'), content: 'analytics', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
+        { id: 'qr-code', title: t('help.topics.qrCodeInvitations'), content: 'qr-code', requiredRoles: ['super_admin', 'company_admin', 'hr'] },
       ]
     },
-  ];
+  ], [t]);
+
+  // Filter sections and topics based on user role
+  const sections = useMemo(() => {
+    return allSections.map(section => ({
+      ...section,
+      topics: section.topics.filter(hasAccessToTopic)
+    })).filter(section => section.topics.length > 0); // Remove empty sections
+  }, [userRole]);
 
   const renderContent = (contentId) => {
+    // Helper function to filter roles based on user's role
+    const getVisibleRoles = () => {
+      const roleHierarchy = {
+        'super_admin': ['super_admin', 'company_admin', 'hr', 'employee'],
+        'company_admin': ['company_admin', 'hr', 'employee'],
+        'hr': ['hr', 'employee'],
+        'employee': ['employee']
+      };
+      return roleHierarchy[userRole] || ['employee'];
+    };
+
     switch (contentId) {
       case 'role-definitions':
+        const visibleRoles = getVisibleRoles();
+        const filteredRoles = Object.entries(ROLE_DEFINITIONS).filter(([roleKey]) =>
+          visibleRoles.includes(roleKey)
+        );
+
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">Understanding Roles & Permissions</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">{t('help.roles.title')}</h3>
               <p className="text-gray-600 mb-6">
-                Company Voice has four main user roles, each with specific responsibilities and permissions.
+                {t('help.roles.description')}
               </p>
             </div>
 
-            {Object.entries(ROLE_DEFINITIONS).map(([roleKey, role]) => (
+            {filteredRoles.map(([roleKey, role]) => (
               <div key={roleKey} className="bg-white border border-gray-200 rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-3xl">{role.icon}</span>
@@ -81,7 +117,7 @@ const HelpCenter = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-700 mb-2">Key Responsibilities:</p>
+                  <p className="font-medium text-gray-700 mb-2">{t('help.common.keyResponsibilities')}:</p>
                   <ul className="space-y-1">
                     {role.responsibilities.map((resp, idx) => (
                       <li key={idx} className="text-gray-600 flex items-start gap-2">
@@ -96,12 +132,12 @@ const HelpCenter = () => {
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 text-sm">
-                For a complete permissions matrix showing what each role can do, visit the{' '}
+                {t('help.roles.viewFullMatrix')}{' '}
                 <button
                   onClick={() => navigate('/help/roles')}
                   className="font-semibold underline hover:text-blue-900"
                 >
-                  Role Definitions page
+                  {t('help.roles.roleDefinitionsPage')}
                 </button>
               </p>
             </div>
@@ -453,29 +489,226 @@ const HelpCenter = () => {
           </div>
         );
 
-      case 'moderation':
       case 'analytics':
-      case 'qr-code':
-      case 'assigned-to-me':
-        const guidanceMap = {
-          'moderation': MODERATION_GUIDANCE,
-          'analytics': ANALYTICS_GUIDANCE,
-          'qr-code': QR_CODE_GUIDANCE,
-          'assigned-to-me': ASSIGNED_TO_ME_GUIDANCE
-        };
-        const guidance = guidanceMap[contentId];
-
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">{guidance.title}</h3>
-              <p className="text-gray-600 mb-6">{guidance.description}</p>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">{ANALYTICS_GUIDANCE.title}</h3>
+              <p className="text-gray-600 mb-6">{ANALYTICS_GUIDANCE.description}</p>
             </div>
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <pre className="whitespace-pre-wrap text-sm text-gray-700">
-                {JSON.stringify(guidance, null, 2)}
-              </pre>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(ANALYTICS_GUIDANCE.keyMetrics).map(([key, metric]) => (
+                <div key={key} className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-gray-800 mb-2">{metric.label}</h4>
+                  <p className="text-gray-600 text-sm mb-2">{metric.description}</p>
+                  <p className="text-xs text-gray-500">
+                    <strong>Use case:</strong> {metric.useCase}
+                  </p>
+                </div>
+              ))}
             </div>
+
+            <HelpPanel title="How to Use" variant="info" defaultExpanded={false}>
+              <ol className="space-y-2">
+                {ANALYTICS_GUIDANCE.howToUse.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="font-semibold text-blue-600">{idx + 1}.</span>
+                    <span className="text-gray-700">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </HelpPanel>
+
+            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+              <ul className="space-y-2">
+                {ANALYTICS_GUIDANCE.bestPractices.map((practice, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-green-600 mt-1">✓</span>
+                    <span className="text-gray-700">{practice}</span>
+                  </li>
+                ))}
+              </ul>
+            </HelpPanel>
+          </div>
+        );
+
+      case 'moderation':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">{MODERATION_GUIDANCE.title}</h3>
+              <p className="text-gray-600 mb-6">{MODERATION_GUIDANCE.description}</p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">Report Statuses</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Object.entries(MODERATION_GUIDANCE.reportStatuses).map(([key, status]) => (
+                  <div key={key} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">{status.icon}</span>
+                      <h5 className="font-semibold text-gray-800">{status.label}</h5>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-2">{status.description}</p>
+                    <p className="text-xs text-gray-500">
+                      <strong>Action:</strong> {status.action}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">Moderation Actions</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {MODERATION_GUIDANCE.moderationActions.map((action, idx) => (
+                  <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">{action.icon}</span>
+                      <h5 className="font-semibold text-gray-800">{action.action}</h5>
+                    </div>
+                    <p className="text-gray-600 text-sm">
+                      <strong>When to use:</strong> {action.whenToUse}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <HelpPanel title="Review Process" variant="info" defaultExpanded={false}>
+              <ol className="space-y-2">
+                {MODERATION_GUIDANCE.reviewProcess.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="font-semibold text-blue-600">{idx + 1}.</span>
+                    <span className="text-gray-700">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </HelpPanel>
+
+            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+              <ul className="space-y-2">
+                {MODERATION_GUIDANCE.bestPractices.map((practice, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-green-600 mt-1">✓</span>
+                    <span className="text-gray-700">{practice}</span>
+                  </li>
+                ))}
+              </ul>
+            </HelpPanel>
+          </div>
+        );
+
+      case 'qr-code':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">{QR_CODE_GUIDANCE.title}</h3>
+              <p className="text-gray-600 mb-6">{QR_CODE_GUIDANCE.description}</p>
+            </div>
+
+            <HelpPanel title="How It Works" variant="info" defaultExpanded={true}>
+              <ol className="space-y-2">
+                {QR_CODE_GUIDANCE.howItWorks.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="font-semibold text-blue-600">{idx + 1}.</span>
+                    <span className="text-gray-700">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </HelpPanel>
+
+            <HelpPanel title="How to Generate" variant="default" defaultExpanded={false}>
+              <ol className="space-y-2">
+                {QR_CODE_GUIDANCE.howToGenerate.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="font-semibold text-gray-600">{idx + 1}.</span>
+                    <span className="text-gray-700">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </HelpPanel>
+
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">Distribution Methods</h4>
+              <ul className="space-y-2">
+                {QR_CODE_GUIDANCE.distributionMethods.map((method, idx) => (
+                  <li key={idx} className="flex items-start gap-2 bg-white border border-gray-200 rounded-lg p-3">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span className="text-gray-700">{method}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+              <ul className="space-y-2">
+                {QR_CODE_GUIDANCE.bestPractices.map((practice, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-green-600 mt-1">✓</span>
+                    <span className="text-gray-700">{practice}</span>
+                  </li>
+                ))}
+              </ul>
+            </HelpPanel>
+          </div>
+        );
+
+      case 'assigned-to-me':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">{ASSIGNED_TO_ME_GUIDANCE.title}</h3>
+              <p className="text-gray-600 mb-6">{ASSIGNED_TO_ME_GUIDANCE.description}</p>
+            </div>
+
+            <HelpPanel title="How It Works" variant="info" defaultExpanded={true}>
+              <ul className="space-y-2">
+                {ASSIGNED_TO_ME_GUIDANCE.howItWorks.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span className="text-gray-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </HelpPanel>
+
+            <div>
+              <h4 className="font-semibold text-gray-800 mb-3">What to Expect</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {ASSIGNED_TO_ME_GUIDANCE.whatToExpect.map((item, idx) => (
+                  <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-600 mt-1">→</span>
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <HelpPanel title="How to Manage" variant="default" defaultExpanded={false}>
+              <ol className="space-y-2">
+                {ASSIGNED_TO_ME_GUIDANCE.howToManage.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="font-semibold text-gray-600">{idx + 1}.</span>
+                    <span className="text-gray-700">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </HelpPanel>
+
+            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+              <ul className="space-y-2">
+                {ASSIGNED_TO_ME_GUIDANCE.bestPractices.map((practice, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-green-600 mt-1">✓</span>
+                    <span className="text-gray-700">{practice}</span>
+                  </li>
+                ))}
+              </ul>
+            </HelpPanel>
           </div>
         );
 
@@ -500,14 +733,14 @@ const HelpCenter = () => {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back
+            {t('common.back')}
           </button>
           <div className="flex items-center gap-3 mb-4">
             <BookOpen className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-800">Help Center</h1>
+            <h1 className="text-3xl font-bold text-gray-800">{t('help.center.title')}</h1>
           </div>
           <p className="text-gray-600">
-            Learn how to use Company Voice effectively
+            {t('help.center.subtitle')}
           </p>
         </div>
 
@@ -517,7 +750,7 @@ const HelpCenter = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search for help topics..."
+              placeholder={t('help.center.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -530,7 +763,7 @@ const HelpCenter = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-6">
-              <h3 className="font-semibold text-gray-800 mb-3">Topics</h3>
+              <h3 className="font-semibold text-gray-800 mb-3">{t('help.center.topics')}</h3>
               <div className="space-y-1">
                 {sections.map((section) => (
                   <div key={section.id}>
@@ -565,7 +798,7 @@ const HelpCenter = () => {
                   onClick={() => navigate('/help/roles')}
                   className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                 >
-                  View Roles & Permissions
+                  {t('help.center.viewRolesPermissions')}
                 </button>
               </div>
             </div>

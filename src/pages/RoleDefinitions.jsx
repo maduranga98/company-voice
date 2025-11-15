@@ -1,11 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Users, Briefcase, User, Check, X } from 'lucide-react';
 import { ROLE_DEFINITIONS } from '../utils/guidanceContent';
+import { useAuth } from '../contexts/AuthContext';
 
 const RoleDefinitions = () => {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState('company_admin');
+  const { userData } = useAuth();
+  const userRole = userData?.role || 'employee';
+
+  // Helper function to get visible roles based on user's role
+  const getVisibleRoles = () => {
+    const roleHierarchy = {
+      'super_admin': ['super_admin', 'company_admin', 'hr', 'employee'],
+      'company_admin': ['company_admin', 'hr', 'employee'],
+      'hr': ['hr', 'employee'],
+      'employee': ['employee']
+    };
+    return roleHierarchy[userRole] || ['employee'];
+  };
+
+  const visibleRoles = useMemo(() => getVisibleRoles(), [userRole]);
+  const filteredRoleDefinitions = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(ROLE_DEFINITIONS).filter(([roleKey]) => visibleRoles.includes(roleKey))
+    );
+  }, [visibleRoles]);
+
+  const [selectedRole, setSelectedRole] = useState(visibleRoles[0] || 'employee');
 
   // Feature permissions matrix
   const permissions = {
@@ -87,8 +109,12 @@ const RoleDefinitions = () => {
         </div>
 
         {/* Role Selector */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {Object.entries(ROLE_DEFINITIONS).map(([roleKey, role]) => {
+        <div className={`grid gap-3 mb-8 ${
+          visibleRoles.length === 1 ? 'grid-cols-1' :
+          visibleRoles.length === 2 ? 'grid-cols-2' :
+          'grid-cols-2 sm:grid-cols-4'
+        }`}>
+          {Object.entries(filteredRoleDefinitions).map(([roleKey, role]) => {
             const IconComponent = roleIcons[roleKey];
             return (
               <button
@@ -110,33 +136,35 @@ const RoleDefinitions = () => {
         </div>
 
         {/* Selected Role Details */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex items-start gap-4 mb-4">
-            <div className={`p-3 rounded-lg ${roleColors[selectedRole]}`}>
-              {React.createElement(roleIcons[selectedRole], { className: 'w-8 h-8' })}
+        {filteredRoleDefinitions[selectedRole] && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex items-start gap-4 mb-4">
+              <div className={`p-3 rounded-lg ${roleColors[selectedRole]}`}>
+                {React.createElement(roleIcons[selectedRole], { className: 'w-8 h-8' })}
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  {filteredRoleDefinitions[selectedRole].name}
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  {filteredRoleDefinitions[selectedRole].description}
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {ROLE_DEFINITIONS[selectedRole].name}
-              </h2>
-              <p className="text-gray-600 mb-4">
-                {ROLE_DEFINITIONS[selectedRole].description}
-              </p>
-            </div>
-          </div>
 
-          <div>
-            <h3 className="font-semibold text-gray-800 mb-3">Key Responsibilities:</h3>
-            <ul className="space-y-2">
-              {ROLE_DEFINITIONS[selectedRole].responsibilities.map((responsibility, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">{responsibility}</span>
-                </li>
-              ))}
-            </ul>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-3">Key Responsibilities:</h3>
+              <ul className="space-y-2">
+                {filteredRoleDefinitions[selectedRole].responsibilities.map((responsibility, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700">{responsibility}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Permissions Matrix */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -154,18 +182,26 @@ const RoleDefinitions = () => {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Feature
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Super Admin
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Company Admin
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    HR
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Employee
-                  </th>
+                  {visibleRoles.includes('super_admin') && (
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Super Admin
+                    </th>
+                  )}
+                  {visibleRoles.includes('company_admin') && (
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Company Admin
+                    </th>
+                  )}
+                  {visibleRoles.includes('hr') && (
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      HR
+                    </th>
+                  )}
+                  {visibleRoles.includes('employee') && (
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Employee
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -174,7 +210,7 @@ const RoleDefinitions = () => {
                     {/* Category Header */}
                     <tr className="bg-gray-50">
                       <td
-                        colSpan="5"
+                        colSpan={visibleRoles.length + 1}
                         className="px-6 py-3 text-sm font-semibold text-gray-800"
                       >
                         {category}
@@ -186,34 +222,42 @@ const RoleDefinitions = () => {
                         <td className="px-6 py-4 text-sm text-gray-700">
                           {feature}
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          {roles.super_admin ? (
-                            <Check className="w-5 h-5 text-green-600 mx-auto" />
-                          ) : (
-                            <X className="w-5 h-5 text-red-400 mx-auto" />
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          {roles.company_admin ? (
-                            <Check className="w-5 h-5 text-green-600 mx-auto" />
-                          ) : (
-                            <X className="w-5 h-5 text-red-400 mx-auto" />
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          {roles.hr ? (
-                            <Check className="w-5 h-5 text-green-600 mx-auto" />
-                          ) : (
-                            <X className="w-5 h-5 text-red-400 mx-auto" />
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          {roles.employee ? (
-                            <Check className="w-5 h-5 text-green-600 mx-auto" />
-                          ) : (
-                            <X className="w-5 h-5 text-red-400 mx-auto" />
-                          )}
-                        </td>
+                        {visibleRoles.includes('super_admin') && (
+                          <td className="px-6 py-4 text-center">
+                            {roles.super_admin ? (
+                              <Check className="w-5 h-5 text-green-600 mx-auto" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-400 mx-auto" />
+                            )}
+                          </td>
+                        )}
+                        {visibleRoles.includes('company_admin') && (
+                          <td className="px-6 py-4 text-center">
+                            {roles.company_admin ? (
+                              <Check className="w-5 h-5 text-green-600 mx-auto" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-400 mx-auto" />
+                            )}
+                          </td>
+                        )}
+                        {visibleRoles.includes('hr') && (
+                          <td className="px-6 py-4 text-center">
+                            {roles.hr ? (
+                              <Check className="w-5 h-5 text-green-600 mx-auto" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-400 mx-auto" />
+                            )}
+                          </td>
+                        )}
+                        {visibleRoles.includes('employee') && (
+                          <td className="px-6 py-4 text-center">
+                            {roles.employee ? (
+                              <Check className="w-5 h-5 text-green-600 mx-auto" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-400 mx-auto" />
+                            )}
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </React.Fragment>
