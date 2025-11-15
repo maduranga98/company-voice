@@ -23,6 +23,8 @@ import AuditLog from "./pages/admin/AuditLog";
 import TemplatesPage from "./pages/TemplatesPage";
 import DraftsPage from "./pages/DraftsPage";
 import ScheduledPostsPage from "./pages/ScheduledPostsPage";
+import RoleDefinitions from "./pages/RoleDefinitions";
+import HelpCenter from "./pages/HelpCenter";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
@@ -181,6 +183,24 @@ function App() {
                   <RoleBasedLayout>
                     <TemplatesPage />
                   </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Help & Documentation Routes */}
+            <Route
+              path="/help"
+              element={
+                <PrivateRoute>
+                  <HelpCenter />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/help/roles"
+              element={
+                <PrivateRoute>
+                  <RoleDefinitions />
                 </PrivateRoute>
               }
             />

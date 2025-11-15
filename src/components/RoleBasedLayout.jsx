@@ -2,6 +2,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { HelpCircle } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 /**
@@ -377,6 +378,18 @@ const RoleBasedLayout = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Help Button */}
+              <button
+                onClick={() => navigate('/help')}
+                className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors group relative"
+                title="Help Center"
+              >
+                <HelpCircle className="w-5 h-5" />
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                  Help Center
+                </span>
+              </button>
+
               {/* Language Switcher */}
               <div className="hidden sm:block">
                 <LanguageSwitcher />

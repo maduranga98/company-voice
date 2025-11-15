@@ -26,6 +26,8 @@ import {
 import { showSuccess, showError } from "../services/toastService";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebase";
+import HelpTooltip from "./help/HelpTooltip";
+import { POST_STATUS_GUIDANCE, PRIORITY_GUIDANCE, FEATURE_TOOLTIPS } from "../utils/guidanceContent";
 
 /**
  * Admin Action Panel Component
@@ -327,7 +329,14 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       <div className="grid grid-cols-2 gap-2 mb-3">
         {/* Status Dropdown */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
+            Status
+            <HelpTooltip
+              content={POST_STATUS_GUIDANCE.description}
+              title="Post Status"
+              size="sm"
+            />
+          </label>
           <select
             value={status}
             onChange={(e) => handleStatusChange(e.target.value)}
@@ -347,7 +356,14 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
         {/* Priority Dropdown */}
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
+            Priority
+            <HelpTooltip
+              content={PRIORITY_GUIDANCE.description}
+              title="Priority Levels"
+              size="sm"
+            />
+          </label>
           <select
             value={priority}
             onChange={(e) => handlePriorityChange(e.target.value)}
@@ -399,8 +415,13 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
         <div className="space-y-3 pt-3 border-t border-indigo-200">
           {/* Assignment */}
           <div className="relative">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
               Assign To {post.isAnonymous && "(Departments only for anonymous posts)"}
+              <HelpTooltip
+                content={FEATURE_TOOLTIPS.assignPost}
+                title="Post Assignment"
+                size="sm"
+              />
             </label>
             <div className="flex gap-2">
               <div className="flex-1 relative">
@@ -534,7 +555,14 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
           {/* Due Date */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Due Date</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
+              Due Date
+              <HelpTooltip
+                content={FEATURE_TOOLTIPS.addDueDate}
+                title="Due Date"
+                size="sm"
+              />
+            </label>
             <input
               type="date"
               value={selectedDueDate}
@@ -547,8 +575,13 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
           {/* Admin Comment */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
               Admin Comment (Public - visible to everyone)
+              <HelpTooltip
+                content={FEATURE_TOOLTIPS.adminComment}
+                title="Admin Comment"
+                size="sm"
+              />
             </label>
             <textarea
               value={comment}

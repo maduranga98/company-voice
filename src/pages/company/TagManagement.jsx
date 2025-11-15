@@ -13,6 +13,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import HelpPanel from "../../components/help/HelpPanel";
+import { TAG_SYSTEM_GUIDANCE } from "../../utils/guidanceContent";
 
 const TagManagement = () => {
   const { userData } = useAuth();
@@ -187,6 +189,40 @@ const TagManagement = () => {
             Create Tag
           </button>
         </div>
+      </div>
+
+      {/* Help Section */}
+      <div className="mb-6">
+        <HelpPanel title="About User Tags" variant="info" defaultExpanded={false}>
+          <div className="space-y-3">
+            <p className="text-gray-700">{TAG_SYSTEM_GUIDANCE.description}</p>
+            <p className="text-blue-600 text-sm bg-blue-50 p-2 rounded">{TAG_SYSTEM_GUIDANCE.purpose}</p>
+
+            <div className="mt-4">
+              <h4 className="font-semibold text-gray-800 mb-2">How to Assign Tags</h4>
+              <ul className="space-y-1">
+                {TAG_SYSTEM_GUIDANCE.howToAssign.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-blue-600 mt-0.5">•</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="mt-4">
+              <h4 className="font-semibold text-gray-800 mb-2">Best Practices</h4>
+              <ul className="space-y-1">
+                {TAG_SYSTEM_GUIDANCE.bestPractices.slice(0, 3).map((practice, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span>{practice}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </HelpPanel>
       </div>
 
       {/* Tags List */}
