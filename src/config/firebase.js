@@ -5,7 +5,8 @@ import { getStorage } from "firebase/storage";
 import { getFunctions } from "firebase/functions";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+// App Check commented out - requires domain setup
+// import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -21,11 +22,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // ============================================
-// FIREBASE APP CHECK - Security Layer
+// FIREBASE APP CHECK - Security Layer (DISABLED - requires domain)
 // ============================================
 // App Check helps protect your backend resources from abuse by preventing
 // unauthorized clients from accessing your backend resources.
 // It works with reCAPTCHA v3 for web apps.
+// COMMENTED OUT: Requires a domain to be set up
+/*
 let appCheck = null;
 
 if (import.meta.env.VITE_FIREBASE_APP_CHECK_KEY) {
@@ -45,6 +48,8 @@ if (import.meta.env.VITE_FIREBASE_APP_CHECK_KEY) {
 // In development, enable debug mode by running:
 // self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 // in your browser console before the app loads
+*/
+let appCheck = null;
 
 // ============================================
 // CORE FIREBASE SERVICES
