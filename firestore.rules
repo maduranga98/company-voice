@@ -3,146 +3,37 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ============================================
-    // HELPER FUNCTIONS
+    // IMPORTANT: FIREBASE AUTH IS DISABLED
     // ============================================
-
-    // Check if user is authenticated
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    // Check if user owns the document (by authorId field)
-    function isOwner(authorId) {
-      return request.auth.uid == authorId;
-    }
-
-    // Check if user is super admin
-    function isSuperAdmin() {
-      return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'super_admin';
-    }
-
-    // Check if user is company admin or HR
-    function isCompanyAdmin(companyId) {
-      return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId &&
-             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'company_admin' ||
-              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'hr');
-    }
-
-    // Check if user belongs to the same company
-    function isSameCompany(companyId) {
-      return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId;
-    }
-
-    // Check if user is an admin (super admin, company admin, or HR)
-    function isAdmin() {
-      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-      return isAuthenticated() &&
-             (userData.role == 'super_admin' ||
-              userData.role == 'company_admin' ||
-              userData.role == 'hr');
-    }
-
-    // Validate post creation rate limit (10 posts per hour)
-    function checkRateLimit() {
-      let userId = request.auth.uid;
-      let oneHourAgo = request.time - duration.value(1, 'h');
-
-      // This is a simplified check - actual rate limiting should be done server-side
-      return true; // Allow for now, server-side function will enforce
-    }
+    // These rules allow unauthenticated access for testing purposes.
+    // WARNING: This is NOT suitable for production use.
+    // You should implement proper authentication and authorization
+    // before deploying to production.
+    // ============================================
 
     // ============================================
     // USERS COLLECTION
     // ============================================
     match /users/{userId} {
-      // Users can read their own profile
-      allow read: if isAuthenticated() && request.auth.uid == userId;
-
-      // Company admins can read users in their company
-      allow read: if isAuthenticated() &&
-                     isSameCompany(resource.data.companyId);
-
-      // Super admins can read all users
-      allow read: if isSuperAdmin();
-
-      // Users can update their own profile (limited fields)
-      allow update: if isAuthenticated() &&
-                       request.auth.uid == userId &&
-                       !request.resource.data.diff(resource.data).affectedKeys()
-                         .hasAny(['role', 'companyId', 'status']);
-
-      // Only super admins and company admins can create users
-      allow create: if isSuperAdmin() ||
-                       (isAdmin() &&
-                        isSameCompany(request.resource.data.companyId));
-
-      // Only super admins and company admins can delete users
-      allow delete: if isSuperAdmin() || isCompanyAdmin(resource.data.companyId);
+      allow read, write: if true;
     }
 
     // ============================================
     // COMPANIES COLLECTION
     // ============================================
     match /companies/{companyId} {
-      // All authenticated users can read their own company
-      allow read: if isAuthenticated() && isSameCompany(companyId);
-
-      // Super admins can read all companies
-      allow read: if isSuperAdmin();
-
-      // Only super admins can create/update/delete companies
-      allow create, update, delete: if isSuperAdmin();
+      allow read, write: if true;
     }
 
     // ============================================
     // POSTS COLLECTION
     // ============================================
     match /posts/{postId} {
-      // Anyone in the same company can read posts
-      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
-
-      // Users can create posts in their company with rate limiting
-      allow create: if isAuthenticated() &&
-                       isSameCompany(request.resource.data.companyId) &&
-                       request.resource.data.authorId == request.auth.uid &&
-                       checkRateLimit() &&
-                       // Ensure required fields are present
-                       request.resource.data.keys().hasAll(['title', 'description', 'type', 'companyId', 'authorId', 'createdAt']) &&
-                       // Validate status and priority defaults
-                       request.resource.data.status in ['open', 'published', 'draft'] &&
-                       request.resource.data.priority in ['low', 'medium', 'high', 'critical'];
-
-      // Post author can update their own post (limited fields)
-      allow update: if isAuthenticated() &&
-                       resource.data.authorId == request.auth.uid &&
-                       isSameCompany(resource.data.companyId) &&
-                       // Users can only update specific fields
-                       !request.resource.data.diff(resource.data).affectedKeys()
-                         .hasAny(['authorId', 'companyId', 'createdAt', 'status', 'priority', 'assignedTo']);
-
-      // Admins can update post status, priority, assignment, pin, archive
-      // Also allow updating editHistory, pinnedAt, archivedAt fields
-      allow update: if isAuthenticated() &&
-                       isSameCompany(resource.data.companyId) &&
-                       isAdmin();
-
-      // Post author or admin can delete posts
-      allow delete: if isAuthenticated() &&
-                       (resource.data.authorId == request.auth.uid || isAdmin()) &&
-                       isSameCompany(resource.data.companyId);
+      allow read, write: if true;
 
       // Likes subcollection
       match /likes/{likeId} {
-        // Users can read likes
-        allow read: if isAuthenticated() && isSameCompany(get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
-
-        // Users can create/delete their own likes
-        allow create, delete: if isAuthenticated() &&
-                                 request.auth.uid == likeId &&
-                                 isSameCompany(get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        allow read, write: if true;
       }
     }
 
@@ -150,452 +41,182 @@ service cloud.firestore {
     // COMMENTS COLLECTION
     // ============================================
     match /comments/{commentId} {
-      // Anyone in the same company can read comments
-      allow read: if isAuthenticated() &&
-                     exists(/databases/$(database)/documents/posts/$(resource.data.postId)) &&
-                     isSameCompany(get(/databases/$(database)/documents/posts/$(resource.data.postId)).data.companyId);
-
-      // Users can create comments on posts in their company
-      allow create: if isAuthenticated() &&
-                       request.resource.data.authorId == request.auth.uid &&
-                       exists(/databases/$(database)/documents/posts/$(request.resource.data.postId)) &&
-                       isSameCompany(get(/databases/$(database)/documents/posts/$(request.resource.data.postId)).data.companyId) &&
-                       // Ensure required fields
-                       request.resource.data.keys().hasAll(['postId', 'text', 'authorId', 'authorName', 'createdAt']);
-
-      // Comment author can update their own comment
-      allow update: if isAuthenticated() &&
-                       resource.data.authorId == request.auth.uid &&
-                       // Can only update text field
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text', 'updatedAt']);
-
-      // Comment author or admin can delete comments
-      allow delete: if isAuthenticated() &&
-                       (resource.data.authorId == request.auth.uid || isAdmin());
+      allow read, write: if true;
     }
 
     // ============================================
     // DISCUSSIONS COLLECTION
     // ============================================
     match /discussions/{discussionId} {
-      // Anyone in the same company can read discussions
-      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
-
-      // Users can create discussions in their company
-      allow create: if isAuthenticated() &&
-                       isSameCompany(request.resource.data.companyId) &&
-                       request.resource.data.authorId == request.auth.uid &&
-                       checkRateLimit();
-
-      // Discussion author can update their own discussion
-      allow update: if isAuthenticated() &&
-                       resource.data.authorId == request.auth.uid &&
-                       isSameCompany(resource.data.companyId);
-
-      // Discussion author or admin can delete discussions
-      allow delete: if isAuthenticated() &&
-                       (resource.data.authorId == request.auth.uid || isAdmin()) &&
-                       isSameCompany(resource.data.companyId);
+      allow read, write: if true;
     }
 
     // ============================================
     // NOTIFICATIONS COLLECTION
     // ============================================
     match /notifications/{notificationId} {
-      // Users can read their own notifications
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-
-      // System and admins can create notifications
-      allow create: if isAuthenticated() &&
-                       (isAdmin() || request.resource.data.userId == request.auth.uid);
-
-      // Users can update their own notifications (mark as read)
-      allow update: if isAuthenticated() &&
-                       resource.data.userId == request.auth.uid &&
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
-
-      // Users can delete their own notifications
-      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow read, write: if true;
     }
 
     // ============================================
     // POST ACTIVITIES COLLECTION (Timeline)
     // ============================================
     match /postActivities/{activityId} {
-      // Anyone in the same company can read post activities
-      allow read: if isAuthenticated() &&
-                     exists(/databases/$(database)/documents/posts/$(resource.data.postId)) &&
-                     isSameCompany(get(/databases/$(database)/documents/posts/$(resource.data.postId)).data.companyId);
-
-      // Only admins can create post activities
-      allow create: if isAdmin();
-
-      // No updates or deletes allowed
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // POST VIEWS COLLECTION (For "My Posts" unread tracking)
     // ============================================
     match /postViews/{viewId} {
-      // Users can read their own post views
-      allow read: if isAuthenticated() && resource.data.authorId == request.auth.uid;
-
-      // Users can create/update their own post views
-      allow create, update: if isAuthenticated() &&
-                               request.resource.data.authorId == request.auth.uid;
-
-      // No deletes allowed
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // DEPARTMENTS COLLECTION
     // ============================================
     match /departments/{departmentId} {
-      // Anyone in the same company can read departments
-      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
-
-      // Only admins can create/update/delete departments
-      allow create, update, delete: if isAdmin() &&
-                                        isSameCompany(resource.data.companyId);
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: SUBSCRIPTIONS COLLECTION
     // ============================================
     match /subscriptions/{subscriptionId} {
-      // Company admins can read their company's subscription
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all subscriptions
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create/update/delete
-      allow create, update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: INVOICES COLLECTION
     // ============================================
     match /invoices/{invoiceId} {
-      // Company admins can read their company's invoices
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all invoices
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create/update/delete
-      allow create, update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: USAGE RECORDS COLLECTION
     // ============================================
     match /usageRecords/{recordId} {
-      // Company admins can read their company's usage records
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all usage records
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create/update/delete
-      allow create, update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: PAYMENTS COLLECTION
     // ============================================
     match /payments/{paymentId} {
-      // Company admins can read their company's payments
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all payments
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create/update/delete
-      allow create, update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: PAYMENT METHODS COLLECTION
     // ============================================
     match /paymentMethods/{methodId} {
-      // Company admins can read their company's payment methods
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all payment methods
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create/update/delete
-      allow create, update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: BILLING HISTORY COLLECTION
     // ============================================
     match /billingHistory/{historyId} {
-      // Company admins can read their company's billing history
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all billing history
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create (immutable)
-      allow create: if false;
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: PRICING TIERS COLLECTION
     // ============================================
     match /pricingTiers/{tierId} {
-      // All authenticated users can read active pricing tiers
-      allow read: if isAuthenticated() && resource.data.isActive == true;
-
-      // Super admins can read all pricing tiers
-      allow read: if isSuperAdmin();
-
-      // Only super admins can create/update/delete
-      allow create, update, delete: if isSuperAdmin();
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: BILLING DISPUTES COLLECTION
     // ============================================
     match /billingDisputes/{disputeId} {
-      // Company admins can read their company's disputes
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all disputes
-      allow read: if isSuperAdmin();
-
-      // Company admins can create disputes for their company
-      allow create: if isAuthenticated() &&
-                       isCompanyAdmin(request.resource.data.companyId) &&
-                       request.resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
-
-      // Only super admins can update/delete disputes
-      allow update, delete: if isSuperAdmin();
+      allow read, write: if true;
     }
 
     // ============================================
     // BILLING: REVENUE REPORTS COLLECTION
     // ============================================
     match /revenueReports/{reportId} {
-      // Only super admins can read revenue reports
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create/update
-      allow create, update: if false;
-      allow delete: if isSuperAdmin();
+      allow read, write: if true;
     }
 
     // ============================================
     // SYSTEM AUDIT LOGS COLLECTION
     // ============================================
     match /systemAuditLogs/{logId} {
-      // Company admins can read their company's audit logs
-      allow read: if isAuthenticated() &&
-                     (isSameCompany(resource.data.companyId) && isCompanyAdmin(resource.data.companyId));
-
-      // Super admins can read all audit logs
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create (immutable)
-      allow create: if false;
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // USER TAGS COLLECTION
     // ============================================
     match /userTags/{tagId} {
-      // Anyone in the same company can read tags
-      allow read: if isAuthenticated() && isSameCompany(resource.data.companyId);
-
-      // Only admins can create/update/delete tags
-      allow create, update, delete: if isAdmin() &&
-                                        isSameCompany(resource.data.companyId);
+      allow read, write: if true;
     }
 
     // ============================================
     // CONTENT MODERATION: REPORTS COLLECTION
     // ============================================
     match /contentReports/{reportId} {
-      // Admins can read reports for their company
-      allow read: if isAuthenticated() &&
-                     isAdmin() &&
-                     isSameCompany(resource.data.companyId);
-
-      // Super admins can read all reports
-      allow read: if isSuperAdmin();
-
-      // Any authenticated user can create a report
-      allow create: if isAuthenticated() &&
-                       request.resource.data.reportedBy == request.auth.uid &&
-                       isSameCompany(request.resource.data.companyId) &&
-                       request.resource.data.keys().hasAll(['contentType', 'contentId', 'reason', 'reportedBy', 'companyId']);
-
-      // Only admins can update reports (review them)
-      allow update: if isAuthenticated() &&
-                       isAdmin() &&
-                       isSameCompany(resource.data.companyId);
-
-      // Super admins can update any report
-      allow update: if isSuperAdmin();
-
-      // No deletes allowed (audit trail)
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // CONTENT MODERATION: USER STRIKES COLLECTION
     // ============================================
     match /userStrikes/{strikeId} {
-      // Users can read their own strikes
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-
-      // Admins can read strikes for their company
-      allow read: if isAuthenticated() &&
-                     isAdmin() &&
-                     isSameCompany(resource.data.companyId);
-
-      // Super admins can read all strikes
-      allow read: if isSuperAdmin();
-
-      // Only admins can create strikes
-      allow create: if isAuthenticated() &&
-                       isAdmin() &&
-                       isSameCompany(request.resource.data.companyId);
-
-      // No updates or deletes allowed (immutable audit trail)
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // CONTENT MODERATION: USER RESTRICTIONS COLLECTION
     // ============================================
     match /userRestrictions/{restrictionId} {
-      // Users can read their own restrictions
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-
-      // Admins can read restrictions for their company users
-      allow read: if isAuthenticated() &&
-                     isAdmin();
-
-      // Super admins can read all restrictions
-      allow read: if isSuperAdmin();
-
-      // Only admins can create/update restrictions
-      allow create, update: if isAuthenticated() && isAdmin();
-
-      // No deletes allowed (restrictions are deactivated, not deleted)
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // CONTENT MODERATION: ACTIVITY LOGS COLLECTION
     // ============================================
     match /moderationActivities/{activityId} {
-      // Admins can read moderation activities for their company
-      allow read: if isAuthenticated() &&
-                     isAdmin() &&
-                     isSameCompany(resource.data.companyId);
-
-      // Super admins can read all moderation activities
-      allow read: if isSuperAdmin();
-
-      // Only admins can create activity logs
-      allow create: if isAuthenticated() && isAdmin();
-
-      // No updates or deletes allowed (immutable audit trail)
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // SEARCH: SAVED SEARCHES COLLECTION
     // ============================================
     match /savedSearches/{searchId} {
-      // Users can read their own saved searches
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-
-      // Admins can read all saved searches in their company
-      allow read: if isAuthenticated() &&
-                     isAdmin() &&
-                     isSameCompany(resource.data.companyId);
-
-      // Users can create their own saved searches (admins only)
-      allow create: if isAuthenticated() &&
-                       isAdmin() &&
-                       request.resource.data.userId == request.auth.uid &&
-                       isSameCompany(request.resource.data.companyId);
-
-      // Users can update their own saved searches
-      allow update: if isAuthenticated() &&
-                       resource.data.userId == request.auth.uid;
-
-      // Users can delete their own saved searches
-      allow delete: if isAuthenticated() &&
-                       resource.data.userId == request.auth.uid;
+      allow read, write: if true;
     }
 
     // ============================================
     // SEARCH: ANALYTICS COLLECTION
     // ============================================
     match /searchAnalytics/{analyticsId} {
-      // Only admins can read search analytics
-      allow read: if isAuthenticated() &&
-                     isAdmin() &&
-                     isSameCompany(resource.data.companyId);
-
-      // Super admins can read all analytics
-      allow read: if isSuperAdmin();
-
-      // Only backend functions can create analytics
-      allow create: if false;
-
-      // No updates or deletes allowed (immutable analytics)
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
     // NOTIFICATION PREFERENCES COLLECTION
     // ============================================
     match /notificationPreferences/{userId} {
-      // Users can read their own notification preferences
-      allow read: if isAuthenticated() && request.auth.uid == userId;
-
-      // Users can create/update their own notification preferences
-      allow create, update: if isAuthenticated() && request.auth.uid == userId;
-
-      // Users can delete their own preferences
-      allow delete: if isAuthenticated() && request.auth.uid == userId;
+      allow read, write: if true;
     }
 
     // ============================================
     // EMAIL QUEUE COLLECTION
     // ============================================
     match /emailQueue/{emailId} {
-      // No direct read access (backend only)
-      allow read: if false;
-
-      // Only backend functions can create/update/delete
-      allow create, update, delete: if false;
+      allow read, write: if true;
     }
 
     // ============================================
-    // DENY ALL OTHER COLLECTIONS
+    // ALLOW ALL OTHER COLLECTIONS (for testing)
     // ============================================
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
   }
 }
