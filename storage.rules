@@ -1,0 +1,268 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules
+// These rules secure file uploads and downloads in Firebase Storage
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the file (by userId in path)
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Get user data from Firestore
+    function getUserData() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Check if user is super admin
+    function isSuperAdmin() {
+      return isAuthenticated() && getUserData().role == 'super_admin';
+    }
+
+    // Check if user is company admin or HR
+    function isCompanyAdmin(companyId) {
+      let userData = getUserData();
+      return isAuthenticated() &&
+             userData.companyId == companyId &&
+             (userData.role == 'company_admin' || userData.role == 'hr');
+    }
+
+    // Check if user belongs to the same company
+    function isSameCompany(companyId) {
+      return isAuthenticated() && getUserData().companyId == companyId;
+    }
+
+    // Check if user is any type of admin
+    function isAdmin() {
+      let userData = getUserData();
+      return isAuthenticated() &&
+             (userData.role == 'super_admin' ||
+              userData.role == 'company_admin' ||
+              userData.role == 'hr');
+    }
+
+    // Validate file size (max 10MB for images, 50MB for documents)
+    function isValidFileSize(maxSizeMB) {
+      return request.resource.size <= maxSizeMB * 1024 * 1024;
+    }
+
+    // Validate image file types
+    function isValidImageType() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.contentType in ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    }
+
+    // Validate document file types
+    function isValidDocumentType() {
+      return request.resource.contentType in [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'text/csv'
+      ];
+    }
+
+    // ============================================
+    // USER PROFILE IMAGES
+    // Path: companies/{companyId}/users/{userId}/profile/{fileName}
+    // ============================================
+    match /companies/{companyId}/users/{userId}/profile/{fileName} {
+      // Users can read profile images from their company
+      allow read: if isAuthenticated() && isSameCompany(companyId);
+
+      // Super admins can read all profile images
+      allow read: if isSuperAdmin();
+
+      // Users can upload their own profile image
+      allow write: if isAuthenticated() &&
+                      isOwner(userId) &&
+                      isSameCompany(companyId) &&
+                      isValidImageType() &&
+                      isValidFileSize(5); // 5MB max
+
+      // Admins can upload profile images for users in their company
+      allow write: if isAuthenticated() &&
+                      isCompanyAdmin(companyId) &&
+                      isValidImageType() &&
+                      isValidFileSize(5);
+
+      // Users can delete their own profile image
+      allow delete: if isAuthenticated() &&
+                       isOwner(userId) &&
+                       isSameCompany(companyId);
+
+      // Admins can delete profile images for users in their company
+      allow delete: if isAuthenticated() && isCompanyAdmin(companyId);
+    }
+
+    // ============================================
+    // COMPANY LOGOS
+    // Path: companies/{companyId}/logo/{fileName}
+    // ============================================
+    match /companies/{companyId}/logo/{fileName} {
+      // All authenticated users can read company logos
+      allow read: if isAuthenticated();
+
+      // Only company admins can upload/update company logos
+      allow write: if isAuthenticated() &&
+                      isCompanyAdmin(companyId) &&
+                      isValidImageType() &&
+                      isValidFileSize(5); // 5MB max
+
+      // Only company admins and super admins can delete company logos
+      allow delete: if isAuthenticated() &&
+                       (isCompanyAdmin(companyId) || isSuperAdmin());
+    }
+
+    // ============================================
+    // POST ATTACHMENTS
+    // Path: companies/{companyId}/posts/{postId}/attachments/{fileName}
+    // ============================================
+    match /companies/{companyId}/posts/{postId}/attachments/{fileName} {
+      // Users in the same company can read post attachments
+      allow read: if isAuthenticated() && isSameCompany(companyId);
+
+      // Users can upload attachments to posts in their company
+      allow write: if isAuthenticated() &&
+                      isSameCompany(companyId) &&
+                      (isValidImageType() || isValidDocumentType()) &&
+                      isValidFileSize(50); // 50MB max for documents
+
+      // Post author and admins can delete attachments
+      // Note: We can't easily verify post ownership in Storage rules,
+      // so we rely on Firestore rules and proper app logic
+      allow delete: if isAuthenticated() &&
+                       (isSameCompany(companyId) || isAdmin());
+    }
+
+    // ============================================
+    // DISCUSSION ATTACHMENTS
+    // Path: companies/{companyId}/discussions/{discussionId}/attachments/{fileName}
+    // ============================================
+    match /companies/{companyId}/discussions/{discussionId}/attachments/{fileName} {
+      // Users in the same company can read discussion attachments
+      allow read: if isAuthenticated() && isSameCompany(companyId);
+
+      // Users can upload attachments to discussions in their company
+      allow write: if isAuthenticated() &&
+                      isSameCompany(companyId) &&
+                      (isValidImageType() || isValidDocumentType()) &&
+                      isValidFileSize(50); // 50MB max
+
+      // Discussion author and admins can delete attachments
+      allow delete: if isAuthenticated() &&
+                       (isSameCompany(companyId) || isAdmin());
+    }
+
+    // ============================================
+    // BILLING DOCUMENTS
+    // Path: companies/{companyId}/billing/{documentType}/{fileName}
+    // ============================================
+    match /companies/{companyId}/billing/{documentType}/{fileName} {
+      // Only company admins can read billing documents
+      allow read: if isAuthenticated() &&
+                     (isCompanyAdmin(companyId) || isSuperAdmin());
+
+      // Only backend functions should create billing documents
+      // This is protected by requiring service account credentials
+      allow write: if false;
+
+      // Only super admins can delete billing documents
+      allow delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // COMPANY DOCUMENTS (General)
+    // Path: companies/{companyId}/documents/{category}/{fileName}
+    // ============================================
+    match /companies/{companyId}/documents/{category}/{fileName} {
+      // Users in the same company can read company documents
+      allow read: if isAuthenticated() && isSameCompany(companyId);
+
+      // Only admins can upload company documents
+      allow write: if isAuthenticated() &&
+                      isCompanyAdmin(companyId) &&
+                      isValidDocumentType() &&
+                      isValidFileSize(50); // 50MB max
+
+      // Only admins can delete company documents
+      allow delete: if isAuthenticated() && isCompanyAdmin(companyId);
+    }
+
+    // ============================================
+    // TEMPORARY UPLOADS
+    // Path: temp/{userId}/{fileName}
+    // For temporary file storage during multi-step uploads
+    // ============================================
+    match /temp/{userId}/{fileName} {
+      // Users can read their own temp files
+      allow read: if isAuthenticated() && isOwner(userId);
+
+      // Users can write to their own temp folder
+      allow write: if isAuthenticated() &&
+                      isOwner(userId) &&
+                      (isValidImageType() || isValidDocumentType()) &&
+                      isValidFileSize(50);
+
+      // Users can delete their own temp files
+      // Files older than 24 hours should be cleaned up by a Cloud Function
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+
+    // ============================================
+    // ADMIN UPLOADS
+    // Path: admin/{category}/{fileName}
+    // For system-wide resources
+    // ============================================
+    match /admin/{category}/{fileName} {
+      // All authenticated users can read admin files
+      allow read: if isAuthenticated();
+
+      // Only super admins can upload admin files
+      allow write: if isSuperAdmin() &&
+                      (isValidImageType() || isValidDocumentType()) &&
+                      isValidFileSize(50);
+
+      // Only super admins can delete admin files
+      allow delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // ANALYTICS EXPORTS
+    // Path: companies/{companyId}/exports/{exportType}/{fileName}
+    // ============================================
+    match /companies/{companyId}/exports/{exportType}/{fileName} {
+      // Only company admins can read export files
+      allow read: if isAuthenticated() &&
+                     (isCompanyAdmin(companyId) || isSuperAdmin());
+
+      // Only backend functions should create exports
+      allow write: if false;
+
+      // Admins can delete old exports
+      allow delete: if isAuthenticated() &&
+                       (isCompanyAdmin(companyId) || isSuperAdmin());
+    }
+
+    // ============================================
+    // DENY ALL OTHER PATHS
+    // ============================================
+    // This ensures that any path not explicitly allowed above is denied
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
