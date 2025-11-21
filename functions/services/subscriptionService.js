@@ -3,6 +3,7 @@
  * Handles all subscription-related operations with Stripe and Firestore
  */
 
+const admin = require('firebase-admin');
 const { initializeStripe, PRICING, SUBSCRIPTION_STATUS } = require('../config/stripe');
 const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
 const { logBillingEvent, getActiveUserCount, getNextBillingDate, calculateGracePeriodEnd } = require('../utils/helpers');
@@ -464,8 +465,6 @@ async function suspendAccount(subscriptionId) {
     throw error;
   }
 }
-
-const admin = require('firebase-admin');
 
 module.exports = {
   createSubscription,

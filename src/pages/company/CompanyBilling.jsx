@@ -198,7 +198,7 @@ function CompanyBillingContent() {
                 <div className="mt-2 text-sm text-gray-600">
                   <p>Current Users: <span className="font-medium text-gray-900">{subscription.currentUserCount}</span></p>
                   <p>Next Billing: <span className="font-medium text-gray-900">{formatDate(subscription.currentPeriodEnd)}</span></p>
-                  <p>Amount: <span className="font-medium text-gray-900">{formatCurrency(subscription.amount)}</span></p>
+                  <p>Amount: <span className="font-medium text-gray-900">{formatCurrency((subscription.currentUserCount || 0) * (subscription.pricePerUser || 1.00))}</span></p>
                 </div>
               </div>
               <div className="flex space-x-3">
@@ -348,7 +348,7 @@ function OverviewTab({ subscription, usageSummary }) {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Base Amount:</span>
-            <span className="font-medium">{formatCurrency(subscription.amount)}</span>
+            <span className="font-medium">{formatCurrency((subscription.currentUserCount || 0) * (subscription.pricePerUser || 1.00))}</span>
           </div>
           {usageSummary?.prorationAmount !== 0 && (
             <div className="flex justify-between">
@@ -581,7 +581,7 @@ function PaymentHistoryTab({ paymentHistory }) {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {payment.paymentMethodLast4 ? `•••• ${payment.paymentMethodLast4}` : '-'}
+                  {payment.paymentMethod?.last4 ? `•••• ${payment.paymentMethod.last4}` : '-'}
                 </td>
               </tr>
             ))}
