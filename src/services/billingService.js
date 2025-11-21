@@ -308,8 +308,17 @@ export function formatDate(date) {
     dateObj = date.toDate();
   } else if (typeof date === 'string') {
     dateObj = new Date(date);
+  } else if (typeof date === 'number') {
+    // Unix timestamp (seconds or milliseconds)
+    dateObj = new Date(date < 10000000000 ? date * 1000 : date);
   } else {
     dateObj = date;
+  }
+
+  // Validate that dateObj is a valid Date object
+  if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+    console.warn('Invalid date value:', date);
+    return '-';
   }
 
   return new Intl.DateTimeFormat('en-US', {
