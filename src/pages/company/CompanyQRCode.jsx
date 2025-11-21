@@ -149,24 +149,6 @@ const CompanyQRCode = () => {
 
       yPosition += 60;
 
-      // Company details box
-      ctx.fillStyle = '#f0f9ff';
-      ctx.fillRect(60, yPosition, 680, 160);
-      ctx.strokeStyle = '#bae6fd';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(60, yPosition, 680, 160);
-
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#0369a1';
-      ctx.font = 'bold 20px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('Company Details', 90, yPosition + 40);
-
-      ctx.fillStyle = '#1f2937';
-      ctx.font = '18px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText(`Industry: ${company.industry || 'Not specified'}`, 90, yPosition + 75);
-      ctx.fillText(`Employees: ${company.employeeCount || 0}`, 90, yPosition + 105);
-      ctx.fillText(`Status: ${company.isActive ? 'Active' : 'Inactive'}`, 90, yPosition + 135);
-
       // PAGE 2 - Instructions (starts at y = 1100)
       yPosition = 1100;
 
@@ -297,7 +279,7 @@ const CompanyQRCode = () => {
               flex-direction: column;
               justify-content: center;
               align-items: center;
-              padding: 60px 40px;
+              padding: 40px 40px;
               page-break-after: always;
             }
 
@@ -313,13 +295,13 @@ const CompanyQRCode = () => {
             }
             
             .header {
-              margin-bottom: 40px;
+              margin-bottom: 30px;
             }
-            
+
             .logo {
-              width: 100px;
-              height: 100px;
-              margin: 0 auto 24px;
+              width: 80px;
+              height: 80px;
+              margin: 0 auto 20px;
               display: block;
               object-fit: contain;
             }
@@ -355,25 +337,25 @@ const CompanyQRCode = () => {
             
             .qr-container {
               background: white;
-              padding: 40px;
+              padding: 30px;
               border-radius: 24px;
               box-shadow: 0 0 0 12px #f0f9ff, 0 8px 24px rgba(0, 0, 0, 0.1);
               display: inline-block;
-              margin-bottom: 40px;
+              margin-bottom: 30px;
             }
             
             .qr-container img {
               display: block;
-              width: 400px;
-              height: 400px;
+              width: 350px;
+              height: 350px;
               border-radius: 12px;
             }
-            
+
             .scan-text {
               font-size: 18px;
               color: #374151;
               font-weight: 600;
-              margin-bottom: 30px;
+              margin-bottom: 20px;
             }
             
             .instructions {
@@ -478,8 +460,8 @@ const CompanyQRCode = () => {
             }
             
             .footer {
-              margin-top: 40px;
-              padding-top: 30px;
+              margin-top: 20px;
+              padding-top: 20px;
               border-top: 2px solid #e5e7eb;
             }
             
@@ -630,34 +612,116 @@ const CompanyQRCode = () => {
     if (!qrCodeUrl || !company) return;
 
     try {
-      const response = await fetch(qrCodeUrl);
-      const blob = await response.blob();
-      const file = new File([blob], `${company.name}_VoxWel_QR.png`, {
-        type: "image/png",
-      });
+      // Create a canvas to render the share image with logo, app name, tagline, company name and QR
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
 
-      const shareText = `Join ${company.name} on VoxWel!\n\n` +
-        `📱 Scan the QR code to register:\n` +
-        `1. Open your phone camera\n` +
-        `2. Point at the QR code\n` +
-        `3. Tap the notification\n` +
-        `4. Complete registration\n` +
-        `5. Wait for HR approval\n` +
-        `6. Start engaging with your team!\n\n` +
-        `VoxWel - Where Every Voice Matters`;
+      // Set canvas size
+      canvas.width = 800;
+      canvas.height = 900;
 
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: `Join ${company.name} on VoxWel`,
-          text: shareText,
-          files: [file],
+      // Fill white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Load logo image
+      const logoImage = new Image();
+      logoImage.crossOrigin = 'anonymous';
+      logoImage.src = window.location.origin + '/logo.png';
+
+      // Load QR code image
+      const qrImage = new Image();
+      qrImage.crossOrigin = 'anonymous';
+
+      let imagesLoaded = 0;
+      const totalImages = 2;
+
+      const onImageLoad = () => {
+        imagesLoaded++;
+        if (imagesLoaded === totalImages) {
+          drawShareCanvas();
+        }
+      };
+
+      logoImage.onload = onImageLoad;
+      qrImage.onload = onImageLoad;
+
+      const drawShareCanvas = async () => {
+        let yPosition = 60;
+
+        // Draw VoxWel Logo
+        const logoSize = 100;
+        const logoX = (canvas.width - logoSize) / 2;
+        ctx.drawImage(logoImage, logoX, yPosition, logoSize, logoSize);
+
+        yPosition += logoSize + 30;
+
+        // App Name - VoxWel
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 48px Inter, system-ui, -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('VoxWel', 400, yPosition);
+
+        yPosition += 50;
+
+        // Tagline
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '24px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillText('Where Every Voice Matters', 400, yPosition);
+
+        yPosition += 60;
+
+        // Company Name
+        ctx.fillStyle = '#0284c7';
+        ctx.font = 'bold 36px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillText(company.name, 400, yPosition);
+
+        yPosition += 60;
+
+        // Draw QR code
+        const qrSize = 400;
+        const qrX = (canvas.width - qrSize) / 2;
+        ctx.drawImage(qrImage, qrX, yPosition, qrSize, qrSize);
+
+        yPosition += qrSize + 30;
+
+        // Scan instruction
+        ctx.fillStyle = '#374151';
+        ctx.font = '600 20px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillText('📱 Scan to Join Our Team', 400, yPosition);
+
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], `${company.name}_VoxWel_QR.png`, {
+            type: "image/png",
+          });
+
+          const shareText = `Join ${company.name} on VoxWel!\n\n` +
+            `📱 Scan the QR code to register:\n` +
+            `1. Open your phone camera\n` +
+            `2. Point at the QR code\n` +
+            `3. Tap the notification\n` +
+            `4. Complete registration\n` +
+            `5. Wait for HR approval\n` +
+            `6. Start engaging with your team!\n\n` +
+            `VoxWel - Where Every Voice Matters`;
+
+          if (navigator.share && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: `Join ${company.name} on VoxWel`,
+              text: shareText,
+              files: [file],
+            });
+          } else {
+            const shareUrl = `${window.location.origin}/join/${company.id}`;
+            const fullShareText = `${shareText}\n\nOr visit: ${shareUrl}`;
+            await navigator.clipboard.writeText(fullShareText);
+            alert("Share information copied to clipboard!");
+          }
         });
-      } else {
-        const shareUrl = `${window.location.origin}/join/${company.id}`;
-        const fullShareText = `${shareText}\n\nOr visit: ${shareUrl}`;
-        await navigator.clipboard.writeText(fullShareText);
-        alert("Share information copied to clipboard!");
-      }
+      };
+
+      qrImage.src = qrCodeUrl;
     } catch (error) {
       console.error("Error sharing:", error);
       alert("Unable to share. Please download and share manually.");
