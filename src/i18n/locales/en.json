@@ -36,7 +36,7 @@
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
       "orContinueWith": "or continue with",
-      "newToAnchora": "New to ANCHORA?",
+      "newToVoxwell": "New to Voxwell?",
       "contactHR": "Contact your HR",
       "noAccount": "Don't have an account?",
       "register": "Register here",
@@ -46,7 +46,7 @@
       "loginError": "Login failed. Please try again.",
       "cameraAccessError": "Unable to access camera. Please check permissions.",
       "qrScannerError": "Failed to start QR scanner. Please try manual login.",
-      "tagline": "Your Anchor in Every Storm",
+      "tagline": "Where Every Voice Matters",
       "mainHeading": "Empower Your Workplace Voice",
       "mainDescription": "A secure platform where every employee can share ideas, report concerns, and collaborate to build a better workplace together.",
       "featureCreativeTitle": "Creative Ideas",
@@ -55,7 +55,7 @@
       "featureSecureText": "Report workplace issues safely and anonymously",
       "featureDiscussionsTitle": "Open Discussions",
       "featureDiscussionsText": "Engage in meaningful team conversations",
-      "copyright": "© 2025 ANCHORA. All rights reserved."
+      "copyright": "© 2025 Voxwell. All rights reserved."
     },
     "register": {
       "title": "Create Account",
@@ -281,7 +281,7 @@
   "help": {
     "center": {
       "title": "Help Center",
-      "subtitle": "Learn how to use Company Voice effectively",
+      "subtitle": "Learn how to use Voxwell effectively",
       "searchPlaceholder": "Search for help topics...",
       "viewRolesPermissions": "View Roles & Permissions",
       "topics": "Topics"
@@ -308,7 +308,7 @@
     },
     "roles": {
       "title": "Understanding Roles & Permissions",
-      "description": "Company Voice has different user roles, each with specific responsibilities and permissions.",
+      "description": "Voxwell has different user roles, each with specific responsibilities and permissions.",
       "superAdmin": {
         "name": "Super Admin",
         "description": "Platform-level administrator with access to all companies"

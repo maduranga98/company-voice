@@ -144,12 +144,12 @@ const Login = () => {
           <div className="flex items-center space-x-5 mb-12">
             <img
               src="/logo.png"
-              alt="ANCHORA Logo"
+              alt="Voxwell Logo"
               className="w-36 h-36 object-contain bg-background-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl"
             />
             <div>
               <h1 className="text-3xl font-bold text-text-onDark mb-2">
-                ANCHORA
+                Voxwell
               </h1>
               <p className="text-primary-teal font-bold text-base">
                 {t("auth.login.tagline")}
@@ -256,12 +256,12 @@ const Login = () => {
             <div className="inline-flex items-center justify-center mb-4">
               <img
                 src="/logo.png"
-                alt="ANCHORA Logo"
+                alt="Voxwell Logo"
                 className="w-28 h-28 object-contain"
               />
             </div>
             <h2 className="text-2xl font-bold text-primary-navy mb-2">
-              ANCHORA
+              Voxwell
             </h2>
             <p className="text-primary-teal font-bold text-sm">
               {t("auth.login.tagline")}
@@ -513,7 +513,7 @@ const Login = () => {
 
                 {/* Footer */}
                 <p className="mt-8 text-center text-sm text-text-tertiary">
-                  {t("auth.login.newToAnchora")}{" "}
+                  {t("auth.login.newToVoxwell")}{" "}
                   <a
                     href="#"
                     className="font-semibold text-primary-teal hover:opacity-80 transition"

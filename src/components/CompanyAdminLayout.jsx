@@ -221,16 +221,16 @@ const CompanyAdminLayout = () => {
                 <div className="absolute inset-0 bg-primary-teal rounded-lg blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 <img
                   src="/logo.png"
-                  alt="ANCHORA Logo"
+                  alt="Voxwell Logo"
                   className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300 p-1"
                 />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-text-onDark group-hover:text-primary-teal transition-colors duration-300">
-                  ANCHORA
+                  Voxwell
                 </h1>
                 <p className="text-xs text-primary-teal font-medium">
-                  Your Anchor in Every Storm
+                  Where Every Voice Matters
                 </p>
               </div>
             </div>
