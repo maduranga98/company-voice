@@ -18,16 +18,16 @@ const {
   getUsageSummary,
 } = require('./api/companyAdminApi');
 
-// Super Admin API - COMMENTED OUT FOR NOW
-// const {
-//   getAllSubscriptions,
-//   getSuperAdminInvoices,
-//   getRevenueReport,
-//   getBillingDisputes,
-//   resolveBillingDispute,
-//   getAllBillingHistory,
-//   updatePricingTier,
-// } = require('./api/superAdminApi');
+// Super Admin API
+const {
+  getAllSubscriptions,
+  getSuperAdminInvoices,
+  getRevenueReport,
+  getBillingDisputes,
+  resolveBillingDispute,
+  getAllBillingHistory,
+  updatePricingTier,
+} = require('./api/superAdminApi');
 
 // Search API
 const {
@@ -85,14 +85,14 @@ exports.removeCompanyPaymentMethod = removeCompanyPaymentMethod;
 exports.getCompanyPaymentHistory = getCompanyPaymentHistory;
 exports.getUsageSummary = getUsageSummary;
 
-// Export Super Admin Functions - COMMENTED OUT FOR NOW
-// exports.getAllSubscriptions = getAllSubscriptions;
-// exports.getSuperAdminInvoices = getSuperAdminInvoices;
-// exports.getRevenueReport = getRevenueReport;
-// exports.getBillingDisputes = getBillingDisputes;
-// exports.resolveBillingDispute = resolveBillingDispute;
-// exports.getAllBillingHistory = getAllBillingHistory;
-// exports.updatePricingTier = updatePricingTier;
+// Export Super Admin Functions
+exports.getAllSubscriptions = getAllSubscriptions;
+exports.getSuperAdminInvoices = getSuperAdminInvoices;
+exports.getRevenueReport = getRevenueReport;
+exports.getBillingDisputes = getBillingDisputes;
+exports.resolveBillingDispute = resolveBillingDispute;
+exports.getAllBillingHistory = getAllBillingHistory;
+exports.updatePricingTier = updatePricingTier;
 
 // Export Webhooks - COMMENTED OUT FOR NOW
 // exports.handleStripeWebhook = handleStripeWebhook;
