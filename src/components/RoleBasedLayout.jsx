@@ -361,7 +361,7 @@ const RoleBasedLayout = ({ children }) => {
                 >
                   <img
                     src="/logo.png"
-                    alt="ANCHORA Logo"
+                    alt="VoxWel Logo"
                     className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
@@ -374,11 +374,11 @@ const RoleBasedLayout = ({ children }) => {
                     themeColors.text
                   } transition-colors duration-300`}
                 >
-                  ANCHORA
+                  VoxWel
                 </h1>
 
                 <p className="text-xs text-primary-teal font-medium">
-                  Your Anchor in Every Storm
+                  Where Every Voice Matters
                 </p>
               </div>
             </div>
