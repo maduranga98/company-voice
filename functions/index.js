@@ -50,6 +50,11 @@ const {
   getUnreadCount,
 } = require('./api/notificationApi');
 
+// Auth API
+const {
+  generateAuthToken,
+} = require('./api/authApi');
+
 // Webhooks - COMMENTED OUT FOR NOW
 // const { handleStripeWebhook } = require('./webhooks/stripeWebhook');
 
@@ -117,3 +122,6 @@ exports.markNotificationsAsRead = markNotificationsAsRead;
 exports.markNotificationsAsUnread = markNotificationsAsUnread;
 exports.deleteNotifications = deleteNotifications;
 exports.getUnreadCount = getUnreadCount;
+
+// Export Auth Functions
+exports.generateAuthToken = generateAuthToken;
