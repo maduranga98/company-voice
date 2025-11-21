@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { auth, db } from "../config/firebase";
+import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import {
   loginWithUsernamePassword,
   getUserById,
@@ -31,10 +32,28 @@ export const AuthProvider = ({ children }) => {
         if (storedUser) {
           try {
             const user = JSON.parse(storedUser);
+
+            // Ensure authSession exists for this Firebase Auth UID
+            // This handles cases where the anonymous auth UID changes
+            const authSessionRef = doc(db, "authSessions", firebaseUser.uid);
+            const authSessionDoc = await getDoc(authSessionRef);
+
+            if (!authSessionDoc.exists()) {
+              // Create authSession if it doesn't exist
+              console.log("Creating missing authSession for restored user");
+              await setDoc(authSessionRef, {
+                userId: user.id,
+                username: user.username,
+                companyId: user.companyId,
+                role: user.role,
+                createdAt: serverTimestamp(),
+              });
+            }
+
             setCurrentUser(user);
             setUserData(user);
           } catch (error) {
-            console.error("Error parsing stored user:", error);
+            console.error("Error restoring user session:", error);
             localStorage.removeItem("currentUser");
             await signOut(auth);
           }

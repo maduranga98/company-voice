@@ -209,10 +209,13 @@ async function getUserIdFromAuthSession(firebaseAuthUid) {
     const sessionDoc = await db.collection('authSessions').doc(firebaseAuthUid).get();
 
     if (!sessionDoc.exists) {
+      console.warn('Auth session not found for Firebase Auth UID:', firebaseAuthUid);
       return null;
     }
 
-    return sessionDoc.data().userId;
+    const userId = sessionDoc.data().userId;
+    console.log('Found auth session - Firebase UID:', firebaseAuthUid, '-> User ID:', userId);
+    return userId;
   } catch (error) {
     console.error('Error getting user ID from auth session:', error);
     return null;
@@ -230,20 +233,30 @@ async function isCompanyAdmin(firebaseAuthUid, companyId) {
   const userId = await getUserIdFromAuthSession(firebaseAuthUid);
 
   if (!userId) {
+    console.warn('isCompanyAdmin: No user ID found for Firebase Auth UID:', firebaseAuthUid);
     return false;
   }
 
   const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
 
   if (!userDoc.exists) {
+    console.warn('isCompanyAdmin: User document not found for user ID:', userId);
     return false;
   }
 
   const userData = userDoc.data();
-  return (
+  const isAuthorized = (
     userData.companyId === companyId &&
     (userData.role === 'COMPANY_ADMIN' || userData.role === 'SUPER_ADMIN')
   );
+
+  if (!isAuthorized) {
+    console.warn('isCompanyAdmin: Authorization failed - User:', userId,
+                 'UserCompany:', userData.companyId, 'RequestedCompany:', companyId,
+                 'Role:', userData.role);
+  }
+
+  return isAuthorized;
 }
 
 /**
