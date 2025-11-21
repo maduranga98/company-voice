@@ -264,6 +264,15 @@ async function addPaymentMethod({ companyId, stripePaymentMethodId, setAsDefault
 
     const companyData = companyDoc.data();
 
+    if (!companyData.stripeCustomerId) {
+      throw new Error('Company does not have a Stripe customer ID');
+    }
+
+    // Attach payment method to customer first
+    await stripe.paymentMethods.attach(stripePaymentMethodId, {
+      customer: companyData.stripeCustomerId,
+    });
+
     // Get payment method details from Stripe
     const paymentMethod = await stripe.paymentMethods.retrieve(stripePaymentMethodId);
 
