@@ -40,7 +40,6 @@ const AssignedToMe = () => {
   const loadAssignedPosts = async () => {
     // Check if user data is available
     if (!userData?.id || !userData?.companyId) {
-      console.log("User data not ready yet");
       setLoading(false);
       return;
     }
