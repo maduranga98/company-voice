@@ -70,6 +70,16 @@ function CompanyBillingContent() {
         return;
       }
 
+      // Force token refresh to ensure Firebase Functions can authenticate the request
+      try {
+        await auth.currentUser.getIdToken(true);
+        console.log('ID token refreshed successfully for Firebase UID:', auth.currentUser.uid);
+      } catch (tokenError) {
+        console.error('Error refreshing ID token:', tokenError);
+        setError('Authentication token refresh failed. Please refresh the page.');
+        return;
+      }
+
       console.log('Loading billing data for company:', companyId, 'Firebase UID:', auth.currentUser.uid);
 
       const [subData, invoicesData, methodsData, historyData, usageData] = await Promise.all([
@@ -99,6 +109,12 @@ function CompanyBillingContent() {
     try {
       setLoading(true);
       setError(null);
+
+      // Ensure ID token is fresh before making API call
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+
       await cancelSubscription(subscription.id, immediate);
       setSuccess(`Subscription ${immediate ? 'canceled immediately' : 'will be canceled at period end'}`);
       setShowCancelModal(false);
@@ -117,6 +133,12 @@ function CompanyBillingContent() {
     try {
       setLoading(true);
       setError(null);
+
+      // Ensure ID token is fresh before making API call
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+
       await reactivateSubscription(subscription.id);
       setSuccess('Subscription reactivated successfully');
       await loadBillingData();
@@ -294,6 +316,10 @@ function CompanyBillingContent() {
                   onAdd={() => setShowAddPaymentModal(true)}
                   onRemove={async (id) => {
                     try {
+                      // Ensure ID token is fresh before making API call
+                      if (auth.currentUser) {
+                        await auth.currentUser.getIdToken(true);
+                      }
                       await removePaymentMethod(id);
                       setSuccess('Payment method removed');
                       loadBillingData();
@@ -624,6 +650,12 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
 
     try {
       setLoading(true);
+
+      // Ensure ID token is fresh before making API call
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+
       const cardElement = elements.getElement(CardElement);
 
       // Create payment method
