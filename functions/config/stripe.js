@@ -16,7 +16,7 @@ const stripeWebhookSecret = defineSecret('STRIPE_WEBHOOK_SECRET');
 function initializeStripe() {
   const Stripe = require('stripe');
   return Stripe(stripeSecretKey.value(), {
-    apiVersion: '2024-11-20', // Use latest stable API version
+    apiVersion: '2024-10-28.acacia', // Use latest stable API version
   });
 }
 
