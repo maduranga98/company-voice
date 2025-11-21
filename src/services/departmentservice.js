@@ -278,7 +278,7 @@ export const assignUserToDepartment = async (userId, departmentId) => {
     // Update user's department
     await updateDoc(userRef, {
       departmentId,
-      previousDepartmentId: oldDepartmentId,
+      previousDepartmentId: oldDepartmentId || null,
       departmentChangedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -287,7 +287,7 @@ export const assignUserToDepartment = async (userId, departmentId) => {
     await addDoc(collection(db, "departmentAssignmentLogs"), {
       userId,
       userName: userSnap.data().displayName,
-      oldDepartmentId,
+      oldDepartmentId: oldDepartmentId || null,
       newDepartmentId: departmentId,
       changedAt: serverTimestamp(),
     });
