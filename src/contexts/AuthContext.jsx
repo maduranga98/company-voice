@@ -25,12 +25,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Listen to Firebase Auth state changes (for anonymous auth)
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // User is authenticated with Firebase (anonymous auth)
-        // Check if we have custom user data in localStorage
-        const storedUser = localStorage.getItem("currentUser");
-        if (storedUser) {
-          try {
+      try {
+        if (firebaseUser) {
+          // User is authenticated with Firebase (anonymous auth)
+          // Check if we have custom user data in localStorage
+          const storedUser = localStorage.getItem("currentUser");
+          if (storedUser) {
             const user = JSON.parse(storedUser);
 
             // Ensure authSession exists for this Firebase Auth UID
@@ -48,23 +48,45 @@ export const AuthProvider = ({ children }) => {
                 role: user.role,
                 createdAt: serverTimestamp(),
               });
+              console.log("AuthSession created successfully for Firebase UID:", firebaseUser.uid);
+            } else {
+              // Verify authSession data matches localStorage user
+              const sessionData = authSessionDoc.data();
+              console.log("AuthSession exists for Firebase UID:", firebaseUser.uid, "User ID:", sessionData.userId);
+
+              if (sessionData.userId !== user.id || sessionData.companyId !== user.companyId) {
+                console.warn("AuthSession data mismatch detected - updating authSession");
+                console.log("Session:", sessionData, "LocalStorage:", { userId: user.id, companyId: user.companyId });
+                // Update authSession to match current user
+                await setDoc(authSessionRef, {
+                  userId: user.id,
+                  username: user.username,
+                  companyId: user.companyId,
+                  role: user.role,
+                  createdAt: serverTimestamp(),
+                }, { merge: true });
+              }
             }
 
+            // Only set user state AFTER authSession is verified/created
             setCurrentUser(user);
             setUserData(user);
-          } catch (error) {
-            console.error("Error restoring user session:", error);
-            localStorage.removeItem("currentUser");
-            await signOut(auth);
           }
+        } else {
+          // User is signed out
+          setCurrentUser(null);
+          setUserData(null);
+          localStorage.removeItem("currentUser");
         }
-      } else {
-        // User is signed out
+      } catch (error) {
+        console.error("Error restoring user session:", error);
+        localStorage.removeItem("currentUser");
+        await signOut(auth);
         setCurrentUser(null);
         setUserData(null);
-        localStorage.removeItem("currentUser");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
