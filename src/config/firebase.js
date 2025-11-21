@@ -38,7 +38,6 @@ if (import.meta.env.VITE_FIREBASE_APP_CHECK_KEY) {
       // Optional: Set to true for development/testing to use debug tokens
       isTokenAutoRefreshEnabled: true,
     });
-    console.log('Firebase App Check initialized successfully');
   } catch (error) {
     console.error('Error initializing Firebase App Check:', error);
   }
@@ -74,7 +73,6 @@ isAnalyticsSupported().then((supported) => {
   if (supported && import.meta.env.VITE_FIREBASE_MEASUREMENT_ID) {
     try {
       analytics = getAnalytics(app);
-      console.log('Firebase Analytics initialized successfully');
     } catch (error) {
       console.error('Error initializing Firebase Analytics:', error);
     }
@@ -93,7 +91,6 @@ let performance = null;
 try {
   // Performance monitoring is automatically enabled when you initialize it
   performance = getPerformance(app);
-  console.log('Firebase Performance Monitoring initialized successfully');
 } catch (error) {
   console.error('Error initializing Firebase Performance Monitoring:', error);
 }

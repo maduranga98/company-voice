@@ -54,12 +54,6 @@ function CompanyBillingContent() {
 
   useEffect(() => {
     if (companyId) {
-      console.log('CompanyBilling: Loading billing data', {
-        currentUser,
-        companyId,
-        userId: currentUser?.id,
-        role: currentUser?.role
-      });
       loadBillingData();
     }
   }, [companyId]);
@@ -79,14 +73,11 @@ function CompanyBillingContent() {
       // Force token refresh to ensure Firebase Functions can authenticate the request
       try {
         await auth.currentUser.getIdToken(true);
-        console.log('ID token refreshed successfully for Firebase UID:', auth.currentUser.uid);
       } catch (tokenError) {
         console.error('Error refreshing ID token:', tokenError);
         setError('Authentication token refresh failed. Please refresh the page.');
         return;
       }
-
-      console.log('Loading billing data for company:', companyId, 'Firebase UID:', auth.currentUser.uid);
 
       const [subData, invoicesData, methodsData, historyData, usageData] = await Promise.all([
         getSubscription(companyId),

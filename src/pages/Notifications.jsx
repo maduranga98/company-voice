@@ -14,7 +14,6 @@ import {
 
 const Notifications = () => {
   const { currentUser } = useAuth();
-  // console.log(currentUser);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // all, unread, read
@@ -24,7 +23,6 @@ const Notifications = () => {
 
     setLoading(true);
     const notificationsRef = collection(db, "notifications");
-    console.log(currentUser.id);
     const q = query(
       notificationsRef,
       where("userId", "==", currentUser.id),
