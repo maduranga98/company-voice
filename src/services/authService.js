@@ -11,7 +11,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
-import { signInAnonymously } from "firebase/auth";
+import { signInAnonymously, signOut } from "firebase/auth";
 import CryptoJS from "crypto-js";
 
 // Hash password
@@ -44,16 +44,25 @@ export const loginWithUsernamePassword = async (username, password) => {
 
     // Sign in anonymously to Firebase Auth for API authentication
     const firebaseAuthResult = await signInAnonymously(auth);
+    console.log("Firebase Auth UID:", firebaseAuthResult.user.uid);
 
     // Link the Firebase Auth UID to the custom user in Firestore
     // This allows Cloud Functions to verify auth and lookup the actual user
-    await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), {
-      userId: userDoc.id,
-      username: userData.username,
-      companyId: userData.companyId,
-      role: userData.role,
-      createdAt: serverTimestamp(),
-    });
+    try {
+      await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), {
+        userId: userDoc.id,
+        username: userData.username,
+        companyId: userData.companyId,
+        role: userData.role,
+        createdAt: serverTimestamp(),
+      });
+      console.log("Auth session created successfully for user:", userData.username);
+    } catch (authSessionError) {
+      console.error("Failed to create auth session:", authSessionError);
+      // Sign out of Firebase Auth to prevent auth state mismatch
+      await signOut(auth);
+      throw new Error("Failed to create authentication session. Please try again.");
+    }
 
     // Update last login
     await updateDoc(doc(db, "users", userDoc.id), {
