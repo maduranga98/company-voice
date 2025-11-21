@@ -179,7 +179,12 @@ async function validateUserRole(userId, allowedRoles) {
   }
 
   const userData = userDoc.data();
-  return allowedRoles.includes(userData.role);
+
+  // Normalize role to uppercase for comparison (handle both uppercase and lowercase in DB)
+  const normalizedRole = userData.role ? userData.role.toUpperCase() : '';
+  const normalizedAllowedRoles = allowedRoles.map(role => role.toUpperCase());
+
+  return normalizedAllowedRoles.includes(normalizedRole);
 }
 
 /**
@@ -245,15 +250,19 @@ async function isCompanyAdmin(firebaseAuthUid, companyId) {
   }
 
   const userData = userDoc.data();
+
+  // Normalize role to uppercase for comparison (handle both uppercase and lowercase in DB)
+  const normalizedRole = userData.role ? userData.role.toUpperCase() : '';
+
   const isAuthorized = (
     userData.companyId === companyId &&
-    (userData.role === 'COMPANY_ADMIN' || userData.role === 'SUPER_ADMIN')
+    (normalizedRole === 'COMPANY_ADMIN' || normalizedRole === 'SUPER_ADMIN')
   );
 
   if (!isAuthorized) {
     console.warn('isCompanyAdmin: Authorization failed - User:', userId,
                  'UserCompany:', userData.companyId, 'RequestedCompany:', companyId,
-                 'Role:', userData.role);
+                 'Role:', userData.role, 'NormalizedRole:', normalizedRole);
   }
 
   return isAuthorized;
