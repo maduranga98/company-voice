@@ -9,7 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
-// import BillingDashboard from "./pages/admin/BillingDashboard"; // COMMENTED OUT FOR NOW
+import BillingDashboard from "./pages/admin/BillingDashboard";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyAnalytics from "./pages/company/CompanyAnalytics";
 import CompanyBilling from "./pages/company/CompanyBilling";
@@ -66,7 +66,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            {/* COMMENTED OUT FOR NOW - BILLING
             <Route
               path="/admin/billing"
               element={
@@ -75,7 +74,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            */}
 
             {/* Unified Feed Routes (shared by all users - employees and admins) */}
             <Route
