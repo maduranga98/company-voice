@@ -4,7 +4,7 @@
  */
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { isCompanyAdmin } = require('../utils/helpers');
+const { isCompanyAdmin, getUserIdFromAuthSession } = require('../utils/helpers');
 const { createSubscription, cancelSubscription, reactivateSubscription } = require('../services/subscriptionService');
 const { getCompanyInvoices, getInvoiceById } = require('../services/invoiceService');
 const { addPaymentMethod, getPaymentMethods, removePaymentMethod, getPaymentHistory } = require('../services/paymentService');
@@ -33,11 +33,14 @@ const createCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async
     throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
   }
 
+  // Get actual user ID from auth session
+  const userId = await getUserIdFromAuthSession(auth.uid);
+
   try {
     const result = await createSubscription({
       companyId,
       paymentMethodId,
-      createdBy: auth.uid,
+      createdBy: userId,
       startTrial,
     });
 
@@ -79,10 +82,13 @@ const cancelCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async
       throw new HttpsError('permission-denied', 'User is not authorized to manage this subscription');
     }
 
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(auth.uid);
+
     await cancelSubscription({
       subscriptionId,
       immediate,
-      canceledBy: auth.uid,
+      canceledBy: userId,
     });
 
     return { success: true };
@@ -123,9 +129,12 @@ const reactivateCompanySubscription = onCall({ cors: true, memory: '128MiB' }, a
       throw new HttpsError('permission-denied', 'User is not authorized to manage this subscription');
     }
 
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(auth.uid);
+
     await reactivateSubscription({
       subscriptionId,
-      reactivatedBy: auth.uid,
+      reactivatedBy: userId,
     });
 
     return { success: true };
@@ -271,12 +280,15 @@ const addCompanyPaymentMethod = onCall({ cors: true, memory: '128MiB' }, async (
     throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
   }
 
+  // Get actual user ID from auth session
+  const userId = await getUserIdFromAuthSession(auth.uid);
+
   try {
     const paymentMethodId = await addPaymentMethod({
       companyId,
       stripePaymentMethodId,
       setAsDefault,
-      addedBy: auth.uid,
+      addedBy: userId,
     });
 
     return { success: true, data: { paymentMethodId } };
@@ -348,9 +360,12 @@ const removeCompanyPaymentMethod = onCall({ cors: true, memory: '128MiB' }, asyn
       throw new HttpsError('permission-denied', 'User is not authorized to manage this payment method');
     }
 
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(auth.uid);
+
     await removePaymentMethod({
       paymentMethodId,
-      removedBy: auth.uid,
+      removedBy: userId,
     });
 
     return { success: true };

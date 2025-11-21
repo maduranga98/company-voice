@@ -5,6 +5,7 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { getUserIdFromAuthSession } = require('../utils/helpers');
 
 // Initialize admin if not already done
 if (!admin.apps.length) {
@@ -34,7 +35,13 @@ exports.advancedSearch = functions.https.onCall(async (data, context) => {
       sortOrder = 'desc',
     } = data;
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
+
     const userDoc = await db.collection('users').doc(userId).get();
 
     if (!userDoc.exists) {
@@ -204,7 +211,13 @@ exports.saveSearch = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
+
     const userDoc = await db.collection('users').doc(userId).get();
 
     if (!userDoc.exists) {
@@ -256,7 +269,13 @@ exports.getSavedSearches = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
+
     const userDoc = await db.collection('users').doc(userId).get();
 
     if (!userDoc.exists) {
@@ -307,7 +326,13 @@ exports.deleteSavedSearch = functions.https.onCall(async (data, context) => {
     }
 
     const { searchId } = data;
-    const userId = context.auth.uid;
+
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
 
     const searchDoc = await db.collection('savedSearches').doc(searchId).get();
 
@@ -368,7 +393,13 @@ exports.getSearchAnalytics = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
+
     const userDoc = await db.collection('users').doc(userId).get();
 
     if (!userDoc.exists) {

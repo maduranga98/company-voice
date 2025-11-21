@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../config/firebase";
 import {
   loginWithUsernamePassword,
   getUserById,
@@ -20,19 +22,33 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session in localStorage
-    const storedUser = localStorage.getItem("currentUser");
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setCurrentUser(user);
-        setUserData(user);
-      } catch (error) {
-        console.error("Error parsing stored user:", error);
+    // Listen to Firebase Auth state changes (for anonymous auth)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // User is authenticated with Firebase (anonymous auth)
+        // Check if we have custom user data in localStorage
+        const storedUser = localStorage.getItem("currentUser");
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            setCurrentUser(user);
+            setUserData(user);
+          } catch (error) {
+            console.error("Error parsing stored user:", error);
+            localStorage.removeItem("currentUser");
+            await signOut(auth);
+          }
+        }
+      } else {
+        // User is signed out
+        setCurrentUser(null);
+        setUserData(null);
         localStorage.removeItem("currentUser");
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async (username, password) => {
@@ -51,6 +67,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    // Sign out from Firebase Auth (anonymous session)
+    await signOut(auth);
+
     setCurrentUser(null);
     setUserData(null);
     localStorage.removeItem("currentUser");
