@@ -19,28 +19,82 @@ const hashPassword = (password) => {
   return CryptoJS.SHA256(password).toString();
 };
 
+// Fallback login method (direct Firestore query)
+const loginWithFirestore = async (username, password) => {
+  const hashedPassword = hashPassword(password);
+
+  // Query users collection
+  const usersRef = collection(db, "users");
+  const q = query(
+    usersRef,
+    where("username", "==", username.toLowerCase()),
+    where("password", "==", hashedPassword),
+    where("status", "==", "active")
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    throw new Error("Invalid username or password");
+  }
+
+  const userDoc = querySnapshot.docs[0];
+  const userData = { id: userDoc.id, ...userDoc.data() };
+
+  // Update last login
+  await updateDoc(doc(db, "users", userDoc.id), {
+    lastLogin: serverTimestamp(),
+  });
+
+  // Remove password from returned data
+  delete userData.password;
+
+  return userData;
+};
+
 // Login with username and password
 export const loginWithUsernamePassword = async (username, password) => {
   try {
-    // Call the Cloud Function to generate auth token
-    const generateAuthToken = httpsCallable(functions, 'generateAuthToken');
-    const result = await generateAuthToken({ username, password });
+    // Try new Firebase Auth method first
+    try {
+      const generateAuthToken = httpsCallable(functions, 'generateAuthToken');
+      const result = await generateAuthToken({ username, password });
 
-    if (!result.data.success) {
-      throw new Error("Authentication failed");
+      if (!result.data.success) {
+        throw new Error("Authentication failed");
+      }
+
+      const { user, customToken } = result.data.data;
+
+      // Sign in to Firebase Auth with the custom token
+      await signInWithCustomToken(auth, customToken);
+
+      console.log("Logged in with Firebase Auth integration");
+      return user;
+    } catch (cloudFunctionError) {
+      // If Cloud Function doesn't exist or fails, fall back to direct auth
+      console.warn("Cloud Function auth failed, using fallback method:", cloudFunctionError.code);
+
+      // Only use fallback if the function doesn't exist or there's a network error
+      if (
+        cloudFunctionError.code === 'functions/not-found' ||
+        cloudFunctionError.code === 'functions/unavailable' ||
+        cloudFunctionError.message?.includes('not found')
+      ) {
+        console.log("Using direct Firestore authentication (fallback)");
+        return await loginWithFirestore(username, password);
+      }
+
+      // If it's an authentication error, throw it
+      if (cloudFunctionError.code === 'functions/unauthenticated') {
+        throw new Error("Invalid username or password");
+      }
+
+      // For other errors, throw them
+      throw cloudFunctionError;
     }
-
-    const { user, customToken } = result.data.data;
-
-    // Sign in to Firebase Auth with the custom token
-    await signInWithCustomToken(auth, customToken);
-
-    return user;
   } catch (error) {
     console.error("Login error:", error);
-    if (error.code === 'functions/unauthenticated') {
-      throw new Error("Invalid username or password");
-    }
     throw error;
   }
 };
