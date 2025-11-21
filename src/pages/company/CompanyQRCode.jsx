@@ -105,7 +105,7 @@ const CompanyQRCode = () => {
       // PAGE 1 - QR Code and Company Info
       let yPosition = 60;
 
-      // Draw Anchora Logo
+      // Draw VoxWel Logo
       const logoSize = 80;
       const logoX = (canvas.width - logoSize) / 2;
       const logoY = yPosition;
