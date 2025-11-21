@@ -8,8 +8,10 @@ import {
   addDoc,
   updateDoc,
   serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
+import { signInAnonymously } from "firebase/auth";
 import CryptoJS from "crypto-js";
 
 // Hash password
@@ -17,12 +19,12 @@ const hashPassword = (password) => {
   return CryptoJS.SHA256(password).toString();
 };
 
-// Login with username and password (direct Firestore authentication)
+// Login with username and password (custom authentication + Firebase Anonymous Auth)
 export const loginWithUsernamePassword = async (username, password) => {
   try {
     const hashedPassword = hashPassword(password);
 
-    // Query users collection
+    // Query users collection for custom authentication
     const usersRef = collection(db, "users");
     const q = query(
       usersRef,
@@ -39,6 +41,19 @@ export const loginWithUsernamePassword = async (username, password) => {
 
     const userDoc = querySnapshot.docs[0];
     const userData = { id: userDoc.id, ...userDoc.data() };
+
+    // Sign in anonymously to Firebase Auth for API authentication
+    const firebaseAuthResult = await signInAnonymously(auth);
+
+    // Link the Firebase Auth UID to the custom user in Firestore
+    // This allows Cloud Functions to verify auth and lookup the actual user
+    await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), {
+      userId: userDoc.id,
+      username: userData.username,
+      companyId: userData.companyId,
+      role: userData.role,
+      createdAt: serverTimestamp(),
+    });
 
     // Update last login
     await updateDoc(doc(db, "users", userDoc.id), {

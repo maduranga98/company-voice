@@ -5,6 +5,7 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const { getUserIdFromAuthSession } = require('../utils/helpers');
 
 // Initialize admin if not already done
 if (!admin.apps.length) {
@@ -22,7 +23,12 @@ exports.getNotificationPreferences = functions.https.onCall(async (data, context
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
     const prefsDoc = await db.collection('notificationPreferences').doc(userId).get();
 
     if (prefsDoc.exists) {
@@ -86,7 +92,12 @@ exports.updateNotificationPreferences = functions.https.onCall(async (data, cont
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
     const { preferences } = data;
 
     if (!preferences) {
@@ -118,7 +129,12 @@ exports.getNotifications = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
     const {
       limit = 20,
       startAfter = null,
@@ -187,7 +203,12 @@ exports.markNotificationsAsRead = functions.https.onCall(async (data, context) =
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
     const { notificationIds, markAll = false } = data;
 
     if (markAll) {
@@ -253,7 +274,12 @@ exports.markNotificationsAsUnread = functions.https.onCall(async (data, context)
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
     const { notificationIds } = data;
 
     if (!notificationIds || !Array.isArray(notificationIds)) {
@@ -295,7 +321,12 @@ exports.deleteNotifications = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
     const { notificationIds, deleteAll = false } = data;
 
     if (deleteAll) {
@@ -354,7 +385,12 @@ exports.getUnreadCount = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const userId = context.auth.uid;
+    // Get actual user ID from auth session
+    const userId = await getUserIdFromAuthSession(context.auth.uid);
+
+    if (!userId) {
+      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
+    }
 
     const snapshot = await db.collection('notifications')
       .where('userId', '==', userId)

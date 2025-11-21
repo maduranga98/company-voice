@@ -184,20 +184,55 @@ async function validateUserRole(userId, allowedRoles) {
 
 /**
  * Check if user is super admin
- * @param {string} userId - User ID
+ * @param {string} firebaseAuthUid - Firebase Auth UID (can be anonymous auth UID)
  * @returns {Promise<boolean>} True if user is super admin
  */
-async function isSuperAdmin(userId) {
+async function isSuperAdmin(firebaseAuthUid) {
+  // Get actual user ID from auth session
+  const userId = await getUserIdFromAuthSession(firebaseAuthUid);
+
+  if (!userId) {
+    return false;
+  }
+
   return validateUserRole(userId, ['SUPER_ADMIN']);
 }
 
 /**
+ * Get actual user ID from Firebase Auth UID
+ * Maps anonymous Firebase Auth UID to custom user ID via authSessions collection
+ * @param {string} firebaseAuthUid - Firebase Auth UID (anonymous)
+ * @returns {Promise<string|null>} Custom user ID or null if not found
+ */
+async function getUserIdFromAuthSession(firebaseAuthUid) {
+  try {
+    const sessionDoc = await db.collection('authSessions').doc(firebaseAuthUid).get();
+
+    if (!sessionDoc.exists) {
+      return null;
+    }
+
+    return sessionDoc.data().userId;
+  } catch (error) {
+    console.error('Error getting user ID from auth session:', error);
+    return null;
+  }
+}
+
+/**
  * Check if user is company admin
- * @param {string} userId - User ID
+ * @param {string} firebaseAuthUid - Firebase Auth UID (can be anonymous auth UID)
  * @param {string} companyId - Company ID
  * @returns {Promise<boolean>} True if user is company admin for this company
  */
-async function isCompanyAdmin(userId, companyId) {
+async function isCompanyAdmin(firebaseAuthUid, companyId) {
+  // Get actual user ID from auth session
+  const userId = await getUserIdFromAuthSession(firebaseAuthUid);
+
+  if (!userId) {
+    return false;
+  }
+
   const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
 
   if (!userDoc.exists) {
@@ -271,4 +306,5 @@ module.exports = {
   isCompanyAdmin,
   getCompany,
   retryWithBackoff,
+  getUserIdFromAuthSession,
 };
