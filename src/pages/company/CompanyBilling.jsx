@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../../config/firebase';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -61,6 +62,15 @@ function CompanyBillingContent() {
     try {
       setLoading(true);
       setError(null);
+
+      // Ensure Firebase Auth is ready before making API calls
+      if (!auth.currentUser) {
+        console.error('Cannot load billing data: Firebase Auth user not available');
+        setError('Authentication not ready. Please refresh the page.');
+        return;
+      }
+
+      console.log('Loading billing data for company:', companyId, 'Firebase UID:', auth.currentUser.uid);
 
       const [subData, invoicesData, methodsData, historyData, usageData] = await Promise.all([
         getSubscription(companyId),
