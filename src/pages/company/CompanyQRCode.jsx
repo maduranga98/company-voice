@@ -105,7 +105,7 @@ const CompanyQRCode = () => {
       // PAGE 1 - QR Code and Company Info
       let yPosition = 60;
 
-      // Draw Anchora Logo
+      // Draw VoxWel Logo
       const logoSize = 80;
       const logoX = (canvas.width - logoSize) / 2;
       const logoY = yPosition;
@@ -121,17 +121,17 @@ const CompanyQRCode = () => {
 
       yPosition += 50;
 
-      // Subtitle - Anchora
+      // Subtitle - VoxWel
       ctx.fillStyle = '#6b7280';
       ctx.font = '600 24px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('Anchora', 400, yPosition);
+      ctx.fillText('VoxWel', 400, yPosition);
 
       yPosition += 40;
 
-      // Employee Voice Platform
+      // Tagline
       ctx.fillStyle = '#9ca3af';
       ctx.font = '20px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('Employee Voice Platform', 400, yPosition);
+      ctx.fillText('Where Every Voice Matters', 400, yPosition);
 
       yPosition += 60;
 
@@ -247,7 +247,7 @@ const CompanyQRCode = () => {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#9ca3af';
       ctx.font = '16px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText(`© 2025 ${company.name} • Anchora Employee Voice Platform`, 400, yPosition);
+      ctx.fillText(`© 2025 ${company.name} • VoxWel`, 400, yPosition);
 
       ctx.font = '14px Courier New, monospace';
       ctx.fillText(`Company ID: ${company.id}`, 400, yPosition + 30);
@@ -256,7 +256,7 @@ const CompanyQRCode = () => {
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.download = `${company.name.replace(/\s+/g, '_')}_Anchora_QR_Code.png`;
+        link.download = `${company.name.replace(/\s+/g, '_')}_VoxWel_QR_Code.png`;
         link.href = url;
         link.click();
         URL.revokeObjectURL(url);
@@ -547,10 +547,10 @@ const CompanyQRCode = () => {
           <div class="page">
             <div class="print-container">
               <div class="header">
-                <img src="${logoUrl}" alt="Anchora Logo" class="logo" />
+                <img src="${logoUrl}" alt="VoxWel Logo" class="logo" />
 
                 <h1 class="company-name">${company.name}</h1>
-                <p class="platform-name">Employee Voice Platform</p>
+                <p class="platform-name">VoxWel - Where Every Voice Matters</p>
                 <p class="subtitle">Scan to Join Our Team</p>
                 <div class="divider"></div>
               </div>
@@ -566,7 +566,7 @@ const CompanyQRCode = () => {
                   <strong>Company ID:</strong>
                   <span>${company.id}</span>
                 </div>
-                <p class="copyright">© 2025 ${company.name} • Employee Voice Platform</p>
+                <p class="copyright">© 2025 ${company.name} • VoxWel</p>
               </div>
             </div>
           </div>
@@ -575,7 +575,7 @@ const CompanyQRCode = () => {
           <div class="page">
             <div class="print-container">
               <div class="header">
-                <img src="${logoUrl}" alt="Anchora Logo" class="logo" />
+                <img src="${logoUrl}" alt="VoxWel Logo" class="logo" />
                 <h1 class="company-name">How to Join</h1>
                 <div class="divider"></div>
               </div>
@@ -612,7 +612,7 @@ const CompanyQRCode = () => {
               </div>
 
               <div class="footer">
-                <p class="copyright">© 2025 ${company.name} • Employee Voice Platform</p>
+                <p class="copyright">© 2025 ${company.name} • VoxWel</p>
               </div>
             </div>
           </div>
@@ -632,11 +632,11 @@ const CompanyQRCode = () => {
     try {
       const response = await fetch(qrCodeUrl);
       const blob = await response.blob();
-      const file = new File([blob], `${company.name}_Anchora_QR.png`, {
+      const file = new File([blob], `${company.name}_VoxWel_QR.png`, {
         type: "image/png",
       });
 
-      const shareText = `Join ${company.name} on Anchora!\n\n` +
+      const shareText = `Join ${company.name} on VoxWel!\n\n` +
         `📱 Scan the QR code to register:\n` +
         `1. Open your phone camera\n` +
         `2. Point at the QR code\n` +
@@ -644,11 +644,11 @@ const CompanyQRCode = () => {
         `4. Complete registration\n` +
         `5. Wait for HR approval\n` +
         `6. Start engaging with your team!\n\n` +
-        `Anchora - Employee Voice Platform`;
+        `VoxWel - Where Every Voice Matters`;
 
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: `Join ${company.name} on Anchora`,
+          title: `Join ${company.name} on VoxWel`,
           text: shareText,
           files: [file],
         });
