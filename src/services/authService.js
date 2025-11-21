@@ -49,16 +49,32 @@ export const loginWithUsernamePassword = async (username, password) => {
     // Link the Firebase Auth UID to the custom user in Firestore
     // This allows Cloud Functions to verify auth and lookup the actual user
     try {
-      await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), {
+      // For super admins, companyId might be null or undefined
+      // Ensure we use null instead of undefined for Firestore compatibility
+      const authSessionData = {
         userId: userDoc.id,
         username: userData.username,
-        companyId: userData.companyId,
+        companyId: userData.companyId || null,
         role: userData.role,
         createdAt: serverTimestamp(),
+      };
+
+      console.log("Creating auth session for user:", userData.username, "with data:", {
+        userId: authSessionData.userId,
+        username: authSessionData.username,
+        companyId: authSessionData.companyId,
+        role: authSessionData.role,
       });
+
+      await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), authSessionData);
       console.log("Auth session created successfully for user:", userData.username);
     } catch (authSessionError) {
       console.error("Failed to create auth session:", authSessionError);
+      console.error("Auth session error details:", {
+        code: authSessionError.code,
+        message: authSessionError.message,
+        stack: authSessionError.stack,
+      });
       // Sign out of Firebase Auth to prevent auth state mismatch
       await signOut(auth);
       throw new Error("Failed to create authentication session. Please try again.");
