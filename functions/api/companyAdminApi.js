@@ -10,11 +10,16 @@ const { getCompanyInvoices, getInvoiceById } = require('../services/invoiceServi
 const { addPaymentMethod, getPaymentMethods, removePaymentMethod, getPaymentHistory } = require('../services/paymentService');
 const { getCurrentPeriodUsageSummary } = require('../services/usageTrackingService');
 const { db, COLLECTIONS } = require('../config/firebase');
+const { stripeSecretKey, stripeWebhookSecret } = require('../config/stripe');
 
 /**
  * Create subscription for company
  */
-const createCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const createCompanySubscription = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -54,7 +59,11 @@ const createCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async
 /**
  * Cancel company subscription
  */
-const cancelCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const cancelCompanySubscription = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -101,7 +110,11 @@ const cancelCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async
 /**
  * Reactivate canceled subscription
  */
-const reactivateCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const reactivateCompanySubscription = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -194,7 +207,11 @@ const getCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async (r
 /**
  * Get company invoices
  */
-const getInvoices = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const getInvoices = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -225,7 +242,11 @@ const getInvoices = onCall({ cors: true, memory: '128MiB' }, async (request) => 
 /**
  * Get specific invoice details
  */
-const getInvoice = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const getInvoice = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -261,7 +282,11 @@ const getInvoice = onCall({ cors: true, memory: '128MiB' }, async (request) => {
 /**
  * Add payment method
  */
-const addCompanyPaymentMethod = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const addCompanyPaymentMethod = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -301,7 +326,11 @@ const addCompanyPaymentMethod = onCall({ cors: true, memory: '128MiB' }, async (
 /**
  * Get payment methods
  */
-const getCompanyPaymentMethods = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const getCompanyPaymentMethods = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -332,7 +361,11 @@ const getCompanyPaymentMethods = onCall({ cors: true, memory: '128MiB' }, async 
 /**
  * Remove payment method
  */
-const removeCompanyPaymentMethod = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const removeCompanyPaymentMethod = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
@@ -378,7 +411,11 @@ const removeCompanyPaymentMethod = onCall({ cors: true, memory: '128MiB' }, asyn
 /**
  * Get payment history
  */
-const getCompanyPaymentHistory = onCall({ cors: true, memory: '128MiB' }, async (request) => {
+const getCompanyPaymentHistory = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
   const { auth, data } = request;
 
   if (!auth) {
