@@ -3,6 +3,7 @@
  * Handles invoice generation and management
  */
 
+const admin = require('firebase-admin');
 const { initializeStripe, INVOICE_STATUS, PRICING } = require('../config/stripe');
 const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
 const {
@@ -25,7 +26,6 @@ const { calculatePeriodProration } = require('./usageTrackingService');
  */
 async function createInvoice({ subscriptionId, periodStart, periodEnd }) {
   const stripe = initializeStripe();
-  const admin = require('firebase-admin');
 
   try {
     // Get subscription
@@ -173,8 +173,6 @@ async function createInvoice({ subscriptionId, periodStart, periodEnd }) {
  * @returns {Promise<void>}
  */
 async function markInvoiceAsPaid(invoiceId, stripePaymentIntentId) {
-  const admin = require('firebase-admin');
-
   try {
     const invoiceDoc = await db.collection(COLLECTIONS.INVOICES).doc(invoiceId).get();
     if (!invoiceDoc.exists) {
@@ -231,12 +229,14 @@ async function getCompanyInvoices(companyId, { status = null, limit = 50 } = {})
   try {
     let query = db
       .collection(COLLECTIONS.INVOICES)
-      .where('companyId', '==', companyId)
-      .orderBy('periodStart', 'desc');
+      .where('companyId', '==', companyId);
 
+    // Only add status filter if provided to avoid needing composite index
     if (status) {
       query = query.where('status', '==', status);
     }
+
+    query = query.orderBy('periodStart', 'desc');
 
     if (limit) {
       query = query.limit(limit);
@@ -313,7 +313,6 @@ async function getInvoiceByStripeId(stripeInvoiceId) {
  */
 async function voidInvoice(invoiceId, reason) {
   const stripe = initializeStripe();
-  const admin = require('firebase-admin');
 
   try {
     const invoiceDoc = await db.collection(COLLECTIONS.INVOICES).doc(invoiceId).get();
@@ -361,31 +360,25 @@ async function voidInvoice(invoiceId, reason) {
  * @returns {Promise<Array>} Array of invoices
  */
 async function getAllInvoices({ status = null, startDate = null, endDate = null, limit = 100 } = {}) {
-  const admin = require('firebase-admin');
-
   try {
-    let query = db.collection(COLLECTIONS.INVOICES).orderBy('createdAt', 'desc');
+    // Build query - only use status filter in query to avoid needing composite indexes
+    let query = db.collection(COLLECTIONS.INVOICES);
 
     if (status) {
       query = query.where('status', '==', status);
     }
 
-    if (startDate) {
-      query = query.where('createdAt', '>=', admin.firestore.Timestamp.fromDate(startDate));
-    }
+    query = query.orderBy('createdAt', 'desc');
 
-    if (endDate) {
-      query = query.where('createdAt', '<=', admin.firestore.Timestamp.fromDate(endDate));
-    }
-
+    // Apply limit to query
     if (limit) {
-      query = query.limit(limit);
+      query = query.limit(limit * 2); // Get more to account for filtering
     }
 
     const snapshot = await query.get();
 
-    // Get company names
-    const invoices = await Promise.all(
+    // Get company names and apply date filters in memory
+    let invoices = await Promise.all(
       snapshot.docs.map(async doc => {
         const data = doc.data();
         const companyDoc = await db.collection(COLLECTIONS.COMPANIES).doc(data.companyId).get();
@@ -398,6 +391,22 @@ async function getAllInvoices({ status = null, startDate = null, endDate = null,
         };
       })
     );
+
+    // Apply date filters in memory
+    if (startDate) {
+      const startTimestamp = admin.firestore.Timestamp.fromDate(startDate);
+      invoices = invoices.filter(invoice => invoice.createdAt >= startTimestamp);
+    }
+
+    if (endDate) {
+      const endTimestamp = admin.firestore.Timestamp.fromDate(endDate);
+      invoices = invoices.filter(invoice => invoice.createdAt <= endTimestamp);
+    }
+
+    // Apply limit after filtering
+    if (limit && invoices.length > limit) {
+      invoices = invoices.slice(0, limit);
+    }
 
     return invoices;
   } catch (error) {

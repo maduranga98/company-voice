@@ -3,20 +3,20 @@
  * Stripe Billing System, Search, and Notifications
  */
 
-// Company Admin API - COMMENTED OUT FOR NOW
-// const {
-//   createCompanySubscription,
-//   cancelCompanySubscription,
-//   reactivateCompanySubscription,
-//   getCompanySubscription,
-//   getInvoices,
-//   getInvoice,
-//   addCompanyPaymentMethod,
-//   getCompanyPaymentMethods,
-//   removeCompanyPaymentMethod,
-//   getCompanyPaymentHistory,
-//   getUsageSummary,
-// } = require('./api/companyAdminApi');
+// Company Admin API
+const {
+  createCompanySubscription,
+  cancelCompanySubscription,
+  reactivateCompanySubscription,
+  getCompanySubscription,
+  getInvoices,
+  getInvoice,
+  addCompanyPaymentMethod,
+  getCompanyPaymentMethods,
+  removeCompanyPaymentMethod,
+  getCompanyPaymentHistory,
+  getUsageSummary,
+} = require('./api/companyAdminApi');
 
 // Super Admin API - COMMENTED OUT FOR NOW
 // const {
@@ -67,18 +67,18 @@ const {
   weeklyEmailDigestJob,
 } = require('./scheduled/notificationJobs');
 
-// Export Company Admin Functions - COMMENTED OUT FOR NOW
-// exports.createCompanySubscription = createCompanySubscription;
-// exports.cancelCompanySubscription = cancelCompanySubscription;
-// exports.reactivateCompanySubscription = reactivateCompanySubscription;
-// exports.getCompanySubscription = getCompanySubscription;
-// exports.getInvoices = getInvoices;
-// exports.getInvoice = getInvoice;
-// exports.addCompanyPaymentMethod = addCompanyPaymentMethod;
-// exports.getCompanyPaymentMethods = getCompanyPaymentMethods;
-// exports.removeCompanyPaymentMethod = removeCompanyPaymentMethod;
-// exports.getCompanyPaymentHistory = getCompanyPaymentHistory;
-// exports.getUsageSummary = getUsageSummary;
+// Export Company Admin Functions
+exports.createCompanySubscription = createCompanySubscription;
+exports.cancelCompanySubscription = cancelCompanySubscription;
+exports.reactivateCompanySubscription = reactivateCompanySubscription;
+exports.getCompanySubscription = getCompanySubscription;
+exports.getInvoices = getInvoices;
+exports.getInvoice = getInvoice;
+exports.addCompanyPaymentMethod = addCompanyPaymentMethod;
+exports.getCompanyPaymentMethods = getCompanyPaymentMethods;
+exports.removeCompanyPaymentMethod = removeCompanyPaymentMethod;
+exports.getCompanyPaymentHistory = getCompanyPaymentHistory;
+exports.getUsageSummary = getUsageSummary;
 
 // Export Super Admin Functions - COMMENTED OUT FOR NOW
 // exports.getAllSubscriptions = getAllSubscriptions;

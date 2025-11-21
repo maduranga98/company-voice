@@ -3,6 +3,7 @@
  * Handles payment processing, retries, and payment method management
  */
 
+const admin = require('firebase-admin');
 const { initializeStripe, PAYMENT_STATUS, PRICING } = require('../config/stripe');
 const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
 const { stripeCentsToDollars, logBillingEvent, retryWithBackoff } = require('../utils/helpers');
@@ -18,7 +19,6 @@ const { startGracePeriod } = require('./subscriptionService');
  */
 async function processPayment({ invoiceId, stripePaymentIntentId }) {
   const stripe = initializeStripe();
-  const admin = require('firebase-admin');
 
   try {
     // Get invoice
@@ -108,8 +108,6 @@ async function processPayment({ invoiceId, stripePaymentIntentId }) {
  * @returns {Promise<void>}
  */
 async function handlePaymentFailure({ paymentId = null, stripePaymentIntentId, failureCode, failureMessage }) {
-  const admin = require('firebase-admin');
-
   try {
     let paymentDoc;
     let paymentData;
