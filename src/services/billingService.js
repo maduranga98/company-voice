@@ -304,15 +304,22 @@ export function formatDate(date) {
 
   let dateObj;
   if (date.toDate) {
-    // Firestore Timestamp
+    // Firestore Timestamp with toDate method
     dateObj = date.toDate();
+  } else if (date._seconds !== undefined) {
+    // Raw Firestore timestamp object with _seconds and _nanoseconds
+    dateObj = new Date(date._seconds * 1000 + (date._nanoseconds || 0) / 1000000);
   } else if (typeof date === 'string') {
     dateObj = new Date(date);
   } else if (typeof date === 'number') {
     // Unix timestamp (seconds or milliseconds)
     dateObj = new Date(date < 10000000000 ? date * 1000 : date);
-  } else {
+  } else if (date instanceof Date) {
     dateObj = date;
+  } else {
+    // Unknown format
+    console.warn('Invalid date value:', date);
+    return '-';
   }
 
   // Validate that dateObj is a valid Date object
