@@ -50,8 +50,11 @@ export const AuthProvider = ({ children }) => {
             const firestoreUserData = userDocSnap.data();
             const firestoreUser = { id: userDocSnap.id, ...firestoreUserData };
 
+            // Normalize companyId values (null/undefined) for comparison
+            const normalizeCompanyId = (id) => id || null;
+
             // Check if Firestore data differs from localStorage
-            if (firestoreUser.companyId !== user.companyId ||
+            if (normalizeCompanyId(firestoreUser.companyId) !== normalizeCompanyId(user.companyId) ||
                 firestoreUser.role !== user.role ||
                 firestoreUser.username !== user.username) {
               console.warn("User data mismatch - localStorage vs Firestore");
@@ -80,7 +83,7 @@ export const AuthProvider = ({ children }) => {
               await setDoc(authSessionRef, {
                 userId: user.id,
                 username: user.username,
-                companyId: user.companyId,
+                companyId: normalizeCompanyId(user.companyId),
                 role: user.role,
                 createdAt: serverTimestamp(),
               });
@@ -91,7 +94,7 @@ export const AuthProvider = ({ children }) => {
               console.log("AuthSession exists for Firebase UID:", firebaseUser.uid, "User ID:", sessionData.userId);
 
               if (sessionData.userId !== user.id ||
-                  sessionData.companyId !== user.companyId ||
+                  normalizeCompanyId(sessionData.companyId) !== normalizeCompanyId(user.companyId) ||
                   sessionData.role !== user.role) {
                 console.warn("AuthSession data mismatch detected - updating authSession");
                 console.log("Session:", sessionData, "Current User:", {
@@ -103,7 +106,7 @@ export const AuthProvider = ({ children }) => {
                 await setDoc(authSessionRef, {
                   userId: user.id,
                   username: user.username,
-                  companyId: user.companyId,
+                  companyId: normalizeCompanyId(user.companyId),
                   role: user.role,
                   createdAt: serverTimestamp(),
                 }, { merge: true });
