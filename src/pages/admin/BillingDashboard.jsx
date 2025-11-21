@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../config/firebase";
 import {
   getAllSubscriptions,
   getSuperAdminInvoices,
@@ -47,6 +48,11 @@ function BillingDashboard() {
       setLoading(true);
       setError(null);
 
+      // Ensure ID token is fresh before making API calls
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+
       const [subsData, invoicesData, disputesData, reportData, historyData] =
         await Promise.all([
           getAllSubscriptions({ limit: 100 }),
@@ -72,6 +78,12 @@ function BillingDashboard() {
   async function loadRevenueReport() {
     try {
       setLoading(true);
+
+      // Ensure ID token is fresh before making API call
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+
       const reportData = await getRevenueReport(selectedMonth, selectedYear);
       setRevenueReport(reportData?.data);
     } catch (err) {
@@ -90,6 +102,12 @@ function BillingDashboard() {
   ) {
     try {
       setLoading(true);
+
+      // Ensure ID token is fresh before making API call
+      if (auth.currentUser) {
+        await auth.currentUser.getIdToken(true);
+      }
+
       await resolveBillingDispute({
         disputeId,
         resolution,
