@@ -38,6 +38,42 @@ export const AuthProvider = ({ children }) => {
             const authSessionRef = doc(db, "authSessions", firebaseUser.uid);
             const authSessionDoc = await getDoc(authSessionRef);
 
+            // Verify user document in Firestore matches localStorage
+            const userDocRef = doc(db, "users", user.id);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (!userDocSnap.exists()) {
+              console.error("User document not found in Firestore:", user.id);
+              throw new Error("User document not found");
+            }
+
+            const firestoreUserData = userDocSnap.data();
+            const firestoreUser = { id: userDocSnap.id, ...firestoreUserData };
+
+            // Check if Firestore data differs from localStorage
+            if (firestoreUser.companyId !== user.companyId ||
+                firestoreUser.role !== user.role ||
+                firestoreUser.username !== user.username) {
+              console.warn("User data mismatch - localStorage vs Firestore");
+              console.log("LocalStorage:", {
+                companyId: user.companyId,
+                role: user.role,
+                username: user.username
+              });
+              console.log("Firestore:", {
+                companyId: firestoreUser.companyId,
+                role: firestoreUser.role,
+                username: firestoreUser.username
+              });
+
+              // Update localStorage with fresh Firestore data
+              localStorage.setItem("currentUser", JSON.stringify(firestoreUser));
+              user.companyId = firestoreUser.companyId;
+              user.role = firestoreUser.role;
+              user.username = firestoreUser.username;
+              console.log("Updated localStorage with fresh Firestore data");
+            }
+
             if (!authSessionDoc.exists()) {
               // Create authSession if it doesn't exist
               console.log("Creating missing authSession for restored user");
@@ -50,13 +86,19 @@ export const AuthProvider = ({ children }) => {
               });
               console.log("AuthSession created successfully for Firebase UID:", firebaseUser.uid);
             } else {
-              // Verify authSession data matches localStorage user
+              // Verify authSession data matches current user
               const sessionData = authSessionDoc.data();
               console.log("AuthSession exists for Firebase UID:", firebaseUser.uid, "User ID:", sessionData.userId);
 
-              if (sessionData.userId !== user.id || sessionData.companyId !== user.companyId) {
+              if (sessionData.userId !== user.id ||
+                  sessionData.companyId !== user.companyId ||
+                  sessionData.role !== user.role) {
                 console.warn("AuthSession data mismatch detected - updating authSession");
-                console.log("Session:", sessionData, "LocalStorage:", { userId: user.id, companyId: user.companyId });
+                console.log("Session:", sessionData, "Current User:", {
+                  userId: user.id,
+                  companyId: user.companyId,
+                  role: user.role
+                });
                 // Update authSession to match current user
                 await setDoc(authSessionRef, {
                   userId: user.id,
@@ -65,6 +107,7 @@ export const AuthProvider = ({ children }) => {
                   role: user.role,
                   createdAt: serverTimestamp(),
                 }, { merge: true });
+                console.log("AuthSession updated successfully");
               }
             }
 

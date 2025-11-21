@@ -54,6 +54,12 @@ function CompanyBillingContent() {
 
   useEffect(() => {
     if (companyId) {
+      console.log('CompanyBilling: Loading billing data', {
+        currentUser,
+        companyId,
+        userId: currentUser?.id,
+        role: currentUser?.role
+      });
       loadBillingData();
     }
   }, [companyId]);
