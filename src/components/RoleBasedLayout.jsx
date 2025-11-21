@@ -361,7 +361,7 @@ const RoleBasedLayout = ({ children }) => {
                 >
                   <img
                     src="/logo.png"
-                    alt="Voxwell Logo"
+                    alt="VoxWel Logo"
                     className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>
@@ -374,7 +374,7 @@ const RoleBasedLayout = ({ children }) => {
                     themeColors.text
                   } transition-colors duration-300`}
                 >
-                  Voxwell
+                  VoxWel
                 </h1>
 
                 <p className="text-xs text-primary-teal font-medium">

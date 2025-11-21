@@ -36,7 +36,7 @@
       "rememberMe": "මාව මතක තබා ගන්න",
       "forgotPassword": "මුරපදය අමතක වුණාද?",
       "orContinueWith": "හෝ මේ සමඟ ඉදිරියට යන්න",
-      "newToVoxwell": "Voxwell සඳහා අලුත්ද?",
+      "newToVoxWel": "VoxWel සඳහා අලුත්ද?",
       "contactHR": "ඔබේ HR සමඟ සම්බන්ධ වන්න",
       "noAccount": "ගිණුමක් නැද්ද?",
       "register": "මෙතැනින් ලියාපදිංචි වන්න",
@@ -55,7 +55,7 @@
       "featureSecureText": "සේවා ස්ථාන ගැටළු ආරක්ෂිතව සහ නිර්නාමිකව වාර්තා කරන්න",
       "featureDiscussionsTitle": "විවෘත සාකච්ඡා",
       "featureDiscussionsText": "අර්ථවත් කණ්ඩායම් සංවාදවල නියැලෙන්න",
-      "copyright": "© 2025 Voxwell. සියලු හිමිකම් ඇවිරිණි."
+      "copyright": "© 2025 VoxWel. සියලු හිමිකම් ඇවිරිණි."
     },
     "register": {
       "title": "ගිණුමක් සාදන්න",
@@ -281,7 +281,7 @@
   "help": {
     "center": {
       "title": "උදව් මධ්‍යස්ථානය",
-      "subtitle": "Voxwell ඵලදායී ලෙස භාවිතා කරන්නේ කෙසේද යන්න ඉගෙන ගන්න",
+      "subtitle": "VoxWel ඵලදායී ලෙස භාවිතා කරන්නේ කෙසේද යන්න ඉගෙන ගන්න",
       "searchPlaceholder": "උදව් මාතෘකා සොයන්න...",
       "viewRolesPermissions": "භූමිකා සහ අවසර බලන්න",
       "topics": "මාතෘකා"
@@ -308,7 +308,7 @@
     },
     "roles": {
       "title": "භූමිකා සහ අවසර තේරුම් ගැනීම",
-      "description": "Voxwell හි විවිධ පරිශීලක භූමිකා ඇත, සෑම එකක්ම විශේෂිත වගකීම් සහ අවසර ඇත.",
+      "description": "VoxWel හි විවිධ පරිශීලක භූමිකා ඇත, සෑම එකක්ම විශේෂිත වගකීම් සහ අවසර ඇත.",
       "superAdmin": {
         "name": "සුපිරි පරිපාලක",
         "description": "සියලුම සමාගම් වෙත ප්‍රවේශය ඇති වේදිකා මට්ටමේ පරිපාලක"

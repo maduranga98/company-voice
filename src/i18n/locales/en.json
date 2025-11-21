@@ -36,7 +36,7 @@
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
       "orContinueWith": "or continue with",
-      "newToVoxwell": "New to Voxwell?",
+      "newToVoxWel": "New to VoxWel?",
       "contactHR": "Contact your HR",
       "noAccount": "Don't have an account?",
       "register": "Register here",
@@ -55,7 +55,7 @@
       "featureSecureText": "Report workplace issues safely and anonymously",
       "featureDiscussionsTitle": "Open Discussions",
       "featureDiscussionsText": "Engage in meaningful team conversations",
-      "copyright": "© 2025 Voxwell. All rights reserved."
+      "copyright": "© 2025 VoxWel. All rights reserved."
     },
     "register": {
       "title": "Create Account",
@@ -281,7 +281,7 @@
   "help": {
     "center": {
       "title": "Help Center",
-      "subtitle": "Learn how to use Voxwell effectively",
+      "subtitle": "Learn how to use VoxWel effectively",
       "searchPlaceholder": "Search for help topics...",
       "viewRolesPermissions": "View Roles & Permissions",
       "topics": "Topics"
@@ -308,7 +308,7 @@
     },
     "roles": {
       "title": "Understanding Roles & Permissions",
-      "description": "Voxwell has different user roles, each with specific responsibilities and permissions.",
+      "description": "VoxWel has different user roles, each with specific responsibilities and permissions.",
       "superAdmin": {
         "name": "Super Admin",
         "description": "Platform-level administrator with access to all companies"

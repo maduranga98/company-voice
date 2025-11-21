@@ -184,13 +184,13 @@ const EmployeeLayout = () => {
                 <div className="absolute inset-0 bg-(--color-primary-teal) rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
                 <img
                   src="/logo.png"
-                  alt="Voxwell Logo"
+                  alt="VoxWel Logo"
                   className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
                 />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-text-onDark group-hover:text-(--color-primary-teal) transition-colors duration-300">
-                  Voxwell
+                  VoxWel
                 </h1>
                 <p className="text-xs text-(--color-primary-teal) font-medium">
                   Where Every Voice Matters
