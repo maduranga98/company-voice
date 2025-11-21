@@ -9,7 +9,9 @@ import {
   updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db, auth, functions } from "../config/firebase";
+import { signInWithCustomToken } from "firebase/auth";
+import { httpsCallable } from "firebase/functions";
 import CryptoJS from "crypto-js";
 
 // Hash password
@@ -20,38 +22,25 @@ const hashPassword = (password) => {
 // Login with username and password
 export const loginWithUsernamePassword = async (username, password) => {
   try {
-    // Hash the password
-    const hashedPassword = hashPassword(password);
-    console.log(password, hashedPassword);
-    // Query users collection
-    const usersRef = collection(db, "users");
-    const q = query(
-      usersRef,
-      where("username", "==", username.toLowerCase()),
-      where("password", "==", hashedPassword),
-      where("status", "==", "active")
-    );
+    // Call the Cloud Function to generate auth token
+    const generateAuthToken = httpsCallable(functions, 'generateAuthToken');
+    const result = await generateAuthToken({ username, password });
 
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      throw new Error("Invalid username or password");
+    if (!result.data.success) {
+      throw new Error("Authentication failed");
     }
 
-    const userDoc = querySnapshot.docs[0];
-    const userData = { id: userDoc.id, ...userDoc.data() };
+    const { user, customToken } = result.data.data;
 
-    // Update last login
-    await updateDoc(doc(db, "users", userDoc.id), {
-      lastLogin: serverTimestamp(),
-    });
+    // Sign in to Firebase Auth with the custom token
+    await signInWithCustomToken(auth, customToken);
 
-    // Remove password from returned data
-    delete userData.password;
-
-    return userData;
+    return user;
   } catch (error) {
     console.error("Login error:", error);
+    if (error.code === 'functions/unauthenticated') {
+      throw new Error("Invalid username or password");
+    }
     throw error;
   }
 };
