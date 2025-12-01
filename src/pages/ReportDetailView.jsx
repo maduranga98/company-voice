@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Flag, User, Calendar, AlertTriangle, FileText } from "lucide-react";
+import { ArrowLeft, Flag, User, Calendar, AlertTriangle, FileText, Scale, Download } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   getReportById,
@@ -14,7 +14,10 @@ import {
   ModerationActionConfig,
   ReportableContentType,
   StrikeConfig,
+  UserRole,
 } from "../utils/constants";
+import { downloadEvidencePackageWithFormat } from "../services/legalEvidenceService";
+import LegalRequestModal from "../components/LegalRequestModal";
 
 const ReportDetailView = () => {
   const { reportId } = useParams();
@@ -31,6 +34,12 @@ const ReportDetailView = () => {
   const [moderatorNotes, setModeratorNotes] = useState("");
   const [violationType, setViolationType] = useState("");
   const [explanation, setExplanation] = useState("");
+
+  // Legal request modal state
+  const [showLegalRequestModal, setShowLegalRequestModal] = useState(false);
+
+  // Evidence export state
+  const [exportingEvidence, setExportingEvidence] = useState(false);
 
   useEffect(() => {
     fetchReport();
@@ -101,6 +110,30 @@ const ReportDetailView = () => {
     } finally {
       setActionInProgress(false);
     }
+  };
+
+  const handleExportEvidence = async (format) => {
+    if (!userData?.companyId || !report?.id) return;
+
+    setExportingEvidence(true);
+
+    try {
+      await downloadEvidencePackageWithFormat(
+        report.id,
+        userData.companyId,
+        format
+      );
+    } catch (err) {
+      console.error("Error exporting evidence:", err);
+      alert("Failed to export evidence package. Please try again.");
+    } finally {
+      setExportingEvidence(false);
+    }
+  };
+
+  // Check if user can request legal disclosure
+  const canRequestLegalDisclosure = () => {
+    return [UserRole.COMPANY_ADMIN, UserRole.HR].includes(userData?.role);
   };
 
   const renderActionModal = () => {
@@ -422,11 +455,70 @@ const ReportDetailView = () => {
               </div>
             </div>
           )}
+
+          {/* Legal & Evidence Actions */}
+          <div className="p-6 border-t border-gray-200 bg-gray-50">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Legal & Evidence Management</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {/* Export Evidence Buttons */}
+              <button
+                onClick={() => handleExportEvidence("json")}
+                disabled={exportingEvidence}
+                className="flex items-center justify-center px-4 py-3 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {exportingEvidence ? "Exporting..." : "Export Evidence (JSON)"}
+              </button>
+
+              <button
+                onClick={() => handleExportEvidence("pdf")}
+                disabled={exportingEvidence}
+                className="flex items-center justify-center px-4 py-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                {exportingEvidence ? "Exporting..." : "Export Evidence (PDF)"}
+              </button>
+
+              {/* Legal Request Button (only for company admins and HR) */}
+              {canRequestLegalDisclosure() && (
+                <button
+                  onClick={() => setShowLegalRequestModal(true)}
+                  className="flex items-center justify-center px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg transition-colors text-sm font-medium"
+                >
+                  <Scale className="w-4 h-4 mr-2" />
+                  Request Legal Disclosure
+                </button>
+              )}
+            </div>
+
+            {report.legalHold && (
+              <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
+                  <div className="text-sm">
+                    <p className="font-medium text-orange-900">Legal Hold Active</p>
+                    <p className="text-orange-800">
+                      This report is under legal hold and must be retained for {report.retentionYears || 7} years.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Action Modal */}
       {renderActionModal()}
+
+      {/* Legal Request Modal */}
+      <LegalRequestModal
+        isOpen={showLegalRequestModal}
+        onClose={() => setShowLegalRequestModal(false)}
+        report={report}
+        companyId={userData?.companyId}
+        userData={userData}
+      />
     </div>
   );
 };

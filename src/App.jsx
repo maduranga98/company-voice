@@ -45,6 +45,10 @@ import AssignedToMe from "./pages/AssignedToMe";
 // Moderation Pages
 import ModerationDashboard from "./pages/ModerationDashboard";
 import ReportDetailView from "./pages/ReportDetailView";
+import HarassmentDashboard from "./pages/hr/HarassmentDashboard";
+
+// Legal Pages
+import SuperAdminLegalRequests from "./pages/admin/SuperAdminLegalRequests";
 
 function App() {
   return (
@@ -71,6 +75,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <BillingDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/legal-requests"
+              element={
+                <PrivateRoute>
+                  <SuperAdminLegalRequests />
                 </PrivateRoute>
               }
             />
@@ -148,6 +160,16 @@ function App() {
                 <PrivateRoute>
                   <RoleBasedLayout>
                     <ReportDetailView />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/harassment-dashboard"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <HarassmentDashboard />
                   </RoleBasedLayout>
                 </PrivateRoute>
               }

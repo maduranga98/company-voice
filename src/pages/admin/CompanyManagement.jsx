@@ -239,6 +239,12 @@ const CompanyManagement = () => {
                 >
                   Billing
                 </button>
+                <button
+                  onClick={() => navigate("/admin/legal-requests")}
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition"
+                >
+                  Legal Requests
+                </button>
               </div>
             </div>
 

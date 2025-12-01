@@ -199,6 +199,17 @@ service cloud.firestore {
     }
 
     // ============================================
+    // LEGAL REQUESTS COLLECTION
+    // ============================================
+    match /legalRequests/{requestId} {
+      // For testing: allow all access
+      // In production, implement proper role-based access:
+      // - Company admins and HR can create and read their own company's requests
+      // - Super admins can read, review, and update all requests
+      allow read, write: if true;
+    }
+
+    // ============================================
     // SEARCH: SAVED SEARCHES COLLECTION
     // ============================================
     match /savedSearches/{searchId} {
