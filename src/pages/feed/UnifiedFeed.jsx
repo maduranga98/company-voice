@@ -1,12 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
-import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
-import { db } from "../../config/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import PostEnhanced from "../../components/PostEnhanced";
 import CreatePost from "../../components/CreatePost";
 import AdminActionPanel from "../../components/AdminActionPanel";
-import { isAdmin } from "../../services/postManagementService";
+import { isAdmin, getPostsWithPrivacyFilter } from "../../services/postManagementService";
 import { useTranslation } from "react-i18next";
 import { getPinnedPosts } from "../../services/postEnhancedFeaturesService";
 import { PostSkeleton } from "../../components/SkeletonLoader";
@@ -46,26 +44,52 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
     try {
       setLoading(true);
 
-      // Load regular posts (exclude pinned and archived)
-      const postsQuery = query(
-        collection(db, "posts"),
-        where("companyId", "==", userData.companyId),
-        where("type", "==", feedType),
-        orderBy("createdAt", "desc")
+      // Load posts with privacy filtering based on user role and department
+      const postsData = await getPostsWithPrivacyFilter(
+        userData.companyId,
+        feedType,
+        userData
       );
 
-      const snapshot = await getDocs(postsQuery);
-      const postsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate(),
-      })).filter(post => !post.isArchived); // Filter out archived posts
-
-      // Load pinned posts for this feed type
+      // Load pinned posts for this feed type (also filtered)
       const pinned = await getPinnedPosts(userData.companyId, feedType);
-      setPinnedPosts(pinned.filter(post => !post.isArchived)); // Exclude archived from pinned
 
+      // Apply privacy filtering to pinned posts as well
+      const filteredPinned = pinned.filter(post => {
+        if (post.isArchived) return false;
+
+        // Super admin and company admin can see all posts
+        if (userData.role === "super_admin" || userData.role === "company_admin") {
+          return true;
+        }
+
+        const privacyLevel = post.privacyLevel || "company_public";
+
+        // Public posts - everyone can see
+        if (privacyLevel === "company_public") {
+          return true;
+        }
+
+        // HR-only posts
+        if (privacyLevel === "hr_only") {
+          return userData.role === "hr" || userData.role === "company_admin" || userData.role === "super_admin";
+        }
+
+        // Department-only posts
+        if (privacyLevel === "department_only") {
+          if (userData.role === "hr") {
+            return true;
+          }
+          if (userData.departmentId && post.departmentId) {
+            return userData.departmentId === post.departmentId;
+          }
+          return false;
+        }
+
+        return true;
+      });
+
+      setPinnedPosts(filteredPinned);
       setPosts(postsData);
     } catch (error) {
       console.error("Error loading posts:", error);
