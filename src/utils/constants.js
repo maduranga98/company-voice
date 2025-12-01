@@ -809,6 +809,138 @@ export const ModerationActivityType = {
 };
 
 // ============================================
+// LEGAL REQUEST SYSTEM
+// ============================================
+
+// Legal request types
+export const LegalRequestType = {
+  IDENTITY_DISCLOSURE: "identity_disclosure",
+  CONTENT_PRESERVATION: "content_preservation",
+  SUBPOENA: "subpoena",
+  COURT_ORDER: "court_order",
+  OTHER: "other",
+};
+
+// Legal request type display configuration
+export const LegalRequestTypeConfig = {
+  [LegalRequestType.IDENTITY_DISCLOSURE]: {
+    label: "Identity Disclosure",
+    description: "Request to disclose reporter or author identity",
+    icon: "👤",
+    color: "purple",
+  },
+  [LegalRequestType.CONTENT_PRESERVATION]: {
+    label: "Content Preservation",
+    description: "Request to preserve specific content",
+    icon: "💾",
+    color: "blue",
+  },
+  [LegalRequestType.SUBPOENA]: {
+    label: "Subpoena",
+    description: "Legal subpoena for information",
+    icon: "📋",
+    color: "red",
+  },
+  [LegalRequestType.COURT_ORDER]: {
+    label: "Court Order",
+    description: "Court-ordered disclosure",
+    icon: "⚖️",
+    color: "indigo",
+  },
+  [LegalRequestType.OTHER]: {
+    label: "Other",
+    description: "Other legal request type",
+    icon: "📄",
+    color: "gray",
+  },
+};
+
+// Legal request status
+export const LegalRequestStatus = {
+  PENDING: "pending",
+  UNDER_REVIEW: "under_review",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  FULFILLED: "fulfilled",
+};
+
+// Legal request status display configuration
+export const LegalRequestStatusConfig = {
+  [LegalRequestStatus.PENDING]: {
+    label: "Pending Review",
+    color: "yellow",
+    bgColor: "bg-yellow-100",
+    textColor: "text-yellow-800",
+    borderColor: "border-yellow-300",
+    description: "Awaiting VoxWel super admin review",
+  },
+  [LegalRequestStatus.UNDER_REVIEW]: {
+    label: "Under Review",
+    color: "blue",
+    bgColor: "bg-blue-100",
+    textColor: "text-blue-800",
+    borderColor: "border-blue-300",
+    description: "Being reviewed by VoxWel legal team",
+  },
+  [LegalRequestStatus.APPROVED]: {
+    label: "Approved",
+    color: "green",
+    bgColor: "bg-green-100",
+    textColor: "text-green-800",
+    borderColor: "border-green-300",
+    description: "Request approved, disclosure in progress",
+  },
+  [LegalRequestStatus.REJECTED]: {
+    label: "Rejected",
+    color: "red",
+    bgColor: "bg-red-100",
+    textColor: "text-red-800",
+    borderColor: "border-red-300",
+    description: "Request rejected by VoxWel",
+  },
+  [LegalRequestStatus.FULFILLED]: {
+    label: "Fulfilled",
+    color: "slate",
+    bgColor: "bg-slate-100",
+    textColor: "text-slate-800",
+    borderColor: "border-slate-300",
+    description: "Disclosure completed",
+  },
+};
+
+// Legal disclosure method
+export const DisclosureMethod = {
+  ENCRYPTED_EMAIL: "encrypted_email",
+  SECURE_PORTAL: "secure_portal",
+  PHYSICAL_DELIVERY: "physical_delivery",
+  ELECTRONIC_SYSTEM: "electronic_system",
+};
+
+// Disclosure method display configuration
+export const DisclosureMethodConfig = {
+  [DisclosureMethod.ENCRYPTED_EMAIL]: {
+    label: "Encrypted Email",
+    icon: "📧",
+    description: "Sent via encrypted email",
+  },
+  [DisclosureMethod.SECURE_PORTAL]: {
+    label: "Secure Portal",
+    icon: "🔐",
+    description: "Uploaded to secure portal",
+  },
+  [DisclosureMethod.PHYSICAL_DELIVERY]: {
+    label: "Physical Delivery",
+    icon: "📦",
+    description: "Physical document delivery",
+  },
+  [DisclosureMethod.ELECTRONIC_SYSTEM]: {
+    label: "Electronic System",
+    icon: "💻",
+    description: "Court electronic filing system",
+  },
+};
+
+// ============================================
 // WCAG AA COMPLIANT COLOR SYSTEM
 // ============================================
 
