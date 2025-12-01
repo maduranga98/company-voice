@@ -795,6 +795,91 @@ export const createDefaultDepartments = async (companyId, departments) => {
 };
 
 // ============================================
+// PRIVACY FILTERING
+// ============================================
+
+/**
+ * Get posts with privacy filtering based on user role and department
+ * @param {string} companyId - Company ID
+ * @param {string} feedType - Type of feed (problem_report, idea_suggestion, etc.)
+ * @param {object} user - Current user object with role, departmentId
+ * @returns {Promise<Array>} Filtered posts array
+ */
+export const getPostsWithPrivacyFilter = async (companyId, feedType, user) => {
+  try {
+    if (!companyId || !user) {
+      return [];
+    }
+
+    // Fetch all posts for the company and feed type
+    const postsRef = collection(db, "posts");
+    const q = query(
+      postsRef,
+      where("companyId", "==", companyId),
+      where("type", "==", feedType),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+    const allPosts = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate(),
+      updatedAt: doc.data().updatedAt?.toDate(),
+    }));
+
+    // Filter posts based on user role and privacy level
+    const filteredPosts = allPosts.filter((post) => {
+      // Skip archived posts
+      if (post.isArchived) {
+        return false;
+      }
+
+      // Super admin and company admin can see all posts
+      if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.COMPANY_ADMIN) {
+        return true;
+      }
+
+      const privacyLevel = post.privacyLevel || "company_public";
+
+      // Public posts - everyone can see
+      if (privacyLevel === "company_public") {
+        return true;
+      }
+
+      // HR-only posts - only HR, company_admin, and super_admin can see
+      if (privacyLevel === "hr_only") {
+        return user.role === UserRole.HR || user.role === UserRole.COMPANY_ADMIN || user.role === UserRole.SUPER_ADMIN;
+      }
+
+      // Department-only posts - only users in the same department can see
+      if (privacyLevel === "department_only") {
+        // HR can see all department posts
+        if (user.role === UserRole.HR) {
+          return true;
+        }
+
+        // Check if user is in the same department
+        if (user.departmentId && post.departmentId) {
+          return user.departmentId === post.departmentId;
+        }
+
+        // If post has no department or user has no department, hide it
+        return false;
+      }
+
+      // Default: show the post
+      return true;
+    });
+
+    return filteredPosts;
+  } catch (error) {
+    console.error("Error getting posts with privacy filter:", error);
+    return [];
+  }
+};
+
+// ============================================
 // DELETE POST WITH CASCADE CLEANUP
 // ============================================
 

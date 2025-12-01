@@ -77,6 +77,10 @@ export const createContentReport = async (reportData) => {
       throw new Error("You have already reported this content");
     }
 
+    // Detect critical report types for HR auto-escalation
+    const criticalReasons = ["harassment", "discrimination", "violence"];
+    const isCritical = criticalReasons.includes(reason);
+
     // Create report
     const report = {
       contentType,
@@ -95,6 +99,10 @@ export const createContentReport = async (reportData) => {
       reviewedAt: null,
       moderatorNotes: "",
       actionTaken: null,
+      // Auto-set critical priority and legal hold for serious incidents
+      priority: isCritical ? "critical" : "medium",
+      legalHold: isCritical,
+      retentionYears: isCritical ? 7 : 2, // EEOC compliance: 7 years for harassment
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -123,6 +131,11 @@ export const createContentReport = async (reportData) => {
 
     // Notify company admins
     await notifyAdminsOfNewReport(companyId, reportRef.id, contentType);
+
+    // Auto-escalate critical reports to HR team
+    if (isCritical) {
+      await notifyHRTeam(companyId, reportRef.id, reason, contentType);
+    }
 
     return reportRef.id;
   } catch (error) {
@@ -936,6 +949,59 @@ const notifyAdminsOfNewReport = async (companyId, reportId, contentType) => {
     }
   } catch (error) {
     console.error("Error notifying admins:", error);
+  }
+};
+
+/**
+ * Notify HR team of critical reports (harassment, discrimination, violence)
+ * @param {string} companyId - Company ID
+ * @param {string} reportId - Report ID
+ * @param {string} reason - Report reason
+ * @param {string} contentType - Content type
+ * @returns {Promise<void>}
+ */
+const notifyHRTeam = async (companyId, reportId, reason, contentType) => {
+  try {
+    // Query all HR users and company admins
+    const hrQuery = query(
+      collection(db, "users"),
+      where("companyId", "==", companyId),
+      where("role", "in", ["hr", "company_admin"])
+    );
+    const hrSnapshot = await getDocs(hrQuery);
+
+    // Create critical notifications for each HR user
+    for (const hrDoc of hrSnapshot.docs) {
+      await createNotification({
+        userId: hrDoc.id,
+        type: "critical_report",
+        title: "🚨 CRITICAL: Urgent Report Requires Review",
+        message: `A ${contentType} has been flagged for ${reason}. Immediate review required. Legal hold applied.`,
+        metadata: {
+          reportId,
+          contentType,
+          reason,
+          priority: "critical",
+          legalHold: true,
+          escalatedAt: new Date().toISOString(),
+        },
+      });
+    }
+
+    // Log the HR escalation
+    await logModerationActivity({
+      activityType: "hr_escalation",
+      reportId,
+      contentType,
+      companyId,
+      metadata: {
+        reason,
+        escalatedAt: new Date().toISOString(),
+        hrNotified: hrSnapshot.size,
+      },
+    });
+  } catch (error) {
+    console.error("Error notifying HR team:", error);
   }
 };
 
