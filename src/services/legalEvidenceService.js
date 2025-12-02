@@ -9,7 +9,8 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db, storage } from "../config/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { logSystemActivity } from "./auditService";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -1006,6 +1007,70 @@ export const downloadEvidencePackageWithFormat = async (
     }
   } catch (error) {
     console.error("Error downloading evidence package:", error);
+    throw error;
+  }
+};
+
+// ============================================
+// COURT ORDER UPLOAD
+// ============================================
+
+/**
+ * Upload a court order document to Firebase Storage
+ * @param {File} file - Court order PDF file
+ * @param {string} companyId - Company ID
+ * @returns {Promise<string>} Download URL of the uploaded file
+ */
+export const uploadCourtOrder = async (file, companyId) => {
+  try {
+    if (!file) {
+      throw new Error("No file provided");
+    }
+
+    if (!companyId) {
+      throw new Error("Company ID is required");
+    }
+
+    // Validate file type
+    if (file.type !== "application/pdf") {
+      throw new Error("Only PDF files are allowed for court orders");
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      throw new Error("File size must be less than 10MB");
+    }
+
+    // Create a unique filename with timestamp
+    const timestamp = Date.now();
+    const filename = `court-orders/${companyId}/${timestamp}-${file.name}`;
+
+    // Create storage reference
+    const storageRef = ref(storage, filename);
+
+    // Upload the file
+    const uploadResult = await uploadBytes(storageRef, file, {
+      contentType: "application/pdf",
+      customMetadata: {
+        companyId: companyId,
+        uploadedAt: new Date().toISOString(),
+      },
+    });
+
+    // Get the download URL
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+
+    // Log the upload
+    await logSystemActivity(companyId, "court_order_uploaded", {
+      filename: file.name,
+      fileSize: file.size,
+      downloadURL: downloadURL,
+    });
+
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading court order:", error);
     throw error;
   }
 };

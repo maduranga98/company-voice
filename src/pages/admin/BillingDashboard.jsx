@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../config/firebase";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   getAllSubscriptions,
   getSuperAdminInvoices,
@@ -18,10 +19,11 @@ import {
   getStatusColor,
   getPaymentStatusColor,
 } from "../../services/billingService";
-import { ArrowLeft } from "lucide-react";
+import SuperAdminNav from "../../components/SuperAdminNav";
 
 function BillingDashboard() {
   const navigate = useNavigate();
+  const { userData, logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [subscriptions, setSubscriptions] = useState([]);
@@ -143,44 +145,43 @@ function BillingDashboard() {
     );
   }
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40 mb-8">
+      <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
-            {/* Title & Navigation */}
+            {/* Title */}
             <div className="flex flex-col space-y-2">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => navigate("/admin/companies")}
-                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition flex items-center gap-2"
-                  title="Back to Companies"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                  <span className="text-sm font-medium">Back</span>
-                </button>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  Super Admin Panel
-                </h1>
-              </div>
-              <div className="flex space-x-4 ml-14">
-                <button
-                  onClick={() => navigate("/admin/companies")}
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition"
-                >
-                  Companies
-                </button>
-                <button
-                  onClick={() => navigate("/admin/billing")}
-                  className="text-sm font-medium text-indigo-600 border-b-2 border-indigo-600"
-                >
-                  Billing
-                </button>
-              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Super Admin Panel
+              </h1>
+            </div>
+
+            {/* User Info & Actions */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+              <span className="text-xs sm:text-sm text-gray-700 truncate max-w-[150px] sm:max-w-none">
+                {userData?.displayName || userData?.username}
+              </span>
+              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded whitespace-nowrap">
+                SUPER ADMIN
+              </span>
+              <button
+                onClick={handleLogout}
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
+        {/* Navigation Tabs */}
+        <SuperAdminNav />
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
