@@ -724,31 +724,6 @@ const CompanyDashboard = () => {
         </button>
 
         <button
-          onClick={() => navigate("/my-posts")}
-          className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">My Posts</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-          </div>
-          <p className="text-pink-100">
-            View and manage your own posts and updates
-          </p>
-        </button>
-
-        <button
           onClick={() => navigate("/company/billing")}
           className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
@@ -770,6 +745,31 @@ const CompanyDashboard = () => {
           </div>
           <p className="text-teal-100">
             Manage subscription, invoices, and payment methods
+          </p>
+        </button>
+
+        <button
+          onClick={() => navigate("/company/legal-requests")}
+          className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Legal Requests</h3>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
+              />
+            </svg>
+          </div>
+          <p className="text-slate-200">
+            Submit and track court-ordered information disclosure requests
           </p>
         </button>
       </div>

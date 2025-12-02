@@ -49,6 +49,7 @@ import HarassmentDashboard from "./pages/hr/HarassmentDashboard";
 
 // Legal Pages
 import SuperAdminLegalRequests from "./pages/admin/SuperAdminLegalRequests";
+import LegalRequestsPage from "./pages/company/LegalRequestsPage";
 
 function App() {
   return (
@@ -311,6 +312,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <CompanyBilling />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/legal-requests"
+              element={
+                <PrivateRoute>
+                  <LegalRequestsPage />
                 </PrivateRoute>
               }
             />
