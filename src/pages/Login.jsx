@@ -190,7 +190,7 @@ const Login = () => {
           {/* Logo and Brand - LARGER */}
           <div className="flex items-center space-x-5 mb-12">
             <img
-              src="/logo.png"
+              src="/voxwel-logo.png"
               alt="VoxWel Logo"
               className="w-36 h-36 object-contain bg-background-white bg-opacity-20 backdrop-blur-sm rounded-2xl shadow-2xl"
             />
@@ -302,7 +302,7 @@ const Login = () => {
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
               <img
-                src="/logo.png"
+                src="/voxwel-logo.png"
                 alt="VoxWel Logo"
                 className="w-28 h-28 object-contain"
               />

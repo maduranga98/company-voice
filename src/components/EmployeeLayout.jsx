@@ -183,7 +183,7 @@ const EmployeeLayout = () => {
               <div className="relative">
                 <div className="absolute inset-0 bg-(--color-primary-teal) rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
                 <img
-                  src="/logo.png"
+                  src="/voxwel-logo.png"
                   alt="VoxWel Logo"
                   className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
                 />

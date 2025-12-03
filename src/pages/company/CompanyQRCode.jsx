@@ -82,7 +82,7 @@ const CompanyQRCode = () => {
     // Load logo image
     const logoImage = new Image();
     logoImage.crossOrigin = 'anonymous';
-    logoImage.src = window.location.origin + '/logo.png';
+    logoImage.src = window.location.origin + '/voxwel-logo.png';
 
     // Load QR code image
     const qrImage = new Image();
@@ -252,7 +252,7 @@ const CompanyQRCode = () => {
     if (!qrCodeUrl || !company) return;
 
     const printWindow = window.open("", "_blank");
-    const logoUrl = window.location.origin + '/logo.png';
+    const logoUrl = window.location.origin + '/voxwel-logo.png';
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -628,7 +628,7 @@ const CompanyQRCode = () => {
       // Load logo image
       const logoImage = new Image();
       logoImage.crossOrigin = 'anonymous';
-      logoImage.src = window.location.origin + '/logo.png';
+      logoImage.src = window.location.origin + '/voxwel-logo.png';
 
       // Load QR code image
       const qrImage = new Image();
