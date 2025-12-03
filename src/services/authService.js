@@ -42,6 +42,21 @@ export const loginWithUsernamePassword = async (username, password) => {
     const userDoc = querySnapshot.docs[0];
     const userData = { id: userDoc.id, ...userDoc.data() };
 
+    // Check if user's company is active (skip for super admins)
+    if (userData.companyId) {
+      const companyDoc = await getDoc(doc(db, "companies", userData.companyId));
+
+      if (!companyDoc.exists()) {
+        throw new Error("Company not found. Please contact support.");
+      }
+
+      const companyData = companyDoc.data();
+
+      if (companyData.status !== "active") {
+        throw new Error("Your company account is deactivated. Please contact support.");
+      }
+    }
+
     // Sign in anonymously to Firebase Auth for API authentication
     const firebaseAuthResult = await signInAnonymously(auth);
 

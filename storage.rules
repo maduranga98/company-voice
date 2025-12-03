@@ -144,6 +144,28 @@ service firebase.storage {
     }
 
     // ============================================
+    // POST UPLOADS (Alternative Path)
+    // Path: posts/{companyId}/{fileName}
+    // ============================================
+    match /posts/{companyId}/{fileName} {
+      // Allow read and write for testing (with file size validation)
+      allow read: if true;
+      allow write: if (isValidImageType() || isValidDocumentType()) && isValidFileSize(50); // 50MB max
+      allow delete: if true;
+    }
+
+    // ============================================
+    // LEGAL EVIDENCE UPLOADS
+    // Path: legal-evidence/{companyId}/{requestId}/{fileName}
+    // ============================================
+    match /legal-evidence/{companyId}/{requestId}/{fileName} {
+      // Allow read and write for testing
+      allow read: if true;
+      allow write: if true;
+      allow delete: if true;
+    }
+
+    // ============================================
     // ALLOW ALL OTHER PATHS (for testing)
     // ============================================
     match /{allPaths=**} {

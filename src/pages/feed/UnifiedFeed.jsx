@@ -113,7 +113,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
     // Filter by category
     if (selectedCategory !== "all") {
       filtered = filtered.filter((post) =>
-        post.tags?.includes(selectedCategory)
+        post.category === selectedCategory
       );
     }
 
@@ -248,10 +248,10 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                          transition-all duration-200"
               >
                 <option value="all">All Categories</option>
-                {[...new Set(posts.flatMap((post) => post.tags || []))].map(
-                  (tag) => (
-                    <option key={tag} value={tag}>
-                      {tag}
+                {[...new Set(posts.map((post) => post.category).filter(Boolean))].sort().map(
+                  (category) => (
+                    <option key={category} value={category}>
+                      {category}
                     </option>
                   )
                 )}
