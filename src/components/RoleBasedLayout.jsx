@@ -360,7 +360,7 @@ const RoleBasedLayout = ({ children }) => {
                   className={`bg-linear-to-r ${themeColors.gradient} rounded-lg  relative z-10`}
                 >
                   <img
-                    src="/logo.png"
+                    src="/voxwel-logo.png"
                     alt="VoxWel Logo"
                     className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
                   />
