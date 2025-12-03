@@ -121,8 +121,10 @@ const Login = () => {
 
           // Prefer back camera if available
           const backCamera = devices.find(device =>
-            device.label.toLowerCase().includes('back') ||
-            device.label.toLowerCase().includes('rear')
+            device.label && (
+              device.label.toLowerCase().includes('back') ||
+              device.label.toLowerCase().includes('rear')
+            )
           );
 
           const cameraId = backCamera ? backCamera.id : devices[0].id;
