@@ -40,7 +40,7 @@ const Profile = () => {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const userRef = doc(db, "users", currentUser.uid);
+      const userRef = doc(db, "users", userData.id);
       await updateDoc(userRef, {
         displayName: editData.displayName,
         email: editData.email,

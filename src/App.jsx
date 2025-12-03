@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
 import BillingDashboard from "./pages/admin/BillingDashboard";
+import DeletedPosts from "./pages/admin/DeletedPosts";
 import CompanyDashboard from "./pages/company/CompanyDashboard";
 import CompanyAnalytics from "./pages/company/CompanyAnalytics";
 import CompanyBilling from "./pages/company/CompanyBilling";
@@ -84,6 +85,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <SuperAdminLegalRequests />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/deleted-posts"
+              element={
+                <PrivateRoute>
+                  <DeletedPosts />
                 </PrivateRoute>
               }
             />

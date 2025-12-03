@@ -113,25 +113,25 @@ const CompanyQRCode = () => {
 
       yPosition = 150;
 
-      // Title
+      // App Name - VoxWel
       ctx.fillStyle = '#111827';
       ctx.font = 'bold 48px Inter, system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(company.name, 400, yPosition);
-
-      yPosition += 50;
-
-      // Subtitle - VoxWel
-      ctx.fillStyle = '#6b7280';
-      ctx.font = '600 24px Inter, system-ui, -apple-system, sans-serif';
       ctx.fillText('VoxWel', 400, yPosition);
 
-      yPosition += 40;
+      yPosition += 50;
 
       // Tagline
       ctx.fillStyle = '#9ca3af';
       ctx.font = '20px Inter, system-ui, -apple-system, sans-serif';
       ctx.fillText('Where Every Voice Matters', 400, yPosition);
+
+      yPosition += 50;
+
+      // Company Name
+      ctx.fillStyle = '#0284c7';
+      ctx.font = 'bold 36px Inter, system-ui, -apple-system, sans-serif';
+      ctx.fillText(company.name, 400, yPosition);
 
       yPosition += 60;
 
@@ -531,9 +531,10 @@ const CompanyQRCode = () => {
               <div class="header">
                 <img src="${logoUrl}" alt="VoxWel Logo" class="logo" />
 
+                <p class="platform-name">VoxWel</p>
+                <p class="subtitle">Where Every Voice Matters</p>
                 <h1 class="company-name">${company.name}</h1>
-                <p class="platform-name">VoxWel - Where Every Voice Matters</p>
-                <p class="subtitle">Scan to Join Our Team</p>
+                <p class="subtitle" style="margin-top: 12px;">Scan to Join Our Team</p>
                 <div class="divider"></div>
               </div>
 

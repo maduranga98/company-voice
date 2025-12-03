@@ -10,6 +10,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -19,6 +20,13 @@ const Login = () => {
   const html5QrCodeRef = useRef(null);
 
   useEffect(() => {
+    // Load remembered username
+    const rememberedUsername = localStorage.getItem("rememberedUsername");
+    if (rememberedUsername) {
+      setUsername(rememberedUsername);
+      setRememberMe(true);
+    }
+
     return () => {
       if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
         html5QrCodeRef.current.stop().catch((err) => console.error(err));
@@ -32,6 +40,13 @@ const Login = () => {
     try {
       setError("");
       setLoading(true);
+
+      // Handle remember me
+      if (rememberMe) {
+        localStorage.setItem("rememberedUsername", username);
+      } else {
+        localStorage.removeItem("rememberedUsername");
+      }
 
       await login(username, password);
       navigate("/dashboard");
@@ -77,13 +92,43 @@ const Login = () => {
       setScanning(true);
       setError("");
 
+      // Request camera permission explicitly
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" }
+        });
+        // Stop the test stream immediately
+        stream.getTracks().forEach(track => track.stop());
+      } catch (permErr) {
+        console.error("Camera permission error:", permErr);
+        setError(t("auth.login.cameraAccessError"));
+        setScanning(false);
+        setShowQRScanner(false);
+        return;
+      }
+
       setTimeout(async () => {
         try {
           const html5QrCode = new Html5Qrcode("qr-reader");
           html5QrCodeRef.current = html5QrCode;
 
+          // Get available cameras
+          const devices = await Html5Qrcode.getCameras();
+
+          if (!devices || devices.length === 0) {
+            throw new Error("No cameras found");
+          }
+
+          // Prefer back camera if available
+          const backCamera = devices.find(device =>
+            device.label.toLowerCase().includes('back') ||
+            device.label.toLowerCase().includes('rear')
+          );
+
+          const cameraId = backCamera ? backCamera.id : devices[0].id;
+
           await html5QrCode.start(
-            { facingMode: "environment" },
+            cameraId,
             {
               fps: 10,
               qrbox: { width: 250, height: 250 },
@@ -422,23 +467,19 @@ const Login = () => {
                     </div>
                   </div>
 
-                  {/* Remember Me & Forgot Password */}
-                  <div className="flex items-center justify-between">
+                  {/* Remember Me */}
+                  <div className="flex items-center">
                     <label className="flex items-center cursor-pointer group">
                       <input
                         type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
                         className="w-4 h-4 text-primary-teal border-border-medium rounded focus:ring-primary-teal cursor-pointer"
                       />
                       <span className="ml-2 text-sm text-text-secondary group-hover:text-text-primary transition">
                         {t("auth.login.rememberMe")}
                       </span>
                     </label>
-                    <a
-                      href="#"
-                      className="text-sm font-semibold text-primary-teal hover:opacity-80 transition"
-                    >
-                      {t("auth.login.forgotPassword")}
-                    </a>
                   </div>
 
                   {/* Login Button */}

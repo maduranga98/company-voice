@@ -919,84 +919,118 @@ export const deletePost = async (postId, user) => {
       throw new Error("Unauthorized: Post belongs to a different company");
     }
 
-    // Log deletion activity before deleting
-    await logPostActivity(postId, PostActivityType.POST_DELETED, {
+    // SOFT DELETE: Move post to deletedPosts collection instead of deleting
+    const deletedPostRef = doc(db, "deletedPosts", postId);
+
+    // Create deleted post document with metadata
+    const deletedPostData = {
+      ...postData,
+      originalPostId: postId,
       deletedBy: {
         id: user.id || user.uid,
         name: user.displayName || user.username,
         role: user.role,
       },
-      postTitle: postData.title || "Untitled",
-      postType: postData.type,
-      deletedAt: new Date().toISOString(),
-    });
+      deletedAt: serverTimestamp(),
+    };
 
-    // Use batch for atomic deletion of related documents
+    // Use batch for atomic operations
     const batch = writeBatch(db);
 
-    // 1. Delete all comments
+    // Save post to deletedPosts collection
+    batch.set(deletedPostRef, deletedPostData);
+
+    // 1. Copy all comments to deletedPosts collection
     const commentsQuery = query(collection(db, `posts/${postId}/comments`));
     const commentsSnap = await getDocs(commentsQuery);
+    const commentsCopyBatch = writeBatch(db);
     commentsSnap.forEach((commentDoc) => {
+      const commentData = commentDoc.data();
+      const deletedCommentRef = doc(db, `deletedPosts/${postId}/comments`, commentDoc.id);
+      commentsCopyBatch.set(deletedCommentRef, commentData);
       batch.delete(doc(db, `posts/${postId}/comments`, commentDoc.id));
     });
+    await commentsCopyBatch.commit();
 
-    // 2. Delete all likes
+    // 2. Copy all likes and delete originals
     const likesQuery = query(collection(db, `posts/${postId}/likes`));
     const likesSnap = await getDocs(likesQuery);
+    const likesCopyBatch = writeBatch(db);
     likesSnap.forEach((likeDoc) => {
+      const likeData = likeDoc.data();
+      const deletedLikeRef = doc(db, `deletedPosts/${postId}/likes`, likeDoc.id);
+      likesCopyBatch.set(deletedLikeRef, likeData);
       batch.delete(doc(db, `posts/${postId}/likes`, likeDoc.id));
     });
+    await likesCopyBatch.commit();
 
-    // 3. Delete all reactions (if separate collection)
+    // 3. Copy all reactions and delete originals
     const reactionsQuery = query(collection(db, `posts/${postId}/reactions`));
     const reactionsSnap = await getDocs(reactionsQuery);
+    const reactionsCopyBatch = writeBatch(db);
     reactionsSnap.forEach((reactionDoc) => {
+      const reactionData = reactionDoc.data();
+      const deletedReactionRef = doc(db, `deletedPosts/${postId}/reactions`, reactionDoc.id);
+      reactionsCopyBatch.set(deletedReactionRef, reactionData);
       batch.delete(doc(db, `posts/${postId}/reactions`, reactionDoc.id));
     });
+    await reactionsCopyBatch.commit();
 
-    // Commit the batch for subcollections
+    // Commit the batch for main deletions
     await batch.commit();
 
-    // 4. Delete edit history (separate collection)
+    // 4. Move edit history
     const editHistoryQuery = query(
       collection(db, "postEditHistory"),
       where("postId", "==", postId)
     );
     const editHistorySnap = await getDocs(editHistoryQuery);
     const historyBatch = writeBatch(db);
+    const historyMoveBatch = writeBatch(db);
     editHistorySnap.forEach((historyDoc) => {
+      const historyData = historyDoc.data();
+      const deletedHistoryRef = doc(db, "deletedPostEditHistory", historyDoc.id);
+      historyMoveBatch.set(deletedHistoryRef, historyData);
       historyBatch.delete(doc(db, "postEditHistory", historyDoc.id));
     });
+    await historyMoveBatch.commit();
     await historyBatch.commit();
 
-    // 5. Delete post activities (separate collection) - keep last one we just created for audit
+    // 5. Move post activities
     const activitiesQuery = query(
       collection(db, "postActivities"),
       where("postId", "==", postId)
     );
     const activitiesSnap = await getDocs(activitiesQuery);
     const activitiesBatch = writeBatch(db);
-    // Skip the last activity (deletion log) for audit trail
-    const activityDocs = activitiesSnap.docs.slice(0, -1);
-    activityDocs.forEach((activityDoc) => {
+    const activitiesMoveBatch = writeBatch(db);
+    activitiesSnap.forEach((activityDoc) => {
+      const activityData = activityDoc.data();
+      const deletedActivityRef = doc(db, "deletedPostActivities", activityDoc.id);
+      activitiesMoveBatch.set(deletedActivityRef, activityData);
       activitiesBatch.delete(doc(db, "postActivities", activityDoc.id));
     });
+    await activitiesMoveBatch.commit();
     await activitiesBatch.commit();
 
-    // 6. Delete post views (separate collection)
+    // 6. Move post views
     const viewsQuery = query(
       collection(db, "postViews"),
       where("postId", "==", postId)
     );
     const viewsSnap = await getDocs(viewsQuery);
     const viewsBatch = writeBatch(db);
+    const viewsMoveBatch = writeBatch(db);
     viewsSnap.forEach((viewDoc) => {
+      const viewData = viewDoc.data();
+      const deletedViewRef = doc(db, "deletedPostViews", viewDoc.id);
+      viewsMoveBatch.set(deletedViewRef, viewData);
       viewsBatch.delete(doc(db, "postViews", viewDoc.id));
     });
+    await viewsMoveBatch.commit();
     await viewsBatch.commit();
 
-    // 7. Finally, delete the post document itself
+    // 7. Finally, delete the original post document
     await deleteDoc(postRef);
 
     return {

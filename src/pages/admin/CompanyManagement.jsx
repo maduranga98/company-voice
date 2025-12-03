@@ -12,6 +12,8 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  where,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { hashPassword, checkUsernameExists } from "../../services/authService";
@@ -196,13 +198,41 @@ const CompanyManagement = () => {
     try {
       setLoading(true);
 
-      // Delete company
-      await deleteDoc(doc(db, "companies", companyToDelete.id));
+      // Delete all users associated with this company
+      const usersQuery = query(
+        collection(db, "users"),
+        where("companyId", "==", companyToDelete.id)
+      );
+      const usersSnapshot = await getDocs(usersQuery);
 
-      // Note: In production, you should also delete or deactivate all associated users and data
-      // For now, we'll just delete the company document
+      // Use batch to delete all users and their auth sessions
+      const batch = writeBatch(db);
 
-      setSuccess(`Company "${companyToDelete.name}" deleted successfully!`);
+      usersSnapshot.forEach((userDoc) => {
+        // Delete user document
+        batch.delete(doc(db, "users", userDoc.id));
+      });
+
+      // Delete auth sessions for these users
+      const authSessionsQuery = query(
+        collection(db, "authSessions"),
+        where("companyId", "==", companyToDelete.id)
+      );
+      const authSessionsSnapshot = await getDocs(authSessionsQuery);
+
+      authSessionsSnapshot.forEach((sessionDoc) => {
+        batch.delete(doc(db, "authSessions", sessionDoc.id));
+      });
+
+      // Delete company document
+      batch.delete(doc(db, "companies", companyToDelete.id));
+
+      // Commit all deletions
+      await batch.commit();
+
+      setSuccess(
+        `Company "${companyToDelete.name}" and ${usersSnapshot.size} associated user(s) deleted successfully!`
+      );
       setShowDeleteModal(false);
       setCompanyToDelete(null);
       loadCompanies();

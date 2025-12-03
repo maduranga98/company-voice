@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { HelpCircle } from "lucide-react";
 
 const CompanyAdminLayout = () => {
   const { userData, logout } = useAuth();
@@ -236,6 +238,18 @@ const CompanyAdminLayout = () => {
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+
+              {/* Help Button */}
+              <button
+                onClick={() => handleNavigate("/help")}
+                className="inline-flex items-center p-2 text-text-onDark hover:text-primary-teal transition-colors duration-200"
+                title="Help Center"
+              >
+                <HelpCircle className="w-6 h-6" />
+              </button>
+
               {/* User Info - Desktop */}
               <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-primary-navy bg-opacity-50 rounded-lg border border-primary-teal border-opacity-30">
                 <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary-teal to-accent-coral flex items-center justify-center text-text-onDark font-bold text-sm">

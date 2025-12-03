@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, CreditCard, Scale } from "lucide-react";
+import { Building2, CreditCard, Scale, Trash2 } from "lucide-react";
 
 const SuperAdminNav = () => {
   const navigate = useNavigate();
@@ -24,6 +24,12 @@ const SuperAdminNav = () => {
       label: "Legal Requests",
       path: "/admin/legal-requests",
       icon: <Scale className="w-5 h-5" />,
+    },
+    {
+      id: "deleted-posts",
+      label: "Deleted Posts",
+      path: "/admin/deleted-posts",
+      icon: <Trash2 className="w-5 h-5" />,
     },
   ];
 
