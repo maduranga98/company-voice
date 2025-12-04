@@ -51,7 +51,8 @@ const Login = () => {
       await login(username, password);
       navigate("/dashboard");
     } catch (error) {
-      setError(t("auth.login.invalidCredentials"));
+      // Display the actual error message from the server
+      setError(error.message || t("auth.login.invalidCredentials"));
       console.error(error);
     } finally {
       setLoading(false);
