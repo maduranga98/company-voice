@@ -559,7 +559,9 @@ const Login = () => {
                 <p className="mt-8 text-center text-sm text-text-tertiary">
                   {t("auth.login.newToVoxWel")}{" "}
                   <a
-                    href="#"
+                    href="https://www.voxwel.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="font-semibold text-primary-teal hover:opacity-80 transition"
                   >
                     {t("auth.login.contactHR")}
@@ -673,7 +675,15 @@ const Login = () => {
 
           {/* Copyright */}
           <p className="mt-8 text-center text-sm text-text-tertiary">
-            {t("auth.login.copyright")}
+            {t("auth.login.copyright")} •{" "}
+            <a
+              href="https://www.lumoraventures.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-teal hover:opacity-80 transition font-medium"
+            >
+              Lumora Ventures PVT LTD
+            </a>
           </p>
         </div>
       </div>
