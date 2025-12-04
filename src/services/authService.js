@@ -52,7 +52,7 @@ export const loginWithUsernamePassword = async (username, password) => {
 
       const companyData = companyDoc.data();
 
-      if (companyData.status !== "active") {
+      if (!companyData.isActive) {
         throw new Error("Your company account is deactivated. Please contact support.");
       }
     }
