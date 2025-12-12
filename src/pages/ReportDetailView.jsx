@@ -96,7 +96,9 @@ const ReportDetailView = () => {
       await reviewReport({
         reportId: report.id,
         actionType: selectedAction,
-        moderatorId: userData.uid,
+        moderatorId: userData.id || userData.uid,
+        moderatorName: userData.displayName,
+        companyId: userData.companyId,
         moderatorNotes: moderatorNotes.trim(),
         violationType: violationType.trim(),
         explanation: explanation.trim(),

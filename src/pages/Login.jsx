@@ -76,13 +76,13 @@ const Login = () => {
           },
         });
       } else {
-        setError(t("auth.login.invalidQR"));
+        setError("Invalid QR code. Please scan a valid company registration QR code");
         setShowQRScanner(false);
         setScanning(false);
       }
     } catch (error) {
       console.error("QR Scan error:", error);
-      setError(t("qr.scanError"));
+      setError("Invalid QR code. Please scan a valid company registration QR code");
       setScanning(false);
     }
   };
@@ -297,8 +297,8 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-background-softGray">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-start justify-center p-8 bg-background-softGray overflow-y-auto">
+        <div className="w-full max-w-md my-auto">
           {/* Mobile Logo - LARGER */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">

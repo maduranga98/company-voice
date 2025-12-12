@@ -157,7 +157,7 @@ const CommentsSection = ({
 
       {/* Comments Section - Expands Below Action Bar */}
       {showComments && (
-        <div className="absolute left-0 right-0 bg-white border-t border-slate-100 shadow-lg z-10">
+        <div className="w-full bg-white border-t border-slate-100">
           {/* Header with Close Button */}
           <div className="px-3 sm:px-4 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50">
             <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">

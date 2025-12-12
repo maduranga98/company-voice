@@ -8,12 +8,13 @@ import {
   onSnapshot,
   serverTimestamp,
   updateDoc,
+  deleteDoc,
   doc,
   increment,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { MessageCircle, Send, AtSign, X } from "lucide-react";
+import { MessageCircle, Send, AtSign, X, Edit2, Trash2, Reply } from "lucide-react";
 import {
   searchUsersForMention,
   parseMentions,
@@ -36,6 +37,12 @@ const CommentsEnhanced = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
+
+  // Edit/Delete/Reply state
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [replyingToId, setReplyingToId] = useState(null);
+  const [replyText, setReplyText] = useState("");
 
   // Mention autocomplete state
   const [showMentions, setShowMentions] = useState(false);
@@ -192,6 +199,97 @@ const CommentsEnhanced = ({
     }
   };
 
+  // Edit comment
+  const handleEditComment = (comment) => {
+    setEditingCommentId(comment.id);
+    setEditText(comment.text);
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    if (!editText.trim()) return;
+
+    try {
+      const commentRef = doc(db, "comments", commentId);
+      await updateDoc(commentRef, {
+        text: editText.trim(),
+        edited: true,
+        editedAt: serverTimestamp(),
+      });
+
+      setEditingCommentId(null);
+      setEditText("");
+    } catch (error) {
+      console.error("Error editing comment:", error);
+      setError("Failed to edit comment. Please try again.");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditText("");
+  };
+
+  // Delete comment
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment?")) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, "comments", commentId));
+
+      // Decrement comment count on post
+      const postRef = doc(db, "posts", postId);
+      await updateDoc(postRef, {
+        comments: increment(-1),
+      });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      setError("Failed to delete comment. Please try again.");
+    }
+  };
+
+  // Reply to comment
+  const handleReplyToComment = (comment) => {
+    setReplyingToId(comment.id);
+    setReplyText(`@${comment.authorName} `);
+  };
+
+  const handleSaveReply = async (parentCommentId) => {
+    if (!replyText.trim()) return;
+
+    try {
+      const replyData = {
+        postId,
+        text: replyText.trim(),
+        authorId: userData.id,
+        authorName: userData.displayName,
+        parentCommentId: parentCommentId,
+        isAnonymous: false,
+        createdAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "comments"), replyData);
+
+      // Update post comment count
+      const postRef = doc(db, "posts", postId);
+      await updateDoc(postRef, {
+        comments: increment(1),
+      });
+
+      setReplyingToId(null);
+      setReplyText("");
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      setError("Failed to add reply. Please try again.");
+    }
+  };
+
+  const handleCancelReply = () => {
+    setReplyingToId(null);
+    setReplyText("");
+  };
+
   const renderCommentWithMentions = (text) => {
     const segments = highlightMentions(text);
 
@@ -237,11 +335,11 @@ const CommentsEnhanced = ({
         </span>
       </button>
 
-      {/* Comments Section - Rendered outside action bar with absolute positioning */}
+      {/* Comments Section - Expands container instead of absolute positioning */}
       {showComments && (
-        <div className="absolute left-0 right-0 px-3 sm:px-4 pb-4 border-t border-slate-100 bg-white">
+        <div className="w-full px-3 sm:px-4 pb-4 pt-2 border-t border-slate-100 bg-white">
           {/* Close Button */}
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end">
             <button
               onClick={() => setShowComments(false)}
               className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-1.5 transition"
@@ -258,33 +356,217 @@ const CommentsEnhanced = ({
                 {commentCount > 0 ? "Loading comments..." : "No comments yet. Be the first to comment!"}
               </p>
             ) : (
-              comments.map((comment) => (
-                <div key={comment.id} className="flex gap-2 sm:gap-3">
-                  <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
-                    {comment.authorName?.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="bg-slate-50 rounded-lg p-2.5 sm:p-3">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <span className="font-medium text-slate-900 text-sm">
-                          {comment.authorName}
-                          {comment.isAdminComment && (
-                            <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
-                              Admin
-                            </span>
-                          )}
-                        </span>
-                        <span className="text-xs text-slate-500 flex-shrink-0">
-                          {getTimeAgo(comment.createdAt)}
-                        </span>
+              comments.map((comment) => {
+                const isOwnComment = userData && userData.id === comment.authorId;
+                const isEditing = editingCommentId === comment.id;
+                const isReplying = replyingToId === comment.id;
+
+                // Group replies
+                const replies = comments.filter(c => c.parentCommentId === comment.id);
+                const isReply = !!comment.parentCommentId;
+
+                // Don't render if this is a reply (will be rendered under parent)
+                if (isReply) return null;
+
+                return (
+                  <div key={comment.id} className="space-y-2">
+                    <div className="flex gap-2 sm:gap-3">
+                      <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                        {comment.authorName?.charAt(0).toUpperCase()}
                       </div>
-                      <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">
-                        {renderCommentWithMentions(comment.text)}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="bg-slate-50 rounded-lg p-2.5 sm:p-3">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <span className="font-medium text-slate-900 text-sm">
+                              {comment.authorName}
+                              {comment.isAdminComment && (
+                                <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
+                                  Admin
+                                </span>
+                              )}
+                              {comment.edited && (
+                                <span className="ml-2 text-xs text-slate-400">(edited)</span>
+                              )}
+                            </span>
+                            <span className="text-xs text-slate-500 flex-shrink-0">
+                              {getTimeAgo(comment.createdAt)}
+                            </span>
+                          </div>
+
+                          {isEditing ? (
+                            <div className="space-y-2">
+                              <textarea
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                className="w-full px-2 py-1 border border-slate-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows="2"
+                              />
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleSaveEdit(comment.id)}
+                                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">
+                              {renderCommentWithMentions(comment.text)}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Comment Actions */}
+                        {!isEditing && (
+                          <div className="flex items-center gap-3 mt-1 ml-1">
+                            <button
+                              onClick={() => handleReplyToComment(comment)}
+                              className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
+                            >
+                              <Reply className="w-3 h-3" />
+                              Reply
+                            </button>
+                            {isOwnComment && (
+                              <>
+                                <button
+                                  onClick={() => handleEditComment(comment)}
+                                  className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteComment(comment.id)}
+                                  className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Reply Form */}
+                        {isReplying && (
+                          <div className="mt-2 space-y-2">
+                            <textarea
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              className="w-full px-2 py-1 border border-slate-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              rows="2"
+                              placeholder="Write a reply..."
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveReply(comment.id)}
+                                className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                              >
+                                Reply
+                              </button>
+                              <button
+                                onClick={handleCancelReply}
+                                className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Nested Replies */}
+                        {replies.length > 0 && (
+                          <div className="mt-3 ml-4 space-y-2 border-l-2 border-slate-200 pl-3">
+                            {replies.map((reply) => {
+                              const isOwnReply = userData && userData.id === reply.authorId;
+                              const isEditingReply = editingCommentId === reply.id;
+
+                              return (
+                                <div key={reply.id} className="flex gap-2">
+                                  <div className="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                                    {reply.authorName?.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="bg-slate-100 rounded-lg p-2">
+                                      <div className="flex items-start justify-between gap-2 mb-1">
+                                        <span className="font-medium text-slate-900 text-xs">
+                                          {reply.authorName}
+                                          {reply.edited && (
+                                            <span className="ml-1 text-xs text-slate-400">(edited)</span>
+                                          )}
+                                        </span>
+                                        <span className="text-xs text-slate-500 flex-shrink-0">
+                                          {getTimeAgo(reply.createdAt)}
+                                        </span>
+                                      </div>
+
+                                      {isEditingReply ? (
+                                        <div className="space-y-2">
+                                          <textarea
+                                            value={editText}
+                                            onChange={(e) => setEditText(e.target.value)}
+                                            className="w-full px-2 py-1 border border-slate-300 rounded text-xs resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            rows="2"
+                                          />
+                                          <div className="flex gap-2">
+                                            <button
+                                              onClick={() => handleSaveEdit(reply.id)}
+                                              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                            >
+                                              Save
+                                            </button>
+                                            <button
+                                              onClick={handleCancelEdit}
+                                              className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
+                                            >
+                                              Cancel
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <p className="text-xs text-slate-700 whitespace-pre-wrap break-words">
+                                          {renderCommentWithMentions(reply.text)}
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    {/* Reply Actions */}
+                                    {!isEditingReply && isOwnReply && (
+                                      <div className="flex items-center gap-3 mt-1 ml-1">
+                                        <button
+                                          onClick={() => handleEditComment(reply)}
+                                          className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteComment(reply.id)}
+                                          className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 

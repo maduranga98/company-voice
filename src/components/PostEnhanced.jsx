@@ -676,6 +676,7 @@ const PostEnhanced = ({ post }) => {
               </button>
             )}
           </div>
+          {/* Comments section will expand here */}
         </div>
       </article>
 
