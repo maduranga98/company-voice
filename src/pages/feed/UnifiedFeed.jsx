@@ -4,11 +4,12 @@ import { useAuth } from "../../contexts/AuthContext";
 import PostEnhanced from "../../components/PostEnhanced";
 import CreatePost from "../../components/CreatePost";
 import AdminActionPanel from "../../components/AdminActionPanel";
-import { isAdmin, getPostsWithPrivacyFilter } from "../../services/postManagementService";
+import { isAdmin } from "../../services/postManagementService";
 import { useTranslation } from "react-i18next";
-import { getPinnedPosts } from "../../services/postEnhancedFeaturesService";
 import { PostSkeleton } from "../../components/SkeletonLoader";
 import PullToRefresh from "../../components/PullToRefresh";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const { t } = useTranslation();
@@ -24,8 +25,121 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
-    loadPosts();
-  }, [userData, feedType]);
+    if (!userData?.companyId) return;
+
+    setLoading(true);
+
+    // Real-time listener for posts
+    const postsRef = collection(db, "posts");
+    const postsQuery = query(
+      postsRef,
+      where("companyId", "==", userData.companyId),
+      where("type", "==", feedType),
+      where("isArchived", "==", false),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribePosts = onSnapshot(postsQuery, (snapshot) => {
+      const postsData = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+
+        // Apply privacy filtering
+        let canView = false;
+
+        // Super admin and company admin can see all posts
+        if (userData.role === "super_admin" || userData.role === "company_admin") {
+          canView = true;
+        } else {
+          const privacyLevel = data.privacyLevel || "company_public";
+
+          if (privacyLevel === "company_public") {
+            canView = true;
+          } else if (privacyLevel === "hr_only") {
+            canView = userData.role === "hr";
+          } else if (privacyLevel === "department_only") {
+            if (userData.role === "hr") {
+              canView = true;
+            } else if (userData.departmentId && data.departmentId) {
+              canView = userData.departmentId === data.departmentId;
+            }
+          }
+        }
+
+        if (canView) {
+          postsData.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate(),
+            updatedAt: data.updatedAt?.toDate(),
+          });
+        }
+      });
+
+      setPosts(postsData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error loading posts:", error);
+      setLoading(false);
+    });
+
+    // Real-time listener for pinned posts
+    const pinnedQuery = query(
+      postsRef,
+      where("companyId", "==", userData.companyId),
+      where("type", "==", feedType),
+      where("isPinned", "==", true),
+      where("isArchived", "==", false),
+      orderBy("pinnedAt", "desc")
+    );
+
+    const unsubscribePinned = onSnapshot(pinnedQuery, (snapshot) => {
+      const pinnedData = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+
+        // Apply same privacy filtering
+        let canView = false;
+
+        if (userData.role === "super_admin" || userData.role === "company_admin") {
+          canView = true;
+        } else {
+          const privacyLevel = data.privacyLevel || "company_public";
+
+          if (privacyLevel === "company_public") {
+            canView = true;
+          } else if (privacyLevel === "hr_only") {
+            canView = userData.role === "hr";
+          } else if (privacyLevel === "department_only") {
+            if (userData.role === "hr") {
+              canView = true;
+            } else if (userData.departmentId && data.departmentId) {
+              canView = userData.departmentId === data.departmentId;
+            }
+          }
+        }
+
+        if (canView) {
+          pinnedData.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate(),
+            updatedAt: data.updatedAt?.toDate(),
+            pinnedAt: data.pinnedAt?.toDate(),
+          });
+        }
+      });
+
+      setPinnedPosts(pinnedData);
+    }, (error) => {
+      console.error("Error loading pinned posts:", error);
+    });
+
+    return () => {
+      unsubscribePosts();
+      unsubscribePinned();
+    };
+  }, [userData?.companyId, feedType]);
 
   useEffect(() => {
     filterPosts();
@@ -38,64 +152,10 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
     }
   }, [searchTerm, selectedCategory]);
 
-  const loadPosts = async () => {
-    if (!userData?.companyId) return;
-
-    try {
-      setLoading(true);
-
-      // Load posts with privacy filtering based on user role and department
-      const postsData = await getPostsWithPrivacyFilter(
-        userData.companyId,
-        feedType,
-        userData
-      );
-
-      // Load pinned posts for this feed type (also filtered)
-      const pinned = await getPinnedPosts(userData.companyId, feedType);
-
-      // Apply privacy filtering to pinned posts as well
-      const filteredPinned = pinned.filter(post => {
-        if (post.isArchived) return false;
-
-        // Super admin and company admin can see all posts
-        if (userData.role === "super_admin" || userData.role === "company_admin") {
-          return true;
-        }
-
-        const privacyLevel = post.privacyLevel || "company_public";
-
-        // Public posts - everyone can see
-        if (privacyLevel === "company_public") {
-          return true;
-        }
-
-        // HR-only posts
-        if (privacyLevel === "hr_only") {
-          return userData.role === "hr" || userData.role === "company_admin" || userData.role === "super_admin";
-        }
-
-        // Department-only posts
-        if (privacyLevel === "department_only") {
-          if (userData.role === "hr") {
-            return true;
-          }
-          if (userData.departmentId && post.departmentId) {
-            return userData.departmentId === post.departmentId;
-          }
-          return false;
-        }
-
-        return true;
-      });
-
-      setPinnedPosts(filteredPinned);
-      setPosts(postsData);
-    } catch (error) {
-      console.error("Error loading posts:", error);
-    } finally {
-      setLoading(false);
-    }
+  // No longer needed with real-time listeners, but kept for pull-to-refresh compatibility
+  const loadPosts = () => {
+    // Real-time listeners will automatically update the posts
+    // This is just a placeholder for pull-to-refresh functionality
   };
 
   const filterPosts = () => {

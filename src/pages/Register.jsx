@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   doc,
@@ -32,6 +32,7 @@ const Register = () => {
 
   const [usernameAvailable, setUsernameAvailable] = useState(null);
   const [usernameChecked, setUsernameChecked] = useState(false);
+  const usernameCheckTimeout = useRef(null);
 
   useEffect(() => {
     if (!companyId) {
@@ -40,6 +41,51 @@ const Register = () => {
     }
     loadCompany();
   }, [companyId, navigate]);
+
+  // Auto-check username availability with debounce
+  useEffect(() => {
+    // Clear any existing timeout
+    if (usernameCheckTimeout.current) {
+      clearTimeout(usernameCheckTimeout.current);
+    }
+
+    // Reset states when username changes
+    setUsernameAvailable(null);
+    setUsernameChecked(false);
+
+    // Don't check if username is too short or empty
+    if (!formData.username || formData.username.length < 3) {
+      return;
+    }
+
+    // Set a timeout to check username after 500ms of no typing
+    usernameCheckTimeout.current = setTimeout(async () => {
+      setCheckingUsername(true);
+      setError("");
+
+      try {
+        const exists = await checkUsernameExists(formData.username);
+        setUsernameAvailable(!exists);
+        setUsernameChecked(true);
+
+        if (exists) {
+          setError("Username already taken. Please choose another.");
+        }
+      } catch (error) {
+        console.error("Error checking username:", error);
+        setError("Failed to check username availability.");
+      } finally {
+        setCheckingUsername(false);
+      }
+    }, 500);
+
+    // Cleanup function
+    return () => {
+      if (usernameCheckTimeout.current) {
+        clearTimeout(usernameCheckTimeout.current);
+      }
+    };
+  }, [formData.username]);
 
   const loadCompany = async () => {
     try {
@@ -65,8 +111,7 @@ const Register = () => {
         ...prev,
         [name]: alphanumericValue,
       }));
-      setUsernameAvailable(null);
-      setUsernameChecked(false);
+      // Auto-check will be triggered by useEffect
       return;
     }
 
@@ -74,31 +119,6 @@ const Register = () => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const checkUsername = async () => {
-    if (!formData.username || formData.username.length < 3) {
-      setError("Username must be at least 3 characters long");
-      return;
-    }
-
-    setCheckingUsername(true);
-    setError("");
-
-    try {
-      const exists = await checkUsernameExists(formData.username);
-      setUsernameAvailable(!exists);
-      setUsernameChecked(true);
-
-      if (exists) {
-        setError("Username already taken. Please choose another.");
-      }
-    } catch (error) {
-      console.error("Error checking username:", error);
-      setError("Failed to check username availability.");
-    } finally {
-      setCheckingUsername(false);
-    }
   };
 
   const validateForm = () => {
@@ -297,7 +317,7 @@ const Register = () => {
             >
               Username
             </label>
-            <div className="flex gap-2">
+            <div className="relative">
               <input
                 id="username"
                 name="username"
@@ -305,21 +325,41 @@ const Register = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 required
-                className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
+                className="w-full px-3.5 py-2.5 pr-10 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
                 placeholder="johndoe"
               />
-              <button
-                type="button"
-                onClick={checkUsername}
-                disabled={
-                  checkingUsername ||
-                  !formData.username ||
-                  formData.username.length < 3
-                }
-                className="px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                {checkingUsername ? "Checking..." : "Check"}
-              </button>
+              {/* Status indicator */}
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                {checkingUsername && (
+                  <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
+                )}
+                {!checkingUsername && usernameChecked && usernameAvailable && (
+                  <svg
+                    className="w-5 h-5 text-emerald-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+                {!checkingUsername && usernameChecked && !usernameAvailable && (
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </div>
             </div>
             <p className="text-xs text-slate-500 mt-1.5">
               Only letters and numbers allowed (no spaces or special characters)
@@ -331,35 +371,9 @@ const Register = () => {
                 }`}
               >
                 {usernameAvailable ? (
-                  <>
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>Available</span>
-                  </>
+                  <span>✓ Username is available</span>
                 ) : (
-                  <>
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>Already taken</span>
-                  </>
+                  <span>✗ Username already taken</span>
                 )}
               </div>
             )}
