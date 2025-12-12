@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,12 +12,15 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [pollData, setPollData] = useState(null);
+  const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
     tags: "",
     isAnonymous: false,
+    privacyLevel: "company_public",
+    departmentId: "",
   });
 
   // Validate user data on component mount
@@ -32,6 +35,34 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
       setError(""); // Clear error if everything is valid
     }
   }, [userData]);
+
+  // Load departments on mount
+  useEffect(() => {
+    const loadDepartments = async () => {
+      if (!userData?.companyId) return;
+
+      try {
+        const deptRef = collection(db, "departments");
+        const q = query(
+          deptRef,
+          where("companyId", "==", userData.companyId),
+          orderBy("name", "asc")
+        );
+
+        const snapshot = await getDocs(q);
+        const deptList = [];
+        snapshot.forEach((doc) => {
+          deptList.push({ id: doc.id, ...doc.data() });
+        });
+
+        setDepartments(deptList);
+      } catch (error) {
+        console.error("Error loading departments:", error);
+      }
+    };
+
+    loadDepartments();
+  }, [userData?.companyId]);
 
   const config = {
     creative: {
@@ -289,6 +320,11 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         throw new Error("Company information missing. Please contact support.");
       }
 
+      // Validate department selection for department-only posts
+      if (formData.privacyLevel === "department_only" && !formData.departmentId) {
+        throw new Error("Please select a department for department-only posts.");
+      }
+
       // Upload files if any
       let uploadedAttachments = [];
       if (selectedFiles.length > 0) {
@@ -315,10 +351,13 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           ? "Anonymous"
           : userData.displayName || "Unknown User",
         authorEmail: userData.email || "",
+        authorDepartmentId: userData.departmentId || null,
         companyId: userData.companyId,
         type: currentConfig.postType,
         status: "open",
         priority: "medium",
+        privacyLevel: formData.privacyLevel,
+        departmentId: formData.privacyLevel === "department_only" ? formData.departmentId : null,
         attachments: uploadedAttachments,
         poll: pollData, // Include poll data if present
         likes: [],
@@ -495,6 +534,56 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 placeholder="creativity, innovation, teamwork (comma-separated)"
               />
             </div>
+
+            {/* Privacy Level */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Privacy Level
+              </label>
+              <select
+                name="privacyLevel"
+                value={formData.privacyLevel}
+                onChange={handleInputChange}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
+              >
+                <option value="company_public">Company-wide (Public to all employees)</option>
+                <option value="department_only">Department Only</option>
+                <option value="hr_only">HR Only</option>
+              </select>
+              <p className="text-xs text-slate-500 mt-1.5">
+                {formData.privacyLevel === "company_public" && "Visible to all employees in the company"}
+                {formData.privacyLevel === "department_only" && "Only visible to members of the selected department"}
+                {formData.privacyLevel === "hr_only" && "Only visible to HR and company admins"}
+              </p>
+            </div>
+
+            {/* Department Selection - Only show when department_only is selected */}
+            {formData.privacyLevel === "department_only" && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Select Department <span className="text-red-600">*</span>
+                </label>
+                <select
+                  name="departmentId"
+                  value={formData.departmentId}
+                  onChange={handleInputChange}
+                  required={formData.privacyLevel === "department_only"}
+                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
+                >
+                  <option value="">Choose a department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.icon} {dept.name}
+                    </option>
+                  ))}
+                </select>
+                {departments.length === 0 && (
+                  <p className="text-xs text-orange-600 mt-1.5">
+                    No departments available. Please contact your admin to set up departments.
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Anonymous Option */}
             <div className="flex items-center gap-2">

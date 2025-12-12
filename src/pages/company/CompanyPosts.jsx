@@ -9,6 +9,7 @@ import {
   limit,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { getPostsWithPrivacyFilter } from "../../services/postManagementService";
 import CreatePost from "../../components/CreatePost";
 import Post from "../../components/Post";
 
@@ -41,23 +42,31 @@ const CompanyPosts = () => {
   const loadPosts = async () => {
     try {
       setLoading(true);
-      const postsRef = collection(db, "posts");
-      const q = query(
-        postsRef,
-        where("companyId", "==", userData.companyId),
-        where("status", "==", "published"),
-        orderBy("createdAt", "desc"),
-        limit(100)
-      );
 
-      const snapshot = await getDocs(q);
-      const postsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-      }));
+      // Fetch posts for all types with privacy filtering
+      const postTypes = ["creative_content", "problem_report", "team_discussion"];
+      const allPosts = [];
 
-      setPosts(postsData);
+      for (const postType of postTypes) {
+        const typePosts = await getPostsWithPrivacyFilter(
+          userData.companyId,
+          postType,
+          userData
+        );
+        allPosts.push(...typePosts);
+      }
+
+      // Sort by creation date (most recent first)
+      allPosts.sort((a, b) => {
+        const dateA = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+        const dateB = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+        return dateB - dateA;
+      });
+
+      // Limit to 100 most recent posts
+      const limitedPosts = allPosts.slice(0, 100);
+
+      setPosts(limitedPosts);
     } catch (error) {
       console.error("Error loading posts:", error);
     } finally {

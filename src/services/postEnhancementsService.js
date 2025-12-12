@@ -358,6 +358,11 @@ export const getScheduledPosts = async (companyId) => {
  * Publish scheduled post (called by cron/cloud function)
  * @param {string} postId - Post ID
  * @returns {Promise<void>}
+ *
+ * Note: This function preserves all existing post data including:
+ * - privacyLevel: Privacy settings (company_public, department_only, hr_only)
+ * - departmentId: Department restriction if privacy is department_only
+ * - All other post metadata
  */
 export const publishScheduledPost = async (postId) => {
   try {
@@ -368,16 +373,28 @@ export const publishScheduledPost = async (postId) => {
       throw new Error("Post not found");
     }
 
+    const postData = postSnap.data();
+
+    // Validate that department-only posts have a departmentId
+    if (postData.privacyLevel === "department_only" && !postData.departmentId) {
+      console.error("Scheduled post has department_only privacy but no departmentId", postId);
+      throw new Error("Cannot publish department-only post without departmentId");
+    }
+
+    // Only update scheduling-related fields, preserving all other data
     await updateDoc(postRef, {
       isScheduled: false,
       status: "open",
       publishedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
+      // Note: privacyLevel, departmentId, and all other fields are preserved
     });
 
     await logPostActivity(postId, PostActivityType.CREATED, {
-      companyId: postSnap.data().companyId,
+      companyId: postData.companyId,
       scheduledPublish: true,
+      privacyLevel: postData.privacyLevel,
+      departmentId: postData.departmentId || null,
     });
 
     return { success: true };
