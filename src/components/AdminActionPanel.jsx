@@ -416,7 +416,12 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           {/* Assignment */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
-              Assign To {post.isAnonymous && "(Departments only for anonymous posts)"}
+              Assign To
+              {post.isAnonymous && (
+                <span className="text-xs font-normal text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                  Departments only (Anonymous post)
+                </span>
+              )}
               <HelpTooltip
                 content={FEATURE_TOOLTIPS.assignPost}
                 title="Post Assignment"
