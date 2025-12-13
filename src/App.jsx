@@ -23,6 +23,7 @@ import MemberManagementWithDepartments from "./pages/company/MemberManagementWit
 import AuditLog from "./pages/admin/AuditLog";
 import TemplatesPage from "./pages/TemplatesPage";
 import DraftsPage from "./pages/DraftsPage";
+import ArchivedPosts from "./pages/ArchivedPosts";
 import ScheduledPostsPage from "./pages/ScheduledPostsPage";
 import RoleDefinitions from "./pages/RoleDefinitions";
 import HelpCenter from "./pages/HelpCenter";
@@ -192,6 +193,16 @@ function App() {
                 <PrivateRoute>
                   <RoleBasedLayout>
                     <DraftsPage />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/archived"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <ArchivedPosts />
                   </RoleBasedLayout>
                 </PrivateRoute>
               }

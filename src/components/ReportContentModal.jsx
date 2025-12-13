@@ -15,7 +15,7 @@ const ReportContentModal = ({
   contentId,
   companyId,
 }) => {
-  const { currentUser } = useAuth();
+  const { userData } = useAuth();
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,12 +41,18 @@ const ReportContentModal = ({
     setIsSubmitting(true);
 
     try {
+      if (!userData?.id) {
+        setError("You must be logged in to report content");
+        setIsSubmitting(false);
+        return;
+      }
+
       await createContentReport({
         contentType,
         contentId,
         reason,
         description: description.trim(),
-        reportedBy: currentUser.id,
+        reportedBy: userData.id,
         companyId,
       });
 

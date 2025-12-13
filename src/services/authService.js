@@ -26,6 +26,38 @@ export const loginWithUsernamePassword = async (username, password) => {
 
     // Query users collection for custom authentication
     const usersRef = collection(db, "users");
+    // First, check if user exists regardless of status
+    const userCheckQuery = query(
+      usersRef,
+      where("username", "==", username.toLowerCase()),
+      where("password", "==", hashedPassword)
+    );
+
+    const userCheckSnapshot = await getDocs(userCheckQuery);
+
+    if (userCheckSnapshot.empty) {
+      throw new Error("Invalid username or password");
+    }
+
+    const userDoc = userCheckSnapshot.docs[0];
+    const userData = { id: userDoc.id, ...userDoc.data() };
+
+    // Check user status
+    if (userData.status === "suspended") {
+      const suspendedUntil = userData.suspendedUntil?.toDate ? userData.suspendedUntil.toDate() : new Date(userData.suspendedUntil || 0);
+      const now = new Date();
+
+      if (suspendedUntil > now) {
+        const daysRemaining = Math.ceil((suspendedUntil - now) / (1000 * 60 * 60 * 24));
+        throw new Error(`Your account is suspended until ${suspendedUntil.toLocaleDateString()}. ${daysRemaining} day(s) remaining. Reason: ${userData.suspensionReason || 'Policy violation'}`);
+      }
+    } else if (userData.status === "invited") {
+      throw new Error("Your account is pending activation. Please check your email for the invitation link.");
+    } else if (userData.status !== "active") {
+      throw new Error("Your account has been deactivated. Please contact your company administrator or support.");
+    }
+
+    // Re-query to ensure status is active
     const q = query(
       usersRef,
       where("username", "==", username.toLowerCase()),
@@ -39,12 +71,12 @@ export const loginWithUsernamePassword = async (username, password) => {
       throw new Error("Invalid username or password");
     }
 
-    const userDoc = querySnapshot.docs[0];
-    const userData = { id: userDoc.id, ...userDoc.data() };
+    const activeUserDoc = querySnapshot.docs[0];
+    const activeUserData = { id: activeUserDoc.id, ...activeUserDoc.data() };
 
     // Check if user's company is active (skip for super admins)
-    if (userData.companyId) {
-      const companyDoc = await getDoc(doc(db, "companies", userData.companyId));
+    if (activeUserData.companyId) {
+      const companyDoc = await getDoc(doc(db, "companies", activeUserData.companyId));
 
       if (!companyDoc.exists()) {
         throw new Error("Company not found. Please contact support.");
@@ -66,10 +98,10 @@ export const loginWithUsernamePassword = async (username, password) => {
       // For super admins, companyId might be null or undefined
       // Ensure we use null instead of undefined for Firestore compatibility
       const authSessionData = {
-        userId: userDoc.id,
-        username: userData.username,
-        companyId: userData.companyId || null,
-        role: userData.role,
+        userId: activeUserDoc.id,
+        username: activeUserData.username,
+        companyId: activeUserData.companyId || null,
+        role: activeUserData.role,
         createdAt: serverTimestamp(),
       };
 
@@ -87,14 +119,14 @@ export const loginWithUsernamePassword = async (username, password) => {
     }
 
     // Update last login
-    await updateDoc(doc(db, "users", userDoc.id), {
+    await updateDoc(doc(db, "users", activeUserDoc.id), {
       lastLogin: serverTimestamp(),
     });
 
     // Remove password from returned data
-    delete userData.password;
+    delete activeUserData.password;
 
-    return userData;
+    return activeUserData;
   } catch (error) {
     console.error("Login error:", error);
     throw error;

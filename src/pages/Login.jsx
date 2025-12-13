@@ -76,14 +76,15 @@ const Login = () => {
           },
         });
       } else {
-        setError("Invalid QR code. Please scan a valid company registration QR code");
+        setError("Error: Invalid QR code. Please scan a valid company registration QR code");
         setShowQRScanner(false);
         setScanning(false);
       }
     } catch (error) {
       console.error("QR Scan error:", error);
-      setError("Invalid QR code. Please scan a valid company registration QR code");
+      setError("Error: Invalid QR code. Please scan a valid company registration QR code");
       setScanning(false);
+      setShowQRScanner(false);
     }
   };
 

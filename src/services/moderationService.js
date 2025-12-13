@@ -330,7 +330,7 @@ export const reviewReport = async (actionData) => {
       throw new Error("Report not found");
     }
 
-    const report = reportDoc.data();
+    const report = { id: reportDoc.id, ...reportDoc.data() };
 
     // Update report status
     await updateDoc(doc(db, "contentReports", reportId), {
