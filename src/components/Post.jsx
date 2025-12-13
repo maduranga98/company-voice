@@ -158,7 +158,7 @@ const Post = ({ post }) => {
 
   return (
     <article
-      className={`${styling.bg} rounded-lg border ${styling.border} ${styling.leftBorder} overflow-visible transition relative`}
+      className={`${styling.bg} rounded-lg border ${styling.border} ${styling.leftBorder} overflow-hidden transition relative`}
     >
       {/* Post Header */}
       <div className="p-3 sm:p-4 border-b border-slate-100">
