@@ -18,6 +18,7 @@ import {
 } from "../utils/constants";
 import { downloadEvidencePackageWithFormat } from "../services/legalEvidenceService";
 import LegalRequestModal from "../components/LegalRequestModal";
+import { showSuccess, showError, showWarning } from "../services/toastService";
 
 const ReportDetailView = () => {
   const { reportId } = useParams();
@@ -70,7 +71,7 @@ const ReportDetailView = () => {
 
     // Validation
     if (!moderatorNotes.trim()) {
-      alert("Please provide moderator notes");
+      showWarning("Please provide moderator notes");
       return;
     }
 
@@ -81,11 +82,11 @@ const ReportDetailView = () => {
       ].includes(selectedAction)
     ) {
       if (!violationType.trim()) {
-        alert("Please specify the violation type");
+        showWarning("Please specify the violation type");
         return;
       }
       if (!explanation.trim()) {
-        alert("Please provide an explanation for the user");
+        showWarning("Please provide an explanation for the user");
         return;
       }
     }
@@ -104,11 +105,11 @@ const ReportDetailView = () => {
         explanation: explanation.trim(),
       });
 
-      alert("Action completed successfully");
+      showSuccess("Action completed successfully");
       navigate("/moderation");
     } catch (err) {
       console.error("Error taking action:", err);
-      alert("Failed to complete action. Please try again.");
+      showError(err.message || "Failed to complete action. Please try again.");
     } finally {
       setActionInProgress(false);
     }
@@ -125,9 +126,10 @@ const ReportDetailView = () => {
         userData.companyId,
         format
       );
+      showSuccess(`Evidence package exported successfully as ${format.toUpperCase()}`);
     } catch (err) {
       console.error("Error exporting evidence:", err);
-      alert("Failed to export evidence package. Please try again.");
+      showError(err.message || "Failed to export evidence package. Please try again.");
     } finally {
       setExportingEvidence(false);
     }
@@ -419,41 +421,102 @@ const ReportDetailView = () => {
             </div>
           </div>
 
+          {/* Full Content View */}
+          {report.content && (
+            <div className="p-6 border-t border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Full {report.contentType === ReportableContentType.POST ? "Post" : "Comment"} Content
+              </h2>
+              <div className="bg-white border border-gray-300 rounded-lg p-4">
+                {report.contentType === ReportableContentType.POST ? (
+                  <>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{report.content.title}</h3>
+                    <div className="text-gray-700 whitespace-pre-wrap break-words">
+                      {report.content.description || report.content.content}
+                    </div>
+                    {report.content.tags && report.content.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {report.content.tags.map((tag, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-gray-900 whitespace-pre-wrap break-words">{report.content.text}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           {report.status !== "resolved" && report.status !== "dismissed" && (
             <div className="p-6 border-t border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Moderator Actions</h2>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <button
-                  onClick={() => handleActionClick(ModerationActionType.DISMISS)}
-                  className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors text-sm font-medium"
-                >
-                  ✓ Dismiss
-                </button>
-                <button
-                  onClick={() => handleActionClick(ModerationActionType.REMOVE_CONTENT)}
-                  className="px-4 py-3 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg transition-colors text-sm font-medium"
-                >
-                  🗑️ Remove
-                </button>
-                <button
-                  onClick={() => handleActionClick(ModerationActionType.REMOVE_AND_WARN)}
-                  className="px-4 py-3 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg transition-colors text-sm font-medium"
-                >
-                  ⚠️ Remove & Warn
-                </button>
-                <button
-                  onClick={() => handleActionClick(ModerationActionType.ESCALATE)}
-                  className="px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg transition-colors text-sm font-medium"
-                >
-                  ⬆️ Escalate
-                </button>
-                <button
-                  onClick={() => handleActionClick(ModerationActionType.REMOVE_AND_SUSPEND)}
-                  className="px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
-                >
-                  🔒 Suspend
-                </button>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div className="group relative">
+                  <button
+                    onClick={() => handleActionClick(ModerationActionType.DISMISS)}
+                    className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors text-sm font-medium"
+                    title="Dismiss this report - no violation found"
+                  >
+                    ✓ Dismiss
+                  </button>
+                  <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    No violation found - close report
+                  </div>
+                </div>
+                <div className="group relative">
+                  <button
+                    onClick={() => handleActionClick(ModerationActionType.REMOVE_CONTENT)}
+                    className="w-full px-4 py-3 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg transition-colors text-sm font-medium"
+                    title="Remove content without issuing a strike"
+                  >
+                    🗑️ Remove
+                  </button>
+                  <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    Remove content (no strike)
+                  </div>
+                </div>
+                <div className="group relative">
+                  <button
+                    onClick={() => handleActionClick(ModerationActionType.REMOVE_AND_WARN)}
+                    className="w-full px-4 py-3 bg-red-100 hover:bg-red-200 text-red-800 rounded-lg transition-colors text-sm font-medium"
+                    title="Remove content and issue a strike (3 strikes = suspension)"
+                  >
+                    ⚠️ Remove & Warn
+                  </button>
+                  <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg w-48 text-center z-10">
+                    Remove & issue strike (Strike 1: Warning, Strike 2: 7-day restriction, Strike 3: 30-day suspension)
+                  </div>
+                </div>
+                <div className="group relative">
+                  <button
+                    onClick={() => handleActionClick(ModerationActionType.ESCALATE)}
+                    className="w-full px-4 py-3 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg transition-colors text-sm font-medium"
+                    title="Escalate to Super Admin for review"
+                  >
+                    ⬆️ Escalate
+                  </button>
+                  <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    Forward to Super Admin for review
+                  </div>
+                </div>
+                <div className="group relative">
+                  <button
+                    onClick={() => handleActionClick(ModerationActionType.REMOVE_AND_SUSPEND)}
+                    className="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                    title="Remove content and immediately suspend user for 30 days"
+                  >
+                    🔒 Suspend
+                  </button>
+                  <div className="invisible group-hover:visible absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-10">
+                    Remove & suspend user for 30 days
+                  </div>
+                </div>
               </div>
             </div>
           )}

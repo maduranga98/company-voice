@@ -441,35 +441,34 @@ const Post = ({ post }) => {
 
       {/* Post Actions & Comments */}
       <div className="border-t border-slate-100">
-        {/* Action Bar - Fixed Position */}
-        <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 bg-white">
-          <ReactionButton
-            postId={post.id}
-            initialReactions={post.reactions || {}}
-            postAuthorId={post.authorId}
-            postAuthorName={post.authorName}
-            postTitle={post.title}
-          />
-          <CommentsEnhanced
-            postId={post.id}
-            initialCommentCount={post.comments || 0}
-            postAuthorId={post.authorId}
-            postAuthorName={post.authorName}
-            postTitle={post.title}
-          />
-
-          {/* Report Button - Only show if not the author */}
-          {userData && userData.uid !== post.authorId && !post.isRemoved && (
-            <button
-              onClick={() => setShowReportModal(true)}
-              className="ml-auto flex items-center gap-1 px-3 py-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
-              title="Report this post"
-            >
-              <Flag className="w-4 h-4" />
-              <span className="hidden sm:inline">Report</span>
-            </button>
-          )}
-        </div>
+        <CommentsEnhanced
+          postId={post.id}
+          initialCommentCount={post.comments || 0}
+          postAuthorId={post.authorId}
+          postAuthorName={post.authorName}
+          postTitle={post.title}
+          reactionButton={
+            <ReactionButton
+              postId={post.id}
+              initialReactions={post.reactions || {}}
+              postAuthorId={post.authorId}
+              postAuthorName={post.authorName}
+              postTitle={post.title}
+            />
+          }
+          reportButton={
+            userData && userData.uid !== post.authorId && !post.isRemoved ? (
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="ml-auto flex items-center gap-1 px-3 py-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
+                title="Report this post"
+              >
+                <Flag className="w-4 h-4" />
+                <span className="hidden sm:inline">Report</span>
+              </button>
+            ) : null
+          }
+        />
       </div>
 
       {/* Report Modal */}

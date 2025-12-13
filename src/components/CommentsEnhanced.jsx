@@ -28,6 +28,8 @@ const CommentsEnhanced = ({
   postAuthorId,
   postAuthorName,
   postTitle,
+  reactionButton,
+  reportButton,
 }) => {
   const { userData } = useAuth();
   const [comments, setComments] = useState([]);
@@ -323,19 +325,24 @@ const CommentsEnhanced = ({
 
   return (
     <>
-      {/* Comment Button */}
-      <button
-        onClick={() => setShowComments(!showComments)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-sm"
-      >
-        <MessageCircle className="w-4 h-4" />
-        <span>{commentCount}</span>
-        <span className="hidden sm:inline">
-          {commentCount === 1 ? "Comment" : "Comments"}
-        </span>
-      </button>
+      {/* Action Bar */}
+      <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 bg-white">
+        {reactionButton}
+        {/* Comment Button */}
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-sm"
+        >
+          <MessageCircle className="w-4 h-4" />
+          <span>{commentCount}</span>
+          <span className="hidden sm:inline">
+            {commentCount === 1 ? "Comment" : "Comments"}
+          </span>
+        </button>
+        {reportButton}
+      </div>
 
-      {/* Comments Section - Expands container instead of absolute positioning */}
+      {/* Comments Section - Separate from action bar */}
       {showComments && (
         <div className="w-full px-3 sm:px-4 pb-4 pt-2 border-t border-slate-100 bg-white">
           {/* Close Button */}
