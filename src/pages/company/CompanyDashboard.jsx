@@ -570,6 +570,31 @@ const CompanyDashboard = () => {
         )}
 
         <button
+          onClick={() => navigate("/archived")}
+          className="bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Archived Posts</h3>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-100">
+            View and reactivate archived posts from your company
+          </p>
+        </button>
+
+        <button
           onClick={() => navigate("/company/analytics")}
           className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
