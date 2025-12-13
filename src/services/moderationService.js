@@ -459,7 +459,7 @@ const removeContent = async (
 
   // Issue strike if requested
   if (issueStrike && contentAuthorId) {
-    await issueStrike(contentAuthorId, companyId, {
+    await issueStrikeToUser(contentAuthorId, companyId, {
       contentType,
       contentId,
       reportId: report.id,
@@ -469,6 +469,17 @@ const removeContent = async (
     });
   }
 
+  // Build metadata object, only including defined values
+  const metadata = {
+    issueStrike,
+    notes,
+  };
+
+  // Only add violationType if it exists
+  if (strikeInfo.violationType) {
+    metadata.violationType = strikeInfo.violationType;
+  }
+
   await logModerationActivity({
     activityType: ModerationActivityType.CONTENT_REMOVED,
     reportId: report.id,
@@ -476,11 +487,7 @@ const removeContent = async (
     contentId,
     userId: moderatorId,
     companyId,
-    metadata: {
-      issueStrike,
-      notes,
-      violationType: strikeInfo.violationType,
-    },
+    metadata,
   });
 };
 
@@ -610,7 +617,7 @@ const removeAndSuspend = async (report, moderatorId, notes, strikeInfo) => {
  * @param {Object} strikeInfo - Strike details
  * @returns {Promise<void>}
  */
-const issueStrike = async (userId, companyId, strikeInfo) => {
+const issueStrikeToUser = async (userId, companyId, strikeInfo) => {
   try {
     // Get user's current strikes
     const strikesQuery = query(
