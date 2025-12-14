@@ -44,9 +44,18 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   const [users, setUsers] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState(null);
-  const [selectedDueDate, setSelectedDueDate] = useState(
-    post.dueDate ? new Date(post.dueDate.seconds * 1000).toISOString().split("T")[0] : ""
-  );
+  const [selectedDueDate, setSelectedDueDate] = useState(() => {
+    if (!post.dueDate) return "";
+    try {
+      const date = post.dueDate.seconds
+        ? new Date(post.dueDate.seconds * 1000)
+        : new Date(post.dueDate);
+      return isNaN(date.getTime()) ? "" : date.toISOString().split("T")[0];
+    } catch (error) {
+      console.error("Error parsing due date:", error);
+      return "";
+    }
+  });
   const [showAssignDropdown, setShowAssignDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 

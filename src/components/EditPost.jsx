@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { History, X } from "lucide-react";
+import { History, X, Upload, FileText, Trash2 } from "lucide-react";
 import { editPost, getPostEditHistory } from "../services/postEnhancementsService";
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
+import { storage } from "../config/firebase";
 
 const EditPost = ({ post, onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -9,6 +11,9 @@ const EditPost = ({ post, onClose, onSuccess }) => {
   const [error, setError] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [editHistory, setEditHistory] = useState([]);
+  const [existingAttachments, setExistingAttachments] = useState(post.attachments || []);
+  const [newFiles, setNewFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     title: post.title || "",
@@ -36,6 +41,135 @@ const EditPost = ({ post, onClose, onSuccess }) => {
     }));
   };
 
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    const maxFiles = 5;
+
+    // Validate each file
+    const validFiles = [];
+    const errors = [];
+
+    files.forEach((file) => {
+      const isValidType =
+        file.type.startsWith("image/") ||
+        file.type.startsWith("video/") ||
+        file.type === "application/pdf" ||
+        file.type.includes("document") ||
+        file.type.includes("word") ||
+        file.type.includes("msword") ||
+        file.type.includes("officedocument");
+
+      const isValidSize = file.size <= maxFileSize;
+
+      if (!isValidType) {
+        errors.push(
+          `${file.name}: Invalid file type. Only images, videos, PDFs, and documents are allowed.`
+        );
+      } else if (!isValidSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        errors.push(
+          `${file.name}: File too large (${fileSizeMB}MB). Maximum size is 10MB.`
+        );
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    // Check total file count
+    const totalFiles = existingAttachments.length + newFiles.length + validFiles.length;
+    if (totalFiles > maxFiles) {
+      setError(`Maximum ${maxFiles} files allowed. You currently have ${totalFiles} files total.`);
+      return;
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+      setError(errors.join("\n"));
+      if (validFiles.length === 0) {
+        return;
+      }
+    } else {
+      setError("");
+    }
+
+    const fileObjects = validFiles.map((file) => ({
+      file,
+      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    }));
+
+    setNewFiles((prev) => [...prev, ...fileObjects]);
+  };
+
+  const removeExistingAttachment = (index) => {
+    setExistingAttachments((prev) => {
+      const newAttachments = [...prev];
+      newAttachments.splice(index, 1);
+      return newAttachments;
+    });
+  };
+
+  const removeNewFile = (index) => {
+    setNewFiles((prev) => {
+      const files = [...prev];
+      if (files[index].preview) {
+        URL.revokeObjectURL(files[index].preview);
+      }
+      files.splice(index, 1);
+      return files;
+    });
+  };
+
+  const uploadNewFiles = async () => {
+    if (newFiles.length === 0) return [];
+
+    setUploadProgress(0);
+    const totalFiles = newFiles.length;
+    let completedFiles = 0;
+
+    const uploadPromises = newFiles.map(async (fileObj) => {
+      const file = fileObj.file;
+      const fileRef = ref(
+        storage,
+        `posts/${userData.companyId}/${Date.now()}_${file.name}`
+      );
+
+      return new Promise((resolve, reject) => {
+        const uploadTask = uploadBytesResumable(fileRef, file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const fileProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+            const overallProgress = ((completedFiles + fileProgress) / totalFiles) * 100;
+            setUploadProgress(Math.round(overallProgress));
+          },
+          (error) => {
+            console.error("Upload error:", error);
+            reject(error);
+          },
+          async () => {
+            completedFiles++;
+            const url = await getDownloadURL(fileRef);
+            resolve({
+              url,
+              name: file.name,
+              type: file.type,
+              size: file.size,
+            });
+          }
+        );
+      });
+    });
+
+    const results = await Promise.all(uploadPromises);
+    setUploadProgress(100);
+    return results;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -46,6 +180,20 @@ const EditPost = ({ post, onClose, onSuccess }) => {
         throw new Error("User authentication required");
       }
 
+      // Upload new files if any
+      let uploadedNewFiles = [];
+      if (newFiles.length > 0) {
+        try {
+          uploadedNewFiles = await uploadNewFiles();
+        } catch (uploadError) {
+          console.error("Error uploading files:", uploadError);
+          throw new Error("Failed to upload new attachments. Please try again.");
+        }
+      }
+
+      // Combine existing attachments with newly uploaded files
+      const allAttachments = [...existingAttachments, ...uploadedNewFiles];
+
       const updateData = {
         title: formData.title.trim(),
         content: formData.content.trim(),
@@ -54,6 +202,7 @@ const EditPost = ({ post, onClose, onSuccess }) => {
           .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
+        attachments: allAttachments,
       };
 
       await editPost(post.id, updateData, {
@@ -245,6 +394,127 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
                 placeholder="tag1, tag2, tag3"
               />
+            </div>
+
+            {/* Attachments Section */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Attachments
+              </label>
+
+              {/* Existing Attachments */}
+              {existingAttachments.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-xs text-slate-600 mb-2">Existing Files:</p>
+                  <div className="space-y-2">
+                    {existingAttachments.map((attachment, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-200"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <FileText className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                          <a
+                            href={attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline truncate"
+                          >
+                            {attachment.name}
+                          </a>
+                          <span className="text-xs text-slate-500 flex-shrink-0">
+                            ({(attachment.size / 1024).toFixed(1)} KB)
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeExistingAttachment(index)}
+                          className="ml-2 p-1.5 text-red-600 hover:bg-red-50 rounded transition flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* New Files */}
+              {newFiles.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-xs text-slate-600 mb-2">New Files to Upload:</p>
+                  <div className="space-y-2">
+                    {newFiles.map((fileObj, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {fileObj.preview ? (
+                            <img
+                              src={fileObj.preview}
+                              alt={fileObj.name}
+                              className="w-8 h-8 object-cover rounded flex-shrink-0"
+                            />
+                          ) : (
+                            <FileText className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          )}
+                          <span className="text-sm text-slate-900 truncate">
+                            {fileObj.name}
+                          </span>
+                          <span className="text-xs text-slate-500 flex-shrink-0">
+                            ({(fileObj.size / 1024).toFixed(1)} KB)
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeNewFile(index)}
+                          className="ml-2 p-1.5 text-red-600 hover:bg-red-50 rounded transition flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="mb-3">
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1">
+                    Uploading... {uploadProgress}%
+                  </p>
+                </div>
+              )}
+
+              {/* Add Files Button */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  id="file-upload"
+                  multiple
+                  accept="image/*,video/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer transition"
+                >
+                  <Upload className="w-4 h-4" />
+                  Add Files
+                </label>
+                <p className="text-xs text-slate-500">
+                  Max 5 files, 10MB each. Images, videos, PDFs, and documents.
+                </p>
+              </div>
             </div>
           </form>
         </div>

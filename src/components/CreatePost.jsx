@@ -120,6 +120,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         "Technical Problem",
         "Environment Issue",
         "Policy Concern",
+        "Harassment",
         "Other",
       ],
       placeholder: {

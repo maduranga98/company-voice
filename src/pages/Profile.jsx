@@ -4,7 +4,7 @@ import { db } from "../config/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 
 const Profile = () => {
-  const { userData, currentUser } = useAuth();
+  const { userData, currentUser, refreshUserData } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -46,12 +46,16 @@ const Profile = () => {
         email: editData.email,
       });
 
+      // Refresh user data in AuthContext to reflect changes immediately
+      await refreshUserData();
+
       setProfileData({
         ...profileData,
         displayName: editData.displayName,
         email: editData.email,
       });
       setIsEditing(false);
+      alert("Profile updated successfully! Changes are now active.");
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile. Please try again.");

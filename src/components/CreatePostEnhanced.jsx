@@ -124,6 +124,7 @@ const CreatePostEnhanced = ({
         "Technical Problem",
         "Environment Issue",
         "Policy Concern",
+        "Harassment",
         "Other",
       ],
       placeholder: {
