@@ -47,7 +47,6 @@ import AssignedToMe from "./pages/AssignedToMe";
 // Moderation Pages
 import ModerationDashboard from "./pages/ModerationDashboard";
 import ReportDetailView from "./pages/ReportDetailView";
-import HarassmentDashboard from "./pages/hr/HarassmentDashboard";
 
 // Legal Pages
 import SuperAdminLegalRequests from "./pages/admin/SuperAdminLegalRequests";
@@ -175,15 +174,10 @@ function App() {
                 </PrivateRoute>
               }
             />
+            {/* Redirect old harassment dashboard to unified moderation dashboard */}
             <Route
               path="/hr/harassment-dashboard"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <HarassmentDashboard />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
+              element={<Navigate to="/moderation" replace />}
             />
 
             {/* Post Management Routes (for all users) */}
