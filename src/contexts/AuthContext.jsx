@@ -142,12 +142,43 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("currentUser");
   };
 
+  const refreshUserData = async () => {
+    try {
+      if (!userData?.id) {
+        throw new Error("No user logged in");
+      }
+
+      // Fetch fresh user data from Firestore
+      const userDocRef = doc(db, "users", userData.id);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists()) {
+        throw new Error("User document not found");
+      }
+
+      const freshUserData = { id: userDocSnap.id, ...userDocSnap.data() };
+
+      // Update state
+      setCurrentUser(freshUserData);
+      setUserData(freshUserData);
+
+      // Update localStorage
+      localStorage.setItem("currentUser", JSON.stringify(freshUserData));
+
+      return freshUserData;
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+      throw error;
+    }
+  };
+
   const value = {
     currentUser,
     userData,
     loading,
     login,
     logout,
+    refreshUserData,
   };
 
   return (

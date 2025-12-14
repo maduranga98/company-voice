@@ -30,6 +30,8 @@ const MemberManagementWithDepartments = () => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [assigningUser, setAssigningUser] = useState(null);
   const [bulkMode, setBulkMode] = useState(false);
+  const [viewingMember, setViewingMember] = useState(null);
+  const [showMemberDetailsModal, setShowMemberDetailsModal] = useState(false);
 
   useEffect(() => {
     if (!userData?.companyId) {
@@ -173,6 +175,41 @@ const MemberManagementWithDepartments = () => {
       console.error("Error reactivating member:", error);
       alert("Failed to reactivate member");
     }
+  };
+
+  const handleDeleteMember = async (memberId, memberName) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete ${memberName}? This action cannot be undone and will remove all their data.`
+      )
+    ) {
+      return;
+    }
+
+    // Double confirmation for extra safety
+    if (
+      !confirm(
+        "FINAL WARNING: This will permanently delete this member's account and all associated data. Are you absolutely sure?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const memberRef = doc(db, "users", memberId);
+      await deleteDoc(memberRef);
+
+      alert("Member deleted successfully!");
+      loadData();
+    } catch (error) {
+      console.error("Error deleting member:", error);
+      alert("Failed to delete member");
+    }
+  };
+
+  const handleViewMemberDetails = (member) => {
+    setViewingMember(member);
+    setShowMemberDetailsModal(true);
   };
 
   const handleAssignToDepartment = (user) => {
@@ -653,6 +690,31 @@ const MemberManagementWithDepartments = () => {
                       {member.status === "active" && (
                         <>
                           <button
+                            onClick={() => handleViewMemberDetails(member)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                            title="View Details"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          </button>
+                          <button
                             onClick={() => handleAssignToDepartment(member)}
                             className="text-blue-600 hover:text-blue-900"
                             title="Change Department"
@@ -674,7 +736,7 @@ const MemberManagementWithDepartments = () => {
                           <button
                             onClick={() => handleSuspendMember(member.id)}
                             className="text-yellow-600 hover:text-yellow-900"
-                            title="Suspend"
+                            title="Deactivate (Suspend)"
                           >
                             <svg
                               className="w-5 h-5"
@@ -686,7 +748,26 @@ const MemberManagementWithDepartments = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMember(member.id, member.displayName)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete Permanently"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                               />
                             </svg>
                           </button>
@@ -694,25 +775,71 @@ const MemberManagementWithDepartments = () => {
                       )}
 
                       {member.status === "suspended" && (
-                        <button
-                          onClick={() => handleReactivateMember(member.id)}
-                          className="text-green-600 hover:text-green-900"
-                          title="Reactivate"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        <>
+                          <button
+                            onClick={() => handleViewMemberDetails(member)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                            title="View Details"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleReactivateMember(member.id)}
+                            className="text-green-600 hover:text-green-900"
+                            title="Reactivate"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMember(member.id, member.displayName)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete Permanently"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
+                        </>
                       )}
                       </div>
                     </td>
@@ -769,6 +896,120 @@ const MemberManagementWithDepartments = () => {
                 setSelectedUsers([]);
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Member Details Modal */}
+      {showMemberDetailsModal && viewingMember && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Member Details</h2>
+                <button
+                  onClick={() => {
+                    setShowMemberDetailsModal(false);
+                    setViewingMember(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Member Info Grid */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Display Name</label>
+                    <p className="mt-1 text-base text-gray-900">{viewingMember.displayName || "N/A"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Email</label>
+                    <p className="mt-1 text-base text-gray-900">{viewingMember.email || "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Role</label>
+                    <p className="mt-1 text-base text-gray-900 capitalize">{viewingMember.role || "N/A"}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Status</label>
+                    <div className="mt-1">{getStatusBadge(viewingMember.status)}</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Department</label>
+                    <p className="mt-1 text-base text-gray-900">
+                      {viewingMember.departmentIcon && <span className="mr-1">{viewingMember.departmentIcon}</span>}
+                      {viewingMember.departmentName || "Not assigned"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Employee ID</label>
+                    <p className="mt-1 text-base text-gray-900">{viewingMember.employeeId || "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">User ID</label>
+                    <p className="mt-1 text-xs text-gray-700 font-mono break-all">{viewingMember.id}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Company ID</label>
+                    <p className="mt-1 text-xs text-gray-700 font-mono break-all">{viewingMember.companyId || "N/A"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Joined Date</label>
+                    <p className="mt-1 text-base text-gray-900">
+                      {viewingMember.createdAt?.toDate
+                        ? viewingMember.createdAt.toDate().toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Last Login</label>
+                    <p className="mt-1 text-base text-gray-900">
+                      {viewingMember.lastLogin?.toDate
+                        ? viewingMember.lastLogin.toDate().toLocaleString()
+                        : "Never"}
+                    </p>
+                  </div>
+                </div>
+
+                {viewingMember.userTagId && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">User Tag</label>
+                    <p className="mt-1 text-base text-gray-900">{viewingMember.userTagId}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="mt-6 pt-6 border-t border-gray-200 flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowMemberDetailsModal(false);
+                    setViewingMember(null);
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
