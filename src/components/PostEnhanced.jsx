@@ -53,7 +53,9 @@ const PostEnhanced = ({ post }) => {
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
 
   // Check if current user is the post author (handle both uid and id)
-  const isAuthor = userData && (userData.id === post.authorId || userData.uid === post.authorId);
+  const isAuthor =
+    userData &&
+    (userData.id === post.authorId || userData.uid === post.authorId);
 
   const getTimeAgo = (timestamp) => {
     const now = new Date();
@@ -122,7 +124,10 @@ const PostEnhanced = ({ post }) => {
   // Delete post handler with proper cleanup and notifications
   const handleDeletePost = async () => {
     if (!isAuthor) {
-      showError(t("posts.errors.unauthorizedDelete") || "You can only delete your own posts");
+      showError(
+        t("posts.errors.unauthorizedDelete") ||
+          "You can only delete your own posts"
+      );
       return;
     }
 
@@ -131,14 +136,11 @@ const PostEnhanced = ({ post }) => {
 
     try {
       // Use toast promise for better UX
-      await showPromise(
-        deletePost(post.id, userData),
-        {
-          pending: t("posts.deleting") || "Deleting post...",
-          success: t("posts.deleteSuccess") || "Post deleted successfully",
-          error: t("posts.deleteError") || "Failed to delete post",
-        }
-      );
+      await showPromise(deletePost(post.id, userData), {
+        pending: t("posts.deleting") || "Deleting post...",
+        success: t("posts.deleteSuccess") || "Post deleted successfully",
+        error: t("posts.deleteError") || "Failed to delete post",
+      });
 
       // Use callback instead of hard reload to update parent state
       // Parent component should handle removing post from list
@@ -152,7 +154,9 @@ const PostEnhanced = ({ post }) => {
       }
     } catch (error) {
       console.error("Error deleting post:", error);
-      showError(error.message || t("posts.deleteError") || "Failed to delete post");
+      showError(
+        error.message || t("posts.deleteError") || "Failed to delete post"
+      );
     } finally {
       setDeleting(false);
     }
@@ -161,7 +165,9 @@ const PostEnhanced = ({ post }) => {
   // Edit post handler - open edit modal
   const handleEditPost = () => {
     if (!isAuthor) {
-      showError(t("posts.errors.unauthorizedEdit") || "You can only edit your own posts");
+      showError(
+        t("posts.errors.unauthorizedEdit") || "You can only edit your own posts"
+      );
       return;
     }
     setShowEditModal(true);
@@ -633,39 +639,37 @@ const PostEnhanced = ({ post }) => {
         )}
 
         {/* Post Actions & Comments */}
-        <div className="border-t border-slate-100">
-          {/* Action Bar */}
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 bg-white flex-wrap sm:flex-nowrap">
-            {/* Voting System */}
-            <VotingButton
-              postId={post.id}
-              initialUpvotes={post.upvotes || []}
-              initialDownvotes={post.downvotes || []}
-            />
+        {/* Post Actions & Comments - CORRECTED */}
+        <CommentsEnhanced
+          postId={post.id}
+          initialCommentCount={post.comments || 0}
+          postAuthorId={post.authorId}
+          postAuthorName={post.authorName}
+          postTitle={post.title}
+          reactionButton={
+            <>
+              {/* Voting System */}
+              <VotingButton
+                postId={post.id}
+                initialUpvotes={post.upvotes || []}
+                initialDownvotes={post.downvotes || []}
+              />
 
-            {/* Divider */}
-            <div className="h-6 w-px bg-slate-200" />
+              {/* Divider */}
+              <div className="h-6 w-px bg-slate-200 mx-2" />
 
-            {/* Reactions */}
-            <ReactionButton
-              postId={post.id}
-              initialReactions={post.reactions || {}}
-              postAuthorId={post.authorId}
-              postAuthorName={post.authorName}
-              postTitle={post.title}
-            />
-
-            {/* Comments */}
-            <CommentsEnhanced
-              postId={post.id}
-              initialCommentCount={post.comments || 0}
-              postAuthorId={post.authorId}
-              postAuthorName={post.authorName}
-              postTitle={post.title}
-            />
-
-            {/* Report Button - Only show if not the author */}
-            {userData && userData.uid !== post.authorId && !post.isRemoved && (
+              {/* Reactions */}
+              <ReactionButton
+                postId={post.id}
+                initialReactions={post.reactions || {}}
+                postAuthorId={post.authorId}
+                postAuthorName={post.authorName}
+                postTitle={post.title}
+              />
+            </>
+          }
+          reportButton={
+            userData && userData.uid !== post.authorId && !post.isRemoved ? (
               <button
                 onClick={() => setShowReportModal(true)}
                 className="ml-auto flex items-center gap-1 px-2 sm:px-3 py-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
@@ -674,10 +678,9 @@ const PostEnhanced = ({ post }) => {
                 <Flag className="w-4 h-4" />
                 <span className="hidden sm:inline">Report</span>
               </button>
-            )}
-          </div>
-          {/* Comments section will expand here */}
-        </div>
+            ) : null
+          }
+        />
       </article>
 
       {/* Report Modal */}
