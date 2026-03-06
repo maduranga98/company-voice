@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Pin, Archive } from "lucide-react";
+import AnonymousThread from "./AnonymousThread";
 import {
   PostStatus,
   PostStatusConfig,
@@ -678,6 +679,16 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       <div className="mt-3 text-xs text-gray-600">
         <span className="font-medium">Status:</span> {PostStatusConfig[status]?.description}
       </div>
+
+      {/* Anonymous Thread — private messaging for anonymous posts */}
+      {post.isAnonymous && (
+        <AnonymousThread
+          postId={post.id}
+          companyId={post.companyId || currentUser.companyId}
+          currentUserRole={currentUser.role}
+          isAnonymousPost={post.isAnonymous}
+        />
+      )}
     </div>
   );
 };
