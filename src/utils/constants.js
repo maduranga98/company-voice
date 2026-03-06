@@ -1,4 +1,14 @@
 // ============================================
+// ANONYMOUS THREAD SYSTEM
+// ============================================
+
+// Sender roles for anonymous thread messages
+export const ThreadSender = {
+  REPORTER: "reporter",
+  INVESTIGATOR: "investigator",
+};
+
+// ============================================
 // USER MANAGEMENT
 // ============================================
 

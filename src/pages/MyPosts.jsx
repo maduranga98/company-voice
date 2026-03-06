@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import PostEnhanced from "../components/PostEnhanced";
+import AnonymousThread from "../components/AnonymousThread";
 import {
   getUserPosts,
   markPostAsViewed,
@@ -402,6 +403,16 @@ const MyPosts = () => {
 
                       {/* Full Post Content */}
                       <PostEnhanced post={post} />
+
+                      {/* Private Thread — only for anonymous posts, reporter view */}
+                      {isAnonymous && (
+                        <AnonymousThread
+                          postId={post.id}
+                          companyId={post.companyId || userData.companyId}
+                          currentUserRole="reporter"
+                          isAnonymousPost={true}
+                        />
+                      )}
 
                       {/* Stats Footer */}
                       <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
