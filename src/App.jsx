@@ -21,6 +21,7 @@ import DepartmentManagement from "./pages/company/DepartmentManagement";
 import DepartmentDetails from "./pages/company/DepartmentDetails";
 import MemberManagementWithDepartments from "./pages/company/MemberManagementWithDepartments";
 import AuditLog from "./pages/admin/AuditLog";
+import AuditExportPage from "./pages/company/AuditExportPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import DraftsPage from "./pages/DraftsPage";
 import ArchivedPosts from "./pages/ArchivedPosts";
@@ -334,6 +335,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <LegalRequestsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/audit-export"
+              element={
+                <PrivateRoute>
+                  <AuditExportPage />
                 </PrivateRoute>
               }
             />

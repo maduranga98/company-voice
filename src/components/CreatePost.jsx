@@ -4,6 +4,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import PollCreator from "./PollCreator";
+import AnonymityGuaranteeScreen from "./AnonymityGuaranteeScreen";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -13,6 +14,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [pollData, setPollData] = useState(null);
   const [departments, setDepartments] = useState([]);
+  const [showAnonymityGuarantee, setShowAnonymityGuarantee] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -169,6 +171,17 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
+
+    // Intercept the anonymous toggle for problem reports
+    if (name === "isAnonymous" && checked && type === "complaint") {
+      const alreadySeen = sessionStorage.getItem("voxwel_anon_guarantee_shown");
+      if (!alreadySeen) {
+        // Show the guarantee screen; don't update formData yet
+        setShowAnonymityGuarantee(true);
+        return;
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: inputType === "checkbox" ? checked : value,
@@ -402,6 +415,20 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   };
 
   return (
+    <>
+    {showAnonymityGuarantee && (
+      <AnonymityGuaranteeScreen
+        onContinue={() => {
+          sessionStorage.setItem("voxwel_anon_guarantee_shown", "1");
+          setFormData((prev) => ({ ...prev, isAnonymous: true }));
+          setShowAnonymityGuarantee(false);
+        }}
+        onBack={() => {
+          setShowAnonymityGuarantee(false);
+          // isAnonymous remains false (unchecked)
+        }}
+      />
+    )}
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-9999 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]">
         {/* STICKY HEADER */}
@@ -729,6 +756,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

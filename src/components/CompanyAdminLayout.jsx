@@ -152,33 +152,63 @@ const CompanyAdminLayout = () => {
     },
   ];
 
-  // Add "Assigned to Me" tab if user has a tag
-  const tabs = userData?.userTagId
-    ? [
-        ...baseTabs.slice(0, 4), // Dashboard, Creative, Problems, Discussions
-        {
-          id: "assigned",
-          name: "Assigned",
-          path: "/assigned-to-me",
-          icon: (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-              />
-            </svg>
-          ),
-        },
-        ...baseTabs.slice(4), // My Posts, Profile
-      ]
-    : baseTabs;
+  // Audit Export tab — only for company_admin and super_admin
+  const auditExportTab = ["company_admin", "super_admin"].includes(userData?.role)
+    ? {
+        id: "audit-export",
+        name: "Audit",
+        path: "/company/audit-export",
+        icon: (
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        ),
+      }
+    : null;
+
+  // Add "Assigned to Me" tab if user has a tag; add Audit Export for admins
+  const buildTabs = () => {
+    let result = userData?.userTagId
+      ? [
+          ...baseTabs.slice(0, 4),
+          {
+            id: "assigned",
+            name: "Assigned",
+            path: "/assigned-to-me",
+            icon: (
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                />
+              </svg>
+            ),
+          },
+          ...baseTabs.slice(4),
+        ]
+      : baseTabs;
+    if (auditExportTab) result = [...result, auditExportTab];
+    return result;
+  };
+
+  const tabs = buildTabs();
 
   const isActiveTab = (path) => {
     // Handle feed routes - mark as active if path starts with the tab path
@@ -329,9 +359,8 @@ const CompanyAdminLayout = () => {
       <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-primary-navy z-50 shadow-2xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="max-w-7xl mx-auto">
           <div
-            className={`grid ${
-              userData?.userTagId ? "grid-cols-7" : "grid-cols-6"
-            } gap-0`}
+            className={`grid gap-0`}
+            style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
           >
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);

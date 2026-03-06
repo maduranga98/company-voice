@@ -291,6 +291,21 @@ service cloud.firestore {
     }
 
     // ============================================
+    // POLICY ACKNOWLEDGEMENTS COLLECTION
+    // ============================================
+    // Stores one document per user per company recording that the user has
+    // read and acknowledged the anonymity policy.
+    // Document ID format: {companyId}_{userId}
+    //
+    // NOTE: Firebase Auth is disabled on this project. Access control is
+    // enforced entirely at the application layer (service layer checks that
+    // the userId matches the authenticated session user before reading/writing).
+    // These rules therefore permit all read/write at the Firestore level.
+    match /policyAcknowledgements/{ackId} {
+      allow read, write: if true;
+    }
+
+    // ============================================
     // ALLOW ALL OTHER COLLECTIONS (for testing)
     // ============================================
     match /{document=**} {
