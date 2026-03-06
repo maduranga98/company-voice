@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Scale,
@@ -26,6 +26,8 @@ import {
 import { uploadCourtOrder } from "../../services/legalEvidenceService";
 import BackButton from "../../components/BackButton";
 import DisclosureModal from "../../components/DisclosureModal";
+import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const LegalRequestsPage = () => {
   const { userData } = useAuth();
@@ -46,6 +48,13 @@ const LegalRequestsPage = () => {
     legalJustification: "",
     courtOrderFile: null,
   });
+
+  // Post search state
+  const [postSearchQuery, setPostSearchQuery] = useState('');
+  const [searchedPosts, setSearchedPosts] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [searchingPosts, setSearchingPosts] = useState(false);
+  const searchDebounceRef = useRef(null);
 
   useEffect(() => {
     if (userData?.companyId) {
@@ -97,6 +106,36 @@ const LegalRequestsPage = () => {
     }
   };
 
+  const searchAnonymousPosts = async (searchQuery) => {
+    if (!userData?.companyId) return;
+    setSearchingPosts(true);
+    try {
+      const postsQuery = query(
+        collection(db, 'posts'),
+        where('companyId', '==', userData.companyId),
+        where('isAnonymous', '==', true),
+        orderBy('createdAt', 'desc'),
+        limit(20)
+      );
+      const snapshot = await getDocs(postsQuery);
+      let posts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        posts = posts.filter(
+          (p) =>
+            (p.title && p.title.toLowerCase().includes(q)) ||
+            p.id.includes(searchQuery)
+        );
+      }
+      setSearchedPosts(posts);
+    } catch (err) {
+      console.error('Error searching anonymous posts:', err);
+      setSearchedPosts([]);
+    } finally {
+      setSearchingPosts(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -134,6 +173,9 @@ const LegalRequestsPage = () => {
         legalJustification: "",
         courtOrderFile: null,
       });
+      setSelectedPost(null);
+      setPostSearchQuery('');
+      setSearchedPosts([]);
       fetchRequests();
 
       setTimeout(() => setSuccess(""), 5000);
@@ -322,7 +364,7 @@ const LegalRequestsPage = () => {
             </p>
           </div>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => { setShowCreateModal(true); searchAnonymousPosts(''); }}
             className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -378,6 +420,9 @@ const LegalRequestsPage = () => {
                   onClick={() => {
                     setShowCreateModal(false);
                     setError("");
+                    setSelectedPost(null);
+                    setPostSearchQuery('');
+                    setSearchedPosts([]);
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
@@ -423,20 +468,126 @@ const LegalRequestsPage = () => {
                   </select>
                 </div>
 
-                {/* Report ID */}
+                {/* Select Anonymous Report */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Report/Post ID <span className="text-red-500">*</span>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Select Anonymous Report <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    name="reportId"
-                    value={formData.reportId}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Enter the report or post ID"
-                  />
+                  <p className="text-xs text-gray-500 mb-2">
+                    Search and select the anonymous report you need to disclose information about
+                  </p>
+
+                  {selectedPost ? (
+                    <div className="border border-green-200 bg-green-50 rounded-lg p-3">
+                      <p className="text-xs font-medium text-green-700 mb-1">✓ Selected Report</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">{selectedPost.title || '(Untitled)'}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {(() => {
+                          const typeMap = {
+                            problem_report: { label: 'Problem', classes: 'bg-red-100 text-red-700' },
+                            idea_suggestion: { label: 'Idea', classes: 'bg-purple-100 text-purple-700' },
+                            creative_content: { label: 'Creative', classes: 'bg-yellow-100 text-yellow-700' },
+                            team_discussion: { label: 'Discussion', classes: 'bg-blue-100 text-blue-700' },
+                          };
+                          const t = typeMap[selectedPost.type] || { label: selectedPost.type || 'Post', classes: 'bg-gray-100 text-gray-700' };
+                          return (
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${t.classes}`}>{t.label}</span>
+                          );
+                        })()}
+                        {selectedPost.createdAt && (
+                          <span className="text-xs text-gray-500">
+                            {(selectedPost.createdAt.toDate
+                              ? selectedPost.createdAt.toDate()
+                              : new Date(selectedPost.createdAt)
+                            ).toLocaleDateString()}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-400 font-mono">{selectedPost.id}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPost(null);
+                          setFormData((prev) => ({ ...prev, reportId: '' }));
+                        }}
+                        className="mt-2 text-xs text-blue-600 underline hover:text-blue-800"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="relative mb-2">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                        <input
+                          type="text"
+                          value={postSearchQuery}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setPostSearchQuery(val);
+                            if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+                            searchDebounceRef.current = setTimeout(() => searchAnonymousPosts(val), 300);
+                          }}
+                          placeholder="Search by post title or paste post ID..."
+                          className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                        />
+                      </div>
+                      <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg">
+                        {searchingPosts ? (
+                          <div className="flex justify-center items-center py-6">
+                            <span className="inline-block w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        ) : searchedPosts.length === 0 ? (
+                          <p className="text-sm text-gray-500 text-center py-6">
+                            {postSearchQuery ? 'No anonymous reports found' : 'No anonymous reports available'}
+                          </p>
+                        ) : (
+                          searchedPosts.map((post) => {
+                            const typeMap = {
+                              problem_report: { label: 'Problem', classes: 'bg-red-100 text-red-700' },
+                              idea_suggestion: { label: 'Idea', classes: 'bg-purple-100 text-purple-700' },
+                              creative_content: { label: 'Creative', classes: 'bg-yellow-100 text-yellow-700' },
+                              team_discussion: { label: 'Discussion', classes: 'bg-blue-100 text-blue-700' },
+                            };
+                            const t = typeMap[post.type] || { label: post.type || 'Post', classes: 'bg-gray-100 text-gray-700' };
+                            const date = post.createdAt
+                              ? (post.createdAt.toDate
+                                  ? post.createdAt.toDate()
+                                  : new Date(post.createdAt)
+                                ).toLocaleDateString()
+                              : '';
+                            const title = post.title
+                              ? post.title.length > 60
+                                ? post.title.slice(0, 60) + '…'
+                                : post.title
+                              : '(Untitled)';
+                            return (
+                              <button
+                                key={post.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedPost(post);
+                                  setFormData((prev) => ({ ...prev, reportId: post.id }));
+                                }}
+                                className="w-full flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer text-left"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${t.classes}`}>{t.label}</span>
+                                  <span className="text-sm text-gray-900 truncate">{title}</span>
+                                </div>
+                                <div className="flex flex-col items-end shrink-0 ml-2">
+                                  <span className="text-xs text-gray-500">{date}</span>
+                                  <span className="text-xs text-gray-400 font-mono">{post.id.slice(0, 8)}…</span>
+                                </div>
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {/* Hidden required input to enforce selection */}
+                  <input type="hidden" name="reportId" value={formData.reportId} required />
                 </div>
 
                 {/* Legal Justification */}
