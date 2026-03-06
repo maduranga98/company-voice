@@ -51,6 +51,7 @@ import ReportDetailView from "./pages/ReportDetailView";
 
 // Legal Pages
 import SuperAdminLegalRequests from "./pages/admin/SuperAdminLegalRequests";
+import KeyVaultManagement from "./pages/admin/KeyVaultManagement";
 import LegalRequestsPage from "./pages/company/LegalRequestsPage";
 
 function App() {
@@ -86,6 +87,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <SuperAdminLegalRequests />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/key-vault"
+              element={
+                <PrivateRoute>
+                  <KeyVaultManagement />
                 </PrivateRoute>
               }
             />
