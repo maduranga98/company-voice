@@ -137,21 +137,16 @@ export const wrapAsyncFunction = (fn, operationName) => {
  * @returns {Promise<any>} - Function result
  */
 export const monitorPerformance = async (name, fn) => {
-  const transaction = Sentry.startTransaction({
+  return Sentry.startSpan({
     op: "function",
     name,
+  }, async () => {
+    try {
+      return await fn();
+    } catch (error) {
+      throw error;
+    }
   });
-
-  try {
-    const result = await fn();
-    transaction.setStatus("ok");
-    return result;
-  } catch (error) {
-    transaction.setStatus("internal_error");
-    throw error;
-  } finally {
-    transaction.finish();
-  }
 };
 
 /**
