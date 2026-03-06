@@ -28,6 +28,9 @@ import {
   DisclosureMethodConfig,
 } from "../../utils/constants";
 import { downloadEvidencePackageWithFormat } from "../../services/legalEvidenceService";
+import { collection, addDoc, doc, getDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../config/firebase";
+import { getKeyPartA, combineAndDecrypt } from "../../services/keyVaultService";
 
 const SuperAdminLegalRequests = () => {
   const { userData, logout } = useAuth();
@@ -44,6 +47,17 @@ const SuperAdminLegalRequests = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [disclosureMethod, setDisclosureMethod] = useState(DisclosureMethod.ENCRYPTED_EMAIL);
   const [submitting, setSubmitting] = useState(false);
+
+  // Disclosure modal state
+  const [showDisclosureModal, setShowDisclosureModal] = useState(false);
+  const [disclosureRequest, setDisclosureRequest] = useState(null);
+  const [keyPartB, setKeyPartB] = useState('');
+  const [disclosureStep, setDisclosureStep] = useState(1);
+  const [disclosedIdentity, setDisclosedIdentity] = useState(null);
+  const [disclosureLoading, setDisclosureLoading] = useState(false);
+  const [disclosureError, setDisclosureError] = useState('');
+  const [legalConfirmed, setLegalConfirmed] = useState(false);
+  const [showKeyB, setShowKeyB] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -163,6 +177,87 @@ const SuperAdminLegalRequests = () => {
     } catch (err) {
       console.error("Error downloading evidence package:", err);
       alert("Failed to download evidence package");
+    }
+  };
+
+  const openDisclosureModal = (request) => {
+    setDisclosureRequest(request);
+    setDisclosureStep(1);
+    setKeyPartB('');
+    setDisclosedIdentity(null);
+    setDisclosureError('');
+    setLegalConfirmed(false);
+    setShowKeyB(false);
+    setShowDisclosureModal(true);
+  };
+
+  const closeDisclosureModal = () => {
+    setShowDisclosureModal(false);
+    setDisclosureRequest(null);
+    setDisclosureStep(1);
+    setKeyPartB('');
+    setDisclosedIdentity(null);
+    setDisclosureError('');
+    setLegalConfirmed(false);
+    setShowKeyB(false);
+  };
+
+  const handleDecryptIdentity = async () => {
+    setDisclosureLoading(true);
+    setDisclosureError('');
+    try {
+      const keyPartA = await getKeyPartA(disclosureRequest.companyId);
+
+      const postDoc = await getDoc(doc(db, 'posts', disclosureRequest.reportId));
+      if (!postDoc.exists() || postDoc.data().isAnonymous !== true) {
+        setDisclosureError('This post is not anonymous or cannot be found.');
+        setDisclosureLoading(false);
+        return;
+      }
+
+      const encryptedAuthorId =
+        postDoc.data().encryptedAuthorId || postDoc.data().authorId;
+
+      const decryptedUserId = combineAndDecrypt(encryptedAuthorId, keyPartA, keyPartB);
+      if (!decryptedUserId) {
+        setDisclosureError(
+          'Invalid Key Part B. Decryption failed. Please verify the key with the DPO.'
+        );
+        setDisclosureLoading(false);
+        return;
+      }
+
+      const userDoc = await getDoc(doc(db, 'users', decryptedUserId));
+      if (!userDoc.exists()) {
+        setDisclosureError('Decrypted user ID does not match any existing user.');
+        setDisclosureLoading(false);
+        return;
+      }
+
+      const user = userDoc.data();
+      setDisclosedIdentity({
+        displayName: user.displayName,
+        email: user.email,
+        username: user.username,
+      });
+
+      await addDoc(collection(db, 'disclosureAuditLog'), {
+        requestId: disclosureRequest.id,
+        postId: disclosureRequest.reportId,
+        companyId: disclosureRequest.companyId,
+        approvedBy: userData.displayName || userData.username,
+        approvedByUserId: userData.id,
+        legalBasis: disclosureRequest.legalJustification,
+        disclosedAt: serverTimestamp(),
+        immutable: true,
+      });
+
+      setDisclosureStep(3);
+    } catch (err) {
+      console.error('Decryption error:', err);
+      setDisclosureError(err.message || 'An unexpected error occurred during decryption.');
+    } finally {
+      setDisclosureLoading(false);
     }
   };
 
@@ -383,6 +478,14 @@ const SuperAdminLegalRequests = () => {
                       </button>
                     </>
                   )}
+                  {request.status === LegalRequestStatus.APPROVED && (
+                    <button
+                      onClick={() => openDisclosureModal(request)}
+                      className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white text-sm font-medium rounded hover:bg-teal-600 transition-colors"
+                    >
+                      🔓 Disclose Reporter Identity
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -536,6 +639,210 @@ const SuperAdminLegalRequests = () => {
     );
   };
 
+  const renderDisclosureModal = () => {
+    if (!showDisclosureModal || !disclosureRequest) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white max-w-lg w-full rounded-xl shadow-2xl p-6">
+
+          {/* STEP 1 — Legal Confirmation */}
+          {disclosureStep === 1 && (
+            <>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                🔓 Disclose Reporter Identity
+              </h2>
+
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                <span className="text-red-500 text-lg">⚠</span>
+                <p className="text-sm text-red-800">
+                  This action is permanent and fully audited. Every disclosure is
+                  logged with timestamp, your identity, and legal basis.
+                </p>
+              </div>
+
+              <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-1 text-sm">
+                <p>
+                  <span className="text-gray-500">Type:</span>{' '}
+                  <span className="font-medium text-gray-900">
+                    {LegalRequestTypeConfig[disclosureRequest.requestType]?.label}
+                  </span>
+                </p>
+                <p>
+                  <span className="text-gray-500">Report ID:</span>{' '}
+                  <span className="font-medium text-gray-900 font-mono">
+                    {disclosureRequest.reportId}
+                  </span>
+                </p>
+                <p>
+                  <span className="text-gray-500">Requested By:</span>{' '}
+                  <span className="font-medium text-gray-900">
+                    {disclosureRequest.requestedBy}
+                  </span>
+                </p>
+                {disclosureRequest.approvalNotes && (
+                  <p>
+                    <span className="text-gray-500">Approval Notes:</span>{' '}
+                    <span className="font-medium text-gray-900">
+                      {disclosureRequest.approvalNotes}
+                    </span>
+                  </p>
+                )}
+              </div>
+
+              <label className="flex items-start gap-3 mb-6 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={legalConfirmed}
+                  onChange={(e) => setLegalConfirmed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                />
+                <span className="text-sm text-gray-700">
+                  I confirm this disclosure is legally authorized and I understand
+                  it is permanently recorded.
+                </span>
+              </label>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closeDisclosureModal}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setDisclosureStep(2)}
+                  disabled={!legalConfirmed}
+                  className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Continue →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* STEP 2 — Enter Key Part B */}
+          {disclosureStep === 2 && (
+            <>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Enter Key Part B
+              </h2>
+              <p className="text-sm text-gray-600 mb-5">
+                Key Part B is held by the company's Data Protection Officer.
+                Contact them to obtain this key before proceeding.
+              </p>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Key Part B (from DPO)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showKeyB ? 'text' : 'password'}
+                    value={keyPartB}
+                    onChange={(e) => setKeyPartB(e.target.value)}
+                    placeholder="Paste Key Part B here..."
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 font-mono text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowKeyB((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showKeyB ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {disclosureError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                  <span className="text-red-500">❌</span>
+                  <p className="text-sm text-red-800">{disclosureError}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => { setDisclosureStep(1); setDisclosureError(''); }}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={handleDecryptIdentity}
+                  disabled={keyPartB.length < 10 || disclosureLoading}
+                  className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {disclosureLoading && (
+                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  Decrypt Identity
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* STEP 3 — Identity Revealed */}
+          {disclosureStep === 3 && disclosedIdentity && (
+            <>
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                <span className="text-green-600 font-medium">✓</span>
+                <p className="text-sm text-green-800 font-medium">
+                  Identity Successfully Disclosed
+                </p>
+              </div>
+
+              <div className="mb-4 border border-gray-200 rounded-lg p-4">
+                <p className="text-xs text-gray-500 mb-3 uppercase tracking-wide">
+                  Reporter Identity
+                </p>
+                <p className="text-xl font-bold text-gray-900 mb-1">
+                  {disclosedIdentity.displayName}
+                </p>
+                <p className="text-sm text-gray-500 mb-2">
+                  @{disclosedIdentity.username}
+                </p>
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {disclosedIdentity.email}
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-400 italic mb-1">
+                This disclosure has been permanently logged in the audit trail.
+              </p>
+              <p className="text-xs text-gray-500 mb-5">
+                Handle this information according to your legal obligations and
+                company policy.
+              </p>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={closeDisclosureModal}
+                  className="px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors"
+                  style={{ backgroundColor: '#2D3E50' }}
+                >
+                  Done — Close
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate("/login");
@@ -636,6 +943,9 @@ const SuperAdminLegalRequests = () => {
 
         {/* Review Modal */}
         {renderReviewModal()}
+
+        {/* Disclosure Modal */}
+        {renderDisclosureModal()}
       </div>
     </div>
   );
