@@ -238,6 +238,36 @@ service cloud.firestore {
     }
 
     // ============================================
+    // SPLIT-KEY IDENTITY VAULT COLLECTION
+    // ============================================
+    // Stores Key Part A for each company's anonymous identity encryption.
+    // ONLY super_admin may read or write this collection.
+    // Access control is enforced at the application layer (role check before
+    // calling getKeyPartA / initializeCompanyKeyVault) since Firebase Auth is
+    // disabled on this project.
+    match /keyVault/{companyId} {
+      // In a Firebase Auth-enabled project this would be:
+      //   allow read, write: if request.auth.token.role == 'super_admin';
+      // For this project, application-layer role gating applies.
+      allow read, write: if true;
+      allow delete: if false;
+    }
+
+    // ============================================
+    // DISCLOSURE AUDIT LOG COLLECTION
+    // ============================================
+    // Immutable chain-hashed log of every identity disclosure event.
+    // - super_admin may create new entries
+    // - NO party may update or delete entries (enforced here and at app layer)
+    match /disclosureAuditLog/{logId} {
+      allow read: if true;
+      allow create: if true;
+      // Immutable: updates and deletes are permanently blocked
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ============================================
     // ANONYMOUS THREADS COLLECTION
     // ============================================
     // Two-way private messaging between anonymous reporters and investigators.

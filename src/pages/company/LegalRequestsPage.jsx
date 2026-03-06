@@ -9,6 +9,7 @@ import {
   XCircle,
   AlertCircle,
   Plus,
+  UnlockKeyhole,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -20,9 +21,11 @@ import {
   LegalRequestTypeConfig,
   LegalRequestStatus,
   LegalRequestStatusConfig,
+  UserRole,
 } from "../../utils/constants";
 import { uploadCourtOrder } from "../../services/legalEvidenceService";
 import BackButton from "../../components/BackButton";
+import DisclosureModal from "../../components/DisclosureModal";
 
 const LegalRequestsPage = () => {
   const { userData } = useAuth();
@@ -31,6 +34,8 @@ const LegalRequestsPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [requests, setRequests] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDisclosureModal, setShowDisclosureModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -264,6 +269,30 @@ const LegalRequestsPage = () => {
                   </button>
                 </div>
               )}
+
+              {/* Approve & Disclose — super_admin only, approved requests only */}
+              {userData?.role === UserRole.SUPER_ADMIN &&
+                request.status === LegalRequestStatus.APPROVED && (
+                  <div className="pt-3 border-t border-gray-200">
+                    <button
+                      onClick={() => {
+                        setSelectedRequest(request);
+                        setShowDisclosureModal(true);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors shadow-sm"
+                      style={{ backgroundColor: "#2D3E50" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                    >
+                      <UnlockKeyhole className="w-4 h-4" />
+                      Approve &amp; Disclose Identity
+                    </button>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Requires Key Part B from the company DPO. Action is permanent and
+                      fully audited.
+                    </p>
+                  </div>
+                )}
             </div>
           );
         })}
@@ -323,6 +352,17 @@ const LegalRequestsPage = () => {
           {renderRequestsList()}
         </div>
       </div>
+
+      {/* Disclosure Modal — super_admin split-key identity disclosure */}
+      <DisclosureModal
+        isOpen={showDisclosureModal}
+        onClose={() => {
+          setShowDisclosureModal(false);
+          setSelectedRequest(null);
+        }}
+        request={selectedRequest}
+        currentUser={userData}
+      />
 
       {/* Create Request Modal */}
       {showCreateModal && (
