@@ -8,6 +8,7 @@ import {
   initializeCompanyKeyVault,
   getAllKeyVaultStatuses,
   rotateKey,
+  reinitializeKeyVault,
 } from "../../services/keyVaultService";
 
 const KeyVaultManagement = () => {
@@ -28,6 +29,15 @@ const KeyVaultManagement = () => {
   const [initKeyPartB, setInitKeyPartB] = useState(null);
   const [initCopied, setInitCopied] = useState(false);
   const [initConfirmed, setInitConfirmed] = useState(false);
+
+  // Re-initialize modal state
+  const [showReinitModal, setShowReinitModal] = useState(false);
+  const [reinitCompany, setReinitCompany] = useState(null);
+  const [reinitError, setReinitError] = useState("");
+  const [reinitSubmitting, setReinitSubmitting] = useState(false);
+  const [reinitKeyPartB, setReinitKeyPartB] = useState(null);
+  const [reinitCopied, setReinitCopied] = useState(false);
+  const [reinitConfirmed, setReinitConfirmed] = useState(false);
 
   // Rotate modal state
   const [showRotateModal, setShowRotateModal] = useState(false);
@@ -197,6 +207,53 @@ const KeyVaultManagement = () => {
     closeRotateModal();
   };
 
+  // ── Re-initialize Modal handlers ───────────────────────────────────────────
+
+  const openReinitModal = (company) => {
+    setReinitCompany(company);
+    setReinitError("");
+    setReinitKeyPartB(null);
+    setReinitCopied(false);
+    setReinitConfirmed(false);
+    setShowReinitModal(true);
+  };
+
+  const closeReinitModal = () => {
+    setShowReinitModal(false);
+    setReinitCompany(null);
+    setReinitKeyPartB(null);
+    setReinitCopied(false);
+    setReinitConfirmed(false);
+    setReinitError("");
+  };
+
+  const handleReinit = async () => {
+    if (!reinitCompany) return;
+
+    setReinitSubmitting(true);
+    setReinitError("");
+    try {
+      const vault = vaultStatuses[reinitCompany.id];
+      const dpoEmail = vault?.dpoEmail || "";
+      const partB = await reinitializeKeyVault(
+        reinitCompany.id,
+        dpoEmail,
+        userData?.uid || userData?.id
+      );
+      setReinitKeyPartB(partB);
+      await refreshVaultStatuses();
+    } catch (err) {
+      console.error("Error re-initializing vault:", err);
+      setReinitError(err.message || "Failed to re-initialize key vault.");
+    } finally {
+      setReinitSubmitting(false);
+    }
+  };
+
+  const handleReinitDone = () => {
+    closeReinitModal();
+  };
+
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   const handleLogout = async () => {
@@ -226,7 +283,9 @@ const KeyVaultManagement = () => {
           ⚠ This is the only time Key Part B will be displayed. Copy it now and
           send to the DPO at{" "}
           <span className="font-bold">{dpoEmailDisplay}</span>. It cannot be
-          recovered.
+          recovered. Key Part B is required along with Key Part A (stored
+          securely) to decrypt anonymous reporter identities during legal
+          disclosure. Keep this safe — it cannot be recovered.
         </p>
       </div>
       <label className="flex items-start space-x-3 cursor-pointer">
@@ -242,6 +301,100 @@ const KeyVaultManagement = () => {
       </label>
     </div>
   );
+
+  // ── Re-initialize Modal ────────────────────────────────────────────────────
+
+  const renderReinitModal = () => {
+    if (!showReinitModal || !reinitCompany) return null;
+
+    const vault = vaultStatuses[reinitCompany.id];
+    const dpoEmailDisplay = vault?.dpoEmail || "";
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">
+                Re-initialize Key Vault for {getCompanyDisplayName(reinitCompany)}
+              </h2>
+              <button
+                onClick={closeReinitModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {!reinitKeyPartB ? (
+              <>
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                  <div className="flex items-start">
+                    <svg className="w-5 h-5 text-red-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p className="text-sm text-red-800">
+                      This vault was created with an older version and is missing the{" "}
+                      <strong>wrappedSecret</strong> field required for identity
+                      disclosure. Re-initializing will generate new keys. The old Key
+                      Part B will stop working. A new Key Part B will be generated.
+                    </p>
+                  </div>
+                </div>
+
+                {reinitError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+                    <p className="text-red-800 text-sm">{reinitError}</p>
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    onClick={closeReinitModal}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleReinit}
+                    disabled={reinitSubmitting}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                  >
+                    {reinitSubmitting ? "Re-initializing..." : "Confirm Re-initialize"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {renderKeyPartBSection({
+                  keyPartB: reinitKeyPartB,
+                  copied: reinitCopied,
+                  onCopy: () => {
+                    navigator.clipboard.writeText(reinitKeyPartB);
+                    setReinitCopied(true);
+                  },
+                  confirmed: reinitConfirmed,
+                  onConfirm: setReinitConfirmed,
+                  dpoEmailDisplay,
+                })}
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={handleReinitDone}
+                    disabled={!reinitConfirmed}
+                    className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                  >
+                    Done
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // ── Initialize Modal ───────────────────────────────────────────────────────
 
@@ -676,6 +829,15 @@ const KeyVaultManagement = () => {
                                 >
                                   Rotate Key
                                 </button>
+                                {!vault?.hasWrappedSecret && (
+                                  <button
+                                    onClick={() => openReinitModal(company)}
+                                    title="Old vault format — click to upgrade"
+                                    className="px-3 py-1.5 bg-white border border-red-400 text-red-600 text-sm font-medium rounded hover:bg-red-50 transition-colors"
+                                  >
+                                    ⚠ Re-initialize
+                                  </button>
+                                )}
                                 <button
                                   onClick={() =>
                                     alert(
@@ -718,6 +880,7 @@ const KeyVaultManagement = () => {
       {/* Modals */}
       {renderInitModal()}
       {renderRotateModal()}
+      {renderReinitModal()}
     </div>
   );
 };

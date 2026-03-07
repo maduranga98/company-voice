@@ -6,9 +6,12 @@ import {
   updateDoc,
   getDocs,
   serverTimestamp,
+  increment,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import CryptoJS from "crypto-js";
+
+const ANONYMOUS_SECRET = import.meta.env.VITE_ANONYMOUS_SECRET || "default-secret-key-change-in-production";
 
 // ============================================
 // KEY GENERATION
@@ -30,6 +33,7 @@ const generateFullKey = () =>
  *   - Part A (chars 0–31) is stored in Firestore: keyVault/{companyId}
  *   - Part B (chars 32–63) is returned to the caller for out-of-band delivery
  *     to the DPO — it is NEVER stored.
+ * Also stores a wrappedSecret so KeyPartB can be verified during disclosure.
  *
  * @param {string} companyId     - Firestore company document ID
  * @param {string} dpoEmail      - Email of the company's Data Protection Officer
@@ -41,15 +45,18 @@ export const initializeCompanyKeyVault = async (companyId, dpoEmail, currentUser
   const existing = await getDoc(vaultRef);
 
   if (existing.exists()) {
-    throw new Error("Key vault already initialized for this company");
+    throw new Error("Key Vault already initialized. Use Rotate Key to generate new keys.");
   }
 
   const fullKey = generateFullKey();
-  const keyPartA = fullKey.substring(0, 32);
-  const keyPartB = fullKey.substring(32);
+  const keyPartA = fullKey.slice(0, 32);
+  const keyPartB = fullKey.slice(32);
+
+  const wrappedSecret = CryptoJS.AES.encrypt(ANONYMOUS_SECRET, keyPartA + keyPartB).toString();
 
   await setDoc(vaultRef, {
     keyPartA,
+    wrappedSecret,
     dpoEmail,
     keyVersion: 1,
     companyId,
@@ -85,6 +92,7 @@ export const getKeyVaultStatus = async (companyId) => {
     status: data.status,
     rotatedAt: data.rotatedAt,
     rotatedBy: data.rotatedBy,
+    hasWrappedSecret: !!data.wrappedSecret,
   };
 };
 
@@ -117,6 +125,7 @@ export const getAllKeyVaultStatuses = async () => {
       createdAt: data.createdAt,
       status: data.status,
       rotatedAt: data.rotatedAt,
+      hasWrappedSecret: !!data.wrappedSecret,
     });
   });
 
@@ -143,19 +152,21 @@ export const rotateKey = async (companyId, currentUserId) => {
   }
 
   const fullKey = generateFullKey();
-  const keyPartA = fullKey.substring(0, 32);
-  const keyPartB = fullKey.substring(32);
-  const newVersion = (existing.data().keyVersion || 1) + 1;
+  const newKeyPartA = fullKey.slice(0, 32);
+  const newKeyPartB = fullKey.slice(32);
+
+  const wrappedSecret = CryptoJS.AES.encrypt(ANONYMOUS_SECRET, newKeyPartA + newKeyPartB).toString();
 
   await updateDoc(vaultRef, {
-    keyPartA,
-    keyVersion: newVersion,
+    keyPartA: newKeyPartA,
+    wrappedSecret,
+    keyVersion: increment(1),
     rotatedAt: serverTimestamp(),
     rotatedBy: currentUserId,
   });
 
-  // keyPartB is returned to the caller and NEVER written to Firestore
-  return keyPartB;
+  // newKeyPartB is returned to the caller and NEVER written to Firestore
+  return newKeyPartB;
 };
 
 /**
@@ -178,29 +189,77 @@ export const getKeyPartA = async (companyId) => {
 };
 
 /**
- * Combine both key halves and decrypt an anonymous author ID.
+ * Verify Key Part B via the wrappedSecret, then decrypt the anonymous author ID
+ * using ANONYMOUS_SECRET (the same key used to encrypt it at post creation time).
  *
- * The encrypted author ID was produced by:
- *   CryptoJS.AES.encrypt(userId, fullKey).toString()
- * where fullKey = keyPartA + keyPartB.
- *
+ * @param {string} companyId         - Company ID
  * @param {string} encryptedAuthorId - CryptoJS AES-encrypted author ID
- * @param {string} partA             - Key Part A (from Firestore via getKeyPartA)
- * @param {string} partB             - Key Part B (provided by the DPO)
- * @returns {string | null} Decrypted userId, or null if decryption fails
+ * @param {string} keyPartB          - Key Part B (provided by the DPO)
+ * @returns {Promise<string>} Decrypted userId
  */
-export const combineAndDecrypt = (encryptedAuthorId, partA, partB) => {
-  try {
-    if (!partA || !partB || !encryptedAuthorId) return null;
+export const combineAndDecrypt = async (companyId, encryptedAuthorId, keyPartB) => {
+  const vaultRef = doc(db, "keyVault", companyId);
+  const vaultSnap = await getDoc(vaultRef);
 
-    const fullKey = partA + partB;
-    const bytes = CryptoJS.AES.decrypt(encryptedAuthorId, fullKey);
-    const userId = bytes.toString(CryptoJS.enc.Utf8);
-
-    if (!userId || userId.length === 0) return null;
-    return userId;
-  } catch (error) {
-    console.error("Error combining keys and decrypting:", error);
-    return null;
+  if (!vaultSnap.exists()) {
+    throw new Error("Key Vault not initialized for this company. Please initialize it in Key Vault Management first.");
   }
+
+  const { keyPartA, wrappedSecret } = vaultSnap.data();
+
+  // Step 1: Verify KeyPartB by unwrapping the secret
+  try {
+    const unwrappedBytes = CryptoJS.AES.decrypt(wrappedSecret, keyPartA + keyPartB);
+    const unwrappedSecret = unwrappedBytes.toString(CryptoJS.enc.Utf8);
+    if (!unwrappedSecret || unwrappedSecret.length < 8) {
+      throw new Error("Invalid Key Part B. Please verify with the DPO and try again.");
+    }
+  } catch (e) {
+    throw new Error("Invalid Key Part B. Please verify with the DPO and try again.");
+  }
+
+  // Step 2: Decrypt the authorId using ANONYMOUS_SECRET directly
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedAuthorId, ANONYMOUS_SECRET);
+    const userId = bytes.toString(CryptoJS.enc.Utf8);
+    if (!userId || userId.length < 5) {
+      throw new Error("Decryption produced invalid result. The post may use a different key version.");
+    }
+    return userId;
+  } catch (e) {
+    throw new Error("Could not decrypt reporter identity. " + e.message);
+  }
+};
+
+/**
+ * Re-initialize an existing vault (overwrites keys). Use when a vault is missing
+ * the wrappedSecret field (created before that field existed).
+ *
+ * @param {string} companyId     - Firestore company document ID
+ * @param {string} dpoEmail      - DPO email for this company
+ * @param {string} currentUserId - ID of the super_admin performing the action
+ * @returns {Promise<string>} new keyPartB — must be delivered to DPO immediately
+ */
+export const reinitializeKeyVault = async (companyId, dpoEmail, currentUserId) => {
+  const vaultRef = doc(db, "keyVault", companyId);
+
+  const fullKey = generateFullKey();
+  const keyPartA = fullKey.slice(0, 32);
+  const newKeyPartB = fullKey.slice(32);
+
+  const wrappedSecret = CryptoJS.AES.encrypt(ANONYMOUS_SECRET, keyPartA + newKeyPartB).toString();
+
+  await setDoc(vaultRef, {
+    keyPartA,
+    wrappedSecret,
+    dpoEmail,
+    keyVersion: 1,
+    companyId,
+    initializedBy: currentUserId,
+    createdAt: serverTimestamp(),
+    status: "active",
+  });
+
+  // newKeyPartB is returned to the caller and NEVER written to Firestore
+  return newKeyPartB;
 };
