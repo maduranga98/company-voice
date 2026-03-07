@@ -207,21 +207,24 @@ export const combineAndDecrypt = async (companyId, encryptedAuthorId, keyPartB) 
 
   const { keyPartA, wrappedSecret } = vaultSnap.data();
 
-  // Step 1: Verify KeyPartB by unwrapping the secret
+  // Step 1: Verify KeyPartB by unwrapping the secret — recover the original secret
+  let recoveredSecret;
   try {
     const unwrappedBytes = CryptoJS.AES.decrypt(wrappedSecret, keyPartA + keyPartB);
-    const unwrappedSecret = unwrappedBytes.toString(CryptoJS.enc.Utf8);
-    if (!unwrappedSecret || unwrappedSecret.length < 8) {
+    recoveredSecret = unwrappedBytes.toString(CryptoJS.enc.Utf8);
+    if (!recoveredSecret || recoveredSecret.length < 8) {
       throw new Error("Invalid Key Part B. Please verify with the DPO and try again.");
     }
   } catch (e) {
     throw new Error("Invalid Key Part B. Please verify with the DPO and try again.");
   }
 
-  // Step 2: Decrypt the authorId using ANONYMOUS_SECRET directly
+  // Step 2: Decrypt the authorId using the recovered secret (not the constant)
   try {
-    const bytes = CryptoJS.AES.decrypt(encryptedAuthorId, ANONYMOUS_SECRET);
+    const bytes = CryptoJS.AES.decrypt(encryptedAuthorId, recoveredSecret);
     const userId = bytes.toString(CryptoJS.enc.Utf8);
+    console.log('VoxWel decrypt - recoveredSecret length:', recoveredSecret.length);
+    console.log('VoxWel decrypt - userId result:', userId ? 'success ✓' : 'empty ✗');
     if (!userId || userId.length < 5) {
       throw new Error("Decryption produced invalid result. The post may use a different key version.");
     }
