@@ -324,17 +324,17 @@ const RoleBasedLayout = ({ children }) => {
   const themeColors = isAdmin
     ? {
         gradient: "from-blue-600 to-indigo-600",
-        text: "text-blue-600",
-        bg: "bg-blue-50",
-        hover: "hover:text-blue-900 hover:bg-blue-50",
-        active: "text-blue-600 bg-blue-50",
+        text: "text-blue-300",
+        bg: "bg-white/10",
+        hover: "hover:text-white hover:bg-white/5",
+        active: "text-blue-300 bg-white/10",
       }
     : {
         gradient: "from-purple-600 to-blue-600",
-        text: "text-purple-600",
-        bg: "bg-purple-50",
-        hover: "hover:text-purple-900 hover:bg-purple-50",
-        active: "text-purple-600 bg-purple-50",
+        text: "text-purple-300",
+        bg: "bg-white/10",
+        hover: "hover:text-white hover:bg-white/5",
+        active: "text-purple-300 bg-white/10",
       };
 
   return (
