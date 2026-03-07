@@ -492,13 +492,7 @@ const RoleBasedLayout = ({ children }) => {
       {/* Bottom Navigation - Enhanced with Better Mobile Support */}
       <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-border-light z-50 safe-area-inset-bottom shadow-2xl">
         <div className="max-w-7xl mx-auto">
-          <div
-            className={`grid ${
-              userData?.userTagId
-                ? `grid-cols-${tabs.length}`
-                : `grid-cols-${tabs.length}`
-            } gap-0`}
-          >
+          <div className="flex">
             {tabs.map((tab) => {
               const isActive = isActiveTab(tab.path);
               return (
@@ -506,7 +500,7 @@ const RoleBasedLayout = ({ children }) => {
                   key={tab.id}
                   onClick={() => handleNavigate(tab.path)}
                   className={`
-                    relative flex flex-col items-center justify-center py-2 px-1 min-h-16
+                    flex-1 relative flex flex-col items-center justify-center py-2 px-1 min-h-16
                     transition-all duration-300 group
                     ${
                       isActive
