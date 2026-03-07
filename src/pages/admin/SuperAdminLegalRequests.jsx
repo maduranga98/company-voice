@@ -30,7 +30,7 @@ import {
 import { downloadEvidencePackageWithFormat } from "../../services/legalEvidenceService";
 import { collection, addDoc, doc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import { getKeyPartA, combineAndDecrypt } from "../../services/keyVaultService";
+import { combineAndDecrypt } from "../../services/keyVaultService";
 
 const SuperAdminLegalRequests = () => {
   const { userData, logout } = useAuth();
@@ -205,42 +205,66 @@ const SuperAdminLegalRequests = () => {
   const handleDecryptIdentity = async () => {
     setDisclosureLoading(true);
     setDisclosureError('');
+
     try {
-      const keyPartA = await getKeyPartA(disclosureRequest.companyId);
-
+      // Step 1: Fetch the post
       const postDoc = await getDoc(doc(db, 'posts', disclosureRequest.reportId));
-      if (!postDoc.exists() || postDoc.data().isAnonymous !== true) {
-        setDisclosureError('This post is not anonymous or cannot be found.');
-        setDisclosureLoading(false);
+      if (!postDoc.exists()) {
+        setDisclosureError('Post not found. The Report ID may be incorrect.');
+        return;
+      }
+      const postData = postDoc.data();
+
+      // Step 2: Verify it is anonymous
+      if (!postData.isAnonymous) {
+        setDisclosureError('This post is not anonymous. There is no hidden identity to disclose.');
         return;
       }
 
-      const encryptedAuthorId =
-        postDoc.data().encryptedAuthorId || postDoc.data().authorId;
-
-      const decryptedUserId = combineAndDecrypt(encryptedAuthorId, keyPartA, keyPartB);
-      if (!decryptedUserId) {
-        setDisclosureError(
-          'Invalid Key Part B. Decryption failed. Please verify the key with the DPO.'
-        );
-        setDisclosureLoading(false);
+      // Step 3: Get the encrypted author field
+      // Check both possible field names used in CreatePost.jsx
+      const encryptedAuthorId = postData.encryptedAuthorId || postData.authorId;
+      if (!encryptedAuthorId) {
+        setDisclosureError('No encrypted identity found in this post.');
         return;
       }
 
-      const userDoc = await getDoc(doc(db, 'users', decryptedUserId));
+      // Step 4: Check vault exists
+      const vaultDoc = await getDoc(doc(db, 'keyVault', disclosureRequest.companyId));
+      if (!vaultDoc.exists()) {
+        setDisclosureError('Key Vault not initialized for this company. Go to Key Vault tab and initialize it first.');
+        return;
+      }
+
+      // Step 5: Check vault has wrappedSecret (old vaults may not)
+      const vaultData = vaultDoc.data();
+      if (!vaultData.wrappedSecret) {
+        setDisclosureError('This company Key Vault was created with an older version and needs to be re-initialized. Go to Key Vault Management and click "Re-initialize" for this company.');
+        return;
+      }
+
+      // Step 6: Call combineAndDecrypt with new signature
+      const userId = await combineAndDecrypt(
+        disclosureRequest.companyId,
+        encryptedAuthorId,
+        keyPartB
+      );
+
+      // Step 7: Fetch user profile
+      const userDoc = await getDoc(doc(db, 'users', userId));
       if (!userDoc.exists()) {
-        setDisclosureError('Decrypted user ID does not match any existing user.');
-        setDisclosureLoading(false);
+        setDisclosureError('User account not found. The account may have been deleted.');
         return;
       }
-
       const user = userDoc.data();
+
       setDisclosedIdentity({
-        displayName: user.displayName,
-        email: user.email,
-        username: user.username,
+        displayName: user.displayName || user.name || 'Name not set',
+        email: user.email || 'Email not on record',
+        username: user.username || userId,
       });
 
+      // Step 8: Log disclosure audit
       await addDoc(collection(db, 'disclosureAuditLog'), {
         requestId: disclosureRequest.id,
         postId: disclosureRequest.reportId,
@@ -253,9 +277,10 @@ const SuperAdminLegalRequests = () => {
       });
 
       setDisclosureStep(3);
-    } catch (err) {
-      console.error('Decryption error:', err);
-      setDisclosureError(err.message || 'An unexpected error occurred during decryption.');
+
+    } catch (error) {
+      console.error('VoxWel Disclosure Error:', error);
+      setDisclosureError(error.message || 'Decryption failed. Please try again.');
     } finally {
       setDisclosureLoading(false);
     }
