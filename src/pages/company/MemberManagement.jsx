@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../../services/departmentservice";
 
 const MemberManagement = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [members, setMembers] = useState([]);
@@ -102,7 +104,7 @@ const MemberManagement = () => {
       setDepartments(departmentsData);
     } catch (error) {
       console.error("Error loading data:", error);
-      alert("Failed to load data");
+      alert(t('company.failedToLoadData'));
     } finally {
       setLoading(false);
     }
@@ -116,13 +118,13 @@ const MemberManagement = () => {
         userTagId: tagId,
       });
 
-      alert("Tag assigned successfully!");
+      alert(t('company.tagAssigned'));
       setShowTagModal(false);
       setSelectedMember(null);
       loadData();
     } catch (error) {
       console.error("Error assigning tag:", error);
-      alert("Failed to assign tag");
+      alert(t('company.failedToAssignTag'));
     } finally {
       setLoading(false);
     }
@@ -142,13 +144,13 @@ const MemberManagement = () => {
         });
       }
 
-      alert("Department assigned successfully!");
+      alert(t('company.departmentAssigned'));
       setShowDepartmentModal(false);
       setSelectedMember(null);
       loadData();
     } catch (error) {
       console.error("Error assigning department:", error);
-      alert("Failed to assign department");
+      alert(t('company.failedToAssignDepartment'));
     } finally {
       setLoading(false);
     }
