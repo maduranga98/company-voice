@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { doc, getDoc } from "firebase/firestore";
@@ -6,6 +7,7 @@ import { db } from "../../config/firebase";
 import QRCode from "qrcode";
 
 const CompanyQRCode = () => {
+  const { t } = useTranslation();
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
   const [company, setCompany] = useState(null);
@@ -717,7 +719,7 @@ const CompanyQRCode = () => {
             const shareUrl = `${window.location.origin}/join/${company.id}`;
             const fullShareText = `${shareText}\n\nOr visit: ${shareUrl}`;
             await navigator.clipboard.writeText(fullShareText);
-            alert("Share information copied to clipboard!");
+            alert(t('company.shareInfoCopied'));
           }
         });
       };
@@ -725,13 +727,13 @@ const CompanyQRCode = () => {
       qrImage.src = qrCodeUrl;
     } catch (error) {
       console.error("Error sharing:", error);
-      alert("Unable to share. Please download and share manually.");
+      alert(t('company.unableToShare'));
     }
   };
 
   const copyCompanyId = () => {
     navigator.clipboard.writeText(company.id);
-    alert("Company ID copied to clipboard!");
+    alert(t('company.companyIdCopied'));
   };
 
   const handleLogout = async () => {
@@ -762,7 +764,7 @@ const CompanyQRCode = () => {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -794,7 +796,7 @@ const CompanyQRCode = () => {
                 </svg>
               </button>
               <h1 className="text-2xl font-bold text-gray-900">
-                Company QR Code
+                {t('company.qrCodeTitle')}
               </h1>
             </div>
             <div className="flex items-center space-x-4">
@@ -808,7 +810,7 @@ const CompanyQRCode = () => {
                 onClick={handleLogout}
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
               >
-                Logout
+                {t('common.logout')}
               </button>
             </div>
           </div>
@@ -819,10 +821,10 @@ const CompanyQRCode = () => {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Your Company QR Code
+            {t('company.yourCompanyQRCode')}
           </h2>
           <p className="text-gray-600">
-            Share this QR code with employees to join your company platform
+            {t('company.qrCodeInstructions')}
           </p>
         </div>
 
@@ -832,12 +834,12 @@ const CompanyQRCode = () => {
             {/* Company Card */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Company Details
+                {t('company.companyDetails')}
               </h3>
               <div className="space-y-3">
                 <div>
                   <label className="text-sm font-medium text-gray-500">
-                    Company Name
+                    {t('company.companyName')}
                   </label>
                   <p className="text-gray-900 font-semibold mt-1">
                     {company?.name}
@@ -845,15 +847,15 @@ const CompanyQRCode = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">
-                    Industry
+                    {t('company.industry')}
                   </label>
                   <p className="text-gray-900 mt-1">
-                    {company?.industry || "Not specified"}
+                    {company?.industry || t('company.notSpecified')}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">
-                    Company ID
+                    {t('company.companyId')}
                   </label>
                   <div className="flex items-center mt-1">
                     <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono text-gray-700 flex-1">
@@ -882,7 +884,7 @@ const CompanyQRCode = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">
-                    Status
+                    {t('company.status')}
                   </label>
                   <div className="mt-1">
                     <span
@@ -892,13 +894,13 @@ const CompanyQRCode = () => {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {company?.isActive ? "Active" : "Inactive"}
+                      {company?.isActive ? t('company.statusActive') : t('company.statusInactive')}
                     </span>
                   </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">
-                    Employees
+                    {t('company.employees')}
                   </label>
                   <p className="text-gray-900 font-semibold mt-1">
                     {company?.employeeCount || 0}
@@ -924,8 +926,7 @@ const CompanyQRCode = () => {
                   )}
                 </div>
                 <p className="text-center text-gray-600 max-w-md mb-6">
-                  Employees can scan this QR code to quickly register and join
-                  your company platform
+                  {t('company.qrCodeScanDesc')}
                 </p>
 
                 {/* Action Buttons */}
@@ -947,7 +948,7 @@ const CompanyQRCode = () => {
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                       />
                     </svg>
-                    <span className="text-base">Download</span>
+                    <span className="text-base">{t('company.downloadQR')}</span>
                   </button>
 
                   <button
@@ -967,7 +968,7 @@ const CompanyQRCode = () => {
                         d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                       />
                     </svg>
-                    <span className="text-base">Print</span>
+                    <span className="text-base">{t('company.print')}</span>
                   </button>
 
                   <button
@@ -987,7 +988,7 @@ const CompanyQRCode = () => {
                         d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                       />
                     </svg>
-                    <span className="text-base">Share</span>
+                    <span className="text-base">{t('company.share')}</span>
                   </button>
                 </div>
               </div>
@@ -1011,13 +1012,13 @@ const CompanyQRCode = () => {
                     </div>
                     <div className="ml-3">
                       <h4 className="text-sm font-semibold text-blue-900 mb-2">
-                        Distribution Tips
+                        {t('company.distributionTips')}
                       </h4>
                       <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• Email to new employees</li>
-                        <li>• Print on welcome packets</li>
-                        <li>• Display in common areas</li>
-                        <li>• Add to employee handbook</li>
+                        <li>• {t('company.tipEmailEmployees')}</li>
+                        <li>• {t('company.tipPrintWelcomePackets')}</li>
+                        <li>• {t('company.tipDisplayCommonAreas')}</li>
+                        <li>• {t('company.tipAddHandbook')}</li>
                       </ul>
                     </div>
                   </div>
@@ -1040,13 +1041,13 @@ const CompanyQRCode = () => {
                     </div>
                     <div className="ml-3">
                       <h4 className="text-sm font-semibold text-green-900 mb-2">
-                        Best Practices
+                        {t('company.bestPractices')}
                       </h4>
                       <ul className="text-sm text-green-800 space-y-1">
-                        <li>• High resolution for printing</li>
-                        <li>• Test scan before distribution</li>
-                        <li>• Keep QR code accessible</li>
-                        <li>• Monitor registration activity</li>
+                        <li>• {t('company.bestPracticeHighRes')}</li>
+                        <li>• {t('company.bestPracticeTestScan')}</li>
+                        <li>• {t('company.bestPracticeKeepAccessible')}</li>
+                        <li>• {t('company.bestPracticeMonitor')}</li>
                       </ul>
                     </div>
                   </div>

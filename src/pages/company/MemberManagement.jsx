@@ -392,19 +392,19 @@ const MemberManagement = () => {
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Tagged Members</p>
+            <p className="text-sm text-gray-600">{t('company.taggedMembers')}</p>
             <p className="text-2xl font-bold text-indigo-600">
               {members.filter((m) => m.userTagId).length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">In Departments</p>
+            <p className="text-sm text-gray-600">{t('company.inDepartments')}</p>
             <p className="text-2xl font-bold text-blue-600">
               {members.filter((m) => m.departmentId).length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Departments</p>
+            <p className="text-sm text-gray-600">{t('company.departmentTitle')}</p>
             <p className="text-2xl font-bold text-purple-600">
               {departments.length}
             </p>
@@ -418,11 +418,11 @@ const MemberManagement = () => {
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search
+              {t('common.search')}
             </label>
             <input
               type="text"
-              placeholder="Search by name or email..."
+              placeholder={t('company.searchByNameOrEmail')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -432,32 +432,32 @@ const MemberManagement = () => {
           {/* Role Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
+              {t('company.role')}
             </label>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Roles</option>
-              <option value={UserRole.COMPANY_ADMIN}>Admin</option>
-              <option value={UserRole.HR}>HR</option>
-              <option value={UserRole.EMPLOYEE}>Employee</option>
+              <option value="all">{t('company.allRoles')}</option>
+              <option value={UserRole.COMPANY_ADMIN}>{t('company.roleAdmin')}</option>
+              <option value={UserRole.HR}>{t('company.roleHR')}</option>
+              <option value={UserRole.EMPLOYEE}>{t('company.roleEmployee')}</option>
             </select>
           </div>
 
           {/* Tag Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tag
+              {t('company.tag')}
             </label>
             <select
               value={selectedTag}
               onChange={(e) => setSelectedTag(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Tags</option>
-              <option value="untagged">Untagged</option>
+              <option value="all">{t('company.allTags')}</option>
+              <option value="untagged">{t('company.untagged')}</option>
               {tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
                   {tag.icon} {tag.name}
@@ -469,15 +469,15 @@ const MemberManagement = () => {
           {/* Department Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Department
+              {t('company.department')}
             </label>
             <select
               value={selectedDepartment}
               onChange={(e) => setSelectedDepartment(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Departments</option>
-              <option value="unassigned">Unassigned</option>
+              <option value="all">{t('company.allDepartments')}</option>
+              <option value="unassigned">{t('company.unassigned')}</option>
               {departments.map((dept) => (
                 <option key={dept.id} value={dept.id}>
                   {dept.icon} {dept.name}
@@ -489,23 +489,23 @@ const MemberManagement = () => {
           {/* Status Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+              {t('company.status')}
             </label>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="pending">Pending Approval</option>
+              <option value="all">{t('company.allStatus')}</option>
+              <option value="active">{t('company.statusActive')}</option>
+              <option value="pending">{t('company.pendingApprovals')}</option>
             </select>
           </div>
         </div>
 
         <div className="mt-3 text-sm text-gray-600">
-          Showing <strong>{filteredMembers.length}</strong> of{" "}
-          <strong>{members.length}</strong> members
+          {t('company.showing')} <strong>{filteredMembers.length}</strong> {t('company.of')}{" "}
+          <strong>{members.length}</strong> {t('company.membersLower')}
         </div>
       </div>
 
@@ -513,7 +513,7 @@ const MemberManagement = () => {
       {filteredMembers.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
           <p className="text-gray-600">
-            No members found matching your filters
+            {t('company.noMembers')}
           </p>
         </div>
       ) : (
@@ -522,22 +522,22 @@ const MemberManagement = () => {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Member
+                  {t('company.memberColumn')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
+                  {t('company.emailColumn')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
+                  {t('company.role')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tag
+                  {t('company.tag')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Department
+                  {t('company.department')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('company.actions')}
                 </th>
               </tr>
             </thead>
@@ -571,8 +571,8 @@ const MemberManagement = () => {
                               }`}
                             >
                               {member.status === "pending"
-                                ? "Pending Approval"
-                                : "Active"}
+                                ? t('company.pendingApprovals')
+                                : t('company.statusActive')}
                             </span>
                           </div>
                         </div>
@@ -598,7 +598,7 @@ const MemberManagement = () => {
                         </span>
                       ) : (
                         <span className="text-sm text-gray-400 italic">
-                          Not tagged
+                          {t('company.notTagged')}
                         </span>
                       )}
                     </td>
@@ -610,7 +610,7 @@ const MemberManagement = () => {
                         </span>
                       ) : (
                         <span className="text-sm text-gray-400 italic">
-                          No department
+                          {t('company.noDepartment')}
                         </span>
                       )}
                     </td>
@@ -621,13 +621,13 @@ const MemberManagement = () => {
                             onClick={() => handleApproveMember(member.id)}
                             className="text-green-600 hover:text-green-800 font-medium px-3 py-1 border border-green-300 rounded-lg hover:bg-green-50"
                           >
-                            Approve
+                            {t('company.approve')}
                           </button>
                           <button
                             onClick={() => handleRejectMember(member.id)}
                             className="text-red-600 hover:text-red-800 font-medium px-3 py-1 border border-red-300 rounded-lg hover:bg-red-50"
                           >
-                            Reject
+                            {t('company.reject')}
                           </button>
                         </div>
                       ) : (
@@ -639,7 +639,7 @@ const MemberManagement = () => {
                             }}
                             className="text-indigo-600 hover:text-indigo-800 font-medium"
                           >
-                            {memberTag ? "Tag" : "Assign Tag"}
+                            {memberTag ? t('company.tag') : t('company.assignTag')}
                           </button>
                           <span className="text-gray-300">|</span>
                           <button
@@ -649,7 +649,7 @@ const MemberManagement = () => {
                             }}
                             className="text-blue-600 hover:text-blue-800 font-medium"
                           >
-                            {memberDepartment ? "Dept" : "Assign Dept"}
+                            {memberDepartment ? t('company.dept') : t('company.assignDept')}
                           </button>
                         </div>
                       )}
@@ -668,19 +668,19 @@ const MemberManagement = () => {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Assign Tag to {selectedMember.displayName}
+                {t('company.assignTagTo')} {selectedMember.displayName}
               </h2>
 
               {tags.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600 mb-4">
-                    No tags available. Create tags first.
+                    {t('company.noTagsAvailable')}
                   </p>
                   <button
                     onClick={() => navigate("/company/tag-management")}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                   >
-                    Go to Tag Management
+                    {t('company.goToTagManagement')}
                   </button>
                 </div>
               ) : (
@@ -691,7 +691,7 @@ const MemberManagement = () => {
                     className="w-full p-3 text-left border-2 border-gray-200 rounded-lg hover:border-gray-400 transition"
                   >
                     <span className="text-sm font-medium text-gray-600">
-                      Remove Tag
+                      {t('company.removeTag')}
                     </span>
                   </button>
 
@@ -715,7 +715,7 @@ const MemberManagement = () => {
                             <span className="font-semibold">{tag.name}</span>
                           </div>
                           <span className="text-xs text-gray-500">
-                            Priority: {tag.priority}
+                            {t('company.priority')}: {tag.priority}
                           </span>
                         </div>
                         {tag.description && (
@@ -737,7 +737,7 @@ const MemberManagement = () => {
                   }}
                   className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             </div>
@@ -751,19 +751,19 @@ const MemberManagement = () => {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Assign Department to {selectedMember.displayName}
+                {t('company.assignDepartmentTo')} {selectedMember.displayName}
               </h2>
 
               {departments.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600 mb-4">
-                    No departments available. Create departments first.
+                    {t('company.noDepartmentsAvailable')}
                   </p>
                   <button
                     onClick={() => navigate("/company/departments")}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                   >
-                    Go to Department Management
+                    {t('company.goToDepartmentManagement')}
                   </button>
                 </div>
               ) : (
@@ -774,7 +774,7 @@ const MemberManagement = () => {
                     className="w-full p-3 text-left border-2 border-gray-200 rounded-lg hover:border-gray-400 transition"
                   >
                     <span className="text-sm font-medium text-gray-600">
-                      Remove from Department
+                      {t('company.removeFromDepartment')}
                     </span>
                   </button>
 
@@ -794,7 +794,7 @@ const MemberManagement = () => {
                           <span className="font-semibold">{dept.name}</span>
                         </div>
                         <span className="text-xs text-gray-500">
-                          {dept.memberCount || 0} members
+                          {dept.memberCount || 0} {t('company.membersLower')}
                         </span>
                       </div>
                       {dept.description && (
@@ -815,7 +815,7 @@ const MemberManagement = () => {
                   }}
                   className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             </div>
