@@ -1,0 +1,716 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "yes": "Sí",
+    "no": "No",
+    "ok": "Aceptar",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar Sesión",
+      "welcome": "¡Bienvenido de nuevo!",
+      "username": "Usuario",
+      "password": "Contraseña",
+      "usernameOrEmail": "Usuario o Correo Electrónico",
+      "usernamePlaceholder": "Ingresa tu usuario",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "signIn": "Iniciar Sesión",
+      "signingIn": "Iniciando sesión...",
+      "signInWithQR": "Iniciar Sesión con Código QR",
+      "scanQRCode": "Escanear Código QR",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "orContinueWith": "o continuar con",
+      "newToVoxWel": "¿Nuevo en VoxWel?",
+      "contactHR": "Contacta a tu departamento de RR.HH.",
+      "noAccount": "¿No tienes cuenta?",
+      "register": "Regístrate aquí",
+      "invalidCredentials": "Usuario o contraseña inválidos. Por favor, inténtalo de nuevo.",
+      "invalidQR": "Código QR inválido. Por favor, escanea un código QR de registro de empresa válido.",
+      "loginSuccess": "¡Inicio de sesión exitoso!",
+      "loginError": "Error al iniciar sesión. Por favor, inténtalo de nuevo.",
+      "cameraAccessError": "No se puede acceder a la cámara. Por favor, verifica los permisos.",
+      "qrScannerError": "No se pudo iniciar el escáner QR. Por favor, intenta el inicio de sesión manual.",
+      "tagline": "Donde Cada Voz Importa",
+      "mainHeading": "Potencia la Voz de tu Lugar de Trabajo",
+      "mainDescription": "Una plataforma segura donde cada empleado puede compartir ideas, reportar preocupaciones y colaborar para construir un mejor lugar de trabajo juntos.",
+      "featureCreativeTitle": "Ideas Creativas",
+      "featureCreativeText": "Comparte soluciones innovadoras y conceptos creativos",
+      "featureSecureTitle": "Reporte Seguro",
+      "featureSecureText": "Reporta problemas laborales de forma segura y anónima",
+      "featureDiscussionsTitle": "Discusiones Abiertas",
+      "featureDiscussionsText": "Participa en conversaciones significativas de equipo",
+      "copyright": "© 2025 VoxWel. Todos los derechos reservados."
+    },
+    "register": {
+      "title": "Crear Cuenta",
+      "welcome": "¡Únete a nosotros hoy!",
+      "username": "Usuario",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "companyName": "Nombre de la Empresa",
+      "createAccount": "Crear Cuenta",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Inicia sesión aquí",
+      "usernameRequired": "El usuario es requerido",
+      "usernameLength": "El usuario debe tener al menos 3 caracteres",
+      "emailRequired": "El correo electrónico es requerido",
+      "emailInvalid": "Por favor, ingresa una dirección de correo electrónico válida",
+      "passwordRequired": "La contraseña es requerida",
+      "passwordLength": "La contraseña debe tener al menos 6 caracteres",
+      "passwordMismatch": "Las contraseñas no coinciden",
+      "companyRequired": "El nombre de la empresa es requerido",
+      "registrationSuccess": "¡Registro exitoso!",
+      "registrationError": "Error en el registro. Por favor, inténtalo de nuevo.",
+      "joinCompany": "Unirse a {{companyName}}"
+    },
+    "logout": "Cerrar Sesión"
+  },
+  "navigation": {
+    "dashboard": "Panel de Control",
+    "feed": "Feed",
+    "creative": "Creatividad",
+    "problems": "Problemas",
+    "discussions": "Discusiones",
+    "myPosts": "Mis Publicaciones",
+    "assignedToMe": "Asignado a Mí",
+    "profile": "Perfil",
+    "notifications": "Notificaciones",
+    "settings": "Configuración",
+    "home": "Inicio"
+  },
+  "post": {
+    "create": "Crear Publicación",
+    "createNew": "Crear Nueva Publicación",
+    "title": "Título",
+    "description": "Descripción",
+    "content": "Contenido",
+    "category": "Categoría",
+    "tags": "Etiquetas",
+    "assignTo": "Asignar a",
+    "selectCategory": "Seleccionar Categoría",
+    "selectTags": "Seleccionar Etiquetas",
+    "addTag": "Agregar Etiqueta",
+    "postType": {
+      "creative": "Creativo",
+      "problem": "Problema",
+      "discussion": "Discusión"
+    },
+    "publish": "Publicar",
+    "draft": "Guardar como Borrador",
+    "posted": "Publicado",
+    "postedBy": "Publicado por",
+    "editPost": "Editar Publicación",
+    "deletePost": "Eliminar Publicación",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar esta publicación?",
+    "postDeleted": "Publicación eliminada exitosamente",
+    "postCreated": "Publicación creada exitosamente",
+    "postUpdated": "Publicación actualizada exitosamente",
+    "noPostsYet": "Aún no hay publicaciones",
+    "noPosts": "No hay publicaciones disponibles"
+  },
+  "comments": {
+    "comments": "Comentarios",
+    "addComment": "Agregar un comentario...",
+    "postComment": "Publicar Comentario",
+    "reply": "Responder",
+    "editComment": "Editar Comentario",
+    "deleteComment": "Eliminar Comentario",
+    "noComments": "Aún no hay comentarios. ¡Sé el primero en comentar!",
+    "commentAdded": "Comentario agregado exitosamente",
+    "commentDeleted": "Comentario eliminado exitosamente"
+  },
+  "reactions": {
+    "like": "Me gusta",
+    "love": "Me encanta",
+    "celebrate": "Celebrar",
+    "support": "Apoyar",
+    "insightful": "Revelador",
+    "reactions": "Reacciones"
+  },
+  "feed": {
+    "unified": "Todas las Publicaciones",
+    "creative": "Feed Creativo",
+    "creativeDescriptiom": "Comparte tus ideas creativas, diseños e innovaciones",
+    "problems": "Feed de Problemas",
+    "discussions": "Feed de Discusiones",
+    "filterBy": "Filtrar por",
+    "sortBy": "Ordenar por",
+    "latest": "Más Recientes",
+    "popular": "Populares",
+    "trending": "Tendencias",
+    "mostLiked": "Más Gustados",
+    "mostCommented": "Más Comentados"
+  },
+  "company": {
+    "dashboard": "Panel de la Empresa",
+    "management": "Gestión de la Empresa",
+    "members": "Miembros",
+    "memberManagement": "Gestión de Miembros",
+    "addMember": "Agregar Miembro",
+    "removeMember": "Eliminar Miembro",
+    "companyPosts": "Publicaciones de la Empresa",
+    "companyName": "Nombre de la Empresa",
+    "companyInfo": "Información de la Empresa",
+    "creativeWall": "Muro Creativo",
+    "qrCode": "Código QR",
+    "generateQR": "Generar Código QR",
+    "downloadQR": "Descargar Código QR",
+    "tags": "Etiquetas",
+    "tagManagement": "Gestión de Etiquetas",
+    "createTag": "Crear Etiqueta",
+    "editTag": "Editar Etiqueta",
+    "deleteTag": "Eliminar Etiqueta",
+    "tagName": "Nombre de Etiqueta",
+    "tagColor": "Color de Etiqueta"
+  },
+  "employee": {
+    "dashboard": "Panel del Empleado",
+    "complaints": "Quejas",
+    "myComplaints": "Mis Quejas",
+    "fileComplaint": "Presentar una Queja",
+    "complaintDetails": "Detalles de la Queja",
+    "status": "Estado",
+    "pending": "Pendiente",
+    "inProgress": "En Proceso",
+    "resolved": "Resuelto",
+    "closed": "Cerrado"
+  },
+  "admin": {
+    "panel": "Panel de Administración",
+    "companyManagement": "Gestión de Empresas",
+    "userManagement": "Gestión de Usuarios",
+    "systemSettings": "Configuración del Sistema",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "pending": "Pendiente de Aprobación",
+    "approved": "Aprobado",
+    "rejected": "Rechazado"
+  },
+  "profile": {
+    "myProfile": "Mi Perfil",
+    "editProfile": "Editar Perfil",
+    "viewProfile": "Ver Perfil",
+    "name": "Nombre",
+    "email": "Correo Electrónico",
+    "username": "Usuario",
+    "bio": "Biografía",
+    "role": "Rol",
+    "company": "Empresa",
+    "joinedDate": "Fecha de Ingreso",
+    "updateProfile": "Actualizar Perfil",
+    "profileUpdated": "Perfil actualizado exitosamente",
+    "changePassword": "Cambiar Contraseña",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "confirmNewPassword": "Confirmar Nueva Contraseña"
+  },
+  "notifications": {
+    "notifications": "Notificaciones",
+    "noNotifications": "Sin notificaciones",
+    "markAsRead": "Marcar como Leído",
+    "markAllAsRead": "Marcar Todo como Leído",
+    "newComment": "Nuevo comentario en tu publicación",
+    "newReaction": "Alguien reaccionó a tu publicación",
+    "newAssignment": "Se te ha asignado una publicación",
+    "newPost": "Nueva publicación en tu feed"
+  },
+  "qr": {
+    "generator": "Generador de Código QR",
+    "generate": "Generar Código QR",
+    "download": "Descargar",
+    "scan": "Escanear Código QR",
+    "scanInstructions": "Apunta tu cámara al código QR",
+    "scanSuccess": "Código QR escaneado exitosamente",
+    "scanError": "Error al escanear el código QR",
+    "companyRegistration": "Código QR de Registro de Empresa",
+    "howToScan": "Cómo escanear:",
+    "instruction1": "Obtén el código QR de tu departamento de RR.HH.",
+    "instruction2": "Mantenlo estable dentro del marco",
+    "instruction3": "Asegura buena iluminación",
+    "instruction4": "Redirección automática al escanear exitosamente"
+  },
+  "validation": {
+    "required": "Este campo es requerido",
+    "emailInvalid": "Por favor, ingresa una dirección de correo electrónico válida",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "usernameTooShort": "El usuario debe tener al menos 3 caracteres",
+    "invalidFormat": "Formato inválido"
+  },
+  "errors": {
+    "general": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "networkError": "Error de red. Por favor, verifica tu conexión.",
+    "unauthorized": "No tienes autorización para realizar esta acción.",
+    "notFound": "Recurso no encontrado.",
+    "serverError": "Error del servidor. Por favor, inténtalo más tarde.",
+    "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión nuevamente."
+  },
+  "success": {
+    "saved": "Guardado exitosamente",
+    "updated": "Actualizado exitosamente",
+    "deleted": "Eliminado exitosamente",
+    "created": "Creado exitosamente",
+    "sent": "Enviado exitosamente"
+  },
+  "time": {
+    "justNow": "Ahora mismo",
+    "minutesAgo": "Hace {{count}} minutos",
+    "hoursAgo": "Hace {{count}} horas",
+    "daysAgo": "Hace {{count}} días",
+    "weeksAgo": "Hace {{count}} semanas",
+    "monthsAgo": "Hace {{count}} meses",
+    "yearsAgo": "Hace {{count}} años"
+  },
+  "guidance": {
+    "ui": {
+      "memberStatuses": "Estados de Miembros",
+      "templateExamples": "Ejemplos de Plantillas",
+      "privacySettings": "Configuración de Privacidad",
+      "moderationActions": "Acciones de Moderación",
+      "distributionMethods": "Métodos de Distribución",
+      "whatToExpect": "Qué Esperar",
+      "reportStatuses": "Estados de Reportes",
+      "bestPractices": "Mejores Prácticas",
+      "howToAssignTags": "Cómo Asignar Etiquetas",
+      "howToCreateDepts": "Cómo Crear Departamentos",
+      "useCases": "Casos de Uso",
+      "howToManageMembers": "Cómo Gestionar Miembros",
+      "roleAssignmentGuidelines": "Pautas de Asignación de Roles",
+      "bulkOperations": "Operaciones Masivas",
+      "howToCreate": "Cómo Crear",
+      "howToUse": "Cómo Usar",
+      "howItWorks": "Cómo Funciona",
+      "howToGenerate": "Cómo Generar",
+      "howToManage": "Cómo Gestionar",
+      "reviewProcess": "Proceso de Revisión",
+      "selectTopic": "Selecciona un tema de la barra lateral para ver el contenido de ayuda."
+    },
+    "roles": {
+      "superAdmin": {
+        "name": "Super Administrador",
+        "description": "Administrador a nivel de plataforma con acceso a todas las empresas",
+        "responsibilities": [
+          "Gestionar múltiples empresas y sus configuraciones",
+          "Manejar facturación y suscripciones del super administrador",
+          "Supervisar la administración de todo el sistema",
+          "Crear y configurar nuevas empresas"
+        ]
+      },
+      "companyAdmin": {
+        "name": "Administrador de Empresa",
+        "description": "Administrador de una empresa específica con control total",
+        "responsibilities": [
+          "Gestionar miembros y departamentos de la empresa",
+          "Manejar moderación de publicaciones y actualizaciones de estado",
+          "Acceder a análisis e informes",
+          "Gestionar etiquetas y clasificaciones de usuarios",
+          "Configurar facturación y suscripciones de la empresa",
+          "Crear y gestionar plantillas de publicaciones",
+          "Generar códigos QR para invitaciones de empleados"
+        ]
+      },
+      "hr": {
+        "name": "RR.HH.",
+        "description": "Especialista en Recursos Humanos con privilegios administrativos",
+        "responsibilities": [
+          "Gestionar contenido específico de RR.HH. y publicaciones sensibles",
+          "Realizar gestión de miembros y moderación",
+          "Acceder a análisis de empresa y registros de auditoría",
+          "Manejar tareas administrativas relacionadas con empleados",
+          "Gestionar departamentos y etiquetas"
+        ]
+      },
+      "employee": {
+        "name": "Empleado",
+        "description": "Empleado regular de la empresa con privilegios de creación de contenido",
+        "responsibilities": [
+          "Crear publicaciones (Problemas, Ideas, Contenido Creativo, Discusiones)",
+          "Comentar e interactuar con publicaciones",
+          "Ver feeds y contenido de la empresa",
+          "Gestionar propias publicaciones (editar/eliminar)",
+          "Ver publicaciones asignadas a ellos (si están etiquetados)"
+        ]
+      }
+    },
+    "postStatus": {
+      "title": "Flujo de Estado de Publicaciones",
+      "description": "Rastrea y gestiona las publicaciones a través de su ciclo de vida usando estos indicadores de estado.",
+      "statuses": {
+        "OPEN": { "label": "Abierto", "description": "Recién creado, esperando revisión del administrador", "whenToUse": "Estado predeterminado para todas las nuevas publicaciones" },
+        "ACKNOWLEDGED": { "label": "Reconocido", "description": "El administrador ha visto y reconocido la publicación", "whenToUse": "Cuando has revisado la publicación y quieres señalar que la has visto" },
+        "IN_PROGRESS": { "label": "En Progreso", "description": "En proceso de trabajo activo", "whenToUse": "Cuando el trabajo ha comenzado para abordar la publicación" },
+        "UNDER_REVIEW": { "label": "En Revisión", "description": "Siendo investigado o evaluado", "whenToUse": "Cuando la publicación requiere investigación o análisis" },
+        "WORKING_ON": { "label": "Trabajando en Ello", "description": "Enviado a departamentos relevantes, esperando respuesta", "whenToUse": "Cuando has delegado a otro equipo y estás esperando actualizaciones" },
+        "RESOLVED": { "label": "Resuelto", "description": "Corregido o completado exitosamente", "whenToUse": "Cuando el problema está completamente resuelto o la idea está implementada" },
+        "CLOSED": { "label": "Cerrado", "description": "No se necesita ni se toma acción", "whenToUse": "Cuando la publicación no requiere ninguna acción" },
+        "REJECTED": { "label": "Rechazado", "description": "No válido, duplicado o fuera de alcance", "whenToUse": "Cuando la publicación es inválida, duplicada o no se alinea con los objetivos de la empresa" },
+        "NOT_A_PROBLEM": { "label": "No es un Problema", "description": "No es un problema real o se resolverá en el futuro", "whenToUse": "Cuando el problema reportado no es realmente un problema o se resolverá por sí solo" }
+      },
+      "bestPractices": [
+        "Siempre agrega un comentario al cambiar el estado para explicar la razón",
+        "Actualiza el estado prontamente para mantener informados a los empleados",
+        "Usa RECONOCIDO rápidamente para mostrar que has visto publicaciones importantes",
+        "Mueve a RESUELTO solo cuando la acción esté completa",
+        "Proporciona cierre explicando las decisiones de RECHAZADO o NO ES UN PROBLEMA"
+      ]
+    },
+    "priority": {
+      "title": "Niveles de Prioridad",
+      "description": "Asigna prioridad a las publicaciones para indicar urgencia e importancia.",
+      "levels": {
+        "CRITICAL": { "label": "Crítico", "description": "Requiere atención inmediata", "criteria": ["Interrupciones del sistema o funcionalidad principal dañada", "Preocupaciones de seguridad o protección", "Problemas legales o de cumplimiento", "Impacto comercial severo"] },
+        "HIGH": { "label": "Alto", "description": "Importante y urgente", "criteria": ["Impacto significativo en múltiples equipos", "Bloqueo de procesos o flujos de trabajo clave", "Problemas orientados al cliente", "Oportunidades urgentes"] },
+        "MEDIUM": { "label": "Medio", "description": "Prioridad normal, debe abordarse", "criteria": ["Problemas operativos estándar", "Mejoras de procesos", "Problemas no bloqueantes", "Solicitudes de características regulares"] },
+        "LOW": { "label": "Bajo", "description": "Deseable, abordar cuando sea posible", "criteria": ["Mejoras menores", "Mejoras opcionales", "Sugerencias de bajo impacto", "Ideas a largo plazo"] }
+      },
+      "bestPractices": [
+        "Establece la prioridad basándote en el impacto comercial, no solo en la urgencia",
+        "Revisa y ajusta las prioridades regularmente",
+        "Comunica los cambios de prioridad a los interesados",
+        "Usa CRÍTICO con moderación para mantener su significado"
+      ]
+    },
+    "tags": {
+      "title": "Sistema de Etiquetas de Usuario",
+      "description": "Las etiquetas ayudan a clasificar a los usuarios por rol o antigüedad para asignación y filtrado.",
+      "purpose": "Las etiquetas habilitan la función 'Asignado a Mí' - cuando se menciona a usuarios con etiquetas en publicaciones, esas publicaciones aparecen en su sección asignada.",
+      "items": {
+        "EXECUTIVE": { "label": "Ejecutivo", "description": "Ejecutivos de nivel C y Vicepresidentes", "examples": ["CEO", "CTO", "CFO", "VP de Ingeniería"] },
+        "SENIOR_MANAGER": { "label": "Gerente Senior", "description": "Gerentes senior y directores", "examples": ["Director de RR.HH.", "Gerente Senior de Ingeniería"] },
+        "MANAGER": { "label": "Gerente", "description": "Líderes de equipo y gerentes", "examples": ["Líder de Equipo", "Gerente de Proyecto", "Gerente de Departamento"] },
+        "SPECIALIST": { "label": "Especialista", "description": "Especialistas senior y expertos en la materia", "examples": ["Ingeniero Senior", "Especialista UX", "Experto en Seguridad"] },
+        "STAFF": { "label": "Personal", "description": "Empleados regulares y personal", "examples": ["Ingeniero", "Diseñador", "Analista"] }
+      },
+      "howToAssign": [
+        "Las etiquetas son opcionales - no todos los usuarios necesitan una etiqueta",
+        "Solo asigna etiquetas a usuarios que necesitan rastrear elementos asignados",
+        "Un usuario puede tener múltiples etiquetas si ocupa múltiples roles",
+        "Las etiquetas no afectan los permisos - son solo para organización"
+      ],
+      "bestPractices": [
+        "Usa etiquetas de forma consistente en toda tu organización",
+        "Revisa y actualiza las etiquetas durante cambios de rol",
+        "No sobre-etiquetes - solo etiqueta a usuarios que necesitan rastreo de asignaciones",
+        "Documenta los criterios de asignación de etiquetas de tu organización"
+      ]
+    },
+    "departments": {
+      "title": "Gestión de Departamentos",
+      "description": "Organiza la estructura de tu empresa con departamentos.",
+      "whatAreDepartments": "Los departamentos te ayudan a organizar a los miembros por equipo, función o ubicación. Se usan para filtrar publicaciones, análisis y control de acceso.",
+      "howToCreate": [
+        "Haz clic en el botón 'Crear Departamento'",
+        "Ingresa un nombre descriptivo para el departamento",
+        "Opcionalmente agrega una descripción",
+        "Asigna miembros al departamento"
+      ],
+      "bestPractices": [
+        "Crea departamentos que coincidan con tu estructura organizacional",
+        "Mantén los nombres de departamentos claros y consistentes",
+        "Asigna todos los miembros a al menos un departamento",
+        "Usa departamentos para contenido dirigido con configuraciones de privacidad",
+        "Revisa los análisis del departamento para rastrear el compromiso del equipo"
+      ],
+      "useCases": [
+        "Filtrar publicaciones por departamento en feeds",
+        "Crear contenido específico del departamento con controles de privacidad",
+        "Rastrear el rendimiento del departamento en análisis",
+        "Organizar la gestión de miembros por equipo"
+      ]
+    },
+    "memberManagement": {
+      "title": "Gestión de Miembros",
+      "description": "Gestiona usuarios, asigna roles y controla el acceso.",
+      "statuses": {
+        "ACTIVE": { "label": "Activo", "description": "Acceso completo a la plataforma" },
+        "PENDING": { "label": "Pendiente", "description": "Invitación enviada, esperando registro" },
+        "SUSPENDED": { "label": "Suspendido", "description": "Acceso temporalmente revocado" }
+      },
+      "howToManage": [
+        "Usa filtros para encontrar miembros específicos",
+        "Haz clic en un miembro para ver detalles",
+        "Cambia roles desde el menú desplegable",
+        "Asigna etiquetas para clasificación organizacional",
+        "Suspende miembros para revocar temporalmente el acceso"
+      ],
+      "roleAssignment": [
+        "Asigna el Administrador de Empresa con cuidado - tienen acceso completo",
+        "El rol de RR.HH. es para personal de recursos humanos",
+        "La mayoría de los usuarios deben ser Empleados",
+        "Solo los Super Administradores pueden crear otros Super Administradores"
+      ],
+      "bulkOperations": [
+        "Selecciona múltiples miembros con casillas de verificación",
+        "Usa acciones masivas para mayor eficiencia",
+        "Acciones disponibles: Cambiar rol, Asignar etiqueta, Cambiar estado",
+        "Revisa las selecciones antes de aplicar cambios masivos"
+      ],
+      "bestPractices": [
+        "Audita regularmente los roles y accesos de los miembros",
+        "Suspende en lugar de eliminar cuando el acceso deba ser temporal",
+        "Documenta los cambios de rol en notas de administrador",
+        "Usa departamentos para organizar equipos grandes"
+      ]
+    },
+    "templates": {
+      "title": "Plantillas de Publicaciones",
+      "description": "Crea plantillas reutilizables para tipos comunes de publicaciones.",
+      "whatAreTemplates": "Las plantillas son estructuras de publicación pre-formateadas que ayudan a los usuarios a crear contenido consistente y bien estructurado rápidamente.",
+      "howToCreate": [
+        "Navega a la página de Plantillas",
+        "Haz clic en 'Crear Plantilla'",
+        "Elige el tipo de publicación (Problema, Idea, Creativo, Discusión)",
+        "Agrega título y contenido con marcadores de posición",
+        "Guarda la plantilla para reutilizarla"
+      ],
+      "howToUse": [
+        "Al crear una publicación, busca la opción 'Usar Plantilla'",
+        "Selecciona entre las plantillas disponibles",
+        "El contenido de la plantilla rellena automáticamente el formulario",
+        "Personaliza según sea necesario antes de publicar"
+      ],
+      "bestPractices": [
+        "Crea plantillas para tipos de contenido publicados frecuentemente",
+        "Usa nombres de plantillas claros y descriptivos",
+        "Incluye indicaciones y ejemplos útiles en las plantillas",
+        "Mantén las plantillas concisas y enfocadas",
+        "Revisa y actualiza las plantillas según el uso"
+      ]
+    },
+    "analytics": {
+      "title": "Análisis e Informes",
+      "description": "Comprende el compromiso, las tendencias y las métricas de rendimiento.",
+      "metrics": {
+        "postsByType": { "label": "Publicaciones por Tipo", "description": "Distribución de Reportes de Problemas, Ideas, Contenido Creativo y Discusiones", "useCase": "Identificar qué tipo de contenido crean más los empleados" },
+        "postsByStatus": { "label": "Publicaciones por Estado", "description": "Distribución actual del estado (Abierto, En Progreso, Resuelto, etc.)", "useCase": "Rastrear el progreso del flujo de trabajo e identificar cuellos de botella" },
+        "postsByPriority": { "label": "Publicaciones por Prioridad", "description": "Distribución entre prioridades Crítico, Alto, Medio, Bajo", "useCase": "Comprender la distribución de urgencia y la carga de trabajo" },
+        "engagementMetrics": { "label": "Compromiso de Usuarios", "description": "Comentarios, reacciones y participación activa", "useCase": "Medir la adopción de la plataforma y la actividad de los usuarios" },
+        "responseTime": { "label": "Tiempo de Respuesta", "description": "Tiempo promedio para reconocer y resolver publicaciones", "useCase": "Rastrear la capacidad de respuesta y eficiencia del administrador" },
+        "departmentPerformance": { "label": "Rendimiento del Departamento", "description": "Actividad y métricas por departamento", "useCase": "Comparar el compromiso del equipo e identificar tendencias" }
+      },
+      "howToUse": [
+        "Selecciona el período de tiempo (7, 30 o 90 días)",
+        "Revisa gráficos y tendencias",
+        "Haz clic en puntos de datos para ver detalles",
+        "Exporta datos para análisis adicional",
+        "Comparte información con el liderazgo"
+      ],
+      "bestPractices": [
+        "Revisa los análisis semanalmente para identificar tendencias",
+        "Compara períodos para rastrear mejoras",
+        "Usa la información para mejorar procesos",
+        "Comparte tendencias positivas para fomentar el compromiso",
+        "Actúa rápidamente ante patrones preocupantes"
+      ]
+    },
+    "moderation": {
+      "title": "Moderación de Contenido",
+      "description": "Revisa el contenido reportado y mantén los estándares de la comunidad.",
+      "reportStatuses": {
+        "PENDING": { "label": "Pendiente", "description": "Nuevo reporte esperando revisión", "action": "Revisa el contenido y toma la acción apropiada" },
+        "UNDER_REVIEW": { "label": "En Revisión", "description": "Siendo investigado", "action": "Continúa la investigación y recopila contexto" },
+        "RESOLVED": { "label": "Resuelto", "description": "Acción tomada, problema resuelto", "action": "Asegúrate de que la resolución esté documentada" },
+        "DISMISSED": { "label": "Desestimado", "description": "No se necesita acción", "action": "Documenta la razón del desestimamiento" }
+      },
+      "actions": [
+        { "action": "Sin Acción", "whenToUse": "El reporte es inválido o el contenido es aceptable" },
+        { "action": "Advertencia", "whenToUse": "Violación menor, el usuario debe ser informado" },
+        { "action": "Eliminar Contenido", "whenToUse": "El contenido viola las políticas y debe ocultarse" },
+        { "action": "Suspender Usuario", "whenToUse": "Violaciones graves o repetidas" }
+      ],
+      "reviewProcess": [
+        "Lee el reporte y el contenido reportado cuidadosamente",
+        "Revisa el contexto (publicaciones previas, comentarios, historial del usuario)",
+        "Consulta las pautas y políticas de la comunidad",
+        "Toma la acción apropiada según la gravedad",
+        "Documenta tu decisión y razonamiento",
+        "Comunica la decisión al reportante y al usuario reportado"
+      ],
+      "bestPractices": [
+        "Revisa los reportes prontamente (dentro de las 24 horas)",
+        "Sé consistente al aplicar los estándares",
+        "Siempre documenta tu razonamiento",
+        "Escala problemas graves al liderazgo",
+        "Proporciona comunicación clara a los usuarios",
+        "Aprende de los patrones en los reportes"
+      ]
+    },
+    "postCreation": {
+      "title": "Crear Publicaciones",
+      "description": "Comparte problemas, ideas, contenido creativo y discusiones.",
+      "postTypes": {
+        "problem_report": { "label": "Reporte de Problema", "description": "Reporta problemas, errores o problemas que necesitan resolución", "whenToUse": "Cuando algo está roto, no funciona o está causando problemas", "tips": ["Sé específico sobre el problema", "Incluye pasos para reproducirlo", "Agrega capturas de pantalla o evidencia", "Describe el impacto y la urgencia"] },
+        "idea_suggestion": { "label": "Sugerencia de Idea", "description": "Sugiere mejoras, características o nuevas ideas", "whenToUse": "Cuando tienes ideas para mejorar productos, procesos o el lugar de trabajo", "tips": ["Explica el problema que estás resolviendo", "Describe tu solución propuesta", "Destaca los beneficios esperados", "Considera alternativas"] },
+        "creative_content": { "label": "Contenido Creativo", "description": "Comparte trabajo creativo, diseños o conceptos innovadores", "whenToUse": "Al compartir diseños, proyectos creativos o contenido artístico", "tips": ["Usa elementos visuales para mostrar tu trabajo", "Explica tu proceso creativo", "Solicita retroalimentación específica", "Comparte fuentes de inspiración"] },
+        "team_discussion": { "label": "Discusión de Equipo", "description": "Inicia conversaciones y discusiones de equipo", "whenToUse": "Cuando quieres recopilar opiniones, hacer lluvias de ideas o discutir temas", "tips": ["Enmarca la discusión con preguntas claras", "Proporciona contexto y antecedentes", "Fomenta perspectivas diversas", "Resume conclusiones en comentarios"] }
+      },
+      "privacySettings": {
+        "COMPANY_PUBLIC": { "label": "Público de la Empresa", "description": "Visible para todos los miembros de la empresa" },
+        "DEPARTMENT_ONLY": { "label": "Solo Departamento", "description": "Solo visible para tu departamento" },
+        "HR_ONLY": { "label": "Solo RR.HH.", "description": "Solo visible para RR.HH. y administradores" }
+      },
+      "bestPractices": [
+        "Elige el tipo de publicación correcto para tu contenido",
+        "Escribe títulos claros y descriptivos",
+        "Proporciona suficiente contexto y detalles",
+        "Usa configuraciones de privacidad apropiadas",
+        "Agrega etiquetas o menciones relevantes",
+        "Revisa antes de publicar"
+      ]
+    },
+    "qrCode": {
+      "title": "Código QR para Invitaciones de Empleados",
+      "description": "Genera códigos QR para simplificar la incorporación de empleados.",
+      "howItWorks": [
+        "El administrador genera un código QR específico de la empresa",
+        "El código QR se imprime o se muestra digitalmente",
+        "Los nuevos empleados escanean con su dispositivo móvil",
+        "Son dirigidos al registro con la empresa pre-completada",
+        "Después del registro, obtienen acceso inmediato"
+      ],
+      "howToGenerate": [
+        "Navega a la página de Código QR en el panel de administración",
+        "Haz clic en 'Generar Código QR'",
+        "Descarga la imagen del código QR o PDF con instrucciones",
+        "Comparte con nuevos empleados o muestra en la oficina"
+      ],
+      "distributionMethods": [
+        "Imprime y coloca en áreas comunes",
+        "Incluye en paquetes de bienvenida para nuevos empleados",
+        "Muestra durante sesiones de orientación",
+        "Comparte digitalmente por correo electrónico o mensajería",
+        "Agrega al manual del empleado"
+      ],
+      "bestPractices": [
+        "Incluye instrucciones claras con el código QR",
+        "Prueba el código QR antes de la distribución amplia",
+        "Regenera periódicamente por seguridad",
+        "Rastrea los registros exitosos",
+        "Proporciona métodos alternativos de registro"
+      ]
+    },
+    "assignedToMe": {
+      "title": "Asignado a Mí",
+      "description": "Rastrea publicaciones y tareas asignadas a ti.",
+      "howItWorks": [
+        "Los administradores pueden asignar publicaciones a usuarios etiquetados",
+        "Cuando se menciona o asigna, las publicaciones aparecen en 'Asignado a Mí'",
+        "Solo los usuarios con etiquetas ven esta sección",
+        "Actúa como tu lista de tareas personal"
+      ],
+      "whatToExpect": [
+        "Publicaciones que requieren tu atención o acción",
+        "Elementos donde estás mencionado o etiquetado",
+        "Tareas delegadas a ti por administradores",
+        "Elementos prioritarios para tu nivel de rol"
+      ],
+      "howToManage": [
+        "Revisa los elementos asignados regularmente",
+        "Agrega comentarios con actualizaciones de progreso",
+        "Marca los elementos como completados cuando termines",
+        "Escala los bloqueos a los administradores"
+      ],
+      "bestPractices": [
+        "Revisa los elementos asignados diariamente",
+        "Prioriza por urgencia y fecha límite",
+        "Comunica el estado de forma proactiva",
+        "Pide aclaraciones cuando sea necesario"
+      ]
+    },
+    "tooltips": {
+      "pinPost": "Ancla esta publicación para mantenerla en la parte superior del feed",
+      "archivePost": "Archiva esta publicación para eliminarla de los feeds activos",
+      "deletePost": "Elimina permanentemente esta publicación y todos sus comentarios",
+      "editPost": "Edita el contenido, la privacidad o la configuración de la publicación",
+      "changePriority": "Actualiza el nivel de prioridad (Crítico, Alto, Medio, Bajo)",
+      "changeStatus": "Actualiza el estado del flujo de trabajo",
+      "assignPost": "Asigna esta publicación a usuarios específicos para acción",
+      "addDueDate": "Establece una fecha límite para la resolución o finalización",
+      "adminComment": "Agrega una nota privada de administrador (visible solo para administradores)",
+      "reportContent": "Reporta este contenido para revisión de moderación",
+      "saveAsDraft": "Guarda como borrador para terminar más tarde",
+      "schedulePost": "Programa esta publicación para que se publique más tarde",
+      "useTemplate": "Usa una plantilla para acelerar la creación de publicaciones"
+    }
+  },
+  "help": {
+    "center": {
+      "title": "Centro de Ayuda",
+      "subtitle": "Aprende a usar VoxWel de manera efectiva",
+      "searchPlaceholder": "Busca temas de ayuda...",
+      "viewRolesPermissions": "Ver Roles y Permisos",
+      "topics": "Temas"
+    },
+    "sections": {
+      "gettingStarted": "Primeros Pasos",
+      "workingWithPosts": "Trabajar con Publicaciones",
+      "adminFeatures": "Funciones de Administración"
+    },
+    "topics": {
+      "rolesPermissions": "Comprender Roles y Permisos",
+      "navigation": "Navegar por la Plataforma",
+      "creatingPosts": "Crear Publicaciones",
+      "postStatus": "Flujo de Estado de Publicaciones",
+      "priorityLevels": "Niveles de Prioridad",
+      "assignedToMe": "Asignado a Mí",
+      "memberManagement": "Gestión de Miembros",
+      "departmentManagement": "Gestión de Departamentos",
+      "userTags": "Etiquetas de Usuario",
+      "postTemplates": "Plantillas de Publicaciones",
+      "contentModeration": "Moderación de Contenido",
+      "analyticsReporting": "Análisis e Informes",
+      "qrCodeInvitations": "Invitaciones por Código QR"
+    },
+    "roles": {
+      "title": "Comprender Roles y Permisos",
+      "description": "VoxWel tiene diferentes roles de usuario, cada uno con responsabilidades y permisos específicos.",
+      "superAdmin": {
+        "name": "Super Administrador",
+        "description": "Administrador a nivel de plataforma con acceso a todas las empresas"
+      },
+      "companyAdmin": {
+        "name": "Administrador de Empresa",
+        "description": "Administrador de una empresa específica con control total"
+      },
+      "hr": {
+        "name": "RR.HH.",
+        "description": "Especialista en Recursos Humanos con privilegios administrativos"
+      },
+      "employee": {
+        "name": "Empleado",
+        "description": "Empleado regular de la empresa con privilegios de creación de contenido"
+      },
+      "viewFullMatrix": "Para ver una matriz completa de permisos que muestra lo que cada rol puede hacer, visita la",
+      "roleDefinitionsPage": "página de Definiciones de Roles"
+    },
+    "common": {
+      "bestPractices": "Mejores Prácticas",
+      "howToUse": "Cómo Usar",
+      "howItWorks": "Cómo Funciona",
+      "keyResponsibilities": "Responsabilidades Clave",
+      "whenToUse": "Cuándo Usar",
+      "useCase": "Caso de Uso",
+      "action": "Acción",
+      "criteria": "Criterios",
+      "examples": "Ejemplos",
+      "tips": "Consejos"
+    }
+  }
+}
