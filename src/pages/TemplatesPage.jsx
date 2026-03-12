@@ -376,7 +376,7 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Default Content
+              {t('templates.templateContent')}
             </label>
             <textarea
               value={formData.content}
@@ -424,14 +424,14 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
               onClick={onClose}
               className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50"
             >
-              {loading ? "Saving..." : template ? "Update" : "Create"}
+              {loading ? t('common.loading') : t('templates.saveTemplate')}
             </button>
           </div>
         </form>
