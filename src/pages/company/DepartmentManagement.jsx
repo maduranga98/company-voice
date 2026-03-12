@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,6 +13,7 @@ import DepartmentModal from "../../components/DepartmentModal.jsx";
 import DepartmentCard from "../../components/DepartmentCard";
 
 const DepartmentManagement = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [departments, setDepartments] = useState([]);
@@ -57,7 +59,7 @@ const DepartmentManagement = () => {
       setDepartmentStats(stats);
     } catch (error) {
       console.error("Error loading departments:", error);
-      alert("Failed to load departments");
+      alert(t('company.failedToLoadDepartments'));
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ const DepartmentManagement = () => {
   };
 
   const handleDeleteDepartment = async (departmentId) => {
-    if (!window.confirm("Are you sure you want to delete this department?")) {
+    if (!window.confirm(t('company.confirmDeleteDepartment'))) {
       return;
     }
 
@@ -83,14 +85,14 @@ const DepartmentManagement = () => {
       const dept = departments.find((d) => d.id === departmentId);
       if (dept?.memberCount > 0) {
         const reassign = window.confirm(
-          "This department has members. Would you like to reassign them to another department?"
+          t('company.departmentHasMembers')
         );
 
         if (reassign) {
           // Show department selection modal
           const otherDepts = departments.filter((d) => d.id !== departmentId);
           if (otherDepts.length === 0) {
-            alert("Cannot delete the only department with members.");
+            alert(t('company.cannotDeleteOnlyDepartment'));
             return;
           }
 
@@ -105,10 +107,10 @@ const DepartmentManagement = () => {
       }
 
       await loadDepartments();
-      alert("Department deleted successfully");
+      alert(t('company.departmentDeleted'));
     } catch (error) {
       console.error("Error deleting department:", error);
-      alert("Failed to delete department");
+      alert(t('company.failedToDeleteDepartment'));
     }
   };
 
@@ -120,10 +122,10 @@ const DepartmentManagement = () => {
           departmentData,
           userData.companyId
         );
-        alert("Department updated successfully");
+        alert(t('company.departmentUpdated'));
       } else {
         await createDepartment(departmentData, userData.companyId);
-        alert("Department created successfully");
+        alert(t('company.departmentCreated'));
       }
 
       setShowModal(false);
@@ -131,7 +133,7 @@ const DepartmentManagement = () => {
     } catch (error) {
       console.error("Error saving department:", error);
       // Show specific error message if available
-      alert(error.message || "Failed to save department");
+      alert(error.message || t('company.failedToSaveDepartment'));
     }
   };
 
@@ -155,7 +157,7 @@ const DepartmentManagement = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading departments...</p>
+          <p className="text-gray-600">{t('company.loadingDepartments')}</p>
         </div>
       </div>
     );
@@ -183,15 +185,15 @@ const DepartmentManagement = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Back to Dashboard
+            {t('company.backToDashboard')}
           </button>
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Department Management
+                {t('company.departmentTitle')}
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Manage your organization's departments and teams
+                {t('company.departmentSubtitle')}
               </p>
             </div>
             <button
@@ -211,7 +213,7 @@ const DepartmentManagement = () => {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Add Department
+              {t('company.addDepartment')}
             </button>
           </div>
 
@@ -221,7 +223,7 @@ const DepartmentManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-blue-600 font-medium">
-                    Total Departments
+                    {t('company.totalDepartments')}
                   </p>
                   <p className="text-2xl font-bold text-blue-900">
                     {departments.length}
@@ -249,7 +251,7 @@ const DepartmentManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-green-600 font-medium">
-                    Active Departments
+                    {t('company.activeDepartments')}
                   </p>
                   <p className="text-2xl font-bold text-green-900">
                     {activeDepartments}
@@ -277,7 +279,7 @@ const DepartmentManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-purple-600 font-medium">
-                    Total Members
+                    {t('company.totalMembers')}
                   </p>
                   <p className="text-2xl font-bold text-purple-900">
                     {totalMembers}
@@ -305,7 +307,7 @@ const DepartmentManagement = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-orange-600 font-medium">
-                    Avg. Team Size
+                    {t('company.avgTeamSize')}
                   </p>
                   <p className="text-2xl font-bold text-orange-900">
                     {departments.length > 0
@@ -338,7 +340,7 @@ const DepartmentManagement = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search departments..."
+                  placeholder={t('company.searchDepartments')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -414,7 +416,7 @@ const DepartmentManagement = () => {
                   onChange={(e) => setShowInactive(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700">Show inactive</span>
+                <span className="text-sm text-gray-700">{t('company.showInactive')}</span>
               </label>
             </div>
           </div>
@@ -437,12 +439,12 @@ const DepartmentManagement = () => {
               />
             </svg>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchQuery ? "No departments found" : "No departments yet"}
+              {searchQuery ? t('company.noDepartmentsFound') : t('company.noDepartments')}
             </h3>
             <p className="text-gray-500 mb-6">
               {searchQuery
-                ? "Try adjusting your search criteria"
-                : "Create your first department to organize your teams"}
+                ? t('company.adjustSearchCriteria')
+                : t('company.createFirstDepartmentHint')}
             </p>
             {!searchQuery && (
               <button
@@ -462,7 +464,7 @@ const DepartmentManagement = () => {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                Create First Department
+                {t('company.createFirstDepartment')}
               </button>
             )}
           </div>

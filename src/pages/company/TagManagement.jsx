@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,6 +18,7 @@ import HelpPanel from "../../components/help/HelpPanel";
 import { TAG_SYSTEM_GUIDANCE } from "../../utils/guidanceContent";
 
 const TagManagement = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [tags, setTags] = useState([]);
@@ -64,7 +66,7 @@ const TagManagement = () => {
       setTags(tagsData);
     } catch (error) {
       console.error("Error loading tags:", error);
-      alert("Failed to load tags");
+      alert(t('company.failedToLoadTags'));
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ const TagManagement = () => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert("Please enter a tag name");
+      alert(t('company.pleaseEnterTagName'));
       return;
     }
 
@@ -91,13 +93,13 @@ const TagManagement = () => {
         // Update existing tag
         const tagRef = doc(db, "userTags", editingTag.id);
         await updateDoc(tagRef, tagData);
-        alert("Tag updated successfully!");
+        alert(t('company.tagUpdated'));
       } else {
         // Create new tag
         tagData.createdAt = serverTimestamp();
         tagData.createdBy = userData.id;
         await addDoc(collection(db, "userTags"), tagData);
-        alert("Tag created successfully!");
+        alert(t('company.tagCreated'));
       }
 
       setShowCreateModal(false);
@@ -106,7 +108,7 @@ const TagManagement = () => {
       loadTags();
     } catch (error) {
       console.error("Error saving tag:", error);
-      alert("Failed to save tag");
+      alert(t('company.failedToSaveTag'));
     } finally {
       setLoading(false);
     }
@@ -125,18 +127,18 @@ const TagManagement = () => {
   };
 
   const handleDelete = async (tagId) => {
-    if (!confirm("Are you sure you want to delete this tag? This action cannot be undone.")) {
+    if (!confirm(t('company.confirmDeleteTag'))) {
       return;
     }
 
     try {
       setLoading(true);
       await deleteDoc(doc(db, "userTags", tagId));
-      alert("Tag deleted successfully!");
+      alert(t('company.tagDeleted'));
       loadTags();
     } catch (error) {
       console.error("Error deleting tag:", error);
-      alert("Failed to delete tag");
+      alert(t('company.failedToDeleteTag'));
     } finally {
       setLoading(false);
     }
@@ -166,13 +168,13 @@ const TagManagement = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Back
+          {t('common.back')}
         </button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tag Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('company.tagManagement')}</h1>
             <p className="text-gray-600">
-              Create and manage tags to categorize members by their roles and levels
+              {t('company.tagManagementSubtitle')}
             </p>
           </div>
           <button
@@ -186,7 +188,7 @@ const TagManagement = () => {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
             </svg>
-            Create Tag
+            {t('company.createTag')}
           </button>
         </div>
       </div>
@@ -233,15 +235,15 @@ const TagManagement = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Tags Created</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('company.noTagsCreated')}</h3>
           <p className="text-gray-600 mb-4">
-            Create your first tag to categorize members by their roles
+            {t('company.createFirstTagHint')}
           </p>
           <button
             onClick={() => setShowCreateModal(true)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            Create First Tag
+            {t('company.createFirstTag')}
           </button>
         </div>
       ) : (
@@ -259,7 +261,7 @@ const TagManagement = () => {
                     <span className="font-semibold">{tag.name}</span>
                   </div>
                   <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    Priority: {tag.priority}
+                    {t('company.priority')}: {tag.priority}
                   </span>
                 </div>
 
@@ -272,13 +274,13 @@ const TagManagement = () => {
                     onClick={() => handleEdit(tag)}
                     className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
                   >
-                    Edit
+                    {t('common.edit')}
                   </button>
                   <button
                     onClick={() => handleDelete(tag.id)}
                     className="flex-1 px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>
@@ -293,14 +295,14 @@ const TagManagement = () => {
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {editingTag ? "Edit Tag" : "Create New Tag"}
+                {editingTag ? t('company.editTag') : t('company.createNewTag')}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Tag Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tag Name <span className="text-red-500">*</span>
+                    {t('company.tagName')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -315,7 +317,7 @@ const TagManagement = () => {
                 {/* Description */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
+                    {t('company.departmentDescription')}
                   </label>
                   <textarea
                     value={formData.description}
@@ -329,7 +331,7 @@ const TagManagement = () => {
                 {/* Icon Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Icon
+                    {t('company.icon')}
                   </label>
                   <div className="grid grid-cols-5 gap-2">
                     {iconOptions.map((icon) => (
@@ -352,7 +354,7 @@ const TagManagement = () => {
                 {/* Color Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Color
+                    {t('company.tagColor')}
                   </label>
                   <div className="grid grid-cols-4 gap-2">
                     {colorOptions.map((colorOption) => (
@@ -375,7 +377,7 @@ const TagManagement = () => {
                 {/* Priority */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Priority (higher = shown first)
+                    {t('company.priorityLabel')}
                   </label>
                   <input
                     type="number"
@@ -390,11 +392,11 @@ const TagManagement = () => {
                 {/* Preview */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Preview
+                    {t('company.preview')}
                   </label>
                   <div className={`inline-flex items-center px-3 py-1.5 rounded-lg ${getColorClasses(formData.color).bgClass} ${getColorClasses(formData.color).textClass}`}>
                     <span className="text-xl mr-2">{formData.icon}</span>
-                    <span className="font-semibold">{formData.name || "Tag Name"}</span>
+                    <span className="font-semibold">{formData.name || t('company.tagName')}</span>
                   </div>
                 </div>
 
@@ -409,14 +411,14 @@ const TagManagement = () => {
                     }}
                     className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
                     className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                   >
-                    {loading ? "Saving..." : editingTag ? "Update Tag" : "Create Tag"}
+                    {loading ? t('common.saving') : editingTag ? t('company.updateTag') : t('company.createTag')}
                   </button>
                 </div>
               </form>
