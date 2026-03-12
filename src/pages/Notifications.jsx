@@ -282,12 +282,12 @@ const Notifications = () => {
               />
             </svg>
             <h3 className="mt-4 text-lg font-medium text-gray-900">
-              No notifications
+              {t('notifications.noNotifications')}
             </h3>
             <p className="mt-2 text-sm text-gray-500">
               {filter === "unread"
-                ? "You're all caught up!"
-                : "You don't have any notifications yet."}
+                ? t('notifications.allCaughtUp')
+                : t('notifications.noNotificationsYet')}
             </p>
           </div>
         ) : (
@@ -328,7 +328,7 @@ const Notifications = () => {
                             <button
                               onClick={() => markAsRead(notification.id)}
                               className="text-purple-600 hover:text-purple-800"
-                              title="Mark as read"
+                              title={t('notifications.markAsReadTitle')}
                             >
                               <svg
                                 className="w-5 h-5"

@@ -84,7 +84,7 @@ const TemplatesPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <FileText className="w-6 h-6" />
-            Post Templates
+            {t('templates.title')}
           </h1>
           <p className="text-slate-600 mt-1">
             Create and manage reusable post templates
@@ -96,7 +96,7 @@ const TemplatesPage = () => {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
           >
             <Plus className="w-4 h-4" />
-            New Template
+            {t('templates.newTemplate')}
           </button>
         )}
       </div>

@@ -672,7 +672,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-indigo-100">
-            Create and manage tags for categorizing members
+            {t('company.tagManagementDesc')}
           </p>
         </button>
         <button
@@ -680,7 +680,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Departments</h3>
+            <h3 className="text-xl font-semibold">{t('company.departmentTitle')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -696,7 +696,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-blue-100">
-            Organize and manage your company departments
+            {t('company.departmentsDesc')}
           </p>
         </button>
 

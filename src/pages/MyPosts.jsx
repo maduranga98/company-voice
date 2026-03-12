@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from 'react-i18next';
 import PostEnhanced from "../components/PostEnhanced";
 import AnonymousThread from "../components/AnonymousThread";
 import {
@@ -19,6 +20,7 @@ import {
  * Anonymous posts marked with * for privacy
  */
 const MyPosts = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
