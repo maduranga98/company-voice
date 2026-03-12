@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../../utils/constants";
 
 const CompanyDashboard = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -135,15 +137,15 @@ const CompanyDashboard = () => {
   const getPostTypeName = (type) => {
     switch (type) {
       case PostType.PROBLEM_REPORT:
-        return "Problem";
+        return t('company.postTypeProblem');
       case PostType.CREATIVE_CONTENT:
-        return "Creative";
+        return t('company.postTypeCreative');
       case PostType.TEAM_DISCUSSION:
-        return "Discussion";
+        return t('company.postTypeDiscussion');
       case PostType.IDEA_SUGGESTION:
-        return "Idea";
+        return t('company.postTypeIdea');
       default:
-        return "Post";
+        return t('company.postTypeDefault');
     }
   };
 
@@ -176,10 +178,10 @@ const CompanyDashboard = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Admin Dashboard
+          {t('company.dashboardTitle')}
         </h1>
         <p className="text-gray-600">
-          Overview of all posts and action items requiring attention
+          {t('company.dashboardSubtitle')}
         </p>
 
         {/* Pending Employees Alert */}
@@ -201,11 +203,11 @@ const CompanyDashboard = () => {
                 <div>
                   <p className="text-sm font-medium text-yellow-800">
                     {pendingUsers}{" "}
-                    {pendingUsers === 1 ? "employee" : "employees"} pending
-                    approval
+                    {pendingUsers === 1 ? t('company.employeeSingular') : t('company.employeePlural')}{" "}
+                    {t('company.pendingApprovalAlert')}
                   </p>
                   <p className="text-xs text-yellow-700 mt-0.5">
-                    Review and approve new employee registrations
+                    {t('company.reviewApproveRegistrations')}
                   </p>
                 </div>
               </div>
@@ -215,7 +217,7 @@ const CompanyDashboard = () => {
                 }
                 className="px-4 py-2 bg-yellow-400 text-yellow-900 rounded-lg hover:bg-yellow-500 transition font-medium text-sm"
               >
-                Review Now
+                {t('company.reviewNow')}
               </button>
             </div>
           </div>
@@ -228,7 +230,7 @@ const CompanyDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Posts</p>
+              <p className="text-sm font-medium text-gray-600">{t('company.totalPosts')}</p>
               <p className="text-3xl font-bold text-gray-900 mt-1">
                 {stats.totalPosts}
               </p>
@@ -256,7 +258,7 @@ const CompanyDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">
-                Critical Issues
+                {t('company.criticalIssues')}
               </p>
               <p className="text-3xl font-bold text-red-600 mt-1">
                 {stats.criticalPosts}
@@ -284,7 +286,7 @@ const CompanyDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-yellow-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Open Issues</p>
+              <p className="text-sm font-medium text-gray-600">{t('company.openIssues')}</p>
               <p className="text-3xl font-bold text-yellow-600 mt-1">
                 {stats.openPosts}
               </p>

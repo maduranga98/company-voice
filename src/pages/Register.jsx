@@ -9,8 +9,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { checkUsernameExists, hashPassword } from "../services/authService";
+import { useTranslation } from 'react-i18next';
 
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { companyId, companyName } = location.state || {};
@@ -69,11 +71,11 @@ const Register = () => {
         setUsernameChecked(true);
 
         if (exists) {
-          setError("Username already taken. Please choose another.");
+          setError(t('auth.register.usernameAlreadyTaken'));
         }
       } catch (error) {
         console.error("Error checking username:", error);
-        setError("Failed to check username availability.");
+        setError(t('auth.register.usernameAvailabilityFailed'));
       } finally {
         setCheckingUsername(false);
       }
@@ -93,11 +95,11 @@ const Register = () => {
       if (companyDoc.exists()) {
         setCompany({ id: companyDoc.id, ...companyDoc.data() });
       } else {
-        setError("Company not found. Please contact your HR department.");
+        setError(t('auth.register.companyNotFound'));
       }
     } catch (error) {
       console.error("Error loading company:", error);
-      setError("Failed to load company information.");
+      setError(t('auth.register.companyLoadFailed'));
     }
   };
 
@@ -190,9 +192,7 @@ const Register = () => {
         updatedAt: serverTimestamp(),
       });
 
-      setSuccess(
-        "Registration successful! Your account is pending approval from your company admin."
-      );
+      setSuccess(t('auth.register.registrationPending'));
 
       setFormData({
         fullName: "",
@@ -221,7 +221,7 @@ const Register = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-slate-200 border-t-slate-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 text-sm">Loading...</p>
+          <p className="text-slate-600 text-sm">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -248,7 +248,7 @@ const Register = () => {
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          Back to Login
+          {t('auth.register.backToLogin')}
         </button>
 
         {/* Header */}
@@ -269,9 +269,9 @@ const Register = () => {
             </svg>
           </div>
           <h1 className="text-2xl font-semibold text-slate-900 mb-1">
-            Join {company.name}
+            {t('auth.register.joinCompany', { companyName: company.name })}
           </h1>
-          <p className="text-sm text-slate-500">Create your employee account</p>
+          <p className="text-sm text-slate-500">{t('auth.register.createEmployeeAccount')}</p>
         </div>
 
         {/* Alerts */}
@@ -295,7 +295,7 @@ const Register = () => {
               htmlFor="fullName"
               className="block text-sm font-medium text-slate-700 mb-1.5"
             >
-              Full Name
+              {t('auth.register.fullName')}
             </label>
             <input
               id="fullName"
@@ -315,7 +315,7 @@ const Register = () => {
               htmlFor="username"
               className="block text-sm font-medium text-slate-700 mb-1.5"
             >
-              Username
+              {t('auth.register.username')}
             </label>
             <div className="relative">
               <input
@@ -362,7 +362,7 @@ const Register = () => {
               </div>
             </div>
             <p className="text-xs text-slate-500 mt-1.5">
-              Only letters and numbers allowed (no spaces or special characters)
+              {t('auth.register.usernameHint')}
             </p>
             {usernameChecked && (
               <div
@@ -371,9 +371,9 @@ const Register = () => {
                 }`}
               >
                 {usernameAvailable ? (
-                  <span>✓ Username is available</span>
+                  <span>✓ {t('auth.register.usernameAvailable')}</span>
                 ) : (
-                  <span>✗ Username already taken</span>
+                  <span>✗ {t('auth.register.usernameTaken')}</span>
                 )}
               </div>
             )}
@@ -385,7 +385,7 @@ const Register = () => {
               htmlFor="mobile"
               className="block text-sm font-medium text-slate-700 mb-1.5"
             >
-              Mobile Number
+              {t('auth.register.mobile')}
             </label>
             <input
               id="mobile"
@@ -399,7 +399,7 @@ const Register = () => {
               className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
               placeholder="1234567890"
             />
-            <p className="text-xs text-slate-500 mt-1.5">10-digit number</p>
+            <p className="text-xs text-slate-500 mt-1.5">{t('auth.register.mobileHint')}</p>
           </div>
 
           {/* Gender */}
@@ -408,7 +408,7 @@ const Register = () => {
               htmlFor="gender"
               className="block text-sm font-medium text-slate-700 mb-1.5"
             >
-              Gender
+              {t('auth.register.gender')}
             </label>
             <select
               id="gender"
@@ -418,11 +418,11 @@ const Register = () => {
               required
               className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
             >
-              <option value="">Select</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-              <option value="prefer_not_to_say">Prefer not to say</option>
+              <option value="">{t('auth.register.selectGender')}</option>
+              <option value="male">{t('auth.register.male')}</option>
+              <option value="female">{t('auth.register.female')}</option>
+              <option value="other">{t('auth.register.other')}</option>
+              <option value="prefer_not_to_say">{t('auth.register.preferNotToSay')}</option>
             </select>
           </div>
 
@@ -432,7 +432,7 @@ const Register = () => {
               htmlFor="password"
               className="block text-sm font-medium text-slate-700 mb-1.5"
             >
-              Password
+              {t('auth.register.password')}
             </label>
             <input
               id="password"
@@ -446,7 +446,7 @@ const Register = () => {
               placeholder="••••••••"
             />
             <p className="text-xs text-slate-500 mt-1.5">
-              Minimum 6 characters
+              {t('auth.register.passwordHint')}
             </p>
           </div>
 
@@ -456,7 +456,7 @@ const Register = () => {
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-slate-700 mb-1.5"
             >
-              Confirm Password
+              {t('auth.register.confirmPassword')}
             </label>
             <input
               id="confirmPassword"

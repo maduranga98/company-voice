@@ -271,7 +271,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
                          focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-teal)] focus:border-transparent
                          transition-all duration-200"
               >
-                <option value="all">All Categories</option>
+                <option value="all">{t('feed.allCategories')}</option>
                 {[...new Set(posts.map((post) => post.category).filter(Boolean))].sort().map(
                   (category) => (
                     <option key={category} value={category}>
@@ -302,7 +302,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
           {(searchTerm || selectedCategory !== "all") && (
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[var(--color-border-light)]">
               <span className="text-sm text-[var(--color-text-secondary)] font-medium">
-                Active filters:
+                {t('feed.activeFilters')}
               </span>
               {searchTerm && (
                 <span
@@ -402,8 +402,8 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
               </h3>
               <p className="text-[var(--color-text-secondary)] mb-6">
                 {searchTerm || selectedCategory !== "all"
-                  ? "Try adjusting your filters to see more results"
-                  : "Be the first to share your thoughts and create a post!"}
+                  ? t('feed.noPostsYet')
+                  : t('feed.createFirst')}
               </p>
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -444,7 +444,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
             {pinnedPosts.length > 0 && (
               <div className="space-y-4 mb-6">
                 <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-                  Pinned Posts
+                  {t('feed.pinnedPosts')}
                 </h3>
                 {pinnedPosts.map((post) => (
                   <div
@@ -555,7 +555,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
           />
         </svg>
         <span className="hidden sm:inline-block font-semibold whitespace-nowrap relative z-10">
-          Create Post
+          {t('post.create')}
         </span>
       </button>
     </div>

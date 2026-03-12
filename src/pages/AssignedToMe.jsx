@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from 'react-i18next';
 import Post from "../components/Post";
 import AdminActionPanel from "../components/AdminActionPanel";
 import {
@@ -19,6 +20,7 @@ import { isAdmin } from "../services/postManagementService";
  */
 const AssignedToMe = () => {
   const { userData } = useAuth();
+  const { t } = useTranslation();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,6 +114,7 @@ const AssignedToMe = () => {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="sr-only">{t('common.loading')}</span>
       </div>
     );
   }
@@ -135,11 +138,10 @@ const AssignedToMe = () => {
             />
           </svg>
           <h3 className="text-lg font-semibold text-yellow-900 mb-2">
-            No Tag Assigned
+            {t('assignedToMe.noTagTitle')}
           </h3>
           <p className="text-yellow-700">
-            You need to have a user tag assigned to see posts assigned to you.
-            Please contact your administrator.
+            {t('assignedToMe.noTagMessage')}
           </p>
         </div>
       </div>
@@ -151,7 +153,7 @@ const AssignedToMe = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-          Assigned to Me
+          {t('assignedToMe.title')}
         </h1>
         <p className="text-gray-600">
           Posts and tasks that have been assigned to you
@@ -165,7 +167,7 @@ const AssignedToMe = () => {
           onChange={(e) => setSelectedStatus(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="all">All Status</option>
+          <option value="all">{t('assignedToMe.allStatus')}</option>
           {Object.entries(PostStatusConfig).map(([key, config]) => (
             <option key={key} value={key}>
               {config.label}
@@ -178,7 +180,7 @@ const AssignedToMe = () => {
           onChange={(e) => setSelectedPriority(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="all">All Priority</option>
+          <option value="all">{t('assignedToMe.allPriority')}</option>
           {Object.entries(PostPriorityConfig).map(([key, config]) => (
             <option key={key} value={key}>
               {config.label}
@@ -205,12 +207,10 @@ const AssignedToMe = () => {
               />
             </svg>
             <p className="text-lg font-medium text-gray-900 mb-2">
-              No assigned posts
+              {t('assignedToMe.noPosts')}
             </p>
             <p className="text-gray-600">
-              {selectedStatus !== "all" || selectedPriority !== "all"
-                ? "Try adjusting your filters"
-                : "You don't have any posts assigned to you yet"}
+              {t('assignedToMe.noPostsDescription')}
             </p>
           </div>
         ) : (

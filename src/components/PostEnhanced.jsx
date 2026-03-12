@@ -282,7 +282,7 @@ const PostEnhanced = ({ post }) => {
           <div className="bg-purple-100 border-b border-purple-200 px-3 sm:px-4 py-2 flex items-center gap-2">
             <Pin className="w-4 h-4 text-purple-600 flex-shrink-0" />
             <span className="text-xs sm:text-sm font-medium text-purple-900">
-              Pinned Post
+              {t('postActions.pinnedPost')}
             </span>
           </div>
         )}
@@ -350,7 +350,7 @@ const PostEnhanced = ({ post }) => {
                           className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                         >
                           <Edit2 className="w-4 h-4" />
-                          Edit Post
+                          {t('postActions.editPost')}
                         </button>
                         <button
                           onClick={() => {
@@ -360,7 +360,7 @@ const PostEnhanced = ({ post }) => {
                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                         >
                           <Trash2 className="w-4 h-4" />
-                          Delete Post
+                          {t('postActions.deletePost')}
                         </button>
                       </div>
                     )}
@@ -414,7 +414,7 @@ const PostEnhanced = ({ post }) => {
                 />
               </svg>
               <span className="truncate">
-                Assigned to:{" "}
+                {t('postActions.assignedTo')}{" "}
                 <span className="font-medium">{post.assignedTo.name}</span>
               </span>
             </div>
@@ -489,7 +489,7 @@ const PostEnhanced = ({ post }) => {
               >
                 {isExpanded ? (
                   <>
-                    Show less
+                    {t('postActions.showLess')}
                     <svg
                       className="w-4 h-4"
                       fill="none"
