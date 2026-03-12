@@ -5,7 +5,9 @@ const LanguageSwitcher = () => {
 
   const languages = [
     { code: 'en', name: 'English', nativeName: 'English' },
-    { code: 'si', name: 'Sinhala', nativeName: 'සිංහල' }
+    { code: 'si', name: 'Sinhala', nativeName: 'සිංහල' },
+    { code: 'es', name: 'Spanish', nativeName: 'Español' },
+    { code: 'fr', name: 'French', nativeName: 'Français' }
   ];
 
   const changeLanguage = (languageCode) => {

@@ -4,25 +4,26 @@ import { ArrowLeft, BookOpen, Search, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import HelpPanel from '../components/help/HelpPanel';
 import { useAuth } from '../contexts/AuthContext';
-import {
-  ROLE_DEFINITIONS,
-  POST_STATUS_GUIDANCE,
-  PRIORITY_GUIDANCE,
-  TAG_SYSTEM_GUIDANCE,
-  DEPARTMENT_GUIDANCE,
-  MEMBER_MANAGEMENT_GUIDANCE,
-  TEMPLATE_GUIDANCE,
-  ANALYTICS_GUIDANCE,
-  MODERATION_GUIDANCE,
-  POST_CREATION_GUIDANCE,
-  QR_CODE_GUIDANCE,
-  ASSIGNED_TO_ME_GUIDANCE
-} from '../utils/guidanceContent';
+import useGuidanceContent from '../hooks/useGuidanceContent';
 
 const HelpCenter = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { userData } = useAuth();
+  const {
+    ROLE_DEFINITIONS,
+    POST_STATUS_GUIDANCE,
+    PRIORITY_GUIDANCE,
+    TAG_SYSTEM_GUIDANCE,
+    DEPARTMENT_GUIDANCE,
+    MEMBER_MANAGEMENT_GUIDANCE,
+    TEMPLATE_GUIDANCE,
+    ANALYTICS_GUIDANCE,
+    MODERATION_GUIDANCE,
+    POST_CREATION_GUIDANCE,
+    QR_CODE_GUIDANCE,
+    ASSIGNED_TO_ME_GUIDANCE
+  } = useGuidanceContent();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('getting-started');
 
@@ -161,13 +162,13 @@ const HelpCenter = () => {
                   </div>
                   <p className="text-gray-600 text-sm mb-2">{status.description}</p>
                   <p className="text-xs text-gray-500">
-                    <strong>When to use:</strong> {status.whenToUse}
+                    <strong>{t('help.common.whenToUse')}:</strong> {status.whenToUse}
                   </p>
                 </div>
               ))}
             </div>
 
-            <HelpPanel title="Best Practices" variant="info" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="info" defaultExpanded={false}>
               <ul className="space-y-2">
                 {POST_STATUS_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -197,7 +198,7 @@ const HelpCenter = () => {
                   </div>
                   <p className="text-gray-600 mb-3">{level.description}</p>
                   <div>
-                    <p className="font-medium text-gray-700 text-sm mb-2">Criteria:</p>
+                    <p className="font-medium text-gray-700 text-sm mb-2">{t('help.common.criteria')}:</p>
                     <ul className="space-y-1">
                       {level.criteria.map((criterion, idx) => (
                         <li key={idx} className="text-gray-600 text-sm flex items-start gap-2">
@@ -211,7 +212,7 @@ const HelpCenter = () => {
               ))}
             </div>
 
-            <HelpPanel title="Best Practices" variant="info" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="info" defaultExpanded={false}>
               <ul className="space-y-2">
                 {PRIORITY_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -239,17 +240,17 @@ const HelpCenter = () => {
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xl">{tag.icon}</span>
                     <h4 className="font-semibold text-gray-800">{tag.label}</h4>
-                    <span className="ml-auto text-xs bg-gray-100 px-2 py-1 rounded">Priority: {tag.priority}</span>
+                    <span className="ml-auto text-xs bg-gray-100 px-2 py-1 rounded">{t('help.common.criteria')}: {tag.priority}</span>
                   </div>
                   <p className="text-gray-600 text-sm mb-2">{tag.description}</p>
                   <p className="text-xs text-gray-500">
-                    <strong>Examples:</strong> {tag.examples.join(', ')}
+                    <strong>{t('help.common.examples')}:</strong> {tag.examples.join(', ')}
                   </p>
                 </div>
               ))}
             </div>
 
-            <HelpPanel title="How to Assign Tags" variant="info" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.howToAssignTags')} variant="info" defaultExpanded={false}>
               <ul className="space-y-2">
                 {TAG_SYSTEM_GUIDANCE.howToAssign.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -260,7 +261,7 @@ const HelpCenter = () => {
               </ul>
             </HelpPanel>
 
-            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {TAG_SYSTEM_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -282,7 +283,7 @@ const HelpCenter = () => {
               <p className="text-gray-700">{DEPARTMENT_GUIDANCE.whatAreDepartments}</p>
             </div>
 
-            <HelpPanel title="How to Create Departments" variant="info" defaultExpanded={true}>
+            <HelpPanel title={t('guidance.ui.howToCreateDepts')} variant="info" defaultExpanded={true}>
               <ol className="space-y-2">
                 {DEPARTMENT_GUIDANCE.howToCreate.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -293,7 +294,7 @@ const HelpCenter = () => {
               </ol>
             </HelpPanel>
 
-            <HelpPanel title="Use Cases" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.useCases')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {DEPARTMENT_GUIDANCE.useCases.map((useCase, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -304,7 +305,7 @@ const HelpCenter = () => {
               </ul>
             </HelpPanel>
 
-            <HelpPanel title="Best Practices" variant="default" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="default" defaultExpanded={false}>
               <ul className="space-y-2">
                 {DEPARTMENT_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -326,7 +327,7 @@ const HelpCenter = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Member Statuses</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.memberStatuses')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {Object.entries(MEMBER_MANAGEMENT_GUIDANCE.memberStatuses).map(([key, status]) => (
                   <div key={key} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -340,7 +341,7 @@ const HelpCenter = () => {
               </div>
             </div>
 
-            <HelpPanel title="How to Manage Members" variant="info" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.howToManageMembers')} variant="info" defaultExpanded={false}>
               <ol className="space-y-2">
                 {MEMBER_MANAGEMENT_GUIDANCE.howToManage.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -351,7 +352,7 @@ const HelpCenter = () => {
               </ol>
             </HelpPanel>
 
-            <HelpPanel title="Role Assignment Guidelines" variant="warning" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.roleAssignmentGuidelines')} variant="warning" defaultExpanded={false}>
               <ul className="space-y-2">
                 {MEMBER_MANAGEMENT_GUIDANCE.roleAssignment.map((guideline, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -362,7 +363,7 @@ const HelpCenter = () => {
               </ul>
             </HelpPanel>
 
-            <HelpPanel title="Bulk Operations" variant="default" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bulkOperations')} variant="default" defaultExpanded={false}>
               <ul className="space-y-2">
                 {MEMBER_MANAGEMENT_GUIDANCE.bulkOperations.map((operation, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -385,7 +386,7 @@ const HelpCenter = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <HelpPanel title="How to Create" variant="info" defaultExpanded={true}>
+              <HelpPanel title={t('guidance.ui.howToCreate')} variant="info" defaultExpanded={true}>
                 <ol className="space-y-2">
                   {TEMPLATE_GUIDANCE.howToCreate.map((step, idx) => (
                     <li key={idx} className="flex items-start gap-2">
@@ -396,7 +397,7 @@ const HelpCenter = () => {
                 </ol>
               </HelpPanel>
 
-              <HelpPanel title="How to Use" variant="success" defaultExpanded={true}>
+              <HelpPanel title={t('guidance.ui.howToUse')} variant="success" defaultExpanded={true}>
                 <ol className="space-y-2">
                   {TEMPLATE_GUIDANCE.howToUse.map((step, idx) => (
                     <li key={idx} className="flex items-start gap-2">
@@ -409,7 +410,7 @@ const HelpCenter = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Template Examples</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.templateExamples')}</h4>
               <div className="space-y-3">
                 {TEMPLATE_GUIDANCE.templateExamples.map((example, idx) => (
                   <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -444,10 +445,10 @@ const HelpCenter = () => {
                   </div>
                   <p className="text-gray-600 text-sm mb-2">{type.description}</p>
                   <p className="text-xs text-gray-500 mb-3">
-                    <strong>When to use:</strong> {type.whenToUse}
+                    <strong>{t('help.common.whenToUse')}:</strong> {type.whenToUse}
                   </p>
                   <div>
-                    <p className="text-xs font-medium text-gray-700 mb-1">Tips:</p>
+                    <p className="text-xs font-medium text-gray-700 mb-1">{t('help.common.tips')}:</p>
                     <ul className="space-y-1">
                       {type.tips.map((tip, idx) => (
                         <li key={idx} className="text-xs text-gray-600 flex items-start gap-1">
@@ -462,7 +463,7 @@ const HelpCenter = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Privacy Settings</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.privacySettings')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {Object.entries(POST_CREATION_GUIDANCE.privacySettings).map(([key, privacy]) => (
                   <div key={key} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -476,7 +477,7 @@ const HelpCenter = () => {
               </div>
             </div>
 
-            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {POST_CREATION_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -503,13 +504,13 @@ const HelpCenter = () => {
                   <h4 className="font-semibold text-gray-800 mb-2">{metric.label}</h4>
                   <p className="text-gray-600 text-sm mb-2">{metric.description}</p>
                   <p className="text-xs text-gray-500">
-                    <strong>Use case:</strong> {metric.useCase}
+                    <strong>{t('help.common.useCase')}:</strong> {metric.useCase}
                   </p>
                 </div>
               ))}
             </div>
 
-            <HelpPanel title="How to Use" variant="info" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.howToUse')} variant="info" defaultExpanded={false}>
               <ol className="space-y-2">
                 {ANALYTICS_GUIDANCE.howToUse.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -520,7 +521,7 @@ const HelpCenter = () => {
               </ol>
             </HelpPanel>
 
-            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {ANALYTICS_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -542,7 +543,7 @@ const HelpCenter = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Report Statuses</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.reportStatuses')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {Object.entries(MODERATION_GUIDANCE.reportStatuses).map(([key, status]) => (
                   <div key={key} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -552,7 +553,7 @@ const HelpCenter = () => {
                     </div>
                     <p className="text-gray-600 text-sm mb-2">{status.description}</p>
                     <p className="text-xs text-gray-500">
-                      <strong>Action:</strong> {status.action}
+                      <strong>{t('help.common.action')}:</strong> {status.action}
                     </p>
                   </div>
                 ))}
@@ -560,7 +561,7 @@ const HelpCenter = () => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Moderation Actions</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.moderationActions')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {MODERATION_GUIDANCE.moderationActions.map((action, idx) => (
                   <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -569,14 +570,14 @@ const HelpCenter = () => {
                       <h5 className="font-semibold text-gray-800">{action.action}</h5>
                     </div>
                     <p className="text-gray-600 text-sm">
-                      <strong>When to use:</strong> {action.whenToUse}
+                      <strong>{t('help.common.whenToUse')}:</strong> {action.whenToUse}
                     </p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <HelpPanel title="Review Process" variant="info" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.reviewProcess')} variant="info" defaultExpanded={false}>
               <ol className="space-y-2">
                 {MODERATION_GUIDANCE.reviewProcess.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -587,7 +588,7 @@ const HelpCenter = () => {
               </ol>
             </HelpPanel>
 
-            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {MODERATION_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -608,7 +609,7 @@ const HelpCenter = () => {
               <p className="text-gray-600 mb-6">{QR_CODE_GUIDANCE.description}</p>
             </div>
 
-            <HelpPanel title="How It Works" variant="info" defaultExpanded={true}>
+            <HelpPanel title={t('guidance.ui.howItWorks')} variant="info" defaultExpanded={true}>
               <ol className="space-y-2">
                 {QR_CODE_GUIDANCE.howItWorks.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -619,7 +620,7 @@ const HelpCenter = () => {
               </ol>
             </HelpPanel>
 
-            <HelpPanel title="How to Generate" variant="default" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.howToGenerate')} variant="default" defaultExpanded={false}>
               <ol className="space-y-2">
                 {QR_CODE_GUIDANCE.howToGenerate.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -631,7 +632,7 @@ const HelpCenter = () => {
             </HelpPanel>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Distribution Methods</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.distributionMethods')}</h4>
               <ul className="space-y-2">
                 {QR_CODE_GUIDANCE.distributionMethods.map((method, idx) => (
                   <li key={idx} className="flex items-start gap-2 bg-white border border-gray-200 rounded-lg p-3">
@@ -642,7 +643,7 @@ const HelpCenter = () => {
               </ul>
             </div>
 
-            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {QR_CODE_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -663,7 +664,7 @@ const HelpCenter = () => {
               <p className="text-gray-600 mb-6">{ASSIGNED_TO_ME_GUIDANCE.description}</p>
             </div>
 
-            <HelpPanel title="How It Works" variant="info" defaultExpanded={true}>
+            <HelpPanel title={t('guidance.ui.howItWorks')} variant="info" defaultExpanded={true}>
               <ul className="space-y-2">
                 {ASSIGNED_TO_ME_GUIDANCE.howItWorks.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -675,7 +676,7 @@ const HelpCenter = () => {
             </HelpPanel>
 
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">What to Expect</h4>
+              <h4 className="font-semibold text-gray-800 mb-3">{t('guidance.ui.whatToExpect')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {ASSIGNED_TO_ME_GUIDANCE.whatToExpect.map((item, idx) => (
                   <div key={idx} className="bg-white border border-gray-200 rounded-lg p-4">
@@ -688,7 +689,7 @@ const HelpCenter = () => {
               </div>
             </div>
 
-            <HelpPanel title="How to Manage" variant="default" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.howToManage')} variant="default" defaultExpanded={false}>
               <ol className="space-y-2">
                 {ASSIGNED_TO_ME_GUIDANCE.howToManage.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -699,7 +700,7 @@ const HelpCenter = () => {
               </ol>
             </HelpPanel>
 
-            <HelpPanel title="Best Practices" variant="success" defaultExpanded={false}>
+            <HelpPanel title={t('guidance.ui.bestPractices')} variant="success" defaultExpanded={false}>
               <ul className="space-y-2">
                 {ASSIGNED_TO_ME_GUIDANCE.bestPractices.map((practice, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -715,7 +716,7 @@ const HelpCenter = () => {
       default:
         return (
           <div className="text-center py-12">
-            <p className="text-gray-600">Select a topic from the sidebar to view help content.</p>
+            <p className="text-gray-600">{t('guidance.ui.selectTopic')}</p>
           </div>
         );
     }
