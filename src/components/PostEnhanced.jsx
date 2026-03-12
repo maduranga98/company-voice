@@ -282,7 +282,7 @@ const PostEnhanced = ({ post }) => {
           <div className="bg-purple-100 border-b border-purple-200 px-3 sm:px-4 py-2 flex items-center gap-2">
             <Pin className="w-4 h-4 text-purple-600 flex-shrink-0" />
             <span className="text-xs sm:text-sm font-medium text-purple-900">
-              Pinned Post
+              {t('postActions.pinnedPost')}
             </span>
           </div>
         )}
@@ -350,7 +350,7 @@ const PostEnhanced = ({ post }) => {
                           className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                         >
                           <Edit2 className="w-4 h-4" />
-                          Edit Post
+                          {t('postActions.editPost')}
                         </button>
                         <button
                           onClick={() => {
@@ -360,7 +360,7 @@ const PostEnhanced = ({ post }) => {
                           className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                         >
                           <Trash2 className="w-4 h-4" />
-                          Delete Post
+                          {t('postActions.deletePost')}
                         </button>
                       </div>
                     )}
@@ -414,7 +414,7 @@ const PostEnhanced = ({ post }) => {
                 />
               </svg>
               <span className="truncate">
-                Assigned to:{" "}
+                {t('postActions.assignedTo')}{" "}
                 <span className="font-medium">{post.assignedTo.name}</span>
               </span>
             </div>
@@ -489,7 +489,7 @@ const PostEnhanced = ({ post }) => {
               >
                 {isExpanded ? (
                   <>
-                    Show less
+                    {t('postActions.showLess')}
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -506,7 +506,7 @@ const PostEnhanced = ({ post }) => {
                   </>
                 ) : (
                   <>
-                    Read more
+                    {t('postActions.readMore')}
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -788,16 +788,15 @@ const PostEnhanced = ({ post }) => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-slate-900">
-                  Delete Post
+                  {t('postActions.deletePost')}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  This action cannot be undone
+                  {t('postActions.deleteConfirm')}
                 </p>
               </div>
             </div>
             <p className="text-slate-700 mb-6">
-              Are you sure you want to delete this post? All comments and
-              reactions will also be removed.
+              {t('postActions.confirmDelete')}
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -805,7 +804,7 @@ const PostEnhanced = ({ post }) => {
                 disabled={deleting}
                 className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition disabled:opacity-50"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleDeletePost}
@@ -815,12 +814,12 @@ const PostEnhanced = ({ post }) => {
                 {deleting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Deleting...
+                    {t('postActions.deleting')}
                   </>
                 ) : (
                   <>
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    {t('common.delete')}
                   </>
                 )}
               </button>

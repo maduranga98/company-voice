@@ -11,8 +11,10 @@ import {
   doc,
   deleteDoc,
 } from "firebase/firestore";
+import { useTranslation } from 'react-i18next';
 
 const Notifications = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -150,7 +152,7 @@ const Notifications = () => {
   };
 
   const formatTimestamp = (timestamp) => {
-    if (!timestamp) return "Just now";
+    if (!timestamp) return t('notifications.justNow');
     try {
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
       const now = new Date();
@@ -159,7 +161,7 @@ const Notifications = () => {
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
 
-      if (diffMins < 1) return "Just now";
+      if (diffMins < 1) return t('notifications.justNow');
       if (diffMins < 60) return `${diffMins}m ago`;
       if (diffHours < 24) return `${diffHours}h ago`;
       if (diffDays < 7) return `${diffDays}d ago`;
@@ -185,10 +187,10 @@ const Notifications = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Notifications
+                {t('notifications.notifications')}
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                Stay updated with your latest activities
+                {t('notifications.stayUpdated')}
               </p>
             </div>
             {unreadCount > 0 && (
@@ -209,7 +211,7 @@ const Notifications = () => {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                Mark all as read
+                {t('notifications.markAllAsRead')}
               </button>
             )}
           </div>
@@ -224,7 +226,7 @@ const Notifications = () => {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              All
+              {t('notifications.all')}
               <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-white bg-opacity-20">
                 {notifications.length}
               </span>
@@ -237,7 +239,7 @@ const Notifications = () => {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Unread
+              {t('notifications.unread')}
               <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-white bg-opacity-20">
                 {unreadCount}
               </span>
@@ -250,7 +252,7 @@ const Notifications = () => {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Read
+              {t('notifications.read')}
               <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-white bg-opacity-20">
                 {notifications.length - unreadCount}
               </span>
@@ -262,7 +264,7 @@ const Notifications = () => {
         {loading ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-4 text-gray-500">Loading notifications...</p>
+            <p className="mt-4 text-gray-500">{t('notifications.loading')}</p>
           </div>
         ) : filteredNotifications.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
@@ -280,12 +282,12 @@ const Notifications = () => {
               />
             </svg>
             <h3 className="mt-4 text-lg font-medium text-gray-900">
-              No notifications
+              {t('notifications.noNotifications')}
             </h3>
             <p className="mt-2 text-sm text-gray-500">
               {filter === "unread"
-                ? "You're all caught up!"
-                : "You don't have any notifications yet."}
+                ? t('notifications.allCaughtUp')
+                : t('notifications.noNotificationsYet')}
             </p>
           </div>
         ) : (
@@ -326,7 +328,7 @@ const Notifications = () => {
                             <button
                               onClick={() => markAsRead(notification.id)}
                               className="text-purple-600 hover:text-purple-800"
-                              title="Mark as read"
+                              title={t('notifications.markAsReadTitle')}
                             >
                               <svg
                                 className="w-5 h-5"

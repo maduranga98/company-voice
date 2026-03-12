@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from 'react-i18next';
 import { FileText, Trash2, Send, Edit } from "lucide-react";
 import {
   getUserDrafts,
@@ -10,6 +11,7 @@ import {
 
 const DraftsPage = () => {
   const { userData } = useAuth();
+  const { t } = useTranslation();
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -52,7 +54,7 @@ const DraftsPage = () => {
   };
 
   const handleDelete = async (draftId) => {
-    if (!confirm("Are you sure you want to delete this draft?")) return;
+    if (!confirm(t('drafts.confirmDelete'))) return;
 
     try {
       await deleteDraft(draftId, userData.id);
@@ -74,6 +76,7 @@ const DraftsPage = () => {
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="sr-only">{t('common.loading')}</span>
         </div>
       </div>
     );
@@ -85,7 +88,7 @@ const DraftsPage = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
           <FileText className="w-6 h-6" />
-          My Drafts
+          {t('drafts.title')}
         </h1>
         <p className="text-slate-600 mt-1">
           Manage your saved draft posts
@@ -103,9 +106,9 @@ const DraftsPage = () => {
       {drafts.length === 0 ? (
         <div className="text-center py-12 bg-slate-50 rounded-lg">
           <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-600">No drafts found</p>
+          <p className="text-slate-600">{t('drafts.noDrafts')}</p>
           <p className="text-sm text-slate-500 mt-1">
-            Start creating a post and save it as a draft
+            {t('drafts.noDraftsDescription')}
           </p>
         </div>
       ) : (
@@ -139,7 +142,7 @@ const DraftsPage = () => {
 
               {/* Draft Metadata */}
               <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                <span>Last updated: {formatDate(draft.updatedAt)}</span>
+                <span>{t('drafts.lastUpdated')} {formatDate(draft.updatedAt)}</span>
                 {draft.tags && draft.tags.length > 0 && (
                   <div className="flex gap-1">
                     {draft.tags.slice(0, 3).map((tag, index) => (
@@ -161,7 +164,7 @@ const DraftsPage = () => {
                   className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
                 >
                   <Send className="w-4 h-4" />
-                  Publish
+                  {t('drafts.publish')}
                 </button>
                 <button
                   onClick={() => {
@@ -170,14 +173,14 @@ const DraftsPage = () => {
                   className="flex items-center gap-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition"
                 >
                   <Edit className="w-4 h-4" />
-                  Edit
+                  {t('common.edit')}
                 </button>
                 <button
                   onClick={() => handleDelete(draft.id)}
                   className="ml-auto flex items-center gap-1 px-4 py-2 text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             </div>

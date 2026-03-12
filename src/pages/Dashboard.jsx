@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
 
@@ -50,9 +52,9 @@ const Dashboard = () => {
           </div>
         </div>
         <p className="text-gray-600 mt-8 text-lg font-medium">
-          Loading your workspace...
+          {t('dashboard.loadingWorkspace')}
         </p>
-        <p className="text-gray-400 text-sm mt-2">Please wait a moment</p>
+        <p className="text-gray-400 text-sm mt-2">{t('dashboard.pleaseWait')}</p>
       </div>
     </div>
   );

@@ -5,9 +5,11 @@ import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
 import PollCreator from "./PollCreator";
 import AnonymityGuaranteeScreen from "./AnonymityGuaranteeScreen";
+import { useTranslation } from "react-i18next";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -492,7 +494,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
             {/* Title */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Title {pollData && <span className="text-slate-500 text-xs">(Optional for polls)</span>}
+                {t('createPost.postTitle')} {pollData && <span className="text-slate-500 text-xs">(Optional for polls)</span>}
               </label>
               <input
                 name="title"
@@ -511,7 +513,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                What's on your mind? {pollData && <span className="text-slate-500 text-xs">(Optional for polls)</span>}
+                {t('createPost.postDescription')} {pollData && <span className="text-slate-500 text-xs">(Optional for polls)</span>}
               </label>
               <textarea
                 name="description"
@@ -523,14 +525,14 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 placeholder={currentConfig.placeholder.description}
               />
               <p className="text-xs text-slate-500 mt-1.5">
-                Share your thoughts, ideas, or stories
+                {t('createPost.contentPlaceholder')}
               </p>
             </div>
 
             {/* Category */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Category
+                {t('createPost.postCategory')}
               </label>
               <select
                 name="category"
@@ -539,7 +541,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 required
                 className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
               >
-                <option value="">Select a category</option>
+                <option value="">{t('createPost.selectCategory')}</option>
                 {currentConfig.categories.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -566,7 +568,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
             {/* Privacy Level */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Privacy Level
+                {t('createPost.postPrivacy')}
               </label>
               <select
                 name="privacyLevel"
@@ -574,9 +576,9 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 onChange={handleInputChange}
                 className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
               >
-                <option value="company_public">Company-wide (Public to all employees)</option>
-                <option value="department_only">Department Only</option>
-                <option value="hr_only">HR Only</option>
+                <option value="company_public">{t('createPost.companyPublic')}</option>
+                <option value="department_only">{t('createPost.departmentOnly')}</option>
+                <option value="hr_only">{t('createPost.hrOnly')}</option>
               </select>
               <p className="text-xs text-slate-500 mt-1.5">
                 {formData.privacyLevel === "company_public" && "Visible to all employees in the company"}
@@ -624,14 +626,14 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 className="w-4 h-4 text-slate-900 border-slate-300 rounded focus:ring-slate-900"
               />
               <label htmlFor="isAnonymous" className="text-sm text-slate-700">
-                Post anonymously
+                {t('createPost.anonymous')}
               </label>
             </div>
 
             {/* Attachments */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Add Attachments (Optional)
+                {t('createPost.attachFiles')}
               </label>
               <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-slate-300 transition">
                 <input
@@ -724,7 +726,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
             selectedFiles.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
-                  <span>Uploading files...</span>
+                  <span>{t('createPost.attachFiles')}...</span>
                   <span className="font-semibold">{uploadProgress}%</span>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
@@ -747,7 +749,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 {uploadProgress > 0 && uploadProgress < 100
                   ? `Uploading... ${uploadProgress}%`
-                  : "Publishing..."}
+                  : t('createPost.submitting')}
               </span>
             ) : (
               currentConfig.buttonText

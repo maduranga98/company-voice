@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../../utils/constants";
 
 const CompanyDashboard = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -135,15 +137,15 @@ const CompanyDashboard = () => {
   const getPostTypeName = (type) => {
     switch (type) {
       case PostType.PROBLEM_REPORT:
-        return "Problem";
+        return t('company.postTypeProblem');
       case PostType.CREATIVE_CONTENT:
-        return "Creative";
+        return t('company.postTypeCreative');
       case PostType.TEAM_DISCUSSION:
-        return "Discussion";
+        return t('company.postTypeDiscussion');
       case PostType.IDEA_SUGGESTION:
-        return "Idea";
+        return t('company.postTypeIdea');
       default:
-        return "Post";
+        return t('company.postTypeDefault');
     }
   };
 
@@ -176,10 +178,10 @@ const CompanyDashboard = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Admin Dashboard
+          {t('company.dashboardTitle')}
         </h1>
         <p className="text-gray-600">
-          Overview of all posts and action items requiring attention
+          {t('company.dashboardSubtitle')}
         </p>
 
         {/* Pending Employees Alert */}
@@ -201,11 +203,11 @@ const CompanyDashboard = () => {
                 <div>
                   <p className="text-sm font-medium text-yellow-800">
                     {pendingUsers}{" "}
-                    {pendingUsers === 1 ? "employee" : "employees"} pending
-                    approval
+                    {pendingUsers === 1 ? t('company.employeeSingular') : t('company.employeePlural')}{" "}
+                    {t('company.pendingApprovalAlert')}
                   </p>
                   <p className="text-xs text-yellow-700 mt-0.5">
-                    Review and approve new employee registrations
+                    {t('company.reviewApproveRegistrations')}
                   </p>
                 </div>
               </div>
@@ -215,7 +217,7 @@ const CompanyDashboard = () => {
                 }
                 className="px-4 py-2 bg-yellow-400 text-yellow-900 rounded-lg hover:bg-yellow-500 transition font-medium text-sm"
               >
-                Review Now
+                {t('company.reviewNow')}
               </button>
             </div>
           </div>
@@ -228,7 +230,7 @@ const CompanyDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Posts</p>
+              <p className="text-sm font-medium text-gray-600">{t('company.totalPosts')}</p>
               <p className="text-3xl font-bold text-gray-900 mt-1">
                 {stats.totalPosts}
               </p>
@@ -256,7 +258,7 @@ const CompanyDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">
-                Critical Issues
+                {t('company.criticalIssues')}
               </p>
               <p className="text-3xl font-bold text-red-600 mt-1">
                 {stats.criticalPosts}
@@ -284,7 +286,7 @@ const CompanyDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-yellow-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Open Issues</p>
+              <p className="text-sm font-medium text-gray-600">{t('company.openIssues')}</p>
               <p className="text-3xl font-bold text-yellow-600 mt-1">
                 {stats.openPosts}
               </p>
@@ -311,7 +313,7 @@ const CompanyDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-indigo-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">In Progress</p>
+              <p className="text-sm font-medium text-gray-600">{t('company.inProgress')}</p>
               <p className="text-3xl font-bold text-indigo-600 mt-1">
                 {stats.inProgressPosts + stats.workingOnPosts}
               </p>
@@ -343,7 +345,7 @@ const CompanyDashboard = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Problem Reports
+              {t('company.problemReports')}
             </h3>
             <span className="text-3xl">🚨</span>
           </div>
@@ -351,7 +353,7 @@ const CompanyDashboard = () => {
             {stats.problemReports}
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Click to view all problems
+            {t('company.clickToViewProblems')}
           </p>
         </button>
 
@@ -361,7 +363,7 @@ const CompanyDashboard = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Creative Ideas
+              {t('company.creativeIdeas')}
             </h3>
             <span className="text-3xl">🎨</span>
           </div>
@@ -369,7 +371,7 @@ const CompanyDashboard = () => {
             {stats.creativeIdeas}
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Click to view all creative posts
+            {t('company.clickToViewCreative')}
           </p>
         </button>
 
@@ -378,14 +380,14 @@ const CompanyDashboard = () => {
           className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:border-blue-300 hover:shadow-md transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Discussions</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('company.discussions')}</h3>
             <span className="text-3xl">💬</span>
           </div>
           <p className="text-3xl font-bold text-blue-600">
             {stats.discussions}
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Click to view all discussions
+            {t('company.clickToViewDiscussions')}
           </p>
         </button>
       </div>
@@ -394,10 +396,10 @@ const CompanyDashboard = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">
-            Recent Posts Needing Attention
+            {t('company.recentPostsTitle')}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Latest 5 posts that are open, in progress, or being worked on
+            {t('company.recentPostsSubtitle')}
           </p>
         </div>
 
@@ -419,10 +421,10 @@ const CompanyDashboard = () => {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              All Caught Up!
+              {t('company.allCaughtUp')}
             </h3>
             <p className="text-gray-600">
-              There are no posts requiring immediate attention.
+              {t('company.noPostsAttention')}
             </p>
           </div>
         ) : (
@@ -487,7 +489,7 @@ const CompanyDashboard = () => {
                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                         />
                       </svg>
-                      Assigned to: {post.assignedTo.name}
+                      {t('company.assignedTo')}: {post.assignedTo.name}
                     </div>
                   )}
                 </div>
@@ -521,7 +523,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-red-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Moderation</h3>
+            <h3 className="text-xl font-semibold">{t('company.moderation')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -537,7 +539,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-red-100">
-            Review reported content and manage moderation activities
+            {t('company.moderationDesc')}
           </p>
         </button>
 
@@ -548,7 +550,7 @@ const CompanyDashboard = () => {
             className="bg-gradient-to-r from-orange-600 to-red-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">HR Dashboard</h3>
+              <h3 className="text-xl font-semibold">{t('company.hrDashboard')}</h3>
               <svg
                 className="w-8 h-8"
                 fill="none"
@@ -564,7 +566,7 @@ const CompanyDashboard = () => {
               </svg>
             </div>
             <p className="text-orange-100">
-              Manage harassment, discrimination, and violence reports
+              {t('company.hrDashboardDesc')}
             </p>
           </button>
         )}
@@ -574,7 +576,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Archived Posts</h3>
+            <h3 className="text-xl font-semibold">{t('company.archivedPosts')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -590,7 +592,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-gray-100">
-            View and reactivate archived posts from your company
+            {t('company.archivedPostsDesc')}
           </p>
         </button>
 
@@ -599,7 +601,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Analytics</h3>
+            <h3 className="text-xl font-semibold">{t('company.analytics')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -615,7 +617,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-purple-100">
-            View detailed insights, trends, and engagement metrics
+            {t('company.analyticsDesc')}
           </p>
         </button>
 
@@ -629,7 +631,7 @@ const CompanyDashboard = () => {
             </span>
           )}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Member Management</h3>
+            <h3 className="text-xl font-semibold">{t('company.memberManagementTitle')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -645,7 +647,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-green-100">
-            Assign tags and manage your team members
+            {t('company.memberManagementDesc')}
           </p>
         </button>
 
@@ -654,7 +656,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Tag Management</h3>
+            <h3 className="text-xl font-semibold">{t('company.tagManagement')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -670,7 +672,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-indigo-100">
-            Create and manage tags for categorizing members
+            {t('company.tagManagementDesc')}
           </p>
         </button>
         <button
@@ -678,7 +680,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Departments</h3>
+            <h3 className="text-xl font-semibold">{t('company.departmentTitle')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -694,7 +696,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-blue-100">
-            Organize and manage your company departments
+            {t('company.departmentsDesc')}
           </p>
         </button>
 
@@ -703,7 +705,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Company QR Code</h3>
+            <h3 className="text-xl font-semibold">{t('company.qrCodeTitle')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -719,7 +721,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-blue-100">
-            Share your company QR code with employees to join
+            {t('company.qrCodeDesc')}
           </p>
         </button>
 
@@ -728,7 +730,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Audit Log</h3>
+            <h3 className="text-xl font-semibold">{t('company.auditLog')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -744,7 +746,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-amber-100">
-            View comprehensive audit history and compliance logs
+            {t('company.auditLogDesc')}
           </p>
         </button>
 
@@ -753,7 +755,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Billing & Subscription</h3>
+            <h3 className="text-xl font-semibold">{t('company.billing')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -769,7 +771,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-teal-100">
-            Manage subscription, invoices, and payment methods
+            {t('company.billingDesc')}
           </p>
         </button>
 
@@ -778,7 +780,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Legal Requests</h3>
+            <h3 className="text-xl font-semibold">{t('company.legalRequests')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -794,7 +796,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-slate-200">
-            Submit and track court-ordered information disclosure requests
+            {t('company.legalRequestsDesc')}
           </p>
         </button>
       </div>

@@ -8,7 +8,7 @@ const CreativeFeed = () => {
   return (
     <UnifiedFeed
       feedType={PostType.CREATIVE_CONTENT}
-      title={t("feed.creative")}
+      title={t("feed.creativeTitle")}
       description={t("feed.creativeDescriptiom")}
       colors={{
         gradient: "from-purple-600 to-pink-600",

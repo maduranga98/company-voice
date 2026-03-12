@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../../services/departmentservice";
 
 const MemberManagement = () => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [members, setMembers] = useState([]);
@@ -102,7 +104,7 @@ const MemberManagement = () => {
       setDepartments(departmentsData);
     } catch (error) {
       console.error("Error loading data:", error);
-      alert("Failed to load data");
+      alert(t('company.failedToLoadData'));
     } finally {
       setLoading(false);
     }
@@ -116,13 +118,13 @@ const MemberManagement = () => {
         userTagId: tagId,
       });
 
-      alert("Tag assigned successfully!");
+      alert(t('company.tagAssigned'));
       setShowTagModal(false);
       setSelectedMember(null);
       loadData();
     } catch (error) {
       console.error("Error assigning tag:", error);
-      alert("Failed to assign tag");
+      alert(t('company.failedToAssignTag'));
     } finally {
       setLoading(false);
     }
@@ -142,20 +144,20 @@ const MemberManagement = () => {
         });
       }
 
-      alert("Department assigned successfully!");
+      alert(t('company.departmentAssigned'));
       setShowDepartmentModal(false);
       setSelectedMember(null);
       loadData();
     } catch (error) {
       console.error("Error assigning department:", error);
-      alert("Failed to assign department");
+      alert(t('company.failedToAssignDepartment'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleApproveMember = async (memberId) => {
-    if (!confirm("Are you sure you want to approve this member?")) {
+    if (!confirm(t('company.confirmApproveMember'))) {
       return;
     }
 
@@ -167,11 +169,11 @@ const MemberManagement = () => {
         updatedAt: serverTimestamp(),
       });
 
-      alert("Member approved successfully!");
+      alert(t('company.memberApproved'));
       loadData();
     } catch (error) {
       console.error("Error approving member:", error);
-      alert("Failed to approve member");
+      alert(t('company.failedToApproveMember'));
     } finally {
       setLoading(false);
     }
@@ -179,9 +181,7 @@ const MemberManagement = () => {
 
   const handleRejectMember = async (memberId) => {
     if (
-      !confirm(
-        "Are you sure you want to reject this member? This will permanently delete their account."
-      )
+      !confirm(t('company.confirmRejectMember'))
     ) {
       return;
     }
@@ -191,11 +191,11 @@ const MemberManagement = () => {
       const memberRef = doc(db, "users", memberId);
       await deleteDoc(memberRef);
 
-      alert("Member rejected and removed successfully!");
+      alert(t('company.memberRejected'));
       loadData();
     } catch (error) {
       console.error("Error rejecting member:", error);
-      alert("Failed to reject member");
+      alert(t('company.failedToRejectMember'));
     } finally {
       setLoading(false);
     }
@@ -320,15 +320,15 @@ const MemberManagement = () => {
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          Back
+          {t('common.back')}
         </button>
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Member Management
+              {t('company.memberManagementTitle')}
             </h1>
             <p className="text-gray-600">
-              Manage team members, assign tags and departments
+              {t('company.memberManagementDesc')}
             </p>
           </div>
           <div className="flex gap-2">
@@ -349,7 +349,7 @@ const MemberManagement = () => {
                   d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                 />
               </svg>
-              Manage Tags
+              {t('company.manageTags')}
             </button>
             <button
               onClick={() => navigate("/company/departments")}
@@ -368,7 +368,7 @@ const MemberManagement = () => {
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
               </svg>
-              Manage Departments
+              {t('company.manageDepartments')}
             </button>
           </div>
         </div>
@@ -376,17 +376,17 @@ const MemberManagement = () => {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Total Members</p>
+            <p className="text-sm text-gray-600">{t('company.totalMembers')}</p>
             <p className="text-2xl font-bold text-gray-900">{members.length}</p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-            <p className="text-sm text-gray-600">Active Members</p>
+            <p className="text-sm text-gray-600">{t('company.activeMembers')}</p>
             <p className="text-2xl font-bold text-green-600">
               {members.filter((m) => m.status === "active").length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-yellow-200">
-            <p className="text-sm text-gray-600">Pending Approval</p>
+            <p className="text-sm text-gray-600">{t('company.pendingApprovals')}</p>
             <p className="text-2xl font-bold text-yellow-600">
               {members.filter((m) => m.status === "pending").length}
             </p>
