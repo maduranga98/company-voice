@@ -679,7 +679,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
       {/* Status Description */}
       <div className="mt-3 text-xs text-gray-600">
-        <span className="font-medium">Status:</span> {PostStatusConfig[status]?.description}
+        <span className="font-medium">{t('adminPanel.status')}:</span> {PostStatusConfig[status]?.description}
       </div>
 
       {/* Anonymous Thread — private messaging for anonymous posts */}
