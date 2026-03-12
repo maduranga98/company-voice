@@ -157,7 +157,7 @@ const MemberManagement = () => {
   };
 
   const handleApproveMember = async (memberId) => {
-    if (!confirm("Are you sure you want to approve this member?")) {
+    if (!confirm(t('company.confirmApproveMember'))) {
       return;
     }
 
@@ -169,11 +169,11 @@ const MemberManagement = () => {
         updatedAt: serverTimestamp(),
       });
 
-      alert("Member approved successfully!");
+      alert(t('company.memberApproved'));
       loadData();
     } catch (error) {
       console.error("Error approving member:", error);
-      alert("Failed to approve member");
+      alert(t('company.failedToApproveMember'));
     } finally {
       setLoading(false);
     }
