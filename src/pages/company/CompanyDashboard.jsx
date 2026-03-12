@@ -705,7 +705,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Company QR Code</h3>
+            <h3 className="text-xl font-semibold">{t('company.qrCodeTitle')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -721,7 +721,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-blue-100">
-            Share your company QR code with employees to join
+            {t('company.qrCodeDesc')}
           </p>
         </button>
 
@@ -730,7 +730,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Audit Log</h3>
+            <h3 className="text-xl font-semibold">{t('company.auditLog')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -746,7 +746,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-amber-100">
-            View comprehensive audit history and compliance logs
+            {t('company.auditLogDesc')}
           </p>
         </button>
 
@@ -755,7 +755,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Billing & Subscription</h3>
+            <h3 className="text-xl font-semibold">{t('company.billing')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -771,7 +771,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-teal-100">
-            Manage subscription, invoices, and payment methods
+            {t('company.billingDesc')}
           </p>
         </button>
 

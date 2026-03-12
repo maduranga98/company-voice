@@ -43,7 +43,7 @@ const MyPosts = () => {
       setPosts(myPosts);
     } catch (error) {
       console.error("Error loading my posts:", error);
-      alert("Failed to load your posts. Please try again.");
+      alert(t('myPosts.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -154,6 +154,7 @@ const MyPosts = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="sr-only">{t('myPosts.loading')}</span>
       </div>
     );
   }
@@ -163,7 +164,7 @@ const MyPosts = () => {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Posts</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('myPosts.title')}</h1>
           <p className="text-gray-600">
             Track all your posts and their updates in one place
           </p>
@@ -174,28 +175,28 @@ const MyPosts = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex gap-2 overflow-x-auto">
           {[
-            { value: "all", label: "All Posts", count: posts.length },
+            { value: "all", label: t('myPosts.allPosts'), count: posts.length },
             {
               value: "problems",
-              label: "Problems",
+              label: t('myPosts.problems'),
               count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT)
                 .length,
             },
             {
               value: "creative",
-              label: "Creative",
+              label: t('myPosts.creative'),
               count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT)
                 .length,
             },
             {
               value: "discussions",
-              label: "Discussions",
+              label: t('myPosts.discussions'),
               count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION)
                 .length,
             },
             {
               value: "unread",
-              label: "Unread Updates",
+              label: t('myPosts.unreadUpdates'),
               count: posts.filter((p) => p.hasUnreadUpdates).length,
             },
           ].map((tab) => (
@@ -234,7 +235,7 @@ const MyPosts = () => {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No posts yet
+              {t('myPosts.noPosts')}
             </h3>
             <p className="text-gray-600">
               {activeTab === "all"

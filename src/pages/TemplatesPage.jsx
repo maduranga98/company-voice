@@ -138,9 +138,9 @@ const TemplatesPage = () => {
         {templates.length === 0 ? (
           <div className="text-center py-12 bg-slate-50 rounded-lg">
             <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-600">No templates found</p>
+            <p className="text-slate-600">{t('templates.noTemplates')}</p>
             <p className="text-sm text-slate-500 mt-1">
-              Create your first template to get started
+              {t('templates.noTemplatesDescription')}
             </p>
           </div>
         ) : (
@@ -179,6 +179,7 @@ const TemplatesPage = () => {
 };
 
 const TemplateCard = ({ template, onEdit, onDelete, isAdmin, showStats }) => {
+  const { t } = useTranslation();
   const canEdit = isAdmin;
 
   return (
@@ -244,6 +245,7 @@ const TemplateCard = ({ template, onEdit, onDelete, isAdmin, showStats }) => {
 };
 
 const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: template?.name || "",
     description: template?.description || "",
@@ -299,7 +301,7 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-slate-100">
           <h2 className="text-xl font-semibold">
-            {template ? "Edit Template" : "Create Template"}
+            {template ? t('templates.editTemplate') : t('templates.createTemplate')}
           </h2>
         </div>
 
@@ -312,7 +314,7 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Template Name
+              {t('templates.templateName')}
             </label>
             <input
               type="text"
