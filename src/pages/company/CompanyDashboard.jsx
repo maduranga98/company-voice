@@ -780,7 +780,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Legal Requests</h3>
+            <h3 className="text-xl font-semibold">{t('company.legalRequests')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -796,7 +796,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-slate-200">
-            Submit and track court-ordered information disclosure requests
+            {t('company.legalRequestsDesc')}
           </p>
         </button>
       </div>

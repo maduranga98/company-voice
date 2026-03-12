@@ -343,7 +343,7 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Post Type
+              {t('templates.postType')}
             </label>
             <select
               value={formData.type}
@@ -353,9 +353,9 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
               required
               className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="creative_content">Creative Content</option>
-              <option value="problem_report">Problem Report</option>
-              <option value="team_discussion">Team Discussion</option>
+              <option value="creative_content">{t('templates.creativeContent')}</option>
+              <option value="problem_report">{t('templates.problemReport')}</option>
+              <option value="team_discussion">{t('templates.teamDiscussion')}</option>
             </select>
           </div>
 
