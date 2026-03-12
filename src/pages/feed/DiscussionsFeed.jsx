@@ -1,5 +1,6 @@
 import UnifiedFeed from "./UnifiedFeed";
 import { PostType } from "../../utils/constants";
+import { useTranslation } from "react-i18next";
 
 /**
  * Discussions Feed Page
@@ -7,11 +8,13 @@ import { PostType } from "../../utils/constants";
  * Same feed for employees and admins (admins see additional controls)
  */
 const DiscussionsFeed = () => {
+  const { t } = useTranslation();
+
   return (
     <UnifiedFeed
       feedType={PostType.TEAM_DISCUSSION}
-      title="Team Discussions"
-      description="Start conversations and collaborate with your team"
+      title={t("feed.discussionsTitle")}
+      description={t("feed.discussionsDescription")}
       colors={{
         gradient: "from-blue-600 to-cyan-600",
         text: "text-blue-900",

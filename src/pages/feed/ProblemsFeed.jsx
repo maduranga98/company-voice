@@ -19,7 +19,7 @@ const ProblemsFeed = () => {
       <UnifiedFeed
         feedType={PostType.PROBLEM_REPORT}
         title={t("feed.problems")}
-        description="Report workplace issues and track their resolution"
+        description={t("feed.problemsDescription")}
         colors={{
           gradient: "from-red-600 to-orange-600",
           text: "text-red-900",
