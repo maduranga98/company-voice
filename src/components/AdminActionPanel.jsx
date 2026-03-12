@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Pin, Archive } from "lucide-react";
 import AnonymousThread from "./AnonymousThread";
 import {
@@ -36,6 +37,7 @@ import { POST_STATUS_GUIDANCE, PRIORITY_GUIDANCE, FEATURE_TOOLTIPS } from "../ut
  * Only visible to admin users (company_admin, hr, super_admin)
  */
 const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState(post.status || PostStatus.OPEN);
   const [priority, setPriority] = useState(post.priority || PostPriority.MEDIUM);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -322,7 +324,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-indigo-700 font-semibold text-sm">Admin Controls</span>
+          <span className="text-indigo-700 font-semibold text-sm">{t('adminPanel.title')}</span>
           <span className="text-xs text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded">
             Only visible to admins
           </span>
@@ -340,7 +342,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
         {/* Status Dropdown */}
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
-            Status
+            {t('adminPanel.status')}
             <HelpTooltip
               content={POST_STATUS_GUIDANCE.description}
               title="Post Status"
@@ -367,7 +369,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
         {/* Priority Dropdown */}
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
-            Priority
+            {t('adminPanel.priority')}
             <HelpTooltip
               content={PRIORITY_GUIDANCE.description}
               title="Priority Levels"
@@ -404,7 +406,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Pin className={`w-4 h-4 ${post.isPinned ? 'fill-current' : ''}`} />
-          {post.isPinned ? 'Unpin' : 'Pin'} Post
+          {post.isPinned ? t('adminPanel.unpinPost') : t('adminPanel.pinPost')}
         </button>
         <button
           onClick={handleArchiveToggle}
@@ -416,7 +418,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Archive className="w-4 h-4" />
-          {post.isArchived ? 'Unarchive' : 'Archive'} Post
+          {post.isArchived ? t('adminPanel.archivePost') : t('adminPanel.archivePost')}
         </button>
       </div>
 
@@ -426,7 +428,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           {/* Assignment */}
           <div className="relative">
             <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
-              Assign To
+              {t('adminPanel.assignTo')}
               {post.isAnonymous && (
                 <span className="text-xs font-normal text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
                   Departments only (Anonymous post)
@@ -571,7 +573,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           {/* Due Date */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
-              Due Date
+              {t('adminPanel.dueDate')}
               <HelpTooltip
                 content={FEATURE_TOOLTIPS.addDueDate}
                 title="Due Date"
@@ -591,7 +593,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           {/* Admin Comment */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center gap-1">
-              Admin Comment (Public - visible to everyone)
+              {t('adminPanel.adminNote')}
               <HelpTooltip
                 content={FEATURE_TOOLTIPS.adminComment}
                 title="Admin Comment"
@@ -616,7 +618,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
               onMouseEnter={(e) => (e.target.style.backgroundColor = COLORS.primary.hover)}
               onMouseLeave={(e) => (e.target.style.backgroundColor = COLORS.primary.main)}
             >
-              {loading ? "Adding..." : "Add Comment"}
+              {loading ? t('adminPanel.saving') : t('adminPanel.addNote')}
             </button>
           </div>
 

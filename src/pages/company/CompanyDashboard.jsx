@@ -313,7 +313,7 @@ const CompanyDashboard = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-indigo-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">In Progress</p>
+              <p className="text-sm font-medium text-gray-600">{t('company.inProgress')}</p>
               <p className="text-3xl font-bold text-indigo-600 mt-1">
                 {stats.inProgressPosts + stats.workingOnPosts}
               </p>
@@ -345,7 +345,7 @@ const CompanyDashboard = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Problem Reports
+              {t('company.problemReports')}
             </h3>
             <span className="text-3xl">🚨</span>
           </div>
@@ -353,7 +353,7 @@ const CompanyDashboard = () => {
             {stats.problemReports}
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Click to view all problems
+            {t('company.clickToViewProblems')}
           </p>
         </button>
 
@@ -363,7 +363,7 @@ const CompanyDashboard = () => {
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Creative Ideas
+              {t('company.creativeIdeas')}
             </h3>
             <span className="text-3xl">🎨</span>
           </div>
@@ -371,7 +371,7 @@ const CompanyDashboard = () => {
             {stats.creativeIdeas}
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Click to view all creative posts
+            {t('company.clickToViewCreative')}
           </p>
         </button>
 
@@ -380,14 +380,14 @@ const CompanyDashboard = () => {
           className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:border-blue-300 hover:shadow-md transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Discussions</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('company.discussions')}</h3>
             <span className="text-3xl">💬</span>
           </div>
           <p className="text-3xl font-bold text-blue-600">
             {stats.discussions}
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Click to view all discussions
+            {t('company.clickToViewDiscussions')}
           </p>
         </button>
       </div>
@@ -396,10 +396,10 @@ const CompanyDashboard = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">
-            Recent Posts Needing Attention
+            {t('company.recentPostsTitle')}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
-            Latest 5 posts that are open, in progress, or being worked on
+            {t('company.recentPostsSubtitle')}
           </p>
         </div>
 
@@ -421,10 +421,10 @@ const CompanyDashboard = () => {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              All Caught Up!
+              {t('company.allCaughtUp')}
             </h3>
             <p className="text-gray-600">
-              There are no posts requiring immediate attention.
+              {t('company.noPostsAttention')}
             </p>
           </div>
         ) : (
@@ -489,7 +489,7 @@ const CompanyDashboard = () => {
                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                         />
                       </svg>
-                      Assigned to: {post.assignedTo.name}
+                      {t('company.assignedTo')}: {post.assignedTo.name}
                     </div>
                   )}
                 </div>
@@ -523,7 +523,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-red-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Moderation</h3>
+            <h3 className="text-xl font-semibold">{t('company.moderation')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -539,7 +539,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-red-100">
-            Review reported content and manage moderation activities
+            {t('company.moderationDesc')}
           </p>
         </button>
 
@@ -550,7 +550,7 @@ const CompanyDashboard = () => {
             className="bg-gradient-to-r from-orange-600 to-red-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">HR Dashboard</h3>
+              <h3 className="text-xl font-semibold">{t('company.hrDashboard')}</h3>
               <svg
                 className="w-8 h-8"
                 fill="none"
@@ -566,7 +566,7 @@ const CompanyDashboard = () => {
               </svg>
             </div>
             <p className="text-orange-100">
-              Manage harassment, discrimination, and violence reports
+              {t('company.hrDashboardDesc')}
             </p>
           </button>
         )}
@@ -576,7 +576,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Archived Posts</h3>
+            <h3 className="text-xl font-semibold">{t('company.archivedPosts')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -592,7 +592,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-gray-100">
-            View and reactivate archived posts from your company
+            {t('company.archivedPostsDesc')}
           </p>
         </button>
 
@@ -601,7 +601,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Analytics</h3>
+            <h3 className="text-xl font-semibold">{t('company.analytics')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -617,7 +617,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-purple-100">
-            View detailed insights, trends, and engagement metrics
+            {t('company.analyticsDesc')}
           </p>
         </button>
 
@@ -631,7 +631,7 @@ const CompanyDashboard = () => {
             </span>
           )}
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Member Management</h3>
+            <h3 className="text-xl font-semibold">{t('company.memberManagementTitle')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"
@@ -647,7 +647,7 @@ const CompanyDashboard = () => {
             </svg>
           </div>
           <p className="text-green-100">
-            Assign tags and manage your team members
+            {t('company.memberManagementDesc')}
           </p>
         </button>
 
@@ -656,7 +656,7 @@ const CompanyDashboard = () => {
           className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Tag Management</h3>
+            <h3 className="text-xl font-semibold">{t('company.tagManagement')}</h3>
             <svg
               className="w-8 h-8"
               fill="none"

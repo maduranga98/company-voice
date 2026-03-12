@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from 'react-i18next';
 import { FileText, Plus, Edit, Trash2, TrendingUp } from "lucide-react";
 import {
   getTemplates,
@@ -11,6 +12,7 @@ import {
 
 const TemplatesPage = () => {
   const { userData } = useAuth();
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState([]);
   const [mostUsed, setMostUsed] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ const TemplatesPage = () => {
   };
 
   const handleDelete = async (templateId) => {
-    if (!confirm("Are you sure you want to delete this template?")) return;
+    if (!confirm(t('templates.confirmDelete'))) return;
 
     try {
       await deleteTemplate(templateId, {
@@ -69,6 +71,7 @@ const TemplatesPage = () => {
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="sr-only">{t('common.loading')}</span>
         </div>
       </div>
     );

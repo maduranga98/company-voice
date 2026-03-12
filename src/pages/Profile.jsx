@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../config/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { useTranslation } from 'react-i18next';
 
 const Profile = () => {
+  const { t } = useTranslation();
   const { userData, currentUser, refreshUserData } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -111,10 +113,10 @@ const Profile = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Profile
+            {t('profile.title')}
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Manage your personal information and account settings
+            {t('profile.manageInfo')}
           </p>
         </div>
 
@@ -180,7 +182,7 @@ const Profile = () => {
                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                     />
                   </svg>
-                  Edit Profile
+                  {t('profile.editProfile')}
                 </button>
               )}
             </div>
@@ -191,7 +193,7 @@ const Profile = () => {
                 {/* Display Name */}
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    Display Name
+                    {t('profile.displayName')}
                   </dt>
                   {isEditing ? (
                     <input
@@ -214,7 +216,7 @@ const Profile = () => {
 
                 {/* Email */}
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Email</dt>
+                  <dt className="text-sm font-medium text-gray-500">{t('profile.email')}</dt>
                   {isEditing ? (
                     <input
                       type="email"
@@ -233,7 +235,7 @@ const Profile = () => {
 
                 {/* Role */}
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Role</dt>
+                  <dt className="text-sm font-medium text-gray-500">{t('profile.role')}</dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {formatRole(profileData.role)}
                   </dd>
@@ -242,7 +244,7 @@ const Profile = () => {
                 {/* Company ID */}
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    Company ID
+                    {t('profile.companyId')}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 font-mono">
                     {profileData.companyId}
@@ -252,7 +254,7 @@ const Profile = () => {
                 {/* Last Login */}
                 <div className="sm:col-span-2">
                   <dt className="text-sm font-medium text-gray-500">
-                    Last Login
+                    {t('profile.lastLogin')}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {formatDate(profileData.lastLogin)}
@@ -268,14 +270,14 @@ const Profile = () => {
                     disabled={loading}
                     className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={loading}
                     className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
                   >
-                    {loading ? "Saving..." : "Save Changes"}
+                    {loading ? t('profile.saving') : t('profile.saveChanges')}
                   </button>
                 </div>
               )}
@@ -286,7 +288,7 @@ const Profile = () => {
         {/* Account Information */}
         <div className="mt-6 bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Account Information
+            {t('profile.accountInformation')}
           </h3>
           <div className="space-y-4">
             <div className="flex items-start">
@@ -305,10 +307,10 @@ const Profile = () => {
               </svg>
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  Account Status
+                  {t('profile.accountStatus')}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Your account is currently{" "}
+                  {t('profile.accountCurrently')}{" "}
                   <span className="font-medium text-green-600">
                     {profileData.status}
                   </span>
@@ -331,9 +333,9 @@ const Profile = () => {
                 />
               </svg>
               <div>
-                <p className="text-sm font-medium text-gray-900">Security</p>
+                <p className="text-sm font-medium text-gray-900">{t('profile.security')}</p>
                 <p className="text-sm text-gray-500">
-                  To change your password, please contact your administrator.
+                  {t('profile.securityText')}
                 </p>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from 'react-i18next';
 import { Clock, Calendar, X, Edit } from "lucide-react";
 import {
   getScheduledPosts,
@@ -9,6 +10,7 @@ import {
 
 const ScheduledPostsPage = () => {
   const { userData } = useAuth();
+  const { t } = useTranslation();
   const [scheduledPosts, setScheduledPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -72,7 +74,7 @@ const ScheduledPostsPage = () => {
     const now = new Date();
     const diffMs = scheduledDate - now;
 
-    if (diffMs < 0) return "Overdue";
+    if (diffMs < 0) return t('scheduled.overdue');
 
     const diffMins = Math.floor(diffMs / 60000);
     if (diffMins < 60) return `in ${diffMins} minutes`;
@@ -89,6 +91,7 @@ const ScheduledPostsPage = () => {
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex items-center justify-center py-12">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="sr-only">{t('common.loading')}</span>
         </div>
       </div>
     );
@@ -100,7 +103,7 @@ const ScheduledPostsPage = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
           <Clock className="w-6 h-6" />
-          Scheduled Posts
+          {t('scheduled.title')}
         </h1>
         <p className="text-slate-600 mt-1">
           Manage posts scheduled for future publishing
@@ -118,9 +121,9 @@ const ScheduledPostsPage = () => {
       {scheduledPosts.length === 0 ? (
         <div className="text-center py-12 bg-slate-50 rounded-lg">
           <Clock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-600">No scheduled posts</p>
+          <p className="text-slate-600">{t('scheduled.noScheduled')}</p>
           <p className="text-sm text-slate-500 mt-1">
-            Schedule a post to have it published automatically
+            {t('scheduled.noScheduledDescription')}
           </p>
         </div>
       ) : (
@@ -171,14 +174,14 @@ const ScheduledPostsPage = () => {
                       onClick={() => handlePublishNow(post.id)}
                       className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
                     >
-                      Publish Now
+                      {t('scheduled.publishNow')}
                     </button>
                     <button
                       onClick={() => handleCancel(post.id)}
                       className="ml-auto flex items-center gap-1 px-4 py-2 text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition"
                     >
                       <X className="w-4 h-4" />
-                      Cancel Schedule
+                      {t('scheduled.cancelSchedule')}
                     </button>
                   </div>
                 )}

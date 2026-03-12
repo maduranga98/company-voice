@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   collection,
   addDoc,
@@ -33,6 +34,7 @@ const CommentsEnhanced = ({
   reactionButton,
   reportButton,
 }) => {
+  const { t } = useTranslation();
   const { userData } = useAuth();
   const [comments, setComments] = useState([]);
   const [commentCount, setCommentCount] = useState(initialCommentCount || 0);
@@ -419,13 +421,13 @@ const CommentsEnhanced = ({
                                   onClick={() => handleSaveEdit(comment.id)}
                                   className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                                 >
-                                  Save
+                                  {t('comments.saveEdit')}
                                 </button>
                                 <button
                                   onClick={handleCancelEdit}
                                   className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
                                 >
-                                  Cancel
+                                  {t('comments.cancelEdit')}
                                 </button>
                               </div>
                             </div>
@@ -444,7 +446,7 @@ const CommentsEnhanced = ({
                               className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
                             >
                               <Reply className="w-3 h-3" />
-                              Reply
+                              {t('comments.reply')}
                             </button>
                             {isOwnComment ? (
                               <>
@@ -453,14 +455,14 @@ const CommentsEnhanced = ({
                                   className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
                                 >
                                   <Edit2 className="w-3 h-3" />
-                                  Edit
+                                  {t('common.edit')}
                                 </button>
                                 <button
                                   onClick={() => handleDeleteComment(comment.id)}
                                   className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
                                 >
                                   <Trash2 className="w-3 h-3" />
-                                  Delete
+                                  {t('common.delete')}
                                 </button>
                               </>
                             ) : (
@@ -472,7 +474,7 @@ const CommentsEnhanced = ({
                                 className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
                               >
                                 <Flag className="w-3 h-3" />
-                                Report
+                                {t('comments.reportComment')}
                               </button>
                             )}
                           </div>
@@ -486,20 +488,20 @@ const CommentsEnhanced = ({
                               onChange={(e) => setReplyText(e.target.value)}
                               className="w-full px-2 py-1 border border-slate-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                               rows="2"
-                              placeholder="Write a reply..."
+                              placeholder={t('comments.addReply')}
                             />
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleSaveReply(comment.id)}
                                 className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                               >
-                                Reply
+                                {t('comments.reply')}
                               </button>
                               <button
                                 onClick={handleCancelReply}
                                 className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
                               >
-                                Cancel
+                                {t('common.cancel')}
                               </button>
                             </div>
                           </div>
@@ -544,13 +546,13 @@ const CommentsEnhanced = ({
                                               onClick={() => handleSaveEdit(reply.id)}
                                               className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
                                             >
-                                              Save
+                                              {t('comments.saveEdit')}
                                             </button>
                                             <button
                                               onClick={handleCancelEdit}
                                               className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
                                             >
-                                              Cancel
+                                              {t('comments.cancelEdit')}
                                             </button>
                                           </div>
                                         </div>
@@ -571,14 +573,14 @@ const CommentsEnhanced = ({
                                               className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
                                             >
                                               <Edit2 className="w-3 h-3" />
-                                              Edit
+                                              {t('common.edit')}
                                             </button>
                                             <button
                                               onClick={() => handleDeleteComment(reply.id)}
                                               className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
                                             >
                                               <Trash2 className="w-3 h-3" />
-                                              Delete
+                                              {t('common.delete')}
                                             </button>
                                           </>
                                         ) : (
@@ -590,7 +592,7 @@ const CommentsEnhanced = ({
                                             className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
                                           >
                                             <Flag className="w-3 h-3" />
-                                            Report
+                                            {t('comments.reportComment')}
                                           </button>
                                         )}
                                       </div>
@@ -677,7 +679,7 @@ const CommentsEnhanced = ({
                       onChange={(e) => setIsAnonymous(e.target.checked)}
                       className="w-3 h-3 rounded"
                     />
-                    Comment anonymously
+                    {t('comments.anonymous')}
                   </label>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-500">

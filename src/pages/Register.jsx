@@ -479,10 +479,10 @@ const Register = () => {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Creating Account...
+                {t('auth.register.creatingAccount')}
               </span>
             ) : (
-              "Create Account"
+              t('auth.register.createAccount')
             )}
           </button>
         </form>
@@ -490,12 +490,12 @@ const Register = () => {
         {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-sm text-slate-600">
-            Already have an account?{" "}
+            {t('auth.register.haveAccount')}{" "}
             <Link
               to="/login"
               className="text-slate-900 font-medium hover:underline"
             >
-              Sign In
+              {t('auth.register.signIn')}
             </Link>
           </p>
         </div>
