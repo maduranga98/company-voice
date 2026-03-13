@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import PollCreator from "./PollCreator";
 import AnonymityGuaranteeScreen from "./AnonymityGuaranteeScreen";
 import { useTranslation } from "react-i18next";
+import { encryptAuthorId } from "../services/postManagementService";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -362,7 +363,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
           .map((tag) => tag.trim())
           .filter(Boolean),
         isAnonymous: formData.isAnonymous,
-        authorId: userData.id,
+        authorId: formData.isAnonymous ? encryptAuthorId(userData.id) : userData.id,
         authorName: formData.isAnonymous
           ? "Anonymous"
           : userData.displayName || "Unknown User",

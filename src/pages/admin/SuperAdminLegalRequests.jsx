@@ -216,50 +216,39 @@ const SuperAdminLegalRequests = () => {
       console.log('[DecryptIdentity] postData.authorId:', postData.authorId);
       console.log('[DecryptIdentity] postData.encryptedAuthorId:', postData.encryptedAuthorId);
 
-      // For anonymous posts, the encrypted ID is stored in postData.authorId
-      // (set by encryptAuthorId() during post creation). encryptedAuthorId may not exist.
-      let encryptedAuthorId;
-      if (postData.isAnonymous) {
-        encryptedAuthorId = postData.authorId;
-      } else {
-        encryptedAuthorId = postData.encryptedAuthorId;
-      }
-
-      if (!encryptedAuthorId) {
+      const rawAuthorId = postData.authorId;
+      if (!rawAuthorId) {
         setDisclosureError('No encrypted identity found in this post.');
         return;
       }
 
-      // Validate: if value looks like a plain Firebase UID (alphanumeric, 28 chars, no spaces),
-      // the post was NOT encrypted — decryption would be meaningless.
-      const looksLikePlainUid = /^[A-Za-z0-9]{28}$/.test(encryptedAuthorId);
-      const looksLikeEncrypted = encryptedAuthorId.includes('/') ||
-        encryptedAuthorId.includes('+') ||
-        encryptedAuthorId.includes('=') ||
-        encryptedAuthorId.length > 40;
+      // Detect whether authorId is a CryptoJS AES ciphertext or a plain Firebase UID.
+      // Encrypted CryptoJS output contains '/', '+', or '=' and is longer than 40 chars.
+      const isEncrypted = rawAuthorId.length > 40 ||
+        rawAuthorId.includes('/') ||
+        rawAuthorId.includes('+') ||
+        rawAuthorId.includes('=');
 
-      if (looksLikePlainUid && !looksLikeEncrypted) {
-        setDisclosureError(
-          "This post's author ID was not encrypted. It may have been created before encryption was enabled. Raw author ID stored — contact technical support."
-        );
-        return;
-      }
-
-      // Decrypt using existing decryptAuthorId from postManagementService
-      // This uses VITE_ANONYMOUS_SECRET internally — same key used to encrypt
       let userId;
-      try {
-        userId = decryptAuthorId(encryptedAuthorId);
-      } catch (decryptErr) {
-        setDisclosureError(decryptErr.message || 'Decryption threw an unexpected error.');
-        return;
-      }
+      if (!isEncrypted) {
+        // Plain UID — post was created before encryption was wired up; use directly.
+        console.warn('[VoxWel] Post authorId was unencrypted plain UID — using directly.');
+        userId = rawAuthorId;
+      } else {
+        // Encrypted — decrypt using VITE_ANONYMOUS_SECRET
+        try {
+          userId = decryptAuthorId(rawAuthorId);
+        } catch (decryptErr) {
+          setDisclosureError(decryptErr.message || 'Decryption threw an unexpected error.');
+          return;
+        }
 
-      if (!userId || userId.length < 3) {
-        setDisclosureError(
-          "Decryption failed — the post may have been created with a different VITE_ANONYMOUS_SECRET than the one currently set in your environment. Ensure VITE_ANONYMOUS_SECRET in your .env matches the value active when this post was created, then redeploy."
-        );
-        return;
+        if (!userId || userId.length < 3) {
+          setDisclosureError(
+            "Decryption failed — the post may have been created with a different VITE_ANONYMOUS_SECRET than the one currently set in your environment. Ensure VITE_ANONYMOUS_SECRET in your .env matches the value active when this post was created, then redeploy."
+          );
+          return;
+        }
       }
 
       // Fetch user profile
