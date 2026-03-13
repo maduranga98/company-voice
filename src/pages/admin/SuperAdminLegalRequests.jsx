@@ -258,10 +258,45 @@ const SuperAdminLegalRequests = () => {
         return;
       }
       const user = userDoc.data();
+
+      // Fetch company details
+      let companyName = 'Unavailable';
+      if (user.companyId) {
+        try {
+          const companyDoc = await getDoc(doc(db, 'companies', user.companyId));
+          if (companyDoc.exists()) {
+            const c = companyDoc.data();
+            companyName = c.name || c.companyName || 'Unknown Company';
+          }
+        } catch (_) {
+          companyName = 'Unavailable';
+        }
+      }
+
+      // Fetch department details
+      let departmentName = 'Not Assigned';
+      if (user.departmentId) {
+        try {
+          const deptDoc = await getDoc(doc(db, 'departments', user.departmentId));
+          if (deptDoc.exists()) {
+            departmentName = deptDoc.data().name || 'Unknown Department';
+          }
+        } catch (_) {
+          departmentName = 'Unavailable';
+        }
+      }
+
       setDisclosedIdentity({
         displayName: user.displayName || user.name || 'Unknown',
         email: user.email || 'No email on record',
         username: user.username || userId,
+        role: user.role || 'employee',
+        status: user.status || 'unknown',
+        companyId: user.companyId || 'Unknown',
+        companyName,
+        departmentName,
+        userId,
+        joinedAt: user.createdAt || null,
       });
 
       // Log to audit trail
@@ -748,25 +783,108 @@ const SuperAdminLegalRequests = () => {
           {/* STEP 2 — Identity Revealed */}
           {disclosureStep === 3 && disclosedIdentity && (
             <>
+              {/* Green success banner */}
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
                 <span className="text-green-600 font-semibold">✓</span>
                 <p className="text-sm text-green-800 font-medium">
-                  Identity Successfully Revealed
+                  Identity Successfully Disclosed
                 </p>
               </div>
 
+              {/* Identity card */}
               <div className="mb-4 border border-gray-200 rounded-lg p-4">
-                <p className="text-xl font-bold text-gray-900 mb-1">
-                  {disclosedIdentity.displayName}
-                </p>
+
+                {/* Row 1 — Name + Role badge + Status badge */}
+                <div className="flex items-center flex-wrap gap-2 mb-1">
+                  <p className="text-xl font-bold text-gray-900">
+                    {disclosedIdentity.displayName}
+                  </p>
+                  {/* Role badge */}
+                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    disclosedIdentity.role === 'company_admin' || disclosedIdentity.role === 'super_admin'
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : disclosedIdentity.role === 'hr'
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {disclosedIdentity.role === 'company_admin' || disclosedIdentity.role === 'super_admin'
+                      ? 'Admin'
+                      : disclosedIdentity.role === 'hr'
+                      ? 'HR'
+                      : 'Employee'}
+                  </span>
+                  {/* Status badge */}
+                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    disclosedIdentity.status === 'active'
+                      ? 'bg-green-100 text-green-700'
+                      : disclosedIdentity.status === 'suspended'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {disclosedIdentity.status.charAt(0).toUpperCase() + disclosedIdentity.status.slice(1)}
+                  </span>
+                </div>
+
+                {/* Row 2 — Username */}
                 <p className="text-sm text-gray-500 mb-3">
                   @{disclosedIdentity.username}
                 </p>
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+
+                {/* Row 3 — Email */}
+                <div className="flex items-center gap-2 text-sm text-gray-700 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {disclosedIdentity.email}
+                </div>
+
+                <hr className="border-gray-100 mb-4" />
+
+                {/* Two-column grid — Company / Department */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-0.5">Company</p>
+                    <p className="text-sm font-medium text-gray-900">{disclosedIdentity.companyName}</p>
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">{disclosedIdentity.companyId}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-0.5">Department</p>
+                    <p className="text-sm font-medium text-gray-900">{disclosedIdentity.departmentName}</p>
+                  </div>
+                </div>
+
+                {/* Two-column grid — User ID / Joined */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-0.5">User ID</p>
+                    <p className="text-xs font-mono text-gray-700 break-all select-all">{disclosedIdentity.userId}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-0.5">Joined</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {disclosedIdentity.joinedAt
+                        ? (disclosedIdentity.joinedAt.toDate
+                            ? disclosedIdentity.joinedAt.toDate()
+                            : new Date(disclosedIdentity.joinedAt)
+                          ).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : 'Unknown'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Account Status row */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Account Status</p>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`inline-block w-2 h-2 rounded-full ${
+                      disclosedIdentity.status === 'active'
+                        ? 'bg-green-500'
+                        : disclosedIdentity.status === 'suspended'
+                        ? 'bg-red-500'
+                        : 'bg-yellow-400'
+                    }`} />
+                    <span className="text-sm text-gray-700 capitalize">{disclosedIdentity.status}</span>
+                  </div>
                 </div>
               </div>
 
