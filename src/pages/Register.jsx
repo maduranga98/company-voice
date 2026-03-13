@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams, Link } from "react-router-dom";
 import {
   doc,
   getDoc,
@@ -15,7 +15,10 @@ const Register = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { companyId, companyName } = location.state || {};
+  const [searchParams] = useSearchParams();
+  const { companyId: stateCompanyId, companyName: stateCompanyName } = location.state || {};
+  const companyId = stateCompanyId || searchParams.get('companyId');
+  const companyName = stateCompanyName || searchParams.get('companyName');
 
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(false);
