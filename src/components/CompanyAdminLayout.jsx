@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, BookOpen } from "lucide-react";
 
 const CompanyAdminLayout = () => {
   const { userData, logout } = useAuth();
@@ -129,6 +129,12 @@ const CompanyAdminLayout = () => {
           />
         </svg>
       ),
+    },
+    {
+      id: "policies",
+      name: "Policies",
+      path: "/company/policies",
+      icon: <BookOpen className="w-6 h-6" />,
     },
     {
       id: "profile",

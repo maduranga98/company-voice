@@ -53,6 +53,8 @@ import ReportDetailView from "./pages/ReportDetailView";
 import SuperAdminLegalRequests from "./pages/admin/SuperAdminLegalRequests";
 import KeyVaultManagement from "./pages/admin/KeyVaultManagement";
 import LegalRequestsPage from "./pages/company/LegalRequestsPage";
+import PolicyManagement from "./pages/company/PolicyManagement";
+import PolicyLibrary from "./pages/PolicyLibrary";
 
 function App() {
   return (
@@ -352,6 +354,24 @@ function App() {
               element={
                 <PrivateRoute>
                   <AuditExportPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/policies"
+              element={
+                <PrivateRoute>
+                  <PolicyManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/policies"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <PolicyLibrary />
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />
