@@ -212,18 +212,53 @@ const SuperAdminLegalRequests = () => {
         return;
       }
 
-      // Get encrypted field — check both possible field names
-      const encryptedAuthorId = postData.encryptedAuthorId || postData.authorId;
+      // Debug: print raw field values to help verify which field holds the encrypted string
+      console.log('[DecryptIdentity] postData.authorId:', postData.authorId);
+      console.log('[DecryptIdentity] postData.encryptedAuthorId:', postData.encryptedAuthorId);
+
+      // For anonymous posts, the encrypted ID is stored in postData.authorId
+      // (set by encryptAuthorId() during post creation). encryptedAuthorId may not exist.
+      let encryptedAuthorId;
+      if (postData.isAnonymous) {
+        encryptedAuthorId = postData.authorId;
+      } else {
+        encryptedAuthorId = postData.encryptedAuthorId;
+      }
+
       if (!encryptedAuthorId) {
         setDisclosureError('No encrypted identity found in this post.');
         return;
       }
 
+      // Validate: if value looks like a plain Firebase UID (alphanumeric, 28 chars, no spaces),
+      // the post was NOT encrypted — decryption would be meaningless.
+      const looksLikePlainUid = /^[A-Za-z0-9]{28}$/.test(encryptedAuthorId);
+      const looksLikeEncrypted = encryptedAuthorId.includes('/') ||
+        encryptedAuthorId.includes('+') ||
+        encryptedAuthorId.includes('=') ||
+        encryptedAuthorId.length > 40;
+
+      if (looksLikePlainUid && !looksLikeEncrypted) {
+        setDisclosureError(
+          "This post's author ID was not encrypted. It may have been created before encryption was enabled. Raw author ID stored — contact technical support."
+        );
+        return;
+      }
+
       // Decrypt using existing decryptAuthorId from postManagementService
       // This uses VITE_ANONYMOUS_SECRET internally — same key used to encrypt
-      const userId = decryptAuthorId(encryptedAuthorId);
+      let userId;
+      try {
+        userId = decryptAuthorId(encryptedAuthorId);
+      } catch (decryptErr) {
+        setDisclosureError(decryptErr.message || 'Decryption threw an unexpected error.');
+        return;
+      }
+
       if (!userId || userId.length < 3) {
-        setDisclosureError('Could not decrypt identity. Please contact technical support.');
+        setDisclosureError(
+          "Decryption failed — the post may have been created with a different VITE_ANONYMOUS_SECRET than the one currently set in your environment. Ensure VITE_ANONYMOUS_SECRET in your .env matches the value active when this post was created, then redeploy."
+        );
         return;
       }
 
