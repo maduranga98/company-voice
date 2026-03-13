@@ -44,11 +44,7 @@ const CompanyQRCode = () => {
 
   const generateQRCode = async (companyData) => {
     try {
-      const qrData = JSON.stringify({
-        companyId: companyData.id,
-        companyName: companyData.name,
-        type: "company_registration",
-      });
+      const qrData = `https://portal.voxwel.com/register?companyId=${companyData.id}&companyName=${encodeURIComponent(companyData.name)}&source=qr`;
 
       const url = await QRCode.toDataURL(qrData, {
         width: 400,

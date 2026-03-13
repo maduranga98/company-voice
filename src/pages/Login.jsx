@@ -62,20 +62,40 @@ const Login = () => {
   const handleQRScan = async (decodedText) => {
     try {
       setError("");
-      const qrData = JSON.parse(decodedText);
 
-      if (html5QrCodeRef.current) {
-        await html5QrCodeRef.current.stop();
+      let navigated = false;
+
+      try {
+        const qrData = JSON.parse(decodedText);
+        if (qrData.type === "company_registration" && qrData.companyId) {
+          if (html5QrCodeRef.current) {
+            await html5QrCodeRef.current.stop();
+          }
+          navigate("/register", {
+            state: {
+              companyId: qrData.companyId,
+              companyName: qrData.companyName,
+            },
+          });
+          navigated = true;
+        }
+      } catch {
+        // Not JSON — try parsing as URL
+        try {
+          const url = new URL(decodedText);
+          const companyId = url.searchParams.get('companyId');
+          const companyName = url.searchParams.get('companyName');
+          if (companyId) {
+            if (html5QrCodeRef.current) {
+              await html5QrCodeRef.current.stop();
+            }
+            navigate('/register', { state: { companyId, companyName } });
+            navigated = true;
+          }
+        } catch {}
       }
 
-      if (qrData.type === "company_registration" && qrData.companyId) {
-        navigate("/register", {
-          state: {
-            companyId: qrData.companyId,
-            companyName: qrData.companyName,
-          },
-        });
-      } else {
+      if (!navigated) {
         setError("Error: Invalid QR code. Please scan a valid company registration QR code");
         setShowQRScanner(false);
         setScanning(false);
