@@ -291,18 +291,26 @@ service cloud.firestore {
     }
 
     // ============================================
+    // POLICIES COLLECTION
+    // ============================================
+    match /policies/{policyId} {
+      allow read: if true;   // all authenticated users in same company
+      allow write: if true;  // app-layer role check handles restriction to admin/hr
+    }
+
+    // ============================================
     // POLICY ACKNOWLEDGEMENTS COLLECTION
     // ============================================
-    // Stores one document per user per company recording that the user has
-    // read and acknowledged the anonymity policy.
-    // Document ID format: {companyId}_{userId}
+    // Stores one document per user per policy recording that the user has
+    // read and acknowledged the policy.
     //
     // NOTE: Firebase Auth is disabled on this project. Access control is
     // enforced entirely at the application layer (service layer checks that
     // the userId matches the authenticated session user before reading/writing).
     // These rules therefore permit all read/write at the Firestore level.
     match /policyAcknowledgements/{ackId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if true;
     }
 
     // ============================================
