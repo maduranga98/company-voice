@@ -162,7 +162,7 @@ const EmployeeLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ── TOP HEADER ── */}
-      <header className="sticky top-0 z-50 bg-[#2D3E50]">
+      <header className="sticky top-0 z-50 bg-[#2D3E50] md:ml-64">
         {/* Main row */}
         <div className="flex items-center justify-between px-4 h-12">
           <div
@@ -170,14 +170,7 @@ const EmployeeLayout = ({ children }) => {
             onClick={() => handleNavigate("/feed/creative")}
           >
             {/* App logo */}
-            <div className="w-7 h-7 rounded-lg bg-[#1ABC9C] flex items-center justify-center flex-shrink-0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                <rect x="8" y="2" width="8" height="12" rx="4" fill="white" />
-                <path d="M5 11a7 7 0 0014 0" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                <line x1="12" y1="18" x2="12" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="9" y1="21" x2="15" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
+            <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
             <span className="text-lg font-bold text-[#1ABC9C]">VoxWel</span>
           </div>
           <div className="flex items-center gap-2">
@@ -238,28 +231,22 @@ const EmployeeLayout = ({ children }) => {
       </header>
 
       {/* ── DESKTOP SIDEBAR ── */}
-      <div className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 flex-col pt-4">
+      <div className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 flex-col">
+        {/* Sidebar header — same height as top header bar */}
         <div
-          className="px-4 pb-4 border-b border-gray-100 cursor-pointer flex items-center gap-2"
+          className="h-12 flex items-center gap-2.5 px-4 bg-[#2D3E50] cursor-pointer select-none flex-shrink-0"
           onClick={() => handleNavigate("/feed/creative")}
         >
-          <div className="w-7 h-7 rounded-lg bg-[#1ABC9C] flex items-center justify-center flex-shrink-0">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-              <rect x="8" y="2" width="8" height="12" rx="4" fill="white" />
-              <path d="M5 11a7 7 0 0014 0" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              <line x1="12" y1="18" x2="12" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              <line x1="9" y1="21" x2="15" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </div>
-          <span className="text-xl font-bold text-[#1ABC9C]">VoxWel</span>
+          <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
+          <span className="text-lg font-bold text-[#1ABC9C]">VoxWel</span>
         </div>
 
         {/* Language selector */}
-        <div className="px-4 py-3 border-b border-gray-100">
+        <div className="px-4 py-3 border-b border-gray-100 flex-shrink-0">
           <select
             value={i18n.language}
             onChange={(e) => i18n.changeLanguage(e.target.value)}
-            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none text-gray-700"
+            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none text-gray-700 bg-white"
           >
             {languages.map((l) => (
               <option key={l.code} value={l.code}>
@@ -270,7 +257,7 @@ const EmployeeLayout = ({ children }) => {
         </div>
 
         {/* Nav items */}
-        <nav className="px-2 py-2 flex-1 overflow-y-auto">
+        <nav className="px-2 py-2 flex-1 overflow-y-auto min-h-0">
           {/* Walls (expandable) */}
           <div>
             <button
@@ -356,10 +343,10 @@ const EmployeeLayout = ({ children }) => {
         </nav>
 
         {/* Create Post at bottom */}
-        <div className="px-3 pb-4">
+        <div className="px-3 py-4 border-t border-gray-100 flex-shrink-0">
           <button
             onClick={() => setShowPostSheet(true)}
-            className="w-full py-3 bg-[#1ABC9C] text-white text-sm font-semibold rounded-xl hover:bg-[#17a589] transition-colors"
+            className="w-full py-3 bg-[#1ABC9C] text-white text-sm font-semibold rounded-xl hover:bg-[#17a589] active:bg-[#148f77] transition-colors"
           >
             {t("post.create", "Create Post")}
           </button>
