@@ -800,6 +800,33 @@ const CompanyDashboard = () => {
           </p>
         </button>
 
+        {["company_admin", "hr"].includes(userData?.role) && (
+          <button
+            onClick={() => navigate("/hr/vendor-risk")}
+            className="bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">Vendor Risk</h3>
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+            </div>
+            <p className="text-orange-100">
+              Review anonymous third-party risk reports and corroborations
+            </p>
+          </button>
+        )}
+
         <button
           onClick={() => navigate("/company/legal-requests")}
           className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"

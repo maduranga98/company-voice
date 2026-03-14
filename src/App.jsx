@@ -58,6 +58,10 @@ import LegalRequestsPage from "./pages/company/LegalRequestsPage";
 import PolicyManagement from "./pages/company/PolicyManagement";
 import PolicyLibrary from "./pages/PolicyLibrary";
 
+// Vendor Risk Pages
+import VendorRiskReport from "./pages/VendorRiskReport";
+import VendorRiskDashboard from "./pages/hr/VendorRiskDashboard";
+
 function App() {
   return (
     <AuthProvider>
@@ -376,6 +380,26 @@ function App() {
                   <RoleBasedLayout>
                     <PolicyLibrary />
                   </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Vendor Risk Routes */}
+            <Route
+              path="/vendor-risk"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <VendorRiskReport />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/vendor-risk"
+              element={
+                <PrivateRoute>
+                  <VendorRiskDashboard />
                 </PrivateRoute>
               }
             />
