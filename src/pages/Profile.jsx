@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { db } from "../config/firebase";
-import { doc, updateDoc } from "firebase/firestore";
-import { useTranslation } from 'react-i18next';
+import { doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { useTranslation } from "react-i18next";
+import { PostType } from "../utils/constants";
 
 const Profile = () => {
   const { t } = useTranslation();
-  const { userData, currentUser, refreshUserData } = useAuth();
+  const { userData, currentUser, logout, refreshUserData } = useAuth();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -16,11 +19,10 @@ const Profile = () => {
     companyId: "",
     status: "",
     lastLogin: null,
+    username: "",
   });
-  const [editData, setEditData] = useState({
-    displayName: "",
-    email: "",
-  });
+  const [editData, setEditData] = useState({ displayName: "", email: "" });
+  const [stats, setStats] = useState({ total: 0, problems: 0, ideas: 0 });
 
   useEffect(() => {
     if (userData) {
@@ -31,13 +33,37 @@ const Profile = () => {
         companyId: userData.companyId || "",
         status: userData.status || "",
         lastLogin: userData.lastLogin || null,
+        username: userData.username || "",
       });
       setEditData({
         displayName: userData.displayName || "",
         email: userData.email || "",
       });
+      loadStats();
     }
   }, [userData]);
+
+  const loadStats = async () => {
+    if (!userData?.id || !userData?.companyId) return;
+    try {
+      const q = query(
+        collection(db, "posts"),
+        where("authorId", "==", userData.id),
+        where("companyId", "==", userData.companyId)
+      );
+      const snap = await getDocs(q);
+      let problems = 0;
+      let ideas = 0;
+      snap.forEach((doc) => {
+        const d = doc.data();
+        if (d.type === PostType.PROBLEM_REPORT) problems++;
+        else if (d.type === PostType.IDEA_SUGGESTION) ideas++;
+      });
+      setStats({ total: snap.size, problems, ideas });
+    } catch {
+      // ignore stats errors
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -47,20 +73,17 @@ const Profile = () => {
         displayName: editData.displayName,
         email: editData.email,
       });
-
-      // Refresh user data in AuthContext to reflect changes immediately
       await refreshUserData();
-
-      setProfileData({
-        ...profileData,
+      setProfileData((prev) => ({
+        ...prev,
         displayName: editData.displayName,
         email: editData.email,
-      });
+      }));
       setIsEditing(false);
-      alert("Profile updated successfully! Changes are now active.");
+      alert(t("profile.updateSuccess", "Profile updated successfully!"));
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      alert(t("profile.updateError", "Failed to update profile. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -74,273 +97,284 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Failed to log out", error);
+    }
+  };
+
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case "super_admin":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "company_admin":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "hr":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "employee":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+      case "super_admin": return "bg-red-100 text-red-800 border-red-200";
+      case "company_admin": return "bg-blue-100 text-blue-800 border-blue-200";
+      case "hr": return "bg-green-100 text-green-800 border-green-200";
+      case "employee": return "bg-purple-100 text-purple-800 border-purple-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const formatRole = (role) => {
-    return role
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    if (!role) return "";
+    return role.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
   };
 
   const formatDate = (timestamp) => {
-    if (!timestamp) return "Never";
+    if (!timestamp) return t("profile.never", "Never");
     try {
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
       return date.toLocaleString();
-      // eslint-disable-next-line no-unused-vars
-    } catch (error) {
-      return "Invalid date";
+    } catch {
+      return t("profile.invalidDate", "Invalid date");
     }
   };
 
+  const initial = profileData.displayName?.charAt(0)?.toUpperCase() || "U";
+
+  const quickLinks = [
+    {
+      label: t("navigation.myPosts", "My Posts"),
+      sub: t("profile.viewAllPosts", "View all your posts"),
+      path: "/my-posts",
+      iconBg: "bg-purple-100",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      ),
+    },
+    {
+      label: t("profile.policyLibrary", "Policy Library"),
+      sub: t("profile.viewPolicies", "Company guidelines"),
+      path: "/policies",
+      iconBg: "bg-teal-100",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d9488" strokeWidth="2">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
+    },
+    {
+      label: t("navigation.notifications", "Notifications"),
+      sub: t("profile.viewNotifications", "Recent alerts"),
+      path: "/notifications",
+      iconBg: "bg-amber-100",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      ),
+    },
+    ...(userData?.userTagId
+      ? [{
+          label: t("navigation.assignedToMe", "Assigned to Me"),
+          sub: t("profile.viewAssigned", "Tasks assigned to you"),
+          path: "/assigned-to-me",
+          iconBg: "bg-blue-100",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+          ),
+        }]
+      : []),
+  ];
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            {t('profile.title')}
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {t('profile.manageInfo')}
-          </p>
-        </div>
+    <div className="max-w-lg mx-auto px-4 pb-24">
+      {/* ── HEADER SECTION ── */}
+      <div className="bg-white rounded-b-2xl shadow-sm mb-4">
+        {/* Navy gradient banner */}
+        <div
+          className="h-24 rounded-none"
+          style={{ background: "linear-gradient(to right, #2D3E50, #1e3a4a)" }}
+        />
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Banner */}
-          <div className="h-32 bg-linear-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
-
-          {/* Profile Content */}
-          <div className="px-6 pb-6">
-            {/* Avatar and Name */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-end -mt-16 mb-6">
-              <div className="relative">
-                <div className="w-32 h-32 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center">
-                  <div className="w-full h-full rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-4xl font-bold">
-                    {profileData.displayName
-                      ? profileData.displayName.charAt(0).toUpperCase()
-                      : "U"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 sm:mt-0 sm:ml-6 flex-1 text-center sm:text-left">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {profileData.displayName}
-                </h2>
-                <div className="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getRoleBadgeColor(
-                      profileData.role
-                    )}`}
-                  >
-                    {formatRole(profileData.role)}
-                  </span>
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
-                      profileData.status === "active"
-                        ? "bg-green-100 text-green-800 border-green-200"
-                        : "bg-yellow-100 text-yellow-800 border-yellow-200"
-                    }`}
-                  >
-                    {profileData.status.charAt(0).toUpperCase() +
-                      profileData.status.slice(1)}
-                  </span>
-                </div>
-              </div>
-
-              {!isEditing && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                >
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  {t('profile.editProfile')}
-                </button>
-              )}
-            </div>
-
-            {/* Profile Information */}
-            <div className="border-t border-gray-200 pt-6">
-              <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                {/* Display Name */}
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    {t('profile.displayName')}
-                  </dt>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editData.displayName}
-                      onChange={(e) =>
-                        setEditData({
-                          ...editData,
-                          displayName: e.target.value,
-                        })
-                      }
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                    />
-                  ) : (
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {profileData.displayName}
-                    </dd>
-                  )}
-                </div>
-
-                {/* Email */}
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">{t('profile.email')}</dt>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={editData.email}
-                      onChange={(e) =>
-                        setEditData({ ...editData, email: e.target.value })
-                      }
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                    />
-                  ) : (
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {profileData.email}
-                    </dd>
-                  )}
-                </div>
-
-                {/* Role */}
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">{t('profile.role')}</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {formatRole(profileData.role)}
-                  </dd>
-                </div>
-
-                {/* Company ID */}
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">
-                    {t('profile.companyId')}
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 font-mono">
-                    {profileData.companyId}
-                  </dd>
-                </div>
-
-                {/* Last Login */}
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-gray-500">
-                    {t('profile.lastLogin')}
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {formatDate(profileData.lastLogin)}
-                  </dd>
-                </div>
-              </dl>
-
-              {/* Action Buttons */}
-              {isEditing && (
-                <div className="mt-6 flex gap-3 justify-end">
-                  <button
-                    onClick={handleCancel}
-                    disabled={loading}
-                    className="px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
-                  >
-                    {t('common.cancel')}
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
-                  >
-                    {loading ? t('profile.saving') : t('profile.saveChanges')}
-                  </button>
-                </div>
-              )}
-            </div>
+        {/* Avatar */}
+        <div className="flex flex-col items-center -mt-9">
+          <div
+            className="w-[72px] h-[72px] rounded-full border-4 border-white shadow-md flex items-center justify-center text-white text-2xl font-bold"
+            style={{ background: "linear-gradient(135deg, #1ABC9C, #16a085)" }}
+          >
+            {initial}
           </div>
         </div>
 
-        {/* Account Information */}
-        <div className="mt-6 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {t('profile.accountInformation')}
-          </h3>
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <svg
-                className="w-5 h-5 text-gray-400 mt-0.5 mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {t('profile.accountStatus')}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {t('profile.accountCurrently')}{" "}
-                  <span className="font-medium text-green-600">
-                    {profileData.status}
-                  </span>
-                  .
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <svg
-                className="w-5 h-5 text-gray-400 mt-0.5 mr-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-              <div>
-                <p className="text-sm font-medium text-gray-900">{t('profile.security')}</p>
-                <p className="text-sm text-gray-500">
-                  {t('profile.securityText')}
-                </p>
-              </div>
-            </div>
+        {/* Name */}
+        <div className="text-center mt-3 px-4">
+          <h2 className="text-lg font-bold text-gray-900">{profileData.displayName}</h2>
+          <div className="flex gap-2 justify-center mt-2 mb-4">
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(profileData.role)}`}>
+              {formatRole(profileData.role)}
+            </span>
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
+              profileData.status === "active" ? "bg-green-100 text-green-800 border-green-200" : "bg-yellow-100 text-yellow-800 border-yellow-200"
+            }`}>
+              {profileData.status ? profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1) : ""}
+            </span>
           </div>
         </div>
+
+        {/* Edit Profile / Save / Cancel buttons */}
+        <div className="px-4 pb-4">
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="w-full border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {t("profile.editProfile", "Edit Profile")}
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancel}
+                disabled={loading}
+                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={loading}
+                className="flex-1 bg-[#1ABC9C] text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-[#17a589] disabled:opacity-50 transition-colors"
+              >
+                {loading ? t("profile.saving", "Saving...") : t("profile.saveChanges", "Save Changes")}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── ACCOUNT INFORMATION ── */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4">
+        <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          {t("profile.accountInformation", "Account Information")}
+        </h3>
+        <div className="space-y-0">
+          {[
+            {
+              label: t("profile.displayName", "Display Name"),
+              value: profileData.displayName,
+              editable: true,
+              field: "displayName",
+            },
+            {
+              label: t("profile.email", "Email"),
+              value: profileData.email,
+              editable: true,
+              field: "email",
+              type: "email",
+            },
+            {
+              label: t("profile.username", "Username"),
+              value: profileData.username,
+              editable: false,
+            },
+            {
+              label: t("profile.role", "Role"),
+              value: formatRole(profileData.role),
+              editable: false,
+            },
+            {
+              label: t("profile.companyId", "Company ID"),
+              value: profileData.companyId,
+              editable: false,
+              mono: true,
+            },
+            {
+              label: t("profile.status", "Status"),
+              value: profileData.status
+                ? profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1)
+                : "",
+              editable: false,
+            },
+            {
+              label: t("profile.lastLogin", "Last Login"),
+              value: formatDate(profileData.lastLogin),
+              editable: false,
+            },
+          ].map((row, i, arr) => (
+            <div
+              key={row.label}
+              className="flex justify-between items-center py-3"
+              style={{ borderBottom: i < arr.length - 1 ? "1px solid #f9fafb" : "none" }}
+            >
+              <span className="text-sm text-gray-500 flex-shrink-0 mr-4">{row.label}</span>
+              {isEditing && row.editable ? (
+                <input
+                  type={row.type || "text"}
+                  value={editData[row.field]}
+                  onChange={(e) => setEditData({ ...editData, [row.field]: e.target.value })}
+                  className="text-sm font-medium text-gray-900 text-right border-b border-[#1ABC9C] outline-none bg-transparent flex-1 min-w-0"
+                />
+              ) : (
+                <span className={`text-sm font-medium text-gray-900 text-right flex-1 min-w-0 truncate ${row.mono ? "font-mono text-xs" : ""}`}>
+                  {row.value || "—"}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── ACTIVITY STATS ── */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4">
+        <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          {t("profile.myActivity", "My Activity")}
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: t("profile.totalPosts", "Total Posts"), value: stats.total },
+            { label: t("profile.problemsReported", "Problems Reported"), value: stats.problems },
+            { label: t("profile.ideasShared", "Ideas Shared"), value: stats.ideas },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-gray-50 rounded-xl p-3 text-center">
+              <div className="text-xl font-bold text-[#2D3E50]">{stat.value}</div>
+              <div className="text-[10px] text-gray-500 mt-1 leading-tight">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── QUICK LINKS ── */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4">
+        <h3 className="text-[12px] font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          {t("profile.quickLinks", "Quick Links")}
+        </h3>
+        <div className="space-y-0">
+          {quickLinks.map((link, i) => (
+            <button
+              key={link.path}
+              onClick={() => navigate(link.path)}
+              className="w-full flex items-center gap-3 py-3 hover:bg-gray-50 active:bg-gray-100 rounded-lg transition-colors"
+              style={{ borderBottom: i < quickLinks.length - 1 ? "1px solid #f9fafb" : "none" }}
+            >
+              <div className={`w-8 h-8 ${link.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                {link.icon}
+              </div>
+              <div className="flex-1 text-left">
+                <div className="text-sm font-semibold text-gray-900">{link.label}</div>
+                <div className="text-[11px] text-gray-400">{link.sub}</div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── DANGER ZONE ── */}
+      <div className="bg-white rounded-2xl shadow-sm p-4 mb-4">
+        <button
+          onClick={handleLogout}
+          className="w-full border border-red-200 text-red-600 rounded-xl py-3 text-sm font-medium hover:bg-red-50 transition-colors"
+        >
+          {t("auth.logout", "Sign Out")}
+        </button>
       </div>
     </div>
   );

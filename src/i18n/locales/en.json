@@ -116,10 +116,30 @@
     "profile": "Profile",
     "notifications": "Notifications",
     "settings": "Settings",
-    "home": "Home"
+    "home": "Home",
+    "walls": "Walls",
+    "messages": "Messages",
+    "help": "Help",
+    "post": "Post"
+  },
+  "language": {
+    "chooseLanguage": "Choose language"
+  },
+  "messages": {
+    "privacy": "Only you and HR can see these conversations. Your name is never revealed.",
+    "noMessages": "No private messages yet",
+    "noMessagesDesc": "When HR needs more information about your reports, they will send you a private message here.",
+    "goToProblems": "Go to Problems Wall",
+    "thread": "Conversation",
+    "identityProtected": "HR Team · Your identity is protected",
+    "nameNeverVisible": "Your name is never visible to HR"
   },
   "post": {
     "create": "Create Post",
+    "whatToShare": "What do you want to share?",
+    "chooseType": "Choose a type to get started",
+    "postAnonymously": "Post anonymously",
+    "anonymousDefault": "ON by default · name encrypted",
     "createNew": "Create New Post",
     "title": "Title",
     "description": "Description",
@@ -473,7 +493,21 @@
     "securityText": "To change your password, please contact your administrator.",
     "never": "Never",
     "profileUpdatedAlert": "Profile updated successfully! Changes are now active.",
-    "profileUpdateFailed": "Failed to update profile. Please try again."
+    "profileUpdateFailed": "Failed to update profile. Please try again.",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Failed to update profile. Please try again.",
+    "invalidDate": "Invalid date",
+    "status": "Status",
+    "myActivity": "My Activity",
+    "totalPosts": "Total Posts",
+    "problemsReported": "Problems Reported",
+    "ideasShared": "Ideas Shared",
+    "quickLinks": "Quick Links",
+    "policyLibrary": "Policy Library",
+    "viewPolicies": "Company guidelines",
+    "viewNotifications": "Recent alerts",
+    "viewAllPosts": "View all your posts",
+    "viewAssigned": "Tasks assigned to you"
   },
   "notifications": {
     "notifications": "Notifications",
@@ -555,7 +589,8 @@
     "loading": "Loading your posts...",
     "noPosts": "No posts found",
     "noPostsDescription": "You haven't created any posts yet.",
-    "failedToLoad": "Failed to load your posts. Please try again."
+    "failedToLoad": "Failed to load your posts. Please try again.",
+    "viewDetails": "View details"
   },
   "assignedToMe": {
     "title": "Assigned to Me",
@@ -758,15 +793,51 @@
       "title": "Post Status Workflow",
       "description": "Track and manage posts through their lifecycle using these status indicators.",
       "statuses": {
-        "OPEN": { "label": "Open", "description": "Just created, awaiting admin review", "whenToUse": "Default status for all new posts" },
-        "ACKNOWLEDGED": { "label": "Acknowledged", "description": "Admin has seen and acknowledged the post", "whenToUse": "When you've reviewed the post and want to signal awareness" },
-        "IN_PROGRESS": { "label": "In Progress", "description": "Actively being worked on", "whenToUse": "When work has started to address the post" },
-        "UNDER_REVIEW": { "label": "Under Review", "description": "Being investigated or evaluated", "whenToUse": "When the post requires investigation or analysis" },
-        "WORKING_ON": { "label": "Working On", "description": "Forwarded to relevant departments, awaiting response", "whenToUse": "When you've delegated to another team and waiting for updates" },
-        "RESOLVED": { "label": "Resolved", "description": "Successfully fixed or completed", "whenToUse": "When the issue is fully resolved or idea is implemented" },
-        "CLOSED": { "label": "Closed", "description": "No action needed or taken", "whenToUse": "When the post doesn't require any action" },
-        "REJECTED": { "label": "Rejected", "description": "Not valid, duplicate, or out of scope", "whenToUse": "When the post is invalid, duplicate, or doesn't align with company goals" },
-        "NOT_A_PROBLEM": { "label": "Not a Problem", "description": "Not a real issue or will be resolved in future", "whenToUse": "When the reported issue isn't actually a problem or will resolve itself" }
+        "OPEN": {
+          "label": "Open",
+          "description": "Just created, awaiting admin review",
+          "whenToUse": "Default status for all new posts"
+        },
+        "ACKNOWLEDGED": {
+          "label": "Acknowledged",
+          "description": "Admin has seen and acknowledged the post",
+          "whenToUse": "When you've reviewed the post and want to signal awareness"
+        },
+        "IN_PROGRESS": {
+          "label": "In Progress",
+          "description": "Actively being worked on",
+          "whenToUse": "When work has started to address the post"
+        },
+        "UNDER_REVIEW": {
+          "label": "Under Review",
+          "description": "Being investigated or evaluated",
+          "whenToUse": "When the post requires investigation or analysis"
+        },
+        "WORKING_ON": {
+          "label": "Working On",
+          "description": "Forwarded to relevant departments, awaiting response",
+          "whenToUse": "When you've delegated to another team and waiting for updates"
+        },
+        "RESOLVED": {
+          "label": "Resolved",
+          "description": "Successfully fixed or completed",
+          "whenToUse": "When the issue is fully resolved or idea is implemented"
+        },
+        "CLOSED": {
+          "label": "Closed",
+          "description": "No action needed or taken",
+          "whenToUse": "When the post doesn't require any action"
+        },
+        "REJECTED": {
+          "label": "Rejected",
+          "description": "Not valid, duplicate, or out of scope",
+          "whenToUse": "When the post is invalid, duplicate, or doesn't align with company goals"
+        },
+        "NOT_A_PROBLEM": {
+          "label": "Not a Problem",
+          "description": "Not a real issue or will be resolved in future",
+          "whenToUse": "When the reported issue isn't actually a problem or will resolve itself"
+        }
       },
       "bestPractices": [
         "Always add a comment when changing status to explain the reason",
@@ -780,10 +851,46 @@
       "title": "Priority Levels",
       "description": "Assign priority to posts to indicate urgency and importance.",
       "levels": {
-        "CRITICAL": { "label": "Critical", "description": "Requires immediate attention", "criteria": ["System outages or major functionality broken", "Safety or security concerns", "Legal or compliance issues", "Severe business impact"] },
-        "HIGH": { "label": "High", "description": "Important and time-sensitive", "criteria": ["Significant impact on multiple teams", "Blocking key processes or workflows", "Customer-facing issues", "Time-sensitive opportunities"] },
-        "MEDIUM": { "label": "Medium", "description": "Normal priority, should be addressed", "criteria": ["Standard operational issues", "Process improvements", "Non-blocking problems", "Regular feature requests"] },
-        "LOW": { "label": "Low", "description": "Nice to have, address when possible", "criteria": ["Minor improvements", "Optional enhancements", "Low-impact suggestions", "Long-term ideas"] }
+        "CRITICAL": {
+          "label": "Critical",
+          "description": "Requires immediate attention",
+          "criteria": [
+            "System outages or major functionality broken",
+            "Safety or security concerns",
+            "Legal or compliance issues",
+            "Severe business impact"
+          ]
+        },
+        "HIGH": {
+          "label": "High",
+          "description": "Important and time-sensitive",
+          "criteria": [
+            "Significant impact on multiple teams",
+            "Blocking key processes or workflows",
+            "Customer-facing issues",
+            "Time-sensitive opportunities"
+          ]
+        },
+        "MEDIUM": {
+          "label": "Medium",
+          "description": "Normal priority, should be addressed",
+          "criteria": [
+            "Standard operational issues",
+            "Process improvements",
+            "Non-blocking problems",
+            "Regular feature requests"
+          ]
+        },
+        "LOW": {
+          "label": "Low",
+          "description": "Nice to have, address when possible",
+          "criteria": [
+            "Minor improvements",
+            "Optional enhancements",
+            "Low-impact suggestions",
+            "Long-term ideas"
+          ]
+        }
       },
       "bestPractices": [
         "Set priority based on business impact, not just urgency",
@@ -797,11 +904,51 @@
       "description": "Tags help classify users by role or seniority for assignment and filtering.",
       "purpose": "Tags enable the 'Assigned to Me' feature - when users with tags are mentioned in posts, those posts appear in their assigned section.",
       "items": {
-        "EXECUTIVE": { "label": "Executive", "description": "C-level executives and Vice Presidents", "examples": ["CEO", "CTO", "CFO", "VP of Engineering"] },
-        "SENIOR_MANAGER": { "label": "Senior Manager", "description": "Senior managers and directors", "examples": ["Director of HR", "Senior Engineering Manager"] },
-        "MANAGER": { "label": "Manager", "description": "Team leads and managers", "examples": ["Team Lead", "Project Manager", "Department Manager"] },
-        "SPECIALIST": { "label": "Specialist", "description": "Senior specialists and subject matter experts", "examples": ["Senior Engineer", "UX Specialist", "Security Expert"] },
-        "STAFF": { "label": "Staff", "description": "Regular employees and staff members", "examples": ["Engineer", "Designer", "Analyst"] }
+        "EXECUTIVE": {
+          "label": "Executive",
+          "description": "C-level executives and Vice Presidents",
+          "examples": [
+            "CEO",
+            "CTO",
+            "CFO",
+            "VP of Engineering"
+          ]
+        },
+        "SENIOR_MANAGER": {
+          "label": "Senior Manager",
+          "description": "Senior managers and directors",
+          "examples": [
+            "Director of HR",
+            "Senior Engineering Manager"
+          ]
+        },
+        "MANAGER": {
+          "label": "Manager",
+          "description": "Team leads and managers",
+          "examples": [
+            "Team Lead",
+            "Project Manager",
+            "Department Manager"
+          ]
+        },
+        "SPECIALIST": {
+          "label": "Specialist",
+          "description": "Senior specialists and subject matter experts",
+          "examples": [
+            "Senior Engineer",
+            "UX Specialist",
+            "Security Expert"
+          ]
+        },
+        "STAFF": {
+          "label": "Staff",
+          "description": "Regular employees and staff members",
+          "examples": [
+            "Engineer",
+            "Designer",
+            "Analyst"
+          ]
+        }
       },
       "howToAssign": [
         "Tags are optional - not all users need a tag",
@@ -844,9 +991,18 @@
       "title": "Member Management",
       "description": "Manage users, assign roles, and control access.",
       "statuses": {
-        "ACTIVE": { "label": "Active", "description": "Full access to the platform" },
-        "PENDING": { "label": "Pending", "description": "Invitation sent, awaiting registration" },
-        "SUSPENDED": { "label": "Suspended", "description": "Access temporarily revoked" }
+        "ACTIVE": {
+          "label": "Active",
+          "description": "Full access to the platform"
+        },
+        "PENDING": {
+          "label": "Pending",
+          "description": "Invitation sent, awaiting registration"
+        },
+        "SUSPENDED": {
+          "label": "Suspended",
+          "description": "Access temporarily revoked"
+        }
       },
       "howToManage": [
         "Use filters to find specific members",
@@ -903,12 +1059,36 @@
       "title": "Analytics & Reporting",
       "description": "Understand engagement, trends, and performance metrics.",
       "metrics": {
-        "postsByType": { "label": "Posts by Type", "description": "Distribution of Problem Reports, Ideas, Creative Content, and Discussions", "useCase": "Identify what type of content employees create most" },
-        "postsByStatus": { "label": "Posts by Status", "description": "Current status distribution (Open, In Progress, Resolved, etc.)", "useCase": "Track workflow progress and identify bottlenecks" },
-        "postsByPriority": { "label": "Posts by Priority", "description": "Distribution across Critical, High, Medium, Low priorities", "useCase": "Understand urgency distribution and workload" },
-        "engagementMetrics": { "label": "User Engagement", "description": "Comments, reactions, and active participation", "useCase": "Measure platform adoption and user activity" },
-        "responseTime": { "label": "Response Time", "description": "Average time to acknowledge and resolve posts", "useCase": "Track admin responsiveness and efficiency" },
-        "departmentPerformance": { "label": "Department Performance", "description": "Activity and metrics by department", "useCase": "Compare team engagement and identify trends" }
+        "postsByType": {
+          "label": "Posts by Type",
+          "description": "Distribution of Problem Reports, Ideas, Creative Content, and Discussions",
+          "useCase": "Identify what type of content employees create most"
+        },
+        "postsByStatus": {
+          "label": "Posts by Status",
+          "description": "Current status distribution (Open, In Progress, Resolved, etc.)",
+          "useCase": "Track workflow progress and identify bottlenecks"
+        },
+        "postsByPriority": {
+          "label": "Posts by Priority",
+          "description": "Distribution across Critical, High, Medium, Low priorities",
+          "useCase": "Understand urgency distribution and workload"
+        },
+        "engagementMetrics": {
+          "label": "User Engagement",
+          "description": "Comments, reactions, and active participation",
+          "useCase": "Measure platform adoption and user activity"
+        },
+        "responseTime": {
+          "label": "Response Time",
+          "description": "Average time to acknowledge and resolve posts",
+          "useCase": "Track admin responsiveness and efficiency"
+        },
+        "departmentPerformance": {
+          "label": "Department Performance",
+          "description": "Activity and metrics by department",
+          "useCase": "Compare team engagement and identify trends"
+        }
       },
       "howToUse": [
         "Select time period (7, 30, or 90 days)",
@@ -929,16 +1109,44 @@
       "title": "Content Moderation",
       "description": "Review reported content and maintain community standards.",
       "reportStatuses": {
-        "PENDING": { "label": "Pending", "description": "New report awaiting review", "action": "Review the content and take appropriate action" },
-        "UNDER_REVIEW": { "label": "Under Review", "description": "Being investigated", "action": "Continue investigation and gather context" },
-        "RESOLVED": { "label": "Resolved", "description": "Action taken, issue resolved", "action": "Ensure resolution is documented" },
-        "DISMISSED": { "label": "Dismissed", "description": "No action needed", "action": "Document reason for dismissal" }
+        "PENDING": {
+          "label": "Pending",
+          "description": "New report awaiting review",
+          "action": "Review the content and take appropriate action"
+        },
+        "UNDER_REVIEW": {
+          "label": "Under Review",
+          "description": "Being investigated",
+          "action": "Continue investigation and gather context"
+        },
+        "RESOLVED": {
+          "label": "Resolved",
+          "description": "Action taken, issue resolved",
+          "action": "Ensure resolution is documented"
+        },
+        "DISMISSED": {
+          "label": "Dismissed",
+          "description": "No action needed",
+          "action": "Document reason for dismissal"
+        }
       },
       "actions": [
-        { "action": "No Action", "whenToUse": "Report is invalid or content is acceptable" },
-        { "action": "Warning", "whenToUse": "Minor violation, user should be informed" },
-        { "action": "Remove Content", "whenToUse": "Content violates policies and should be hidden" },
-        { "action": "Suspend User", "whenToUse": "Serious or repeated violations" }
+        {
+          "action": "No Action",
+          "whenToUse": "Report is invalid or content is acceptable"
+        },
+        {
+          "action": "Warning",
+          "whenToUse": "Minor violation, user should be informed"
+        },
+        {
+          "action": "Remove Content",
+          "whenToUse": "Content violates policies and should be hidden"
+        },
+        {
+          "action": "Suspend User",
+          "whenToUse": "Serious or repeated violations"
+        }
       ],
       "reviewProcess": [
         "Read the report and reported content carefully",
@@ -961,15 +1169,64 @@
       "title": "Creating Posts",
       "description": "Share problems, ideas, creative content, and discussions.",
       "postTypes": {
-        "problem_report": { "label": "Problem Report", "description": "Report issues, bugs, or problems that need resolution", "whenToUse": "When something is broken, not working, or causing issues", "tips": ["Be specific about the problem", "Include steps to reproduce", "Add screenshots or evidence", "Describe impact and urgency"] },
-        "idea_suggestion": { "label": "Idea Suggestion", "description": "Suggest improvements, features, or new ideas", "whenToUse": "When you have ideas to improve products, processes, or the workplace", "tips": ["Explain the problem you're solving", "Describe your proposed solution", "Highlight expected benefits", "Consider alternatives"] },
-        "creative_content": { "label": "Creative Content", "description": "Share creative work, designs, or innovative concepts", "whenToUse": "When sharing designs, creative projects, or artistic content", "tips": ["Use visuals to showcase your work", "Explain your creative process", "Request specific feedback", "Share inspiration sources"] },
-        "team_discussion": { "label": "Team Discussion", "description": "Start conversations and team discussions", "whenToUse": "When you want to gather input, brainstorm, or discuss topics", "tips": ["Frame discussion with clear questions", "Provide context and background", "Encourage diverse perspectives", "Summarize conclusions in comments"] }
+        "problem_report": {
+          "label": "Problem Report",
+          "description": "Report issues, bugs, or problems that need resolution",
+          "whenToUse": "When something is broken, not working, or causing issues",
+          "tips": [
+            "Be specific about the problem",
+            "Include steps to reproduce",
+            "Add screenshots or evidence",
+            "Describe impact and urgency"
+          ]
+        },
+        "idea_suggestion": {
+          "label": "Idea Suggestion",
+          "description": "Suggest improvements, features, or new ideas",
+          "whenToUse": "When you have ideas to improve products, processes, or the workplace",
+          "tips": [
+            "Explain the problem you're solving",
+            "Describe your proposed solution",
+            "Highlight expected benefits",
+            "Consider alternatives"
+          ]
+        },
+        "creative_content": {
+          "label": "Creative Content",
+          "description": "Share creative work, designs, or innovative concepts",
+          "whenToUse": "When sharing designs, creative projects, or artistic content",
+          "tips": [
+            "Use visuals to showcase your work",
+            "Explain your creative process",
+            "Request specific feedback",
+            "Share inspiration sources"
+          ]
+        },
+        "team_discussion": {
+          "label": "Team Discussion",
+          "description": "Start conversations and team discussions",
+          "whenToUse": "When you want to gather input, brainstorm, or discuss topics",
+          "tips": [
+            "Frame discussion with clear questions",
+            "Provide context and background",
+            "Encourage diverse perspectives",
+            "Summarize conclusions in comments"
+          ]
+        }
       },
       "privacySettings": {
-        "COMPANY_PUBLIC": { "label": "Company Public", "description": "Visible to all company members" },
-        "DEPARTMENT_ONLY": { "label": "Department Only", "description": "Only visible to your department" },
-        "HR_ONLY": { "label": "HR Only", "description": "Only visible to HR and admins" }
+        "COMPANY_PUBLIC": {
+          "label": "Company Public",
+          "description": "Visible to all company members"
+        },
+        "DEPARTMENT_ONLY": {
+          "label": "Department Only",
+          "description": "Only visible to your department"
+        },
+        "HR_ONLY": {
+          "label": "HR Only",
+          "description": "Only visible to HR and admins"
+        }
       },
       "bestPractices": [
         "Choose the right post type for your content",
@@ -1059,14 +1316,19 @@
     "center": {
       "title": "Help Center",
       "subtitle": "Learn how to use VoxWel effectively",
-      "searchPlaceholder": "Search for help topics...",
+      "searchPlaceholder": "Search help topics...",
       "viewRolesPermissions": "View Roles & Permissions",
-      "topics": "Topics"
+      "topics": "Topics",
+      "noResults": "No help topics match your search."
     },
     "sections": {
       "gettingStarted": "Getting Started",
       "workingWithPosts": "Working with Posts",
-      "adminFeatures": "Admin Features"
+      "adminFeatures": "Admin Features",
+      "theWalls": "The 3 walls",
+      "postingPrivacy": "Posting & privacy",
+      "messagesCompliance": "Messages & compliance",
+      "account": "Account"
     },
     "topics": {
       "rolesPermissions": "Understanding Roles & Permissions",
@@ -1081,7 +1343,35 @@
       "postTemplates": "Post Templates",
       "contentModeration": "Content Moderation",
       "analyticsReporting": "Analytics & Reporting",
-      "qrCodeInvitations": "QR Code Invitations"
+      "qrCodeInvitations": "QR Code Invitations",
+      "rolesPermissionsSub": "Who can do what",
+      "navigationSub": "Getting around the app",
+      "anonymityPrivacy": "Anonymity & privacy",
+      "anonymityPrivacySub": "How we protect your identity",
+      "creativeWall": "Creative Wall",
+      "creativeWallSub": "Share ideas and innovations",
+      "problemsWall": "Problems Wall",
+      "problemsWallSub": "Report workplace issues",
+      "discussionsWall": "Discussions Wall",
+      "discussionsWallSub": "Collaborate with your team",
+      "creatingPostsSub": "Step-by-step guide",
+      "anonymousPosting": "Anonymous posting",
+      "anonymousPostingSub": "Post without revealing identity",
+      "postStatusSub": "Track resolution progress",
+      "hrMessages": "Private HR messages",
+      "hrMessagesSub": "Secure anonymous conversations",
+      "policyLibrary": "Policy Library",
+      "policyLibrarySub": "Company guidelines",
+      "trainingModules": "Training modules",
+      "trainingModulesSub": "Learning resources",
+      "profileSettings": "Profile settings",
+      "profileSettingsSub": "Edit your account info",
+      "languagePrefs": "Language & preferences",
+      "languagePrefsSub": "Customize your experience",
+      "assignedToMeSub": "Managing assigned tasks",
+      "memberManagementSub": "Manage users and roles",
+      "departmentManagementSub": "Organize your company",
+      "analyticsReportingSub": "Usage reports and metrics"
     },
     "roles": {
       "title": "Understanding Roles & Permissions",

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { BookOpen, Search, Download, X, CheckCircle } from "lucide-react";
+import { X, CheckCircle, Download } from "lucide-react";
 import {
   getPublishedPolicies,
   getUserAcknowledgements,
@@ -38,7 +38,7 @@ const PolicyLibrary = () => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acknowledgedIds, setAcknowledgedIds] = useState(new Set());
-  const [ackDetails, setAckDetails] = useState({}); // policyId -> acknowledgedAt
+  const [ackDetails, setAckDetails] = useState({});
 
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -52,9 +52,7 @@ const PolicyLibrary = () => {
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    if (userData?.companyId) {
-      loadData();
-    }
+    if (userData?.companyId) loadData();
   }, [userData]);
 
   const loadData = async () => {
@@ -135,14 +133,14 @@ const PolicyLibrary = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600" />
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 rounded-full border-b-2 border-[#1ABC9C] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8 min-h-screen">
+    <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 right-4 z-50 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
@@ -150,189 +148,188 @@ const PolicyLibrary = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <BookOpen className="w-8 h-8 text-teal-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Company Policies</h1>
+      {/* Page title */}
+      <h1 className="text-xl font-bold text-gray-900 mb-4">Company Policies</h1>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="bg-white rounded-xl p-3 text-center shadow-sm">
+          <div className="text-xl font-bold text-[#2D3E50]">{policies.length}</div>
+          <div className="text-[10px] text-gray-500 mt-1">Total</div>
         </div>
-        <p className="text-gray-500">
-          Stay informed about your company's guidelines and policies.
-        </p>
+        <div className="bg-white rounded-xl p-3 text-center shadow-sm">
+          <div className="text-xl font-bold text-green-700">{acknowledgedCount}</div>
+          <div className="text-[10px] text-green-600 mt-1">Acknowledged</div>
+        </div>
+        <div className="bg-white rounded-xl p-3 text-center shadow-sm">
+          <div className="text-xl font-bold text-amber-700">{pendingCount}</div>
+          <div className="text-[10px] text-amber-600 mt-1">Pending</div>
+        </div>
       </div>
 
-      {/* Stats Banner */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">{policies.length}</p>
-          <p className="text-xs text-gray-500 mt-0.5 font-medium">Total Policies</p>
+      {/* Pending acknowledgement alert */}
+      {pendingCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 mb-4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <span className="text-xs text-amber-800 flex-1">
+            <strong>{pendingCount}</strong> {pendingCount === 1 ? "policy needs" : "policies need"} your acknowledgement
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </div>
-        <div className="bg-green-50 rounded-xl border border-green-100 shadow-sm px-5 py-4 text-center">
-          <p className="text-2xl font-bold text-green-700">{acknowledgedCount}</p>
-          <p className="text-xs text-green-600 mt-0.5 font-medium">Acknowledged by Me</p>
-        </div>
-        <div className="bg-amber-50 rounded-xl border border-amber-100 shadow-sm px-5 py-4 text-center">
-          <p className="text-2xl font-bold text-amber-700">{pendingCount}</p>
-          <p className="text-xs text-amber-600 mt-0.5 font-medium">Pending Acknowledgement</p>
-        </div>
-      </div>
+      )}
 
       {/* Search */}
-      <div className="relative mb-5">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex gap-2 mb-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search policies by title or category..."
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+          placeholder="Search policies..."
+          className="flex-1 text-sm outline-none border-none bg-transparent text-gray-700 placeholder-gray-400"
         />
       </div>
 
-      {/* Category Filter Pills */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+      {/* Category filter pills */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-4" style={{ scrollbarWidth: "none" }}>
         {ALL_CATEGORIES.map((cat) => (
           <button
             key={cat.value}
             onClick={() => setCategoryFilter(cat.value)}
-            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition ${
-              categoryFilter === cat.value
-                ? "bg-teal-600 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:border-teal-400 hover:text-teal-600"
-            }`}
+            className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+            style={{
+              backgroundColor: categoryFilter === cat.value ? "#1ABC9C" : "white",
+              color: categoryFilter === cat.value ? "white" : "#4b5563",
+              border: categoryFilter === cat.value ? "none" : "1px solid #e5e7eb",
+            }}
           >
             {cat.label}
           </button>
         ))}
       </div>
 
-      {/* Policy Cards Grid */}
+      {/* Policy cards */}
       {filteredPolicies.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-16 text-center">
-          <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">No policies found</h3>
-          <p className="text-gray-500 text-sm">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" className="mb-3">
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 className="text-sm font-semibold text-gray-900 mb-1">No policies found</h3>
+          <p className="text-xs text-gray-500">
             {searchQuery || categoryFilter !== "all"
               ? "Try adjusting your search or filter."
               : "No published policies yet."}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="space-y-3">
           {filteredPolicies.map((policy) => {
             const isAcknowledged = acknowledgedIds.has(policy.id);
             return (
-              <div
-                key={policy.id}
-                className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer"
-                onClick={() => openModal(policy)}
-              >
-                <div className="p-5">
-                  {/* Top row: category badge + acknowledged badge */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${CATEGORY_BADGE[policy.category] || CATEGORY_BADGE.other}`}>
-                      {CATEGORY_LABELS[policy.category] || policy.category}
+              <div key={policy.id} className="bg-white rounded-2xl shadow-sm p-4">
+                {/* Top row: category + acknowledgement status */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${CATEGORY_BADGE[policy.category] || CATEGORY_BADGE.other}`}>
+                    {CATEGORY_LABELS[policy.category] || policy.category}
+                  </span>
+                  {isAcknowledged ? (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-700 ml-auto">
+                      <CheckCircle className="w-3 h-3" />
+                      Acknowledged
                     </span>
-                    {isAcknowledged && (
-                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        <CheckCircle className="w-3 h-3" />
-                        Acknowledged
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-semibold text-gray-900 text-base mb-1 line-clamp-2">
-                    {policy.title}
-                  </h3>
-
-                  {/* Version + Date */}
-                  <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
-                    <span className="font-mono">v{policy.version}</span>
-                    <span>•</span>
-                    <span>Effective: {formatDate(policy.effectiveDate)}</span>
-                  </div>
-
-                  {/* Content preview */}
-                  {policy.content && (
-                    <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                      {policy.content}
-                    </p>
-                  )}
-
-                  {/* Action button */}
-                  <div onClick={(e) => e.stopPropagation()}>
-                    {policy.requiresAcknowledgement && !isAcknowledged ? (
-                      <button
-                        onClick={() => openModal(policy)}
-                        className="w-full py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition"
-                      >
-                        Read & Acknowledge
-                      </button>
-                    ) : policy.requiresAcknowledgement && isAcknowledged ? (
-                      <div className="flex items-center justify-center gap-2 py-2 text-green-600 text-sm font-medium">
-                        <CheckCircle className="w-4 h-4" />
-                        Acknowledged ✓
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => openModal(policy)}
-                        className="w-full py-2 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
-                      >
-                        Read Policy
-                      </button>
-                    )}
-                  </div>
+                  ) : policy.requiresAcknowledgement ? (
+                    <span className="w-2 h-2 rounded-full bg-amber-400 ml-auto" />
+                  ) : null}
                 </div>
+
+                {/* Title */}
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">{policy.title}</h3>
+
+                {/* Effective date */}
+                <p className="text-[11px] text-gray-400 mb-2">
+                  Effective: {formatDate(policy.effectiveDate)}
+                </p>
+
+                {/* Content preview */}
+                {policy.content && (
+                  <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">
+                    {policy.content}
+                  </p>
+                )}
+
+                {/* Action button */}
+                {policy.requiresAcknowledgement && !isAcknowledged ? (
+                  <button
+                    onClick={() => openModal(policy)}
+                    className="w-full py-2.5 bg-[#1ABC9C] text-white text-xs font-semibold rounded-xl hover:bg-[#17a589] transition-colors"
+                  >
+                    Read & Acknowledge
+                  </button>
+                ) : policy.requiresAcknowledgement && isAcknowledged ? (
+                  <div className="flex items-center justify-center gap-2 py-2 text-green-600 text-xs font-medium">
+                    <CheckCircle className="w-4 h-4" />
+                    Acknowledged ✓
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => openModal(policy)}
+                    className="w-full py-2.5 border border-gray-200 text-gray-600 text-xs font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Read Policy
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
       )}
 
-      {/* ─── Policy Detail Modal ─────────────────────────────────── */}
+      {/* ── Policy Detail Modal ── */}
       {showModal && selectedPolicy && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100">
               <div className="flex-1 mr-4">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${CATEGORY_BADGE[selectedPolicy.category] || CATEGORY_BADGE.other}`}>
                     {CATEGORY_LABELS[selectedPolicy.category] || selectedPolicy.category}
                   </span>
-                  <span className="px-2.5 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                    Published
-                  </span>
                   <span className="text-xs text-gray-400 font-mono">v{selectedPolicy.version}</span>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedPolicy.title}</h2>
+                <h2 className="text-base font-bold text-gray-900">{selectedPolicy.title}</h2>
               </div>
-              <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition flex-shrink-0">
+              <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg flex-shrink-0">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="px-6 py-5 space-y-5">
-              {/* Download PDF */}
+            <div className="px-5 py-4 space-y-4">
               {selectedPolicy.fileUrl && (
                 <a
                   href={selectedPolicy.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   download={selectedPolicy.fileName}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition-colors"
                 >
                   <Download className="w-4 h-4" />
-                  Download PDF — {selectedPolicy.fileName}
+                  Download PDF
                 </a>
               )}
 
-              {/* Policy Content */}
               {selectedPolicy.content && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Policy Content</h3>
-                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 max-h-96 overflow-y-auto">
+                  <h3 className="text-xs font-semibold text-gray-700 mb-2">Policy Content</h3>
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 max-h-60 overflow-y-auto">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
                       {selectedPolicy.content}
                     </p>
@@ -340,27 +337,25 @@ const PolicyLibrary = () => {
                 </div>
               )}
 
-              {/* Meta info */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+              <div className="grid grid-cols-3 gap-3 text-xs">
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Effective Date</p>
-                  <p className="text-gray-900 font-medium">{formatDate(selectedPolicy.effectiveDate)}</p>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Effective</p>
+                  <p className="text-gray-900">{formatDate(selectedPolicy.effectiveDate)}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Published</p>
-                  <p className="text-gray-900 font-medium">{formatDate(selectedPolicy.publishedAt)}</p>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Published</p>
+                  <p className="text-gray-900">{formatDate(selectedPolicy.publishedAt)}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Created by</p>
-                  <p className="text-gray-900 font-medium">{selectedPolicy.createdByName || "—"}</p>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase mb-1">Created by</p>
+                  <p className="text-gray-900">{selectedPolicy.createdByName || "—"}</p>
                 </div>
               </div>
 
-              {/* Acknowledgement Section */}
               {selectedPolicy.requiresAcknowledgement ? (
                 acknowledgedIds.has(selectedPolicy.id) || ackSuccess ? (
-                  <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-5 py-4">
-                    <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
+                  <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-green-800">You acknowledged this policy</p>
                       {ackDetails[selectedPolicy.id] && (
@@ -371,22 +366,22 @@ const PolicyLibrary = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-4 space-y-3">
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-3">
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={ackChecked}
                         onChange={(e) => setAckChecked(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 cursor-pointer"
+                        className="mt-0.5 w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
                       />
-                      <span className="text-sm text-gray-700 font-medium">
+                      <span className="text-sm text-gray-700">
                         I have read and understood this policy.
                       </span>
                     </label>
                     <button
                       onClick={handleAcknowledge}
                       disabled={!ackChecked || acknowledging}
-                      className="w-full py-2.5 bg-teal-600 text-white text-sm font-semibold rounded-xl hover:bg-teal-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-full py-2.5 bg-[#1ABC9C] text-white text-sm font-semibold rounded-xl hover:bg-[#17a589] transition-colors disabled:opacity-40"
                     >
                       {acknowledging ? "Confirming..." : "Confirm Acknowledgement"}
                     </button>
@@ -396,7 +391,7 @@ const PolicyLibrary = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={closeModal}
-                    className="px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition"
+                    className="px-6 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-colors"
                   >
                     Close
                   </button>

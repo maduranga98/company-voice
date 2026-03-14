@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { HelpCircle } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
+import EmployeeLayout from "./EmployeeLayout";
 
 /**
  * RoleBasedLayout Component
@@ -39,6 +40,11 @@ const RoleBasedLayout = ({ children }) => {
 
   // Check if user is admin (company_admin or hr)
   const isAdmin = userData?.role === "company_admin" || userData?.role === "hr";
+
+  // For non-admin employees, use the new EmployeeLayout
+  if (!isAdmin) {
+    return <EmployeeLayout>{children}</EmployeeLayout>;
+  }
 
   // Define tabs based on role
   const adminBaseTabs = [

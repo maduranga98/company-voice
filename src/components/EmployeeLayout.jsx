@@ -1,403 +1,577 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "./LanguageSwitcher";
+import { db } from "../config/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
-const EmployeeLayout = () => {
-  const { t } = useTranslation();
-  const { userData, logout } = useAuth();
+const EmployeeLayout = ({ children }) => {
+  const { t, i18n } = useTranslation();
+  const { userData } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      setLoading(true);
-      await logout();
-      navigate("/login");
-    } catch (error) {
-      console.error("Failed to log out", error);
-    } finally {
-      setLoading(false);
-    }
+  const [showLangSheet, setShowLangSheet] = useState(false);
+  const [showPostSheet, setShowPostSheet] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+  const [wallsExpanded, setWallsExpanded] = useState(true);
+
+  // Detect active wall from pathname
+  const getActiveWall = () => {
+    if (location.pathname.includes("/feed/creative")) return "creative";
+    if (location.pathname.includes("/feed/problems")) return "problems";
+    if (location.pathname.includes("/feed/discussions")) return "discussions";
+    return null;
+  };
+  const activeWall = getActiveWall();
+
+  const isOnFeed = location.pathname.startsWith("/feed");
+  const isWallsActive = location.pathname.startsWith("/feed");
+  const isMessagesActive = location.pathname.startsWith("/messages");
+  const isProfileActive = location.pathname === "/employee/profile";
+  const isHelpActive = location.pathname.startsWith("/help");
+
+  // Language badge code
+  const getLangCode = () => {
+    const lang = i18n.language || "en";
+    if (lang.startsWith("si")) return "SI";
+    if (lang.startsWith("es")) return "ES";
+    if (lang.startsWith("fr")) return "FR";
+    return "EN";
   };
 
-  // Handle navigation with scroll to top
+  // Real-time unread notification count
+  useEffect(() => {
+    if (!userData?.id) return;
+    const q = query(
+      collection(db, "notifications"),
+      where("userId", "==", userData.id),
+      where("read", "==", false)
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => setUnreadNotifCount(snap.size),
+      () => {}
+    );
+    return () => unsubscribe();
+  }, [userData?.id]);
+
   const handleNavigate = (path) => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: "instant" });
     navigate(path);
   };
 
-  const baseTabs = [
+  const handleWallNav = (wall) => {
+    localStorage.setItem("lastWall", wall);
+    handleNavigate(`/feed/${wall}`);
+  };
+
+  const handleWallsNav = () => {
+    const lastWall = localStorage.getItem("lastWall") || "creative";
+    handleNavigate(`/feed/${lastWall}`);
+  };
+
+  const languages = [
+    { code: "en", badge: "EN", flag: "🇬🇧", name: "English", native: "English" },
+    { code: "si", badge: "SI", flag: "🇱🇰", name: "Sinhala", native: "සිංහල" },
+    { code: "es", badge: "ES", flag: "🇪🇸", name: "Spanish", native: "Español" },
+    { code: "fr", badge: "FR", flag: "🇫🇷", name: "French", native: "Français" },
+  ];
+
+  const wallTabs = [
     {
       id: "creative",
-      name: t("navigation.creative"),
-      path: "/feed/creative",
+      label: t("navigation.creative"),
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-          />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
         </svg>
       ),
     },
     {
       id: "problems",
-      name: t("navigation.problems"),
-      path: "/feed/problems",
+      label: t("navigation.problems"),
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
       ),
     },
     {
       id: "discussions",
-      name: t("navigation.discussions"),
-      path: "/feed/discussions",
+      label: t("navigation.discussions"),
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "myposts",
-      name: t("navigation.myPosts"),
-      path: "/my-posts",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "policies",
-      name: "Policies",
-      path: "/policies",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "profile",
-      name: t("navigation.profile"),
-      path: "/employee/profile",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
         </svg>
       ),
     },
   ];
 
-  // Add "Assigned to Me" tab if user has a tag
-  const tabs = userData?.userTagId
-    ? [
-        ...baseTabs.slice(0, 3), // Creative, Problems, Discussions
-        {
-          id: "assigned",
-          name: t("navigation.assignedToMe"),
-          path: "/assigned-to-me",
-          icon: (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-              />
-            </svg>
-          ),
-        },
-        ...baseTabs.slice(3), // My Posts, Profile
-      ]
-    : baseTabs;
-
-  const isActiveTab = (path) => {
-    // Handle feed routes - mark as active if path starts with the tab path
-    if (path.startsWith("/feed/")) {
-      return location.pathname === path;
-    }
-    return location.pathname === path;
-  };
+  const postSheetCards = [
+    {
+      label: "Report a problem",
+      sub: "Issue, safety concern",
+      iconBg: "#fef2f2",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      ),
+      onClick: () => { handleNavigate("/feed/problems"); setShowPostSheet(false); },
+    },
+    {
+      label: "Start discussion",
+      sub: "Team conversation",
+      iconBg: "#eff6ff",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        </svg>
+      ),
+      onClick: () => { handleNavigate("/feed/discussions"); setShowPostSheet(false); },
+    },
+    {
+      label: "Creative wall",
+      sub: "Ideas, designs",
+      iconBg: "#fdf4ff",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2">
+          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+      ),
+      onClick: () => { handleNavigate("/feed/creative"); setShowPostSheet(false); },
+    },
+    {
+      label: "Share an idea",
+      sub: "Innovation, suggestions",
+      iconBg: "#f0fdf4",
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
+          <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      ),
+      onClick: () => { handleNavigate("/feed/creative"); setShowPostSheet(false); },
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background-softGray pb-32">
-      {/* Top Header */}
-      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg backdrop-blur-sm">
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo Section */}
-            <div
-              className="flex items-center space-x-3 group cursor-pointer"
-              onClick={() => handleNavigate("/feed/creative")}
+    <div className="min-h-screen bg-gray-50">
+      {/* ── TOP HEADER ── */}
+      <header className="sticky top-0 z-50 bg-[#2D3E50]">
+        {/* Main row */}
+        <div className="flex items-center justify-between px-4 h-12">
+          <span
+            className="text-lg font-bold text-[#1ABC9C] cursor-pointer select-none"
+            onClick={() => handleNavigate("/feed/creative")}
+          >
+            VoxWel
+          </span>
+          <div className="flex items-center gap-2">
+            {/* Language badge */}
+            <button
+              onClick={() => setShowLangSheet(true)}
+              className="w-7 h-7 flex items-center justify-center rounded-lg border border-[#1ABC9C] text-[#1ABC9C] text-[11px] font-bold"
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-(--color-primary-teal) rounded-lg blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
-                <img
-                  src="/voxwel-logo.png"
-                  alt="VoxWel Logo"
-                  className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
-                />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-text-onDark group-hover:text-(--color-primary-teal) transition-colors duration-300">
-                  VoxWel
-                </h1>
-                <p className="text-xs text-(--color-primary-teal) font-medium">
-                  Where Every Voice Matters
-                </p>
-              </div>
-            </div>
-
-            {/* Right Section */}
-            <div className="flex items-center space-x-4">
-              {/* Language Switcher */}
-              <div className="hidden sm:block">
-                <LanguageSwitcher />
-              </div>
-
-              {/* User Info - Desktop */}
-              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-primary-navy bg-opacity-50 rounded-lg border border-(--color-primary-teal)er-opacity-30">
-                <div className="w-8 h-8 rounded-full bg-linear-to-br from-(--color-primary-teal) to-(--color-accent-coral) flex items-center justify-center text-text-onDark-sm">
-                  {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-text-onDark">
-                    {userData?.displayName}
-                  </p>
-                  <p className="text-xs text-(--color-primary-teal) capitalize">
-                    {userData?.role?.replace("_", " ")}
-                  </p>
-                </div>
-              </div>
-
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-text-onDark 
-                         bg-(--color-primary-teal) border-2 border-(--color-primary-teal) rounded-lg 
-                         hover:bg-(--color-primary-teal) hover:bg-opacity-90 hover:shadow-lg
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-(--color-primary-teal)
-                         transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-                         active:scale-95"
-              >
-                {loading ? (
-                  <svg
-                    className="animate-spin h-4 w-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
-                )}
-                <span className="hidden sm:inline">
-                  {loading ? t("common.loading") : t("auth.logout")}
-                </span>
-              </button>
-            </div>
+              {getLangCode()}
+            </button>
+            {/* Notification bell */}
+            <button
+              onClick={() => handleNavigate("/notifications")}
+              className="relative w-7 h-7 flex items-center justify-center rounded-lg bg-white/10"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {unreadNotifCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </button>
           </div>
         </div>
-      </header>
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto">
-        <Outlet />
-      </main>
-
-      {/* Bottom Navigation - Mobile First */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-(--color-background-white) border-t border-border-light z-50 shadow-2xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-7xl mx-auto">
-          <div
-            className={`grid ${
-              userData?.userTagId ? "grid-cols-7" : "grid-cols-6"
-            } gap-0`}
-          >
-            {tabs.map((tab) => {
-              const isActive = isActiveTab(tab.path);
+        {/* Wall tabs — only on /feed routes */}
+        {isOnFeed && (
+          <div className="flex border-t border-white/10">
+            {wallTabs.map((tab) => {
+              const isActive = activeWall === tab.id;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => handleNavigate(tab.path)}
-                  className={`
-                    relative flex flex-col items-center justify-center py-2 px-1 min-h-16 
-                    transition-all duration-300 group
-                    ${
-                      isActive
-                        ? "text-(--color-primary-teal) bg-background-lightMist"
-                        : "text-text-tertiary hover:text-text-primary--color-background-softGray)]"
-                    }
-                  `}
+                  onClick={() => handleWallNav(tab.id)}
+                  className="flex-1 flex items-center justify-center gap-1 py-2"
+                  style={{ borderBottom: `2.5px solid ${isActive ? "#1ABC9C" : "transparent"}` }}
                 >
-                  {/* Active Indicator - Top */}
-                  {isActive && (
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary-navy to-(--color-primary-teal) rounded-b-full animate-pulse" />
-                  )}
-
-                  {/* Icon Container */}
-                  <div
-                    className={`
-                      relative transition-all duration-300
-                      ${isActive ? "scale-110" : "group-hover:scale-105"}
-                    `}
-                  >
-                    {/* Background Glow for Active Tab */}
-                    {isActive && (
-                      <div className="absolute inset-0 bg-(--color-primary-teal) rounded-full blur-lg opacity-20 -z-10"></div>
-                    )}
-
-                    {/* Icon */}
-                    <div
-                      className={`
-                      w-6 h-6 transition-colors duration-300
-                      ${
-                        isActive
-                          ? "text-(--color-primary-teal)"
-                          : "text-text-tertiary group-hover:text-text-primary"
-                      }
-                    `}
-                    >
-                      {tab.icon}
-                    </div>
-                  </div>
-
-                  {/* Label */}
-                  <span
-                    className={`
-                      text-[10px] sm:text-xs mt-1.5 font-medium leading-tight text-center
-                      transition-all duration-300
-                      ${
-                        isActive
-                          ? "text-(--color-primary-teal) font-semibold"
-                          : "text-text-tertiary group-hover:text-text-primary"
-                      }
-                    `}
-                  >
-                    {tab.name}
+                  <span style={{ color: isActive ? "#1ABC9C" : "rgba(255,255,255,0.4)" }}>
+                    {tab.icon}
                   </span>
-
-                  {/* Active Badge Dot */}
-                  {isActive && (
-                    <div className="absolute bottom-1 w-1 h-1 bg-(--color-primary-teal) rounded-full animate-ping"></div>
-                  )}
+                  <span
+                    className="text-[11px] font-medium"
+                    style={{ color: isActive ? "#1ABC9C" : "rgba(255,255,255,0.4)" }}
+                  >
+                    {tab.label}
+                  </span>
                 </button>
               );
             })}
           </div>
+        )}
+      </header>
+
+      {/* ── DESKTOP SIDEBAR ── */}
+      <div className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 flex-col pt-4">
+        <div
+          className="px-4 pb-4 border-b border-gray-100 cursor-pointer"
+          onClick={() => handleNavigate("/feed/creative")}
+        >
+          <span className="text-xl font-bold text-[#1ABC9C]">VoxWel</span>
+        </div>
+
+        {/* Language selector */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <select
+            value={i18n.language}
+            onChange={(e) => i18n.changeLanguage(e.target.value)}
+            className="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none text-gray-700"
+          >
+            {languages.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.flag} {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Nav items */}
+        <nav className="px-2 py-2 flex-1 overflow-y-auto">
+          {/* Walls (expandable) */}
+          <div>
+            <button
+              onClick={() => setWallsExpanded(!wallsExpanded)}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${
+                isWallsActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span className="flex-1 text-left">{t("navigation.walls", "Walls")}</span>
+              <svg
+                width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                className={`transition-transform ${wallsExpanded ? "rotate-90" : ""}`}
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+            {wallsExpanded && (
+              <div className="ml-7 mt-1 space-y-0.5">
+                {[
+                  { id: "creative", label: t("navigation.creative") },
+                  { id: "problems", label: t("navigation.problems") },
+                  { id: "discussions", label: t("navigation.discussions") },
+                ].map((wall) => (
+                  <button
+                    key={wall.id}
+                    onClick={() => handleWallNav(wall.id)}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-sm ${
+                      activeWall === wall.id
+                        ? "bg-[#1ABC9C]/10 text-[#1ABC9C] font-medium"
+                        : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {wall.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Messages */}
+          <button
+            onClick={() => handleNavigate("/messages")}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mt-1 ${
+              isMessagesActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            {t("navigation.messages", "Messages")}
+          </button>
+
+          {/* Profile */}
+          <button
+            onClick={() => handleNavigate("/employee/profile")}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mt-1 ${
+              isProfileActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            {t("navigation.profile")}
+          </button>
+
+          {/* Help */}
+          <button
+            onClick={() => handleNavigate("/help")}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mt-1 ${
+              isHelpActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            {t("navigation.help", "Help")}
+          </button>
+        </nav>
+
+        {/* Create Post at bottom */}
+        <div className="px-3 pb-4">
+          <button
+            onClick={() => setShowPostSheet(true)}
+            className="w-full py-3 bg-[#1ABC9C] text-white text-sm font-semibold rounded-xl hover:bg-[#17a589] transition-colors"
+          >
+            {t("post.create", "Create Post")}
+          </button>
+        </div>
+      </div>
+
+      {/* ── MAIN CONTENT ── */}
+      <main className="bg-gray-50 pb-20 md:pb-6 md:ml-64">
+        {children ?? <Outlet />}
+      </main>
+
+      {/* ── BOTTOM NAVIGATION (mobile only) ── */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-[#2D3E50] z-50"
+        style={{ height: "60px", paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex h-full">
+          {/* Walls */}
+          <button
+            onClick={handleWallsNav}
+            className="flex-1 flex flex-col items-center justify-center relative"
+          >
+            {isWallsActive && (
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-[#1ABC9C] rounded-b-[3px]" />
+            )}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              stroke={isWallsActive ? "#1ABC9C" : "rgba(255,255,255,0.35)"}>
+              <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span
+              className="text-[10px] mt-0.5"
+              style={{ color: isWallsActive ? "#1ABC9C" : "rgba(255,255,255,0.35)", fontWeight: isWallsActive ? "600" : "400" }}
+            >
+              {t("navigation.walls", "Walls")}
+            </span>
+          </button>
+
+          {/* Post (FAB) */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <button
+              onClick={() => setShowPostSheet(!showPostSheet)}
+              className="flex items-center justify-center rounded-full"
+              style={{
+                width: "44px",
+                height: "44px",
+                marginTop: "-14px",
+                backgroundColor: showPostSheet ? "#1e293b" : "#1ABC9C",
+                boxShadow: "0 4px 14px rgba(26,188,156,0.5)",
+              }}
+            >
+              {showPostSheet ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              )}
+            </button>
+            <span className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+              {t("navigation.post", "Post")}
+            </span>
+          </div>
+
+          {/* Messages */}
+          <button
+            onClick={() => handleNavigate("/messages")}
+            className="flex-1 flex flex-col items-center justify-center relative"
+          >
+            {isMessagesActive && (
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-[#1ABC9C] rounded-b-[3px]" />
+            )}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              stroke={isMessagesActive ? "#1ABC9C" : "rgba(255,255,255,0.35)"}>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <span
+              className="text-[10px] mt-0.5"
+              style={{ color: isMessagesActive ? "#1ABC9C" : "rgba(255,255,255,0.35)", fontWeight: isMessagesActive ? "600" : "400" }}
+            >
+              {t("navigation.messages", "Messages")}
+            </span>
+          </button>
+
+          {/* Profile */}
+          <button
+            onClick={() => handleNavigate("/employee/profile")}
+            className="flex-1 flex flex-col items-center justify-center relative"
+          >
+            {isProfileActive && (
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-[#1ABC9C] rounded-b-[3px]" />
+            )}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              stroke={isProfileActive ? "#1ABC9C" : "rgba(255,255,255,0.35)"}>
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span
+              className="text-[10px] mt-0.5"
+              style={{ color: isProfileActive ? "#1ABC9C" : "rgba(255,255,255,0.35)", fontWeight: isProfileActive ? "600" : "400" }}
+            >
+              {t("navigation.profile")}
+            </span>
+          </button>
+
+          {/* Help */}
+          <button
+            onClick={() => handleNavigate("/help")}
+            className="flex-1 flex flex-col items-center justify-center relative"
+          >
+            {isHelpActive && (
+              <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-[#1ABC9C] rounded-b-[3px]" />
+            )}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              stroke={isHelpActive ? "#1ABC9C" : "rgba(255,255,255,0.35)"}>
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            <span
+              className="text-[10px] mt-0.5"
+              style={{ color: isHelpActive ? "#1ABC9C" : "rgba(255,255,255,0.35)", fontWeight: isHelpActive ? "600" : "400" }}
+            >
+              {t("navigation.help", "Help")}
+            </span>
+          </button>
         </div>
       </nav>
 
-      {/* Mobile User Info Overlay - Shown on Language Switcher tap */}
-      <div className="md:hidden fixed top-16 right-4 bg-(--color-background-white) rounded-lg shadow-xl border border-border-light p-3 z-30 hidden group-hover:block">
-        <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-(--color-primary-teal) to-(--color-accent-coral) flex items-center justify-center text-text-onDark font-bold">
-            {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-text-primary">
-              {userData?.displayName}
+      {/* ── LANGUAGE SHEET ── */}
+      {showLangSheet && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-50" onClick={() => setShowLangSheet(false)} />
+          <div
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
+            <div className="flex justify-center mt-2 mb-1">
+              <div className="w-9 bg-gray-200 rounded-full" style={{ height: "3px" }} />
+            </div>
+            <p className="text-[13px] font-semibold px-4 py-3 border-b border-gray-100">
+              {t("language.chooseLanguage", "Choose language")}
             </p>
-            <p className="text-xs text-text-secondary capitalize">
-              {userData?.role?.replace("_", " ")}
-            </p>
+            {languages.map((lang) => {
+              const isCurrentLang = (i18n.language || "en").startsWith(lang.code);
+              return (
+                <div
+                  key={lang.code}
+                  onClick={() => { i18n.changeLanguage(lang.code); setShowLangSheet(false); }}
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50 active:bg-gray-100"
+                  style={{ borderBottom: "0.5px solid #f1f5f9" }}
+                >
+                  <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center text-base flex-shrink-0">
+                    {lang.flag}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[11px] font-semibold text-gray-800">{lang.name}</div>
+                    <div className="text-[9px] text-gray-400">{lang.native}</div>
+                  </div>
+                  {isCurrentLang && (
+                    <div className="w-[18px] h-[18px] rounded-full bg-[#1ABC9C] flex items-center justify-center flex-shrink-0">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </div>
-      </div>
+        </>
+      )}
+
+      {/* ── POST SHEET ── */}
+      {showPostSheet && (
+        <>
+          <div className="fixed inset-0 bg-black/55 z-40" onClick={() => setShowPostSheet(false)} />
+          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50">
+            <div className="flex justify-center mt-2">
+              <div className="w-9 bg-gray-200 rounded-full" style={{ height: "3px" }} />
+            </div>
+            <p className="text-[13px] font-semibold px-4 pt-2 pb-1">
+              {t("post.whatToShare", "What do you want to share?")}
+            </p>
+            <p className="text-[10px] text-gray-400 px-4 pb-3">
+              {t("post.chooseType", "Choose a type to get started")}
+            </p>
+
+            {/* 2×2 grid */}
+            <div className="grid grid-cols-2 gap-2 px-3 pb-3">
+              {postSheetCards.map((card, i) => (
+                <button
+                  key={i}
+                  onClick={card.onClick}
+                  className="bg-gray-50 rounded-xl p-3 text-left active:scale-[0.98] transition-transform"
+                  style={{ border: "0.5px solid #e2e8f0" }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-2"
+                    style={{ backgroundColor: card.iconBg }}
+                  >
+                    {card.icon}
+                  </div>
+                  <div className="text-[10px] font-semibold text-gray-800">{card.label}</div>
+                  <div className="text-[8px] text-gray-400 mt-0.5">{card.sub}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* Anonymous toggle (informational, always ON) */}
+            <div className="mx-3 mb-3 bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
+              <div className="w-6 h-6 bg-[#1ABC9C] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <div className="text-[10px] font-semibold text-gray-800">
+                  {t("post.postAnonymously", "Post anonymously")}
+                </div>
+                <div className="text-[8px] text-green-700">
+                  {t("post.anonymousDefault", "ON by default · name encrypted")}
+                </div>
+              </div>
+              <div
+                className="rounded-full flex items-center justify-end px-0.5 flex-shrink-0"
+                style={{ width: "36px", height: "20px", backgroundColor: "#1ABC9C" }}
+              >
+                <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
