@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PostEnhanced from "../components/PostEnhanced";
 import AnonymousThread from "../components/AnonymousThread";
@@ -12,6 +13,8 @@ import {
   PostStatusConfig,
   PostPriorityConfig,
 } from "../utils/constants";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
 
 const getTimeAgo = (date) => {
   if (!date) return "Just now";
@@ -44,9 +47,74 @@ const getPostTypeLabel = (type) => {
   }
 };
 
+const HRReplyHint = ({ postId, userId, navigate }) => {
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const threadDoc = await getDoc(doc(db, "anonymousThreads", postId));
+        if (!threadDoc.exists()) return;
+        const data = threadDoc.data();
+        const messages = data.messages || [];
+        if (messages.length === 0) return;
+        const lastReadByReporter = data.lastReadBy?.reporter || null;
+        const lastReadTime = lastReadByReporter?.toDate
+          ? lastReadByReporter.toDate()
+          : lastReadByReporter
+            ? new Date(lastReadByReporter)
+            : null;
+        const unread = messages.filter((m) => {
+          if (m.sender !== "investigator") return false;
+          if (!lastReadTime) return true;
+          const msgTime = m.timestamp?.toDate
+            ? m.timestamp.toDate()
+            : new Date(m.timestamp);
+          return msgTime > lastReadTime;
+        });
+        setHasUnread(unread.length > 0);
+      } catch {}
+    };
+    check();
+  }, [postId]);
+
+  // Show link regardless of unread status if thread has any messages
+  const [hasThread, setHasThread] = useState(false);
+  useEffect(() => {
+    const checkThread = async () => {
+      try {
+        const threadDoc = await getDoc(doc(db, "anonymousThreads", postId));
+        if (threadDoc.exists() && (threadDoc.data().messages || []).length > 0) {
+          setHasThread(true);
+        }
+      } catch {}
+    };
+    checkThread();
+  }, [postId]);
+
+  if (!hasThread) return null;
+
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); navigate(`/messages/${postId}`); }}
+      className={`mt-2 w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition ${
+        hasUnread
+          ? 'bg-teal-50 border border-teal-200 text-teal-700'
+          : 'bg-gray-50 border border-gray-200 text-gray-500'
+      }`}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+      {hasUnread ? '🔒 HR replied — tap to view private message' : '🔒 View private conversation with HR'}
+    </button>
+  );
+};
+
 const MyPosts = () => {
   const { t } = useTranslation();
   const { userData } = useAuth();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -242,6 +310,10 @@ const MyPosts = () => {
                         </span>
                       )}
                     </div>
+                  )}
+
+                  {post.isAnonymous && (
+                    <HRReplyHint postId={post.id} userId={userData.id} navigate={navigate} />
                   )}
 
                   {/* Expand button */}
