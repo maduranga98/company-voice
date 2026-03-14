@@ -827,6 +827,33 @@ const CompanyDashboard = () => {
           </button>
         )}
 
+        {["company_admin", "hr"].includes(userData?.role) && (
+          <button
+            onClick={() => navigate("/hr/conversations")}
+            className="bg-gradient-to-r from-teal-500 to-teal-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">Conversations</h3>
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+            <p className="text-teal-100">
+              Respond to anonymous employee messages privately
+            </p>
+          </button>
+        )}
+
         <button
           onClick={() => navigate("/company/legal-requests")}
           className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
