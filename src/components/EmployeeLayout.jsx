@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { db } from "../config/firebase";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, doc, getDoc } from "firebase/firestore";
 
 const EmployeeLayout = ({ children }) => {
   const { t, i18n } = useTranslation();
@@ -15,6 +15,7 @@ const EmployeeLayout = ({ children }) => {
   const [showPostSheet, setShowPostSheet] = useState(false);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [wallsExpanded, setWallsExpanded] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Detect active wall from pathname
   const getActiveWall = () => {
@@ -55,6 +56,56 @@ const EmployeeLayout = ({ children }) => {
     );
     return () => unsubscribe();
   }, [userData?.id]);
+
+  // Unread messages count (anonymous thread replies from investigator)
+  // TODO: replace interval polling with onSnapshot real-time listener
+  useEffect(() => {
+    if (!userData?.id || !userData?.companyId) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        // Fetch user's anonymous posts
+        const postsQuery = query(
+          collection(db, "posts"),
+          where("companyId", "==", userData.companyId),
+          where("authorId", "==", userData.id),
+          where("isAnonymous", "==", true)
+        );
+        const postsSnap = await getDocs(postsQuery);
+
+        let total = 0;
+        for (const postDoc of postsSnap.docs) {
+          const threadDoc = await getDoc(doc(db, "anonymousThreads", postDoc.id));
+          if (!threadDoc.exists()) continue;
+          const data = threadDoc.data();
+          const messages = data.messages || [];
+          const lastReadByReporter = data.lastReadBy?.reporter || null;
+          const lastReadTime = lastReadByReporter?.toDate
+            ? lastReadByReporter.toDate()
+            : lastReadByReporter
+              ? new Date(lastReadByReporter)
+              : null;
+          const unread = messages.filter((m) => {
+            if (m.sender !== "investigator") return false;
+            if (!lastReadTime) return true;
+            const msgTime = m.timestamp?.toDate
+              ? m.timestamp.toDate()
+              : new Date(m.timestamp);
+            return msgTime > lastReadTime;
+          });
+          total += unread.length;
+        }
+        setUnreadCount(total);
+      } catch (err) {
+        console.error("Error fetching unread count:", err);
+      }
+    };
+
+    fetchUnreadCount();
+    // Refresh every 30 seconds while app is open
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [userData?.id, userData?.companyId]);
 
   const handleNavigate = (path) => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -420,10 +471,17 @@ const EmployeeLayout = ({ children }) => {
             {isMessagesActive && (
               <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-[#1ABC9C] rounded-b-[3px]" />
             )}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              stroke={isMessagesActive ? "#1ABC9C" : "rgba(255,255,255,0.35)"}>
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
+            <div className="relative">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                stroke={isMessagesActive ? "#1ABC9C" : "rgba(255,255,255,0.35)"}>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-3.5 min-w-[16px] h-4 bg-[#FF6B6B] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </div>
             <span
               className="text-[10px] mt-0.5"
               style={{ color: isMessagesActive ? "#1ABC9C" : "rgba(255,255,255,0.35)", fontWeight: isMessagesActive ? "600" : "400" }}
