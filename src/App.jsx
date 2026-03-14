@@ -28,6 +28,8 @@ import ArchivedPosts from "./pages/ArchivedPosts";
 import ScheduledPostsPage from "./pages/ScheduledPostsPage";
 import RoleDefinitions from "./pages/RoleDefinitions";
 import HelpCenter from "./pages/HelpCenter";
+import EmployeeMessages from "./pages/EmployeeMessages";
+import EmployeeMessageThread from "./pages/EmployeeMessageThread";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./pages/Register";
@@ -241,7 +243,9 @@ function App() {
               path="/help"
               element={
                 <PrivateRoute>
-                  <HelpCenter />
+                  <RoleBasedLayout>
+                    <HelpCenter />
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />
@@ -372,6 +376,28 @@ function App() {
                   <RoleBasedLayout>
                     <PolicyLibrary />
                   </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Employee Messages Routes */}
+            <Route
+              path="/messages"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <EmployeeMessages />
+                  </EmployeeLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/messages/:postId"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <EmployeeMessageThread />
+                  </EmployeeLayout>
                 </PrivateRoute>
               }
             />

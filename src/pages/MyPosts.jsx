@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import PostEnhanced from "../components/PostEnhanced";
 import AnonymousThread from "../components/AnonymousThread";
 import {
   getUserPosts,
   markPostAsViewed,
-  isAdmin,
 } from "../services/postManagementService";
 import {
   PostType,
@@ -14,11 +13,37 @@ import {
   PostPriorityConfig,
 } from "../utils/constants";
 
-/**
- * My Posts Dashboard - Title-Only View
- * Shows all posts as title cards with expandable full view
- * Anonymous posts marked with * for privacy
- */
+const getTimeAgo = (date) => {
+  if (!date) return "Just now";
+  let dateObj = date;
+  if (date.seconds) dateObj = new Date(date.seconds * 1000);
+  else if (!(date instanceof Date)) dateObj = new Date(date);
+  const seconds = Math.floor((new Date() - dateObj) / 1000);
+  if (seconds < 60) return "Just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
+  return dateObj.toLocaleDateString();
+};
+
+const getPostTypeColor = (type) => {
+  switch (type) {
+    case PostType.PROBLEM_REPORT: return "bg-red-100 text-red-700 border-red-200";
+    case PostType.CREATIVE_CONTENT: return "bg-purple-100 text-purple-700 border-purple-200";
+    case PostType.TEAM_DISCUSSION: return "bg-blue-100 text-blue-700 border-blue-200";
+    default: return "bg-gray-100 text-gray-700 border-gray-200";
+  }
+};
+
+const getPostTypeLabel = (type) => {
+  switch (type) {
+    case PostType.PROBLEM_REPORT: return "Problem";
+    case PostType.CREATIVE_CONTENT: return "Creative";
+    case PostType.TEAM_DISCUSSION: return "Discussion";
+    default: return "Post";
+  }
+};
+
 const MyPosts = () => {
   const { t } = useTranslation();
   const { userData } = useAuth();
@@ -43,7 +68,7 @@ const MyPosts = () => {
       setPosts(myPosts);
     } catch (error) {
       console.error("Error loading my posts:", error);
-      alert(t('myPosts.failedToLoad'));
+      alert(t("myPosts.failedToLoad"));
     } finally {
       setLoading(false);
     }
@@ -51,7 +76,6 @@ const MyPosts = () => {
 
   const filterPosts = () => {
     let filtered = [...posts];
-
     switch (activeTab) {
       case "problems":
         filtered = filtered.filter((p) => p.type === PostType.PROBLEM_REPORT);
@@ -68,397 +92,215 @@ const MyPosts = () => {
       default:
         break;
     }
-
     setFilteredPosts(filtered);
   };
 
   const handleExpandPost = async (post) => {
     setExpandedPost(post.id);
-
-    // Mark as viewed
     await markPostAsViewed(post.id, userData.id);
-
-    // Update local state
     setPosts((prev) =>
-      prev.map((p) =>
-        p.id === post.id ? { ...p, hasUnreadUpdates: false } : p
-      )
+      prev.map((p) => (p.id === post.id ? { ...p, hasUnreadUpdates: false } : p))
     );
   };
 
-  const handleCollapsePost = () => {
-    setExpandedPost(null);
-  };
-
-  // Utility function to format timestamps
-  const getTimeAgo = (date) => {
-    if (!date) return "Just now";
-
-    let dateObj = date;
-    if (date.seconds) {
-      dateObj = new Date(date.seconds * 1000);
-    } else if (!(date instanceof Date)) {
-      dateObj = new Date(date);
-    }
-
-    const seconds = Math.floor((new Date() - dateObj) / 1000);
-
-    if (seconds < 60) return "Just now";
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
-
-    return dateObj.toLocaleDateString();
-  };
-
-  const getPostTypeColor = (type) => {
-    switch (type) {
-      case PostType.PROBLEM_REPORT:
-        return "bg-red-100 text-red-700 border-red-200";
-      case PostType.CREATIVE_CONTENT:
-        return "bg-purple-100 text-purple-700 border-purple-200";
-      case PostType.TEAM_DISCUSSION:
-        return "bg-blue-100 text-blue-700 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
-
-  const getPostTypeLabel = (type) => {
-    switch (type) {
-      case PostType.PROBLEM_REPORT:
-        return "Problem";
-      case PostType.CREATIVE_CONTENT:
-        return "Creative";
-      case PostType.TEAM_DISCUSSION:
-        return "Discussion";
-      default:
-        return "Post";
-    }
-  };
-
-  const getPostTypeIcon = (type) => {
-    switch (type) {
-      case PostType.PROBLEM_REPORT:
-        return "⚠️";
-      case PostType.CREATIVE_CONTENT:
-        return "💡";
-      case PostType.TEAM_DISCUSSION:
-        return "💬";
-      default:
-        return "📝";
-    }
-  };
+  const handleCollapsePost = () => setExpandedPost(null);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span className="sr-only">{t('myPosts.loading')}</span>
+        <div className="w-8 h-8 rounded-full border-b-2 border-[#1ABC9C] animate-spin" />
       </div>
     );
   }
 
+  const tabs = [
+    { value: "all", label: t("myPosts.allPosts", "All"), count: posts.length },
+    {
+      value: "problems",
+      label: t("myPosts.problems", "Problems"),
+      count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT).length,
+    },
+    {
+      value: "creative",
+      label: t("myPosts.creative", "Creative"),
+      count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT).length,
+    },
+    {
+      value: "discussions",
+      label: t("myPosts.discussions", "Discussions"),
+      count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION).length,
+    },
+    {
+      value: "unread",
+      label: t("myPosts.unreadUpdates", "Unread"),
+      count: posts.filter((p) => p.hasUnreadUpdates).length,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('myPosts.title')}</h1>
-          <p className="text-gray-600">
-            Track all your posts and their updates in one place
+      <div className="flex items-center gap-3 mb-4">
+        <h1 className="text-xl font-bold text-gray-900">{t("myPosts.title", "My Posts")}</h1>
+        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+          {posts.length}
+        </span>
+      </div>
+
+      {/* Filter tabs (horizontal scroll) */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-4" style={{ scrollbarWidth: "none" }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
+            className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+            style={{
+              backgroundColor: activeTab === tab.value ? "#2D3E50" : "white",
+              color: activeTab === tab.value ? "white" : "#4b5563",
+              border: activeTab === tab.value ? "none" : "1px solid #e5e7eb",
+            }}
+          >
+            {tab.label} {tab.count > 0 && `(${tab.count})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Empty state */}
+      {filteredPosts.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-base font-semibold text-gray-900 mb-1">
+            {t("myPosts.noPosts", "No posts")}
+          </h3>
+          <p className="text-sm text-gray-500">
+            {activeTab === "all"
+              ? t("myPosts.noPostsYet", "You haven't created any posts yet")
+              : `No ${activeTab} posts found`}
           </p>
         </div>
-      </div>
+      )}
 
-      {/* Tabs */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-        <div className="flex gap-2 overflow-x-auto">
-          {[
-            { value: "all", label: t('myPosts.allPosts'), count: posts.length },
-            {
-              value: "problems",
-              label: t('myPosts.problems'),
-              count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT)
-                .length,
-            },
-            {
-              value: "creative",
-              label: t('myPosts.creative'),
-              count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT)
-                .length,
-            },
-            {
-              value: "discussions",
-              label: t('myPosts.discussions'),
-              count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION)
-                .length,
-            },
-            {
-              value: "unread",
-              label: t('myPosts.unreadUpdates'),
-              count: posts.filter((p) => p.hasUnreadUpdates).length,
-            },
-          ].map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setActiveTab(tab.value)}
-              className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition ${
-                activeTab === tab.value
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
+      {/* Post cards */}
+      <div className="space-y-3">
+        {filteredPosts.map((post) => {
+          const isExpanded = expandedPost === post.id;
+          const isAnonymous = post.isAnonymous;
+
+          return (
+            <div
+              key={post.id}
+              className="bg-white rounded-2xl shadow-sm overflow-hidden"
             >
-              {tab.label} ({tab.count})
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Posts List - Title-Only Cards */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        {filteredPosts.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {t('myPosts.noPosts')}
-            </h3>
-            <p className="text-gray-600">
-              {activeTab === "all"
-                ? "You haven't created any posts yet"
-                : `No ${activeTab} posts found`}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredPosts.map((post) => {
-              const isExpanded = expandedPost === post.id;
-              const isAnonymous = post.isAnonymous;
-
-              return (
-                <div
-                  key={post.id}
-                  className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:border-gray-300 transition"
-                >
-                  {/* Collapsed View - Title Card */}
-                  {!isExpanded ? (
-                    <button
-                      onClick={() => handleExpandPost(post)}
-                      className="w-full p-4 text-left hover:bg-gray-50 transition"
+              {!isExpanded ? (
+                /* Collapsed card */
+                <div className="p-4">
+                  {/* Top row: type pill + time + unread dot */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          {/* Title with Anonymous Marker */}
-                          <div className="flex items-start gap-2 mb-2">
-                            <span className="text-xl flex-shrink-0">
-                              {getPostTypeIcon(post.type)}
-                            </span>
-                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
-                              {isAnonymous && (
-                                <span
-                                  className="text-purple-600 font-bold text-lg"
-                                  title="Anonymous Post"
-                                >
-                                  *
-                                </span>
-                              )}
-                              <span className="flex-1">{post.title}</span>
-                            </h3>
-                          </div>
+                      {getPostTypeLabel(post.type)}
+                    </span>
+                    {isAnonymous && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                        Anonymous
+                      </span>
+                    )}
+                    <span className="text-[10px] text-gray-400 ml-auto">
+                      {getTimeAgo(post.createdAt)}
+                    </span>
+                    {post.hasUnreadUpdates && (
+                      <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                    )}
+                  </div>
 
-                          {/* Meta Info */}
-                          <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
-                            <span
-                              className={`px-2 py-0.5 rounded-full border ${getPostTypeColor(
-                                post.type
-                              )}`}
-                            >
-                              {getPostTypeLabel(post.type)}
-                            </span>
-                            <span>{getTimeAgo(post.createdAt)}</span>
-                            <span>
-                              👍 {post.likes || 0} · 💬 {post.comments || 0}
-                            </span>
-                            {isAnonymous && (
-                              <span className="text-purple-600 font-medium">
-                                Anonymous
-                              </span>
-                            )}
-                            {post.hasUnreadUpdates && (
-                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full font-medium">
-                                New Update
-                              </span>
-                            )}
-                          </div>
+                  {/* Title */}
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    {post.title}
+                  </h3>
 
-                          {/* Status & Priority (for Problem Reports) */}
-                          {post.type === PostType.PROBLEM_REPORT && (
-                            <div className="flex gap-2 mt-2 flex-wrap">
-                              {post.status && PostStatusConfig[post.status] && (
-                                <span
-                                  className={`text-xs px-2 py-0.5 rounded ${
-                                    PostStatusConfig[post.status].bgColor
-                                  } ${PostStatusConfig[post.status].textColor}`}
-                                >
-                                  {PostStatusConfig[post.status].label}
-                                </span>
-                              )}
-                              {post.priority &&
-                                PostPriorityConfig[post.priority] && (
-                                  <span
-                                    className={`text-xs px-2 py-0.5 rounded ${
-                                      PostPriorityConfig[post.priority].bgColor
-                                    } ${
-                                      PostPriorityConfig[post.priority]
-                                        .textColor
-                                    }`}
-                                  >
-                                    {PostPriorityConfig[post.priority].icon}{" "}
-                                    {PostPriorityConfig[post.priority].label}
-                                  </span>
-                                )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Expand Icon */}
-                        <div className="flex-shrink-0">
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                    </button>
-                  ) : (
-                    /* Expanded View - Full Post */
-                    <div>
-                      {/* Collapse Button */}
-                      <div className="px-4 pt-4 pb-2 border-b border-gray-100 bg-gray-50">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl">
-                              {getPostTypeIcon(post.type)}
-                            </span>
-                            <span
-                              className={`px-2 py-1 text-xs rounded-full border font-medium ${getPostTypeColor(
-                                post.type
-                              )}`}
-                            >
-                              {getPostTypeLabel(post.type)}
-                            </span>
-                            {isAnonymous && (
-                              <span className="px-2 py-1 bg-purple-100 text-purple-700 border border-purple-200 rounded-full text-xs font-medium flex items-center gap-1">
-                                <span className="font-bold">*</span>
-                                Anonymous
-                              </span>
-                            )}
-                            {post.hasUnreadUpdates && (
-                              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
-                                New Update
-                              </span>
-                            )}
-                          </div>
-                          <button
-                            onClick={handleCollapsePost}
-                            className="p-1 hover:bg-gray-200 rounded transition"
-                            title="Collapse"
-                          >
-                            <svg
-                              className="w-5 h-5 text-gray-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 15l7-7 7 7"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Full Post Content */}
-                      <PostEnhanced post={post} />
-
-                      {/* Private Thread — only for anonymous posts, reporter view */}
-                      {isAnonymous && (
-                        <AnonymousThread
-                          postId={post.id}
-                          companyId={post.companyId || userData.companyId}
-                          currentUserRole="reporter"
-                          isAnonymousPost={true}
-                        />
+                  {/* Status + priority badges (for problems) */}
+                  {post.type === PostType.PROBLEM_REPORT && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {post.status && PostStatusConfig[post.status] && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
+                        >
+                          {PostStatusConfig[post.status].label}
+                        </span>
                       )}
-
-                      {/* Stats Footer */}
-                      <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-sm text-gray-600">
-                        <div className="flex gap-4">
-                          <span>👍 {post.likes || 0} reactions</span>
-                          <span>💬 {post.comments || 0} comments</span>
-                        </div>
-                        <div>
-                          Posted{" "}
-                          {new Date(
-                            post.createdAt?.seconds * 1000
-                          ).toLocaleDateString()}
-                        </div>
-                      </div>
+                      {post.priority && PostPriorityConfig[post.priority] && (
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
+                        >
+                          {PostPriorityConfig[post.priority].icon}{" "}
+                          {PostPriorityConfig[post.priority].label}
+                        </span>
+                      )}
                     </div>
                   )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
 
-      {/* Info Banner */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-6 pt-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-blue-900 font-semibold mb-2 flex items-center gap-2">
-            ℹ️ About My Posts
-          </h3>
-          <ul className="text-blue-800 text-sm space-y-1">
-            <li>
-              • All posts shown as title cards - click to expand full view
-            </li>
-            <li>
-              • <span className="font-bold text-purple-600">*</span> marks
-              anonymous posts for your reference
-            </li>
-            <li>• Track all your posts (anonymous and named) in one place</li>
-            <li>
-              • Get notified of status changes, comments, and priority updates
-            </li>
-          </ul>
-        </div>
+                  {/* Expand button */}
+                  <button
+                    onClick={() => handleExpandPost(post)}
+                    className="text-xs text-[#1ABC9C] font-medium"
+                  >
+                    {t("myPosts.viewDetails", "View details")} ›
+                  </button>
+                </div>
+              ) : (
+                /* Expanded card */
+                <div>
+                  {/* Collapse header */}
+                  <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}
+                      >
+                        {getPostTypeLabel(post.type)}
+                      </span>
+                      {isAnonymous && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                          Anonymous
+                        </span>
+                      )}
+                      {post.hasUnreadUpdates && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-100 text-yellow-700">
+                          New Update
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={handleCollapsePost}
+                      className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
+                        <path d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Full post content */}
+                  <PostEnhanced post={post} />
+
+                  {/* Anonymous thread (reporter view) */}
+                  {isAnonymous && (
+                    <AnonymousThread
+                      postId={post.id}
+                      companyId={post.companyId || userData.companyId}
+                      currentUserRole="reporter"
+                      isAnonymousPost={true}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
