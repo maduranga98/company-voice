@@ -165,12 +165,21 @@ const EmployeeLayout = ({ children }) => {
       <header className="sticky top-0 z-50 bg-[#2D3E50]">
         {/* Main row */}
         <div className="flex items-center justify-between px-4 h-12">
-          <span
-            className="text-lg font-bold text-[#1ABC9C] cursor-pointer select-none"
+          <div
+            className="flex items-center gap-2 cursor-pointer select-none"
             onClick={() => handleNavigate("/feed/creative")}
           >
-            VoxWel
-          </span>
+            {/* App logo */}
+            <div className="w-7 h-7 rounded-lg bg-[#1ABC9C] flex items-center justify-center flex-shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <rect x="8" y="2" width="8" height="12" rx="4" fill="white" />
+                <path d="M5 11a7 7 0 0014 0" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                <line x1="12" y1="18" x2="12" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="9" y1="21" x2="15" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <span className="text-lg font-bold text-[#1ABC9C]">VoxWel</span>
+          </div>
           <div className="flex items-center gap-2">
             {/* Language badge */}
             <button
@@ -197,22 +206,27 @@ const EmployeeLayout = ({ children }) => {
 
         {/* Wall tabs — only on /feed routes */}
         {isOnFeed && (
-          <div className="flex border-t border-white/10">
+          <div className="flex gap-1 px-3 py-2 border-t border-white/10" style={{ backgroundColor: "rgba(0,0,0,0.18)" }}>
             {wallTabs.map((tab) => {
               const isActive = activeWall === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleWallNav(tab.id)}
-                  className="flex-1 flex items-center justify-center gap-1 py-2"
-                  style={{ borderBottom: `2.5px solid ${isActive ? "#1ABC9C" : "transparent"}` }}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-full transition-all duration-150"
+                  style={{
+                    paddingTop: "7px",
+                    paddingBottom: "7px",
+                    backgroundColor: isActive ? "#1ABC9C" : "rgba(255,255,255,0.08)",
+                    border: isActive ? "none" : "1px solid rgba(255,255,255,0.12)",
+                  }}
                 >
-                  <span style={{ color: isActive ? "#1ABC9C" : "rgba(255,255,255,0.4)" }}>
+                  <span style={{ color: isActive ? "white" : "rgba(255,255,255,0.55)" }}>
                     {tab.icon}
                   </span>
                   <span
-                    className="text-[11px] font-medium"
-                    style={{ color: isActive ? "#1ABC9C" : "rgba(255,255,255,0.4)" }}
+                    className="text-[12px] font-semibold tracking-wide"
+                    style={{ color: isActive ? "white" : "rgba(255,255,255,0.55)" }}
                   >
                     {tab.label}
                   </span>
@@ -226,9 +240,17 @@ const EmployeeLayout = ({ children }) => {
       {/* ── DESKTOP SIDEBAR ── */}
       <div className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40 flex-col pt-4">
         <div
-          className="px-4 pb-4 border-b border-gray-100 cursor-pointer"
+          className="px-4 pb-4 border-b border-gray-100 cursor-pointer flex items-center gap-2"
           onClick={() => handleNavigate("/feed/creative")}
         >
+          <div className="w-7 h-7 rounded-lg bg-[#1ABC9C] flex items-center justify-center flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <rect x="8" y="2" width="8" height="12" rx="4" fill="white" />
+              <path d="M5 11a7 7 0 0014 0" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              <line x1="12" y1="18" x2="12" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              <line x1="9" y1="21" x2="15" y2="21" stroke="white" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </div>
           <span className="text-xl font-bold text-[#1ABC9C]">VoxWel</span>
         </div>
 
