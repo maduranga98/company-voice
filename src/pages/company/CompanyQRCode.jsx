@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import QRCode from "qrcode";
+import { toast } from "react-toastify";
 
 const CompanyQRCode = () => {
   const { t } = useTranslation();
@@ -143,7 +144,7 @@ const CompanyQRCode = () => {
       // Scan instruction
       ctx.fillStyle = '#374151';
       ctx.font = '600 22px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('📱 Scan this code with your phone camera', 400, yPosition);
+      ctx.fillText('📱 Scan with any phone camera or QR reader', 400, yPosition);
 
       yPosition += 60;
 
@@ -180,7 +181,7 @@ const CompanyQRCode = () => {
       ctx.fillStyle = '#1f2937';
       ctx.font = '18px Inter, system-ui, -apple-system, sans-serif';
       const instructions = [
-        '1. Open your phone camera or QR scanner app',
+        '1. Open your phone camera — no app needed',
         '2. Point your camera at the QR code above',
         '3. Tap the notification that appears',
         '4. Complete the registration form with your details',
@@ -540,7 +541,7 @@ const CompanyQRCode = () => {
                 <img src="${qrCodeUrl}" alt="Company QR Code" />
               </div>
 
-              <p class="scan-text">📱 Scan this code with your phone camera</p>
+              <p class="scan-text">📱 Scan with any phone camera or QR reader</p>
 
               <div class="footer">
                 <div class="company-id">
@@ -571,7 +572,7 @@ const CompanyQRCode = () => {
                 <h3>How to Join ${company.name}</h3>
               </div>
               <ol>
-                <li>Open your phone's camera or QR code scanner app</li>
+                <li>Open your phone camera — no app needed</li>
                 <li>Point your camera at this QR code above</li>
                 <li>Tap the notification that appears on your screen</li>
                 <li>Complete the registration form with your details</li>
@@ -730,6 +731,16 @@ const CompanyQRCode = () => {
   const copyCompanyId = () => {
     navigator.clipboard.writeText(company.id);
     alert(t('company.companyIdCopied'));
+  };
+
+  const copyRegistrationLink = () => {
+    if (!company) return;
+    const registrationUrl = `https://portal.voxwel.com/register?companyId=${company.id}&companyName=${encodeURIComponent(company.name)}&source=link`;
+    navigator.clipboard.writeText(registrationUrl).then(() => {
+      toast.success("Registration link copied!");
+    }).catch(() => {
+      alert("Link: " + registrationUrl);
+    });
   };
 
   const handleLogout = async () => {
@@ -926,7 +937,7 @@ const CompanyQRCode = () => {
                 </p>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-2xl">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl">
                   <button
                     onClick={downloadQRCode}
                     className="flex items-center justify-center px-6 py-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition shadow-lg"
@@ -985,6 +996,26 @@ const CompanyQRCode = () => {
                       />
                     </svg>
                     <span className="text-base">{t('company.share')}</span>
+                  </button>
+
+                  <button
+                    onClick={copyRegistrationLink}
+                    className="flex items-center justify-center px-6 py-4 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
+                  >
+                    <svg
+                      className="w-6 h-6 mr-2 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                      />
+                    </svg>
+                    <span className="text-base">Copy Link</span>
                   </button>
                 </div>
               </div>

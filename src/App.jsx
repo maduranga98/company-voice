@@ -62,6 +62,9 @@ import PolicyLibrary from "./pages/PolicyLibrary";
 import VendorRiskReport from "./pages/VendorRiskReport";
 import VendorRiskDashboard from "./pages/hr/VendorRiskDashboard";
 
+// HR Pages
+import HRConversations from "./pages/hr/HRConversations";
+
 function App() {
   return (
     <AuthProvider>
@@ -400,6 +403,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <VendorRiskDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/hr/conversations"
+              element={
+                <PrivateRoute>
+                  <HRConversations />
                 </PrivateRoute>
               }
             />

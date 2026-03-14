@@ -53,8 +53,8 @@ const formatTime = (timestamp) => {
  *   currentUserRole  - Role string from UserRole constants, or "reporter"
  *   isAnonymousPost  - Boolean; component renders nothing when false
  */
-const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, defaultOpen }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen || false);
   const [messages, setMessages] = useState([]);
   const [threadData, setThreadData] = useState(null);
   const [replyText, setReplyText] = useState("");
