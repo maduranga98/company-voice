@@ -536,7 +536,7 @@ const EmployeeLayout = ({ children }) => {
             </p>
 
             {/* 2×2 grid */}
-            <div className="grid grid-cols-2 gap-2 px-3 pb-3">
+            <div className="grid grid-cols-2 gap-2 px-3 pb-2">
               {postSheetCards.map((card, i) => (
                 <button
                   key={i}
@@ -554,6 +554,25 @@ const EmployeeLayout = ({ children }) => {
                   <div className="text-[8px] text-gray-400 mt-0.5">{card.sub}</div>
                 </button>
               ))}
+            </div>
+
+            {/* Vendor Risk — full-width card */}
+            <div className="px-3 pb-3">
+              <button
+                onClick={() => { handleNavigate("/vendor-risk"); setShowPostSheet(false); }}
+                className="w-full bg-gray-50 rounded-xl p-3 flex items-center gap-3 active:scale-[0.98] transition-transform text-left"
+                style={{ border: "0.5px solid #e2e8f0" }}
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#fff7ed" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-[10px] font-semibold text-gray-800">Report Vendor Concern</div>
+                  <div className="text-[8px] text-gray-400 mt-0.5">Flag a supplier or third-party issue</div>
+                </div>
+              </button>
             </div>
 
             {/* Anonymous toggle (informational, always ON) */}
