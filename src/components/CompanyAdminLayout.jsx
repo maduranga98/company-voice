@@ -1,16 +1,53 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import LanguageSwitcher from "./LanguageSwitcher";
-import { HelpCircle, BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { subscribeToCompanyThreads } from "../services/anonymousThreadService";
+import {
+  LayoutDashboard,
+  Lightbulb,
+  AlertTriangle,
+  MessageSquare,
+  MessagesSquare,
+  Users,
+  Building2,
+  Tags,
+  BookOpen,
+  ClipboardList,
+  Scale,
+  ShieldAlert,
+  CreditCard,
+  QrCode,
+  UserCircle,
+  LogOut,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronRight,
+  Bell,
+  BarChart3,
+  FileDown,
+  ClipboardCheck,
+  Shield,
+} from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher";
 
-const CompanyAdminLayout = () => {
+const CompanyAdminLayout = ({ children }) => {
+  const { t } = useTranslation();
   const { userData, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasUnreadThreads, setHasUnreadThreads] = useState(false);
+
+  // Collapsible section state
+  const [expandedSections, setExpandedSections] = useState({
+    content: true,
+    management: true,
+    compliance: false,
+    settings: false,
+  });
 
   useEffect(() => {
     if (
@@ -25,6 +62,11 @@ const CompanyAdminLayout = () => {
     return () => unsubscribe();
   }, [userData?.companyId, userData?.role]);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     try {
       setLoading(true);
@@ -37,232 +79,28 @@ const CompanyAdminLayout = () => {
     }
   };
 
-  // Handle navigation with scroll to top
   const handleNavigate = (path) => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: "instant" });
     navigate(path);
   };
 
-  // Build tabs based on user's tag status
-  const baseTabs = [
-    {
-      id: "dashboard",
-      name: "Dashboard",
-      path: "/company/dashboard",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "conversations",
-      name: "Conversations",
-      path: "/hr/conversations",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "creative",
-      name: "Creative",
-      path: "/feed/creative",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "problems",
-      name: "Problems",
-      path: "/feed/problems",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "discussions",
-      name: "Discussions",
-      path: "/feed/discussions",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "myposts",
-      name: "My Posts",
-      path: "/my-posts",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "policies",
-      name: "Policies",
-      path: "/company/policies",
-      icon: <BookOpen className="w-6 h-6" />,
-    },
-    {
-      id: "vendor-risk",
-      name: "Vendor Risk",
-      path: "/hr/vendor-risk",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "profile",
-      name: "Profile",
-      path: "/company/profile",
-      icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
-      ),
-    },
-  ];
-
-  // Add "Assigned to Me" tab if user has a tag
-  const buildTabs = () => {
-    return userData?.userTagId
-      ? [
-          ...baseTabs.slice(0, 4),
-          {
-            id: "assigned",
-            name: "Assigned",
-            path: "/assigned-to-me",
-            icon: (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                />
-              </svg>
-            ),
-          },
-          ...baseTabs.slice(4),
-        ]
-      : baseTabs;
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const tabs = buildTabs();
-
-  const isActiveTab = (path) => {
-    // Handle feed routes - mark as active if path starts with the tab path
-    if (path.startsWith("/feed/")) {
-      return location.pathname === path;
-    }
-    return location.pathname === path;
-  };
+  const isActive = (path) => location.pathname === path;
+  const isActiveGroup = (paths) => paths.some((p) => location.pathname.startsWith(p));
 
   const getRoleBadge = () => {
     if (userData?.role === "company_admin") {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-teal text-text-onDark">
-          COMPANY ADMIN
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#1ABC9C]/15 text-[#1ABC9C] uppercase tracking-wide">
+          Admin
         </span>
       );
     } else if (userData?.role === "hr") {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-status-success-light text-status-success-dark">
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 uppercase tracking-wide">
           HR
         </span>
       );
@@ -270,212 +108,325 @@ const CompanyAdminLayout = () => {
     return null;
   };
 
+  // Navigation sections for the sidebar
+  const navSections = [
+    {
+      id: "main",
+      items: [
+        { label: t("navigation.dashboard", "Dashboard"), path: "/company/dashboard", icon: LayoutDashboard },
+        { label: t("navigation.analytics", "Analytics"), path: "/company/analytics", icon: BarChart3 },
+      ],
+    },
+    {
+      id: "content",
+      title: t("navigation.content", "Content"),
+      items: [
+        { label: t("navigation.creative", "Creative"), path: "/feed/creative", icon: Lightbulb },
+        { label: t("navigation.problems", "Problems"), path: "/feed/problems", icon: AlertTriangle },
+        { label: t("navigation.discussions", "Discussions"), path: "/feed/discussions", icon: MessageSquare },
+        { label: t("navigation.myPosts", "My Posts"), path: "/my-posts", icon: ClipboardList },
+        ...(userData?.userTagId ? [{ label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck }] : []),
+        { label: t("navigation.conversations", "Conversations"), path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
+        { label: t("navigation.moderation", "Moderation"), path: "/moderation", icon: Shield },
+      ],
+    },
+    {
+      id: "management",
+      title: t("navigation.management", "Management"),
+      items: [
+        { label: t("navigation.members", "Members"), path: "/company/members", icon: Users },
+        { label: t("navigation.departments", "Departments"), path: "/company/departments", icon: Building2 },
+        { label: t("navigation.tags", "Tags"), path: "/company/tag-management", icon: Tags },
+      ],
+    },
+    {
+      id: "compliance",
+      title: t("navigation.compliance", "Compliance"),
+      items: [
+        { label: t("navigation.policies", "Policies"), path: "/company/policies", icon: BookOpen },
+        { label: t("navigation.auditLog", "Audit Log"), path: "/company/audit-log", icon: ClipboardList },
+        { label: t("navigation.auditExport", "Audit Export"), path: "/company/audit-export", icon: FileDown },
+        { label: t("navigation.legalRequests", "Legal Requests"), path: "/company/legal-requests", icon: Scale },
+        { label: t("navigation.vendorRisk", "Vendor Risk"), path: "/hr/vendor-risk", icon: ShieldAlert },
+      ],
+    },
+    {
+      id: "settings",
+      title: t("navigation.settings", "Settings"),
+      items: [
+        { label: t("navigation.billing", "Billing"), path: "/company/billing", icon: CreditCard },
+        { label: t("navigation.qrCode", "QR Code"), path: "/company/qr-code", icon: QrCode },
+        { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
+      ],
+    },
+  ];
+
+  const renderNavItem = (item) => {
+    const Icon = item.icon;
+    const active = isActive(item.path);
+    return (
+      <button
+        key={item.path}
+        onClick={() => handleNavigate(item.path)}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative ${
+          active
+            ? "bg-[#1ABC9C]/10 text-[#1ABC9C]"
+            : "text-gray-400 hover:text-white hover:bg-white/5"
+        }`}
+      >
+        {active && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#1ABC9C] rounded-r-full" />
+        )}
+        <Icon size={18} className={active ? "text-[#1ABC9C]" : "text-gray-500 group-hover:text-gray-300"} />
+        <span className="flex-1 text-left truncate">{item.label}</span>
+        {item.badge && (
+          <span className="w-2 h-2 bg-[#FF6B6B] rounded-full animate-pulse" />
+        )}
+      </button>
+    );
+  };
+
+  const renderSection = (section) => {
+    if (section.id === "main") {
+      return (
+        <div key={section.id} className="space-y-0.5 mb-2">
+          {section.items.map(renderNavItem)}
+        </div>
+      );
+    }
+
+    const isExpanded = expandedSections[section.id];
+    const hasActiveItem = section.items.some((item) => isActive(item.path));
+
+    return (
+      <div key={section.id} className="mb-1">
+        <button
+          onClick={() => toggleSection(section.id)}
+          className={`w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider transition-colors ${
+            hasActiveItem ? "text-[#1ABC9C]" : "text-gray-500 hover:text-gray-300"
+          }`}
+        >
+          {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          <span>{section.title}</span>
+        </button>
+        {isExpanded && (
+          <div className="space-y-0.5 mt-0.5">
+            {section.items.map(renderNavItem)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Mobile bottom nav - only 4 key items
+  const mobileBottomTabs = [
+    { id: "dashboard", label: "Dashboard", path: "/company/dashboard", icon: LayoutDashboard },
+    { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
+    { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
+    { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
+  ];
+
+  const sidebarContent = (
+    <>
+      {/* Logo & brand */}
+      <div className="h-16 flex items-center gap-3 px-5 border-b border-white/[0.06] flex-shrink-0">
+        <div
+          className="flex items-center gap-3 cursor-pointer group"
+          onClick={() => handleNavigate("/company/dashboard")}
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-[#1ABC9C] rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
+            <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center relative">
+              <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
+            </div>
+          </div>
+          <div>
+            <span className="text-lg font-bold text-white group-hover:text-[#1ABC9C] transition-colors">VoxWel</span>
+            <p className="text-[10px] text-gray-500 font-medium">Admin Panel</p>
+          </div>
+        </div>
+      </div>
+
+      {/* User card */}
+      <div className="px-4 py-4 border-b border-white/[0.06] flex-shrink-0">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1ABC9C] to-[#16a085] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white truncate">{userData?.displayName}</p>
+            <div className="mt-1">{getRoleBadge()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1 scrollbar-thin">
+        {navSections.map(renderSection)}
+      </nav>
+
+      {/* Logout at bottom */}
+      <div className="px-4 py-4 border-t border-white/[0.06] flex-shrink-0">
+        <button
+          onClick={handleLogout}
+          disabled={loading}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+        >
+          <LogOut size={18} />
+          <span>{loading ? t("common.loading", "Logging out...") : t("auth.logout", "Logout")}</span>
+        </button>
+      </div>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-background-softGray pb-32">
-      {/* Top Header */}
-      <header className="bg-primary-navy border-b border-primary-navy sticky top-0 z-40 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo Section with Enhanced Styling */}
+    <div className="min-h-screen bg-[#f8f9fb]">
+      {/* ── DESKTOP SIDEBAR ── */}
+      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-60 bg-[#1e2530] z-40 flex-col shadow-2xl">
+        {sidebarContent}
+      </aside>
+
+      {/* ── MOBILE SIDEBAR OVERLAY ── */}
+      {sidebarOpen && (
+        <>
+          <div
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <aside className="lg:hidden fixed left-0 top-0 h-full w-72 bg-[#1e2530] z-50 flex flex-col shadow-2xl animate-slide-in">
+            {/* Close button */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 transition-all z-10"
+            >
+              <X size={18} />
+            </button>
+            {sidebarContent}
+          </aside>
+        </>
+      )}
+
+      {/* ── TOP HEADER ── */}
+      <header className="sticky top-0 z-30 bg-white border-b border-gray-200/80 lg:ml-60">
+        <div className="flex items-center justify-between h-14 px-4 lg:px-6">
+          {/* Mobile: hamburger + logo */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              <Menu size={20} />
+            </button>
             <div
-              className="flex items-center space-x-3 group cursor-pointer"
+              className="lg:hidden flex items-center gap-2 cursor-pointer"
               onClick={() => handleNavigate("/company/dashboard")}
             >
-              <div className="relative">
-                {/* White background circle for better logo visibility */}
-                <div className="absolute inset-0 bg-white rounded-lg shadow-lg"></div>
-                {/* Teal glow effect */}
-                <div className="absolute inset-0 bg-primary-teal rounded-lg blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                <img
-                  src="/voxwel-logo.png"
-                  alt="VoxWel Logo"
-                  className="w-10 h-10 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300 p-1"
-                />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-text-onDark group-hover:text-primary-teal transition-colors duration-300">
-                  VoxWel
-                </h1>
-                <p className="text-xs text-primary-teal font-medium">
-                  Where Every Voice Matters
-                </p>
-              </div>
+              <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
+              <span className="text-base font-bold text-[#2D3E50]">VoxWel</span>
             </div>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+          {/* Desktop: Page context (breadcrumb-like) */}
+          <div className="hidden lg:block">
+            <h2 className="text-sm font-semibold text-gray-800">
+              {getPageTitle(location.pathname, t)}
+            </h2>
+          </div>
 
-              {/* Help Button */}
-              <button
-                onClick={() => handleNavigate("/help")}
-                className="inline-flex items-center p-2 text-text-onDark hover:text-primary-teal transition-colors duration-200"
-                title="Help Center"
-              >
-                <HelpCircle className="w-6 h-6" />
-              </button>
-
-              {/* User Info - Desktop */}
-              <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-primary-navy bg-opacity-50 rounded-lg border border-primary-teal border-opacity-30">
-                <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary-teal to-accent-coral flex items-center justify-center text-text-onDark font-bold text-sm">
-                  {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-text-onDark">
-                    {userData?.displayName}
-                  </p>
-                  <div className="flex justify-end mt-0.5">
-                    {getRoleBadge()}
-                  </div>
-                </div>
+          {/* Right side actions */}
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <button
+              onClick={() => handleNavigate("/company/notifications")}
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors relative"
+            >
+              <Bell size={18} />
+            </button>
+            {/* Desktop user avatar */}
+            <div
+              className="hidden lg:flex items-center gap-2 pl-3 ml-1 border-l border-gray-200 cursor-pointer"
+              onClick={() => handleNavigate("/company/profile")}
+            >
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1ABC9C] to-[#16a085] flex items-center justify-center text-white font-bold text-xs">
+                {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
               </div>
-
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                disabled={loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-text-onDark
-                         bg-primary-teal border-2 border-primary-teal rounded-lg
-                         hover:bg-primary-teal hover:bg-opacity-90 hover:shadow-lg
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-teal
-                         transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-                         active:scale-95"
-              >
-                {loading ? (
-                  <svg
-                    className="animate-spin h-4 w-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
-                )}
-                <span className="hidden sm:inline">
-                  {loading ? "Logging out..." : "Logout"}
-                </span>
-              </button>
+              <span className="text-sm font-medium text-gray-700 hidden xl:block">{userData?.displayName}</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto">
-        <Outlet />
+      {/* ── MAIN CONTENT ── */}
+      <main className="lg:ml-60 pb-20 lg:pb-6 min-h-[calc(100vh-56px)]">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-4 lg:py-6">
+          {children ?? <Outlet />}
+        </div>
       </main>
 
-      {/* Bottom Navigation - Mobile First with Enhanced Styling */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-primary-navy border-t border-primary-navy z-50 shadow-2xl" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-7xl mx-auto">
-          <div
-            className={`grid gap-0`}
-            style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
-          >
-            {tabs.map((tab) => {
-              const isActive = isActiveTab(tab.path);
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleNavigate(tab.path)}
-                  className={`
-                    relative flex flex-col items-center justify-center py-2 px-1 min-h-16
-                    transition-all duration-300 group
-                    ${
-                      isActive
-                        ? "text-primary-teal bg-primary-navy bg-opacity-70"
-                        : "text-text-onDark hover:text-primary-teal hover:bg-primary-navy hover:bg-opacity-50"
-                    }
-                  `}
-                >
-                  {/* Active Indicator - Top */}
-                  {isActive && (
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-primary-navy to-primary-teal rounded-b-full animate-pulse" />
+      {/* ── MOBILE BOTTOM NAV ── */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex h-16">
+          {mobileBottomTabs.map((tab) => {
+            const Icon = tab.icon;
+            const active = tab.matchPaths
+              ? tab.matchPaths.some((p) => location.pathname.startsWith(p))
+              : tab.path && location.pathname === tab.path;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => tab.action ? tab.action() : handleNavigate(tab.path)}
+                className="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors"
+              >
+                {active && (
+                  <div className="absolute top-0 left-2 right-2 h-[2.5px] bg-[#1ABC9C] rounded-b-full" />
+                )}
+                <div className="relative">
+                  <Icon size={22} className={active ? "text-[#1ABC9C]" : "text-gray-400"} />
+                  {tab.badge && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF6B6B] rounded-full border-2 border-white" />
                   )}
-
-                  {/* Icon Container */}
-                  <div
-                    className={`
-                      relative transition-all duration-300
-                      ${isActive ? "scale-110" : "group-hover:scale-105"}
-                    `}
-                  >
-                    {/* Background Glow for Active Tab */}
-                    {isActive && (
-                      <div className="absolute inset-0 bg-primary-teal rounded-full blur-lg opacity-20 -z-10"></div>
-                    )}
-
-                    {/* Icon */}
-                    <div
-                      className={`
-                      w-6 h-6 transition-colors duration-300
-                      ${
-                        isActive
-                          ? "text-primary-teal"
-                          : "text-text-onDark group-hover:text-primary-teal"
-                      }
-                    `}
-                    >
-                      {tab.icon}
-                    </div>
-                    {/* Unread dot for Conversations tab */}
-                    {tab.id === "conversations" && hasUnreadThreads && !isActive && (
-                      <span className="absolute top-1 right-1 w-2 h-2 bg-[#FF6B6B] rounded-full" />
-                    )}
-                  </div>
-
-                  {/* Label */}
-                  <span
-                    className={`
-                      text-[10px] sm:text-xs mt-1.5 font-medium leading-tight text-center
-                      transition-all duration-300
-                      ${
-                        isActive
-                          ? "text-primary-teal font-semibold"
-                          : "text-text-onDark group-hover:text-primary-teal"
-                      }
-                    `}
-                  >
-                    {tab.name}
-                  </span>
-
-                  {/* Active Badge Dot */}
-                  {isActive && (
-                    <div className="absolute bottom-1 w-1 h-1 bg-primary-teal rounded-full animate-ping"></div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                </div>
+                <span className={`text-[10px] font-medium ${active ? "text-[#1ABC9C]" : "text-gray-400"}`}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
     </div>
   );
 };
+
+// Helper to get a readable page title from the pathname
+function getPageTitle(pathname, t) {
+  const titles = {
+    "/company/dashboard": t("navigation.dashboard", "Dashboard"),
+    "/company/analytics": t("navigation.analytics", "Analytics"),
+    "/feed/creative": t("navigation.creative", "Creative Wall"),
+    "/feed/problems": t("navigation.problems", "Problems"),
+    "/feed/discussions": t("navigation.discussions", "Discussions"),
+    "/my-posts": t("navigation.myPosts", "My Posts"),
+    "/assigned-to-me": t("navigation.assignedToMe", "Assigned to Me"),
+    "/hr/conversations": t("navigation.conversations", "Conversations"),
+    "/moderation": t("navigation.moderation", "Moderation"),
+    "/company/members": t("navigation.members", "Members"),
+    "/company/departments": t("navigation.departments", "Departments"),
+    "/company/tag-management": t("navigation.tags", "Tag Management"),
+    "/company/policies": t("navigation.policies", "Policy Management"),
+    "/company/audit-log": t("navigation.auditLog", "Audit Log"),
+    "/company/audit-export": t("navigation.auditExport", "Audit Export"),
+    "/company/legal-requests": t("navigation.legalRequests", "Legal Requests"),
+    "/hr/vendor-risk": t("navigation.vendorRisk", "Vendor Risk"),
+    "/company/billing": t("navigation.billing", "Billing"),
+    "/company/qr-code": t("navigation.qrCode", "QR Code"),
+    "/company/profile": t("navigation.profile", "Profile"),
+  };
+  return titles[pathname] || "VoxWel Admin";
+}
 
 export default CompanyAdminLayout;

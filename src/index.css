@@ -146,6 +146,31 @@
 }
 
 /* ============================================
+   SIDEBAR & SHEET ANIMATIONS
+   ============================================ */
+.animate-slide-in {
+  animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
    SCROLLBAR STYLING (Optional)
    ============================================ */
 @layer utilities {

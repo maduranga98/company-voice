@@ -72,11 +72,12 @@ function App() {
         <ScrollToTop />
         <div className="min-h-screen bg-gray-50">
           <Routes>
+            {/* ── PUBLIC ROUTES ── */}
             <Route path="/login" element={<Login />} />
             <Route path="/qr-generator" element={<QRCodeGenerator />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Super Admin Routes */}
+            {/* ── SUPER ADMIN ROUTES ── */}
             <Route
               path="/admin/companies"
               element={
@@ -118,7 +119,7 @@ function App() {
               }
             />
 
-            {/* Unified Feed Routes (shared by all users - employees and admins) */}
+            {/* ── SHARED FEED ROUTES (role-based layout auto-selects) ── */}
             <Route
               path="/feed/creative"
               element={
@@ -150,7 +151,7 @@ function App() {
               }
             />
 
-            {/* My Posts - Private Dashboard (available to all users) */}
+            {/* ── SHARED ROUTES (role-based layout) ── */}
             <Route
               path="/my-posts"
               element={
@@ -161,8 +162,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Assigned to Me - For tagged members */}
             <Route
               path="/assigned-to-me"
               element={
@@ -173,8 +172,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Moderation Routes (for admins and HR) */}
             <Route
               path="/moderation"
               element={
@@ -195,13 +192,10 @@ function App() {
                 </PrivateRoute>
               }
             />
-            {/* Redirect old harassment dashboard to unified moderation dashboard */}
             <Route
               path="/hr/harassment-dashboard"
               element={<Navigate to="/moderation" replace />}
             />
-
-            {/* Post Management Routes (for all users) */}
             <Route
               path="/drafts"
               element={
@@ -232,8 +226,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Templates Route (for admins) */}
             <Route
               path="/templates"
               element={
@@ -244,8 +236,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Help & Documentation Routes */}
             <Route
               path="/help"
               element={
@@ -264,115 +254,13 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Company Admin Routes with Layout */}
             <Route
-              path="/company"
+              path="/notifications"
               element={
                 <PrivateRoute>
-                  <CompanyAdminLayout />
-                </PrivateRoute>
-              }
-            >
-              <Route index element={<Navigate to="/feed/creative" replace />} />
-              <Route path="dashboard" element={<CompanyDashboard />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="profile" element={<Profile />} />
-            </Route>
-            <Route
-              path="/company/qr-code"
-              element={
-                <PrivateRoute>
-                  <CompanyQRCode />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/tag-management"
-              element={
-                <PrivateRoute>
-                  <TagManagement />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/member-management"
-              element={
-                <PrivateRoute>
-                  <MemberManagement />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/departments"
-              element={
-                <PrivateRoute>
-                  <DepartmentManagement />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/departments/:id"
-              element={
-                <PrivateRoute>
-                  <DepartmentDetails />
-                </PrivateRoute>
-              }
-            />
-
-            <Route
-              path="/company/members"
-              element={
-                <PrivateRoute>
-                  <MemberManagementWithDepartments />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/analytics"
-              element={
-                <PrivateRoute>
-                  <CompanyAnalytics />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/audit-log"
-              element={
-                <PrivateRoute>
-                  <AuditLog />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/billing"
-              element={
-                <PrivateRoute>
-                  <CompanyBilling />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/legal-requests"
-              element={
-                <PrivateRoute>
-                  <LegalRequestsPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/audit-export"
-              element={
-                <PrivateRoute>
-                  <AuditExportPage />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/company/policies"
-              element={
-                <PrivateRoute>
-                  <PolicyManagement />
+                  <RoleBasedLayout>
+                    <Notifications />
+                  </RoleBasedLayout>
                 </PrivateRoute>
               }
             />
@@ -386,8 +274,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
-            {/* Vendor Risk Routes */}
             <Route
               path="/vendor-risk"
               element={
@@ -398,11 +284,167 @@ function App() {
                 </PrivateRoute>
               }
             />
+
+            {/* ── COMPANY ADMIN ROUTES (with admin sidebar layout) ── */}
+            <Route
+              path="/company/dashboard"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CompanyDashboard />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/notifications"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <Notifications />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/profile"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <Profile />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/qr-code"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CompanyQRCode />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/tag-management"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <TagManagement />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/member-management"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <MemberManagement />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/departments"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <DepartmentManagement />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/departments/:id"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <DepartmentDetails />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/members"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <MemberManagementWithDepartments />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/analytics"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CompanyAnalytics />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/audit-log"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <AuditLog />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/billing"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CompanyBilling />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/legal-requests"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <LegalRequestsPage />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/audit-export"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <AuditExportPage />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/policies"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <PolicyManagement />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* ── HR ROUTES (with admin sidebar layout) ── */}
             <Route
               path="/hr/vendor-risk"
               element={
                 <PrivateRoute>
-                  <VendorRiskDashboard />
+                  <CompanyAdminLayout>
+                    <VendorRiskDashboard />
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -410,12 +452,14 @@ function App() {
               path="/hr/conversations"
               element={
                 <PrivateRoute>
-                  <HRConversations />
+                  <CompanyAdminLayout>
+                    <HRConversations />
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
 
-            {/* Employee Messages Routes */}
+            {/* ── EMPLOYEE MESSAGE ROUTES ── */}
             <Route
               path="/messages"
               element={
@@ -437,21 +481,29 @@ function App() {
               }
             />
 
-            {/* Employee Routes with Layout */}
+            {/* ── EMPLOYEE PROFILE ROUTES ── */}
             <Route
-              path="/employee"
+              path="/employee/profile"
               element={
                 <PrivateRoute>
-                  <EmployeeLayout />
+                  <EmployeeLayout>
+                    <Profile />
+                  </EmployeeLayout>
                 </PrivateRoute>
               }
-            >
-              <Route index element={<Navigate to="/feed/creative" replace />} />
-              <Route path="notifications" element={<Notifications />} />
-              <Route path="profile" element={<Profile />} />
-            </Route>
+            />
+            <Route
+              path="/employee/notifications"
+              element={
+                <PrivateRoute>
+                  <EmployeeLayout>
+                    <Notifications />
+                  </EmployeeLayout>
+                </PrivateRoute>
+              }
+            />
 
-            {/* General Routes */}
+            {/* ── GENERAL ROUTES ── */}
             <Route
               path="/dashboard"
               element={
@@ -461,7 +513,7 @@ function App() {
               }
             />
 
-            {/* Default route based on role */}
+            {/* Default route */}
             <Route
               path="/"
               element={<Navigate to="/feed/creative" replace />}
