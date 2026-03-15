@@ -12,6 +12,17 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { useTranslation } from 'react-i18next';
+import {
+  Bell,
+  MessageCircle,
+  Heart,
+  FileText,
+  Info,
+  CheckCheck,
+  Check,
+  Trash2,
+  BellOff,
+} from "lucide-react";
 
 const Notifications = () => {
   const { t } = useTranslation();
@@ -73,82 +84,18 @@ const Notifications = () => {
   };
 
   const getNotificationIcon = (type) => {
-    switch (type) {
-      case "comment":
-        return (
-          <svg
-            className="w-6 h-6 text-blue-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
-        );
-      case "like":
-        return (
-          <svg
-            className="w-6 h-6 text-red-600"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        );
-      case "post":
-        return (
-          <svg
-            className="w-6 h-6 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        );
-      case "system":
-        return (
-          <svg
-            className="w-6 h-6 text-purple-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        );
-      default:
-        return (
-          <svg
-            className="w-6 h-6 text-gray-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-          </svg>
-        );
-    }
+    const iconMap = {
+      comment: { bg: "bg-blue-50", icon: <MessageCircle className="w-5 h-5 text-blue-500" /> },
+      like: { bg: "bg-rose-50", icon: <Heart className="w-5 h-5 text-rose-500" fill="currentColor" /> },
+      post: { bg: "bg-emerald-50", icon: <FileText className="w-5 h-5 text-emerald-500" /> },
+      system: { bg: "bg-violet-50", icon: <Info className="w-5 h-5 text-violet-500" /> },
+    };
+    const config = iconMap[type] || { bg: "bg-gray-50", icon: <Bell className="w-5 h-5 text-gray-400" /> };
+    return (
+      <div className={`w-10 h-10 rounded-2xl ${config.bg} flex items-center justify-center flex-shrink-0`}>
+        {config.icon}
+      </div>
+    );
   };
 
   const formatTimestamp = (timestamp) => {
@@ -180,191 +127,146 @@ const Notifications = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen bg-gray-50/50">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {t('notifications.notifications')}
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                {t('notifications.stayUpdated')}
-              </p>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm"
+                style={{ backgroundColor: "#1ABC9C" }}
+              >
+                <Bell className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "#2D3E50" }}>
+                  {t('notifications.notifications')}
+                </h1>
+                <p className="mt-0.5 text-sm text-gray-500">
+                  {t('notifications.stayUpdated')}
+                </p>
+              </div>
             </div>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl text-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
+                style={{ backgroundColor: "#1ABC9C" }}
               >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                {t('notifications.markAllAsRead')}
+                <CheckCheck className="w-4 h-4" />
+                <span className="hidden sm:inline">{t('notifications.markAllAsRead')}</span>
               </button>
             )}
           </div>
 
           {/* Filter Tabs */}
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                filter === "all"
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {t('notifications.all')}
-              <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-white bg-opacity-20">
-                {notifications.length}
-              </span>
-            </button>
-            <button
-              onClick={() => setFilter("unread")}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                filter === "unread"
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {t('notifications.unread')}
-              <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-white bg-opacity-20">
-                {unreadCount}
-              </span>
-            </button>
-            <button
-              onClick={() => setFilter("read")}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                filter === "read"
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {t('notifications.read')}
-              <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-white bg-opacity-20">
-                {notifications.length - unreadCount}
-              </span>
-            </button>
+          <div className="mt-6 inline-flex gap-1 p-1 bg-white rounded-xl border border-gray-100 shadow-sm">
+            {[
+              { key: "all", label: t('notifications.all'), count: notifications.length },
+              { key: "unread", label: t('notifications.unread'), count: unreadCount },
+              { key: "read", label: t('notifications.read'), count: notifications.length - unreadCount },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setFilter(tab.key)}
+                className="px-4 py-2 text-sm font-medium rounded-xl transition-all"
+                style={{
+                  backgroundColor: filter === tab.key ? "#2D3E50" : "transparent",
+                  color: filter === tab.key ? "white" : "#6b7280",
+                }}
+              >
+                {tab.label}
+                <span
+                  className="ml-1.5 px-1.5 py-0.5 text-xs rounded-lg font-semibold"
+                  style={{
+                    backgroundColor: filter === tab.key ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.05)",
+                  }}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Notifications List */}
         {loading ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-4 text-gray-500">{t('notifications.loading')}</p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-14 text-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 mx-auto" style={{ borderTopColor: "#1ABC9C" }}></div>
+            <p className="mt-4 text-sm text-gray-500">{t('notifications.loading')}</p>
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <svg
-              className="w-16 h-16 text-gray-300 mx-auto"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+              <BellOff className="w-7 h-7 text-gray-300" />
+            </div>
+            <h3 className="text-lg font-semibold" style={{ color: "#2D3E50" }}>
               {t('notifications.noNotifications')}
             </h3>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
               {filter === "unread"
                 ? t('notifications.allCaughtUp')
                 : t('notifications.noNotificationsYet')}
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50 overflow-hidden">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`bg-white rounded-lg shadow-md hover:shadow-lg transition ${
-                  !notification.read ? "border-l-4 border-purple-600" : ""
+                className={`group px-5 py-4 hover:bg-gray-50/50 transition-colors ${
+                  !notification.read ? "bg-[#1ABC9C]/[0.03]" : ""
                 }`}
               >
-                <div className="p-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="ml-4 flex-1">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p
-                            className={`text-sm ${
-                              !notification.read
-                                ? "font-semibold text-gray-900"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {notification.title}
-                          </p>
-                          <p className="mt-1 text-sm text-gray-500">
-                            {notification.message}
-                          </p>
-                          <p className="mt-1 text-xs text-gray-400">
-                            {formatTimestamp(notification.createdAt)}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 ml-4">
-                          {!notification.read && (
-                            <button
-                              onClick={() => markAsRead(notification.id)}
-                              className="text-purple-600 hover:text-purple-800"
-                              title={t('notifications.markAsReadTitle')}
-                            >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </button>
-                          )}
+                <div className="flex items-start gap-3.5">
+                  {/* Unread indicator dot */}
+                  <div className="relative">
+                    {getNotificationIcon(notification.type)}
+                    {!notification.read && (
+                      <span
+                        className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white"
+                        style={{ backgroundColor: "#1ABC9C" }}
+                      />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`text-sm leading-snug ${
+                            !notification.read
+                              ? "font-semibold"
+                              : "text-gray-600"
+                          }`}
+                          style={{ color: !notification.read ? "#2D3E50" : undefined }}
+                        >
+                          {notification.title}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                          {notification.message}
+                        </p>
+                        <p className="mt-1.5 text-xs text-gray-400">
+                          {formatTimestamp(notification.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-0.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {!notification.read && (
                           <button
-                            onClick={() => deleteNotification(notification.id)}
-                            className="text-gray-400 hover:text-red-600"
-                            title="Delete"
+                            onClick={() => markAsRead(notification.id)}
+                            className="p-2 rounded-xl text-gray-400 hover:text-[#1ABC9C] hover:bg-[#1ABC9C]/10 transition-colors"
+                            title={t('notifications.markAsReadTitle')}
                           >
-                            <svg
-                              className="w-5 h-5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
+                            <Check className="w-4 h-4" />
                           </button>
-                        </div>
+                        )}
+                        <button
+                          onClick={() => deleteNotification(notification.id)}
+                          className="p-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>

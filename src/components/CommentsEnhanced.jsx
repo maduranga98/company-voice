@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
-import { MessageCircle, Send, AtSign, X, Edit2, Trash2, Reply, Flag } from "lucide-react";
+import { MessageCircle, Send, AtSign, X, Edit2, Trash2, Reply, Flag, ShieldCheck } from "lucide-react";
 import {
   searchUsersForMention,
   parseMentions,
@@ -308,7 +308,8 @@ const CommentsEnhanced = ({
         return (
           <span
             key={index}
-            className="text-blue-600 font-medium hover:underline cursor-pointer"
+            className="font-semibold hover:underline cursor-pointer"
+            style={{ color: "#1ABC9C" }}
           >
             {segment.text}
           </span>
@@ -333,13 +334,29 @@ const CommentsEnhanced = ({
 
   return (
     <div className="w-full">
-      {/* Action Bar - Fixed Position */}
-      <div className="px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-1 bg-white">
+      {/* Action Bar */}
+      <div className="px-3 sm:px-5 py-2.5 sm:py-3 flex items-center gap-1.5 bg-white">
         {reactionButton}
         {/* Comment Button */}
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-sm"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-sm"
+          style={{
+            color: showComments ? "#1ABC9C" : "#64748b",
+            backgroundColor: showComments ? "rgba(26, 188, 156, 0.08)" : "transparent",
+          }}
+          onMouseEnter={(e) => {
+            if (!showComments) {
+              e.currentTarget.style.backgroundColor = "rgba(26, 188, 156, 0.06)";
+              e.currentTarget.style.color = "#1ABC9C";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!showComments) {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "#64748b";
+            }
+          }}
         >
           <MessageCircle className="w-4 h-4" />
           <span>{commentCount}</span>
@@ -350,14 +367,14 @@ const CommentsEnhanced = ({
         {reportButton}
       </div>
 
-      {/* Comments Section - Properly contained within post */}
+      {/* Comments Section */}
       {showComments && (
-        <div className="w-full px-3 sm:px-4 pb-4 pt-2 border-t border-slate-100 bg-white overflow-hidden">
+        <div className="w-full px-3 sm:px-5 pb-5 pt-3 border-t border-slate-100 bg-white overflow-hidden">
           {/* Close Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-end mb-1">
             <button
               onClick={() => setShowComments(false)}
-              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-1.5 transition"
+              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl p-1.5 transition-all duration-200"
               title="Close comments"
             >
               <X className="w-5 h-5" />
@@ -365,11 +382,14 @@ const CommentsEnhanced = ({
           </div>
 
           {/* Comments List */}
-          <div className="mt-2 space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-4 max-h-96 overflow-y-auto pr-1">
             {comments.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">
-                {commentCount > 0 ? "Loading comments..." : "No comments yet. Be the first to comment!"}
-              </p>
+              <div className="text-center py-8">
+                <MessageCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                <p className="text-sm text-slate-500">
+                  {commentCount > 0 ? "Loading comments..." : "No comments yet. Be the first to comment!"}
+                </p>
+              </div>
             ) : (
               comments.map((comment) => {
                 const isOwnComment = userData && userData.id === comment.authorId;
@@ -385,54 +405,65 @@ const CommentsEnhanced = ({
 
                 return (
                   <div key={comment.id} className="space-y-2">
-                    <div className="flex gap-2 sm:gap-3">
-                      <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                    <div className="flex gap-2.5 sm:gap-3">
+                      <div
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 shadow-sm"
+                        style={{ backgroundColor: "#2D3E50" }}
+                      >
                         {comment.authorName?.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="bg-slate-50 rounded-lg p-2.5 sm:p-3">
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <span className="font-medium text-slate-900 text-sm">
+                        <div className="bg-slate-50/80 rounded-2xl p-3 sm:p-3.5 border border-slate-100/80">
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <span className="font-semibold text-sm" style={{ color: "#2D3E50" }}>
                               {comment.authorName}
                               {comment.isAdminComment && (
-                                <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
+                                <span
+                                  className="ml-2 px-2 py-0.5 text-xs rounded-lg font-medium inline-flex items-center gap-1"
+                                  style={{ backgroundColor: "rgba(26, 188, 156, 0.12)", color: "#1ABC9C" }}
+                                >
+                                  <ShieldCheck className="w-3 h-3" />
                                   Admin
                                 </span>
                               )}
                               {comment.edited && (
-                                <span className="ml-2 text-xs text-slate-400">(edited)</span>
+                                <span className="ml-2 text-xs text-slate-400 font-normal">(edited)</span>
                               )}
                             </span>
-                            <span className="text-xs text-slate-500 flex-shrink-0">
+                            <span className="text-xs text-slate-400 flex-shrink-0 font-medium">
                               {getTimeAgo(comment.createdAt)}
                             </span>
                           </div>
 
                           {isEditing ? (
-                            <div className="space-y-2">
+                            <div className="space-y-2.5">
                               <textarea
                                 value={editText}
                                 onChange={(e) => setEditText(e.target.value)}
-                                className="w-full px-2 py-1 border border-slate-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:border-transparent transition-shadow"
+                                style={{ focusRingColor: "#1ABC9C" }}
+                                onFocus={(e) => e.target.style.boxShadow = "0 0 0 2px rgba(26, 188, 156, 0.25)"}
+                                onBlur={(e) => e.target.style.boxShadow = "none"}
                                 rows="2"
                               />
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => handleSaveEdit(comment.id)}
-                                  className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                  className="px-3 py-1.5 text-white text-xs font-medium rounded-xl transition-all duration-200 hover:opacity-90 shadow-sm"
+                                  style={{ backgroundColor: "#1ABC9C" }}
                                 >
                                   {t('comments.saveEdit')}
                                 </button>
                                 <button
                                   onClick={handleCancelEdit}
-                                  className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
+                                  className="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-200 transition-all duration-200"
                                 >
                                   {t('comments.cancelEdit')}
                                 </button>
                               </div>
                             </div>
                           ) : (
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap break-words leading-relaxed">
                               {renderCommentWithMentions(comment.text)}
                             </p>
                           )}
@@ -440,10 +471,10 @@ const CommentsEnhanced = ({
 
                         {/* Comment Actions */}
                         {!isEditing && (
-                          <div className="flex items-center gap-3 mt-1 ml-1">
+                          <div className="flex items-center gap-1 mt-1.5 ml-1">
                             <button
                               onClick={() => handleReplyToComment(comment)}
-                              className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
+                              className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#1ABC9C] px-2 py-1 rounded-lg transition-all duration-200 hover:bg-[rgba(26,188,156,0.06)]"
                             >
                               <Reply className="w-3 h-3" />
                               {t('comments.reply')}
@@ -452,14 +483,14 @@ const CommentsEnhanced = ({
                               <>
                                 <button
                                   onClick={() => handleEditComment(comment)}
-                                  className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
+                                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#1ABC9C] px-2 py-1 rounded-lg transition-all duration-200 hover:bg-[rgba(26,188,156,0.06)]"
                                 >
                                   <Edit2 className="w-3 h-3" />
                                   {t('common.edit')}
                                 </button>
                                 <button
                                   onClick={() => handleDeleteComment(comment.id)}
-                                  className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
+                                  className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 px-2 py-1 rounded-lg transition-all duration-200 hover:bg-red-50"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                   {t('common.delete')}
@@ -471,7 +502,7 @@ const CommentsEnhanced = ({
                                   setReportingCommentId(comment.id);
                                   setShowReportModal(true);
                                 }}
-                                className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
+                                className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 px-2 py-1 rounded-lg transition-all duration-200 hover:bg-red-50"
                               >
                                 <Flag className="w-3 h-3" />
                                 {t('comments.reportComment')}
@@ -482,24 +513,27 @@ const CommentsEnhanced = ({
 
                         {/* Reply Form */}
                         {isReplying && (
-                          <div className="mt-2 space-y-2">
+                          <div className="mt-3 space-y-2.5">
                             <textarea
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
-                              className="w-full px-2 py-1 border border-slate-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none transition-shadow"
+                              onFocus={(e) => e.target.style.boxShadow = "0 0 0 2px rgba(26, 188, 156, 0.25)"}
+                              onBlur={(e) => e.target.style.boxShadow = "none"}
                               rows="2"
                               placeholder={t('comments.addReply')}
                             />
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleSaveReply(comment.id)}
-                                className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                className="px-3 py-1.5 text-white text-xs font-medium rounded-xl transition-all duration-200 hover:opacity-90 shadow-sm"
+                                style={{ backgroundColor: "#1ABC9C" }}
                               >
                                 {t('comments.reply')}
                               </button>
                               <button
                                 onClick={handleCancelReply}
-                                className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
+                                className="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-200 transition-all duration-200"
                               >
                                 {t('common.cancel')}
                               </button>
@@ -509,26 +543,29 @@ const CommentsEnhanced = ({
 
                         {/* Nested Replies */}
                         {replies.length > 0 && (
-                          <div className="mt-3 ml-4 space-y-2 border-l-2 border-slate-200 pl-3">
+                          <div className="mt-3 ml-4 space-y-2.5 border-l-2 pl-3" style={{ borderColor: "rgba(26, 188, 156, 0.2)" }}>
                             {replies.map((reply) => {
                               const isOwnReply = userData && userData.id === reply.authorId;
                               const isEditingReply = editingCommentId === reply.id;
 
                               return (
                                 <div key={reply.id} className="flex gap-2">
-                                  <div className="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+                                  <div
+                                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                                    style={{ backgroundColor: "#3d5166" }}
+                                  >
                                     {reply.authorName?.charAt(0).toUpperCase()}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="bg-slate-100 rounded-lg p-2">
+                                    <div className="bg-slate-50/60 rounded-2xl p-2.5 border border-slate-100/60">
                                       <div className="flex items-start justify-between gap-2 mb-1">
-                                        <span className="font-medium text-slate-900 text-xs">
+                                        <span className="font-semibold text-xs" style={{ color: "#2D3E50" }}>
                                           {reply.authorName}
                                           {reply.edited && (
-                                            <span className="ml-1 text-xs text-slate-400">(edited)</span>
+                                            <span className="ml-1 text-xs text-slate-400 font-normal">(edited)</span>
                                           )}
                                         </span>
-                                        <span className="text-xs text-slate-500 flex-shrink-0">
+                                        <span className="text-xs text-slate-400 flex-shrink-0">
                                           {getTimeAgo(reply.createdAt)}
                                         </span>
                                       </div>
@@ -538,26 +575,29 @@ const CommentsEnhanced = ({
                                           <textarea
                                             value={editText}
                                             onChange={(e) => setEditText(e.target.value)}
-                                            className="w-full px-2 py-1 border border-slate-300 rounded text-xs resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs resize-none focus:outline-none transition-shadow"
+                                            onFocus={(e) => e.target.style.boxShadow = "0 0 0 2px rgba(26, 188, 156, 0.25)"}
+                                            onBlur={(e) => e.target.style.boxShadow = "none"}
                                             rows="2"
                                           />
                                           <div className="flex gap-2">
                                             <button
                                               onClick={() => handleSaveEdit(reply.id)}
-                                              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                              className="px-2.5 py-1 text-white text-xs font-medium rounded-xl transition-all duration-200 hover:opacity-90"
+                                              style={{ backgroundColor: "#1ABC9C" }}
                                             >
                                               {t('comments.saveEdit')}
                                             </button>
                                             <button
                                               onClick={handleCancelEdit}
-                                              className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded hover:bg-slate-300"
+                                              className="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-xl hover:bg-slate-200 transition-all duration-200"
                                             >
                                               {t('comments.cancelEdit')}
                                             </button>
                                           </div>
                                         </div>
                                       ) : (
-                                        <p className="text-xs text-slate-700 whitespace-pre-wrap break-words">
+                                        <p className="text-xs text-slate-700 whitespace-pre-wrap break-words leading-relaxed">
                                           {renderCommentWithMentions(reply.text)}
                                         </p>
                                       )}
@@ -565,19 +605,19 @@ const CommentsEnhanced = ({
 
                                     {/* Reply Actions */}
                                     {!isEditingReply && (
-                                      <div className="flex items-center gap-3 mt-1 ml-1">
+                                      <div className="flex items-center gap-1 mt-1 ml-1">
                                         {isOwnReply ? (
                                           <>
                                             <button
                                               onClick={() => handleEditComment(reply)}
-                                              className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600"
+                                              className="flex items-center gap-1 text-xs text-slate-400 hover:text-[#1ABC9C] px-2 py-0.5 rounded-lg transition-all duration-200 hover:bg-[rgba(26,188,156,0.06)]"
                                             >
                                               <Edit2 className="w-3 h-3" />
                                               {t('common.edit')}
                                             </button>
                                             <button
                                               onClick={() => handleDeleteComment(reply.id)}
-                                              className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
+                                              className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 px-2 py-0.5 rounded-lg transition-all duration-200 hover:bg-red-50"
                                             >
                                               <Trash2 className="w-3 h-3" />
                                               {t('common.delete')}
@@ -589,7 +629,7 @@ const CommentsEnhanced = ({
                                               setReportingCommentId(reply.id);
                                               setShowReportModal(true);
                                             }}
-                                            className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-600"
+                                            className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-500 px-2 py-0.5 rounded-lg transition-all duration-200 hover:bg-red-50"
                                           >
                                             <Flag className="w-3 h-3" />
                                             {t('comments.reportComment')}
@@ -613,15 +653,19 @@ const CommentsEnhanced = ({
 
           {/* Error Message */}
           {error && (
-            <div className="mt-3 p-2 bg-red-50 border border-red-100 rounded text-sm text-red-700">
+            <div className="mt-3 p-3 bg-red-50 border border-red-100 rounded-2xl text-sm text-red-600 flex items-center gap-2">
+              <span className="text-red-400">!</span>
               {error}
             </div>
           )}
 
           {/* Add Comment */}
-          <div className="mt-4 relative">
-            <div className="flex gap-2">
-              <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+          <div className="mt-5 relative">
+            <div className="flex gap-2.5">
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 shadow-sm"
+                style={{ backgroundColor: "#2D3E50" }}
+              >
                 {userData?.displayName?.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 relative">
@@ -637,31 +681,44 @@ const CommentsEnhanced = ({
                     }}
                     placeholder="Write a comment... (Use @ to mention someone)"
                     rows="2"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 bg-slate-50/80 border border-slate-200/80 rounded-2xl text-sm resize-none focus:outline-none focus:bg-white transition-all duration-200"
+                    style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = "0 0 0 2px rgba(26, 188, 156, 0.2), 0 1px 2px rgba(0,0,0,0.04)";
+                      e.target.style.borderColor = "rgba(26, 188, 156, 0.4)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = "0 1px 2px rgba(0,0,0,0.04)";
+                      e.target.style.borderColor = "";
+                    }}
                   />
 
                   {/* Mention Autocomplete Dropdown */}
                   {showMentions && mentionSuggestions.length > 0 && (
                     <div
-                      className="absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"
+                      className="absolute z-50 bg-white border border-slate-200/80 rounded-2xl shadow-lg mt-1.5 max-h-48 overflow-y-auto"
                       style={{
-                        minWidth: "200px",
+                        minWidth: "220px",
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06)",
                       }}
                     >
                       {mentionSuggestions.map((user) => (
                         <button
                           key={user.id}
                           onClick={() => insertMention(user)}
-                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-50 text-left"
+                          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 hover:bg-slate-50 text-left first:rounded-t-2xl last:rounded-b-2xl transition-colors duration-150"
                         >
-                          <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                            style={{ backgroundColor: "#2D3E50" }}
+                          >
                             {user.displayName?.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-slate-900 truncate">
+                            <div className="text-sm font-medium truncate" style={{ color: "#2D3E50" }}>
                               {user.displayName}
                             </div>
-                            <div className="text-xs text-slate-500 truncate">
+                            <div className="text-xs text-slate-400 truncate">
                               @{user.username}
                             </div>
                           </div>
@@ -671,26 +728,33 @@ const CommentsEnhanced = ({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between mt-2">
-                  <label className="flex items-center gap-2 text-xs text-slate-600">
+                <div className="flex items-center justify-between mt-2.5">
+                  <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none group">
                     <input
                       type="checkbox"
                       checked={isAnonymous}
                       onChange={(e) => setIsAnonymous(e.target.checked)}
-                      className="w-3 h-3 rounded"
+                      className="w-3.5 h-3.5 rounded accent-[#1ABC9C]"
                     />
-                    {t('comments.anonymous')}
+                    <span className="group-hover:text-slate-700 transition-colors">{t('comments.anonymous')}</span>
                   </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">
-                      <AtSign className="w-3 h-3 inline" /> to mention
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400 hidden sm:flex items-center gap-1">
+                      <AtSign className="w-3 h-3" /> to mention
                     </span>
                     <button
                       onClick={handleAddComment}
                       disabled={!newComment.trim() || loading}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1.5 px-4 py-2 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
+                      style={{ backgroundColor: "#1ABC9C" }}
+                      onMouseEnter={(e) => {
+                        if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#17a68a";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "#1ABC9C";
+                      }}
                     >
-                      <Send className="w-3 h-3" />
+                      <Send className="w-3.5 h-3.5" />
                       Send
                     </button>
                   </div>

@@ -12,6 +12,13 @@ import {
   PostPriorityConfig,
 } from "../utils/constants";
 import { isAdmin } from "../services/postManagementService";
+import {
+  ClipboardCheck,
+  AlertTriangle,
+  ChevronUp,
+  Calendar,
+  Inbox,
+} from "lucide-react";
 
 const getTimeAgo = (date) => {
   if (!date) return "";
@@ -100,27 +107,29 @@ const AssignedToMe = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="w-8 h-8 rounded-full border-b-2 border-[#1ABC9C] animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <div
+          className="w-9 h-9 rounded-full border-2 border-gray-200 animate-spin"
+          style={{ borderTopColor: "#1ABC9C" }}
+        />
+        <p className="mt-3 text-xs text-gray-400">{t("common.loading")}</p>
       </div>
     );
   }
 
   if (!userData?.userTagId) {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+      <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
+        <div className="bg-amber-50 border border-gray-100 rounded-2xl p-6 text-center shadow-sm">
           <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
           <h3 className="text-base font-semibold text-amber-900 mb-2">
             {t("assignedToMe.noTagTitle")}
           </h3>
-          <p className="text-sm text-amber-700">{t("assignedToMe.noTagMessage")}</p>
+          <p className="text-sm text-amber-700 leading-relaxed">
+            {t("assignedToMe.noTagMessage")}
+          </p>
         </div>
       </div>
     );
@@ -143,26 +152,39 @@ const AssignedToMe = () => {
   ];
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
+    <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <h1 className="text-xl font-bold text-gray-900">{t("assignedToMe.title")}</h1>
-        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+      <div className="flex items-center gap-3 mb-6">
+        <div
+          className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+          style={{ backgroundColor: "#2D3E50" }}
+        >
+          <ClipboardCheck className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: "#2D3E50" }}>
+            {t("assignedToMe.title")}
+          </h1>
+        </div>
+        <span
+          className="ml-auto px-2.5 py-1 rounded-xl text-xs font-semibold text-white"
+          style={{ backgroundColor: "#1ABC9C" }}
+        >
           {posts.length}
         </span>
       </div>
 
       {/* Status filter pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 mb-3" style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3" style={{ scrollbarWidth: "none" }}>
         {statusTabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setSelectedStatus(tab.value)}
-            className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+            className="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm"
             style={{
               backgroundColor: selectedStatus === tab.value ? "#2D3E50" : "white",
               color: selectedStatus === tab.value ? "white" : "#4b5563",
-              border: selectedStatus === tab.value ? "none" : "1px solid #e5e7eb",
+              border: `1px solid ${selectedStatus === tab.value ? "#2D3E50" : "#f3f4f6"}`,
             }}
           >
             {tab.label}
@@ -171,16 +193,16 @@ const AssignedToMe = () => {
       </div>
 
       {/* Priority filter pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 mb-4" style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-5" style={{ scrollbarWidth: "none" }}>
         {priorityTabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setSelectedPriority(tab.value)}
-            className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+            className="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm"
             style={{
               backgroundColor: selectedPriority === tab.value ? "#1ABC9C" : "white",
               color: selectedPriority === tab.value ? "white" : "#4b5563",
-              border: selectedPriority === tab.value ? "none" : "1px solid #e5e7eb",
+              border: `1px solid ${selectedPriority === tab.value ? "#1ABC9C" : "#f3f4f6"}`,
             }}
           >
             {tab.label}
@@ -190,37 +212,40 @@ const AssignedToMe = () => {
 
       {/* Empty state */}
       {filteredPosts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+            <Inbox className="w-6 h-6 text-gray-300" />
           </div>
-          <h3 className="text-base font-semibold text-gray-900 mb-1">
+          <h3 className="text-base font-semibold mb-1" style={{ color: "#2D3E50" }}>
             {t("assignedToMe.noPosts")}
           </h3>
-          <p className="text-sm text-gray-500">{t("assignedToMe.noPostsDescription")}</p>
+          <p className="text-sm text-gray-500 max-w-xs">
+            {t("assignedToMe.noPostsDescription")}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredPosts.map((post) => {
             const isExpanded = expandedPost === post.id;
             return (
-              <div key={post.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div
+                key={post.id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
+              >
                 {!isExpanded ? (
                   <div className="p-4">
                     {/* Top row: type + time */}
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2.5">
                       {post.status && PostStatusConfig[post.status] && (
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
+                          className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
                         >
                           {PostStatusConfig[post.status].label}
                         </span>
                       )}
                       {post.priority && PostPriorityConfig[post.priority] && (
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
+                          className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
                         >
                           {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
                         </span>
@@ -231,13 +256,14 @@ const AssignedToMe = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    <h3 className="text-sm font-semibold mb-1.5" style={{ color: "#2D3E50" }}>
                       {post.title}
                     </h3>
 
                     {/* Due date if present */}
                     {post.dueDate && (
-                      <p className="text-[11px] text-amber-600 mb-2">
+                      <p className="text-[11px] text-amber-600 mb-2.5 inline-flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg">
+                        <Calendar className="w-3 h-3" />
                         Due: {post.dueDate.toLocaleDateString()}
                       </p>
                     )}
@@ -245,7 +271,8 @@ const AssignedToMe = () => {
                     {/* Expand button */}
                     <button
                       onClick={() => setExpandedPost(post.id)}
-                      className="text-xs text-[#1ABC9C] font-medium"
+                      className="text-xs font-medium rounded-xl px-3 py-1.5 transition-all hover:bg-[#1ABC9C]/10"
+                      style={{ color: "#1ABC9C" }}
                     >
                       View details ›
                     </button>
@@ -253,18 +280,18 @@ const AssignedToMe = () => {
                 ) : (
                   <div>
                     {/* Collapse header */}
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                    <div className="px-4 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
                       <div className="flex items-center gap-2 flex-wrap">
                         {post.status && PostStatusConfig[post.status] && (
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
+                            className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
                           >
                             {PostStatusConfig[post.status].label}
                           </span>
                         )}
                         {post.priority && PostPriorityConfig[post.priority] && (
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
+                            className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
                           >
                             {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
                           </span>
@@ -272,11 +299,9 @@ const AssignedToMe = () => {
                       </div>
                       <button
                         onClick={() => setExpandedPost(null)}
-                        className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
+                        className="p-1.5 rounded-xl hover:bg-gray-200 transition-colors"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
-                          <path d="M5 15l7-7 7 7" />
-                        </svg>
+                        <ChevronUp className="w-4 h-4 text-gray-500" />
                       </button>
                     </div>
 

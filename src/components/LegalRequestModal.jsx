@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Scale, XCircle, AlertTriangle, FileText, Upload } from "lucide-react";
+import { Scale, X, AlertTriangle, FileText, Upload, Info, AlertCircle, CheckCircle } from "lucide-react";
 import {
   LegalRequestType,
   LegalRequestTypeConfig,
 } from "../utils/constants";
 import { createLegalRequest } from "../services/legalRequestService";
+
+const NAVY = "#2D3E50";
+const TEAL = "#1ABC9C";
 
 const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => {
   const [requestType, setRequestType] = useState(LegalRequestType.IDENTITY_DISCLOSURE);
@@ -37,18 +40,6 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
     setError("");
 
     try {
-      // In a real implementation, you would upload to Firebase Storage
-      // For now, we'll just store a placeholder URL
-      // This is a simplified version - in production, implement proper file upload
-
-      // Example Firebase Storage upload:
-      // const storage = getStorage();
-      // const storageRef = ref(storage, `court-orders/${companyId}/${Date.now()}-${file.name}`);
-      // const snapshot = await uploadBytes(storageRef, file);
-      // const downloadURL = await getDownloadURL(snapshot.ref);
-      // setCourtOrderUrl(downloadURL);
-
-      // For now, create a data URL (not recommended for production)
       const reader = new FileReader();
       reader.onloadend = () => {
         setCourtOrderUrl(reader.result);
@@ -104,33 +95,38 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <Scale className="w-6 h-6 text-indigo-600 mr-3" />
-              <h2 className="text-2xl font-bold text-gray-900">
-                Request Legal Disclosure
-              </h2>
-            </div>
-            <button
-              onClick={onClose}
-              disabled={submitting}
-              className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: `${NAVY}10` }}
             >
-              <XCircle className="w-6 h-6" />
-            </button>
+              <Scale className="w-4.5 h-4.5" style={{ color: NAVY }} />
+            </div>
+            <h2 className="text-lg font-semibold" style={{ color: NAVY }}>
+              Request Legal Disclosure
+            </h2>
           </div>
+          <button
+            onClick={onClose}
+            disabled={submitting}
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl p-2 transition-colors disabled:opacity-50"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
+        <div className="p-6 space-y-5">
           {/* Warning Banner */}
-          <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg mb-6">
-            <div className="flex items-start">
-              <AlertTriangle className="w-5 h-5 text-orange-600 mr-3 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-orange-800">
-                <p className="font-medium mb-1">Legal Disclosure Process</p>
-                <p>
+          <div className="p-4 rounded-xl border border-amber-200" style={{ backgroundColor: "#FFFBEB" }}>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800">
+                <p className="font-semibold mb-1">Legal Disclosure Process</p>
+                <p className="text-xs leading-relaxed">
                   This request will be reviewed by VoxWel's legal team. All requests must be
                   accompanied by valid legal documentation (court order, subpoena, etc.).
                   Frivolous or improper requests may result in penalties.
@@ -140,44 +136,47 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
           </div>
 
           {/* Report Information */}
-          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <h3 className="font-medium text-gray-900 mb-3">Report Information</h3>
+          <div className="p-4 bg-gray-50/80 border border-gray-100 rounded-xl">
+            <h3 className="font-medium text-sm mb-3" style={{ color: NAVY }}>
+              Report Information
+            </h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-gray-600">Report ID:</span>
-                <span className="ml-2 font-medium text-gray-900">{report.id}</span>
+                <span className="text-gray-400 text-xs">Report ID:</span>
+                <p className="font-medium text-sm" style={{ color: NAVY }}>{report.id}</p>
               </div>
               <div>
-                <span className="text-gray-600">Content Type:</span>
-                <span className="ml-2 font-medium text-gray-900 capitalize">
+                <span className="text-gray-400 text-xs">Content Type:</span>
+                <p className="font-medium text-sm capitalize" style={{ color: NAVY }}>
                   {report.contentType}
-                </span>
+                </p>
               </div>
               <div>
-                <span className="text-gray-600">Reason:</span>
-                <span className="ml-2 font-medium text-gray-900 capitalize">
+                <span className="text-gray-400 text-xs">Reason:</span>
+                <p className="font-medium text-sm capitalize" style={{ color: NAVY }}>
                   {report.reason}
-                </span>
+                </p>
               </div>
               <div>
-                <span className="text-gray-600">Status:</span>
-                <span className="ml-2 font-medium text-gray-900 capitalize">
+                <span className="text-gray-400 text-xs">Status:</span>
+                <p className="font-medium text-sm capitalize" style={{ color: NAVY }}>
                   {report.status}
-                </span>
+                </p>
               </div>
             </div>
           </div>
 
           {/* Request Type */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: NAVY }}>
               Request Type <span className="text-red-500">*</span>
             </label>
             <select
               value={requestType}
               onChange={(e) => setRequestType(e.target.value)}
               disabled={submitting}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent disabled:opacity-50 transition-shadow"
+              style={{ color: NAVY, "--tw-ring-color": TEAL }}
             >
               {Object.values(LegalRequestType).map((type) => (
                 <option key={type} value={type}>
@@ -185,14 +184,14 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
                 </option>
               ))}
             </select>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1.5">
               {LegalRequestTypeConfig[requestType]?.description}
             </p>
           </div>
 
           {/* Legal Justification */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: NAVY }}>
               Legal Justification <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -200,23 +199,24 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
               onChange={(e) => setLegalJustification(e.target.value)}
               disabled={submitting}
               rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent disabled:opacity-50 disabled:bg-gray-50 transition-shadow"
+              style={{ color: NAVY, "--tw-ring-color": TEAL }}
               placeholder="Provide detailed legal justification for this disclosure request. Include:&#10;- Case number and jurisdiction&#10;- Legal basis for the request&#10;- Specific information being requested&#10;- Relevant statutes or court orders&#10;&#10;Minimum 100 characters required."
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-400 mt-1.5">
               {legalJustification.length} / 100 minimum characters
             </p>
           </div>
 
           {/* Court Order Upload */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: NAVY }}>
               Court Order / Legal Document
-              <span className="text-gray-500 text-xs ml-2">(Optional, but recommended)</span>
+              <span className="text-gray-400 text-xs font-normal ml-2">(Optional, but recommended)</span>
             </label>
 
             {!courtOrderUrl ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-gray-300 transition-colors">
                 <input
                   type="file"
                   id="court-order-upload"
@@ -231,27 +231,27 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
                     uploading || submitting ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">
+                  <Upload className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">
                     {uploading ? "Uploading..." : "Click to upload court order or legal document"}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     PDF, JPG, or PNG (max 10MB)
                   </p>
                 </label>
               </div>
             ) : (
-              <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center">
-                  <FileText className="w-5 h-5 text-green-600 mr-2" />
-                  <span className="text-sm text-green-800 font-medium">
+              <div className="flex items-center justify-between p-4 rounded-xl border" style={{ backgroundColor: `${TEAL}08`, borderColor: `${TEAL}30` }}>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" style={{ color: TEAL }} />
+                  <span className="text-sm font-medium" style={{ color: NAVY }}>
                     Document uploaded successfully
                   </span>
                 </div>
                 <button
                   onClick={() => setCourtOrderUrl("")}
                   disabled={submitting}
-                  className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
+                  className="text-red-500 hover:text-red-700 text-sm font-medium disabled:opacity-50 transition-colors"
                 >
                   Remove
                 </button>
@@ -261,38 +261,45 @@ const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => 
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
             </div>
           )}
 
           {/* Legal Notice */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="text-sm text-blue-800">
-              <p className="font-medium mb-2">Important Legal Notice:</p>
-              <ul className="list-disc list-inside space-y-1 text-xs">
-                <li>All disclosure requests are logged and audited</li>
-                <li>False or fraudulent requests may result in legal action</li>
-                <li>VoxWel reserves the right to verify all legal documentation</li>
-                <li>Processing time typically 5-10 business days</li>
-                <li>You will be notified when your request is reviewed</li>
-              </ul>
+          <div className="p-4 rounded-xl border border-gray-100" style={{ backgroundColor: `${TEAL}08` }}>
+            <div className="flex items-start gap-2.5">
+              <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: TEAL }} />
+              <div className="text-xs" style={{ color: NAVY }}>
+                <p className="font-semibold mb-1.5">Important Legal Notice:</p>
+                <ul className="list-disc list-inside space-y-1 text-gray-600">
+                  <li>All disclosure requests are logged and audited</li>
+                  <li>False or fraudulent requests may result in legal action</li>
+                  <li>VoxWel reserves the right to verify all legal documentation</li>
+                  <li>Processing time typically 5-10 business days</li>
+                  <li>You will be notified when your request is reviewed</li>
+                </ul>
+              </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
             <button
               onClick={onClose}
               disabled={submitting}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 text-sm font-medium transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting || legalJustification.length < 100}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 text-white rounded-xl text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+              style={{ backgroundColor: submitting || legalJustification.length < 100 ? "#9CA3AF" : NAVY }}
             >
               {submitting ? "Submitting..." : "Submit Legal Request"}
             </button>
