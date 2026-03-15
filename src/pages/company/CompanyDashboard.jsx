@@ -18,6 +18,28 @@ import {
   PostPriorityConfig,
   PostType,
 } from "../../utils/constants";
+import {
+  AlertTriangle,
+  Clock,
+  Zap,
+  FileText,
+  ChevronRight,
+  Users,
+  Tags,
+  Building2,
+  QrCode,
+  ClipboardList,
+  CreditCard,
+  Scale,
+  BarChart3,
+  Shield,
+  MessagesSquare,
+  ShieldAlert,
+  BookOpen,
+  Archive,
+  Lightbulb,
+  MessageSquare,
+} from "lucide-react";
 
 const CompanyDashboard = () => {
   const { t } = useTranslation();
@@ -57,7 +79,6 @@ const CompanyDashboard = () => {
       const snapshot = await getDocs(companyQuery);
       const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      // Fetch pending users
       const usersRef = collection(db, "users");
       const usersQuery = query(
         usersRef,
@@ -67,7 +88,6 @@ const CompanyDashboard = () => {
       const usersSnapshot = await getDocs(usersQuery);
       setPendingUsers(usersSnapshot.size);
 
-      // Calculate stats
       const stats = {
         totalPosts: posts.length,
         openPosts: posts.filter((p) => p.status === PostStatus.OPEN).length,
@@ -92,7 +112,6 @@ const CompanyDashboard = () => {
 
       setStats(stats);
 
-      // Get recent posts that need attention (limited to 5)
       const recentQuery = query(
         postsRef,
         where("companyId", "==", userData.companyId),
@@ -121,763 +140,310 @@ const CompanyDashboard = () => {
 
   const getPostTypeIcon = (type) => {
     switch (type) {
-      case PostType.PROBLEM_REPORT:
-        return "🚨";
-      case PostType.CREATIVE_CONTENT:
-        return "🎨";
-      case PostType.TEAM_DISCUSSION:
-        return "💬";
-      case PostType.IDEA_SUGGESTION:
-        return "💡";
-      default:
-        return "📄";
+      case PostType.PROBLEM_REPORT: return <AlertTriangle size={16} className="text-red-500" />;
+      case PostType.CREATIVE_CONTENT: return <Lightbulb size={16} className="text-purple-500" />;
+      case PostType.TEAM_DISCUSSION: return <MessageSquare size={16} className="text-blue-500" />;
+      default: return <FileText size={16} className="text-gray-500" />;
     }
   };
 
   const getPostTypeName = (type) => {
     switch (type) {
-      case PostType.PROBLEM_REPORT:
-        return t('company.postTypeProblem');
-      case PostType.CREATIVE_CONTENT:
-        return t('company.postTypeCreative');
-      case PostType.TEAM_DISCUSSION:
-        return t('company.postTypeDiscussion');
-      case PostType.IDEA_SUGGESTION:
-        return t('company.postTypeIdea');
-      default:
-        return t('company.postTypeDefault');
+      case PostType.PROBLEM_REPORT: return t('company.postTypeProblem');
+      case PostType.CREATIVE_CONTENT: return t('company.postTypeCreative');
+      case PostType.TEAM_DISCUSSION: return t('company.postTypeDiscussion');
+      case PostType.IDEA_SUGGESTION: return t('company.postTypeIdea');
+      default: return t('company.postTypeDefault');
     }
   };
 
   const navigateToFeed = (type) => {
     switch (type) {
-      case PostType.PROBLEM_REPORT:
-        navigate("/feed/problems");
-        break;
-      case PostType.CREATIVE_CONTENT:
-        navigate("/feed/creative");
-        break;
-      case PostType.TEAM_DISCUSSION:
-        navigate("/feed/discussions");
-        break;
-      default:
-        navigate("/feed/creative");
+      case PostType.PROBLEM_REPORT: navigate("/feed/problems"); break;
+      case PostType.CREATIVE_CONTENT: navigate("/feed/creative"); break;
+      case PostType.TEAM_DISCUSSION: navigate("/feed/discussions"); break;
+      default: navigate("/feed/creative");
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-xl border-2 border-[#1ABC9C] border-t-transparent animate-spin" />
+          <p className="text-sm text-gray-400 font-medium">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
 
+  const metricCards = [
+    {
+      label: t('company.totalPosts'),
+      value: stats.totalPosts,
+      icon: FileText,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-100",
+    },
+    {
+      label: t('company.criticalIssues'),
+      value: stats.criticalPosts,
+      icon: AlertTriangle,
+      color: "text-red-600",
+      bg: "bg-red-50",
+      border: "border-red-100",
+      highlight: stats.criticalPosts > 0,
+    },
+    {
+      label: t('company.openIssues'),
+      value: stats.openPosts,
+      icon: Clock,
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      border: "border-amber-100",
+    },
+    {
+      label: t('company.inProgress'),
+      value: stats.inProgressPosts + stats.workingOnPosts,
+      icon: Zap,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
+      border: "border-indigo-100",
+    },
+  ];
+
+  const feedCards = [
+    {
+      label: t('company.problemReports'),
+      value: stats.problemReports,
+      icon: AlertTriangle,
+      color: "text-red-600",
+      bg: "bg-red-50",
+      hoverBorder: "hover:border-red-200",
+      path: "/feed/problems",
+    },
+    {
+      label: t('company.creativeIdeas'),
+      value: stats.creativeIdeas,
+      icon: Lightbulb,
+      color: "text-purple-600",
+      bg: "bg-purple-50",
+      hoverBorder: "hover:border-purple-200",
+      path: "/feed/creative",
+    },
+    {
+      label: t('company.discussions'),
+      value: stats.discussions,
+      icon: MessageSquare,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      hoverBorder: "hover:border-blue-200",
+      path: "/feed/discussions",
+    },
+  ];
+
+  const quickActions = [
+    { label: t('company.moderation'), icon: Shield, desc: t('company.moderationDesc'), path: "/moderation", color: "text-red-600", bg: "bg-red-50" },
+    { label: t('company.analytics'), icon: BarChart3, desc: t('company.analyticsDesc'), path: "/company/analytics", color: "text-purple-600", bg: "bg-purple-50" },
+    { label: t('company.memberManagementTitle'), icon: Users, desc: t('company.memberManagementDesc'), path: "/company/members", color: "text-emerald-600", bg: "bg-emerald-50", badge: pendingUsers > 0 ? pendingUsers : null },
+    { label: t('company.departmentTitle'), icon: Building2, desc: t('company.departmentsDesc'), path: "/company/departments", color: "text-blue-600", bg: "bg-blue-50" },
+    { label: t('company.tagManagement'), icon: Tags, desc: t('company.tagManagementDesc'), path: "/company/tag-management", color: "text-indigo-600", bg: "bg-indigo-50" },
+    { label: "Conversations", icon: MessagesSquare, desc: "Respond to anonymous employee messages", path: "/hr/conversations", color: "text-teal-600", bg: "bg-teal-50" },
+    { label: "Vendor Risk", icon: ShieldAlert, desc: "Review third-party risk reports", path: "/hr/vendor-risk", color: "text-orange-600", bg: "bg-orange-50" },
+    { label: "Policy Library", icon: BookOpen, desc: "Manage company policies", path: "/company/policies", color: "text-cyan-600", bg: "bg-cyan-50" },
+    { label: t('company.auditLog'), icon: ClipboardList, desc: t('company.auditLogDesc'), path: "/company/audit-log", color: "text-amber-600", bg: "bg-amber-50" },
+    { label: t('company.qrCodeTitle'), icon: QrCode, desc: t('company.qrCodeDesc'), path: "/company/qr-code", color: "text-sky-600", bg: "bg-sky-50" },
+    { label: t('company.billing'), icon: CreditCard, desc: t('company.billingDesc'), path: "/company/billing", color: "text-teal-600", bg: "bg-teal-50" },
+    { label: t('company.legalRequests'), icon: Scale, desc: t('company.legalRequestsDesc'), path: "/company/legal-requests", color: "text-slate-600", bg: "bg-slate-50" },
+    { label: t('company.archivedPosts'), icon: Archive, desc: t('company.archivedPostsDesc'), path: "/archived", color: "text-gray-600", bg: "bg-gray-50" },
+  ];
+
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className="space-y-6">
+      {/* Welcome header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">
           {t('company.dashboardTitle')}
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm text-gray-500 mt-1">
           {t('company.dashboardSubtitle')}
         </p>
+      </div>
 
-        {/* Pending Employees Alert */}
-        {pendingUsers > 0 && (
-          <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 text-yellow-400 mr-3"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <div>
-                  <p className="text-sm font-medium text-yellow-800">
-                    {pendingUsers}{" "}
-                    {pendingUsers === 1 ? t('company.employeeSingular') : t('company.employeePlural')}{" "}
-                    {t('company.pendingApprovalAlert')}
-                  </p>
-                  <p className="text-xs text-yellow-700 mt-0.5">
-                    {t('company.reviewApproveRegistrations')}
-                  </p>
+      {/* Pending employees alert */}
+      {pendingUsers > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4">
+          <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Users size={20} className="text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-amber-800">
+              {pendingUsers}{" "}
+              {pendingUsers === 1 ? t('company.employeeSingular') : t('company.employeePlural')}{" "}
+              {t('company.pendingApprovalAlert')}
+            </p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              {t('company.reviewApproveRegistrations')}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/company/member-management?filter=pending")}
+            className="px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition font-medium text-sm flex-shrink-0"
+          >
+            {t('company.reviewNow')}
+          </button>
+        </div>
+      )}
+
+      {/* Key metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {metricCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.label}
+              className={`bg-white rounded-2xl p-5 border ${card.border} ${
+                card.highlight ? "ring-2 ring-red-200" : ""
+              } transition-all hover:shadow-md`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-10 h-10 ${card.bg} rounded-xl flex items-center justify-center`}>
+                  <Icon size={20} className={card.color} />
                 </div>
               </div>
-              <button
-                onClick={() =>
-                  navigate("/company/member-management?filter=pending")
-                }
-                className="px-4 py-2 bg-yellow-400 text-yellow-900 rounded-lg hover:bg-yellow-500 transition font-medium text-sm"
-              >
-                {t('company.reviewNow')}
-              </button>
+              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-xs font-medium text-gray-500 mt-1">{card.label}</p>
             </div>
-          </div>
-        )}
+          );
+        })}
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Posts */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">{t('company.totalPosts')}</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
-                {stats.totalPosts}
-              </p>
-            </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Critical Issues */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-red-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                {t('company.criticalIssues')}
-              </p>
-              <p className="text-3xl font-bold text-red-600 mt-1">
-                {stats.criticalPosts}
-              </p>
-            </div>
-            <div className="bg-red-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Open/Pending */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-yellow-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">{t('company.openIssues')}</p>
-              <p className="text-3xl font-bold text-yellow-600 mt-1">
-                {stats.openPosts}
-              </p>
-            </div>
-            <div className="bg-yellow-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-yellow-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* In Progress + Working On */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-indigo-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">{t('company.inProgress')}</p>
-              <p className="text-3xl font-bold text-indigo-600 mt-1">
-                {stats.inProgressPosts + stats.workingOnPosts}
-              </p>
-            </div>
-            <div className="bg-indigo-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-indigo-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
+      {/* Post type breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {feedCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <button
+              key={card.path}
+              onClick={() => navigate(card.path)}
+              className={`bg-white rounded-2xl p-5 border border-gray-100 ${card.hoverBorder} hover:shadow-md transition-all text-left group`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-11 h-11 ${card.bg} rounded-xl flex items-center justify-center`}>
+                  <Icon size={22} className={card.color} />
+                </div>
+                <ChevronRight size={18} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-sm font-medium text-gray-500 mt-1">{card.label}</p>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Post Type Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <button
-          onClick={() => navigate("/feed/problems")}
-          className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:border-red-300 hover:shadow-md transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {t('company.problemReports')}
-            </h3>
-            <span className="text-3xl">🚨</span>
-          </div>
-          <p className="text-3xl font-bold text-red-600">
-            {stats.problemReports}
-          </p>
-          <p className="text-sm text-gray-600 mt-2">
-            {t('company.clickToViewProblems')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/feed/creative")}
-          className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:border-purple-300 hover:shadow-md transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {t('company.creativeIdeas')}
-            </h3>
-            <span className="text-3xl">🎨</span>
-          </div>
-          <p className="text-3xl font-bold text-purple-600">
-            {stats.creativeIdeas}
-          </p>
-          <p className="text-sm text-gray-600 mt-2">
-            {t('company.clickToViewCreative')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/feed/discussions")}
-          className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:border-blue-300 hover:shadow-md transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">{t('company.discussions')}</h3>
-            <span className="text-3xl">💬</span>
-          </div>
-          <p className="text-3xl font-bold text-blue-600">
-            {stats.discussions}
-          </p>
-          <p className="text-sm text-gray-600 mt-2">
-            {t('company.clickToViewDiscussions')}
-          </p>
-        </button>
-      </div>
-
-      {/* Recent Posts Needing Attention */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
+      {/* Recent posts needing attention */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">
             {t('company.recentPostsTitle')}
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-500 mt-0.5">
             {t('company.recentPostsSubtitle')}
           </p>
         </div>
 
         {recentPosts.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Shield size={24} className="text-emerald-500" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base font-semibold text-gray-900 mb-1">
               {t('company.allCaughtUp')}
             </h3>
-            <p className="text-gray-600">
+            <p className="text-sm text-gray-500">
               {t('company.noPostsAttention')}
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-gray-50">
             {recentPosts.map((post) => (
               <button
                 key={post.id}
                 onClick={() => navigateToFeed(post.type)}
-                className="w-full px-6 py-4 hover:bg-gray-50 transition text-left flex items-start space-x-4"
+                className="w-full px-6 py-4 hover:bg-gray-50/50 transition text-left flex items-center gap-4 group"
               >
-                {/* Post Type Icon */}
-                <div className="flex-shrink-0 mt-1">
-                  <span className="text-2xl">{getPostTypeIcon(post.type)}</span>
+                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-gray-100 transition-colors">
+                  {getPostTypeIcon(post.type)}
                 </div>
 
-                {/* Post Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-xs font-medium text-gray-500">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-xs font-medium text-gray-400">
                       {getPostTypeName(post.type)}
                     </span>
-                    <span className="text-gray-300">•</span>
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                         PostStatusConfig[post.status]?.bgColor
                       } ${PostStatusConfig[post.status]?.textColor}`}
                     >
                       {PostStatusConfig[post.status]?.label || post.status}
                     </span>
                     {post.priority && (
-                      <>
-                        <span className="text-gray-300">•</span>
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            PostPriorityConfig[post.priority]?.bgColor
-                          } ${PostPriorityConfig[post.priority]?.textColor}`}
-                        >
-                          {PostPriorityConfig[post.priority]?.icon}{" "}
-                          {PostPriorityConfig[post.priority]?.label}
-                        </span>
-                      </>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          PostPriorityConfig[post.priority]?.bgColor
+                        } ${PostPriorityConfig[post.priority]?.textColor}`}
+                      >
+                        {PostPriorityConfig[post.priority]?.icon}{" "}
+                        {PostPriorityConfig[post.priority]?.label}
+                      </span>
                     )}
                   </div>
-                  <h3 className="text-base font-semibold text-gray-900 line-clamp-1">
+                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
                     {post.title}
                   </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                  <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
                     {post.description}
                   </p>
-                  {post.assignedTo && (
-                    <div className="mt-2 flex items-center text-sm text-gray-500">
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                      {t('company.assignedTo')}: {post.assignedTo.name}
-                    </div>
-                  )}
                 </div>
 
-                {/* Arrow Icon */}
-                <div className="flex-shrink-0 mt-2">
-                  <svg
-                    className="w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </div>
+                <ChevronRight size={18} className="text-gray-300 group-hover:text-gray-400 flex-shrink-0 transition-colors" />
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-        <button
-          onClick={() => navigate("/moderation")}
-          className="bg-gradient-to-r from-red-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.moderation')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"
-              />
-            </svg>
-          </div>
-          <p className="text-red-100">
-            {t('company.moderationDesc')}
-          </p>
-        </button>
-
-        {/* HR Harassment Dashboard (for HR and company admins) */}
-        {["company_admin", "hr"].includes(userData?.role) && (
-          <button
-            onClick={() => navigate("/hr/harassment-dashboard")}
-            className="bg-gradient-to-r from-orange-600 to-red-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">{t('company.hrDashboard')}</h3>
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+      {/* Quick actions grid */}
+      <div>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.path}
+                onClick={() => navigate(action.path)}
+                className="bg-white rounded-2xl p-4 border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all text-left group flex items-center gap-4 relative"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                />
-              </svg>
-            </div>
-            <p className="text-orange-100">
-              {t('company.hrDashboardDesc')}
-            </p>
-          </button>
-        )}
-
-        <button
-          onClick={() => navigate("/archived")}
-          className="bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.archivedPosts')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-              />
-            </svg>
-          </div>
-          <p className="text-gray-100">
-            {t('company.archivedPostsDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/analytics")}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.analytics')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-          </div>
-          <p className="text-purple-100">
-            {t('company.analyticsDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/member-management")}
-          className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left relative"
-        >
-          {pendingUsers > 0 && (
-            <span className="absolute top-4 right-4 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-              {pendingUsers}
-            </span>
-          )}
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.memberManagementTitle')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          </div>
-          <p className="text-green-100">
-            {t('company.memberManagementDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/tag-management")}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.tagManagement')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-              />
-            </svg>
-          </div>
-          <p className="text-indigo-100">
-            {t('company.tagManagementDesc')}
-          </p>
-        </button>
-        <button
-          onClick={() => navigate("/company/departments")}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.departmentTitle')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-              />
-            </svg>
-          </div>
-          <p className="text-blue-100">
-            {t('company.departmentsDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/qr-code")}
-          className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.qrCodeTitle')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
-              />
-            </svg>
-          </div>
-          <p className="text-blue-100">
-            {t('company.qrCodeDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/audit-log")}
-          className="bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.auditLog')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </div>
-          <p className="text-amber-100">
-            {t('company.auditLogDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/billing")}
-          className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.billing')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-              />
-            </svg>
-          </div>
-          <p className="text-teal-100">
-            {t('company.billingDesc')}
-          </p>
-        </button>
-
-        <button
-          onClick={() => navigate("/company/policies")}
-          className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Policy Library</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-          </div>
-          <p className="text-teal-100">
-            Manage and publish company policies for employee acknowledgement.
-          </p>
-        </button>
-
-        {["company_admin", "hr"].includes(userData?.role) && (
-          <button
-            onClick={() => navigate("/hr/vendor-risk")}
-            className="bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">Vendor Risk</h3>
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-            </div>
-            <p className="text-orange-100">
-              Review anonymous third-party risk reports and corroborations
-            </p>
-          </button>
-        )}
-
-        {["company_admin", "hr"].includes(userData?.role) && (
-          <button
-            onClick={() => navigate("/hr/conversations")}
-            className="bg-gradient-to-r from-teal-500 to-teal-700 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">Conversations</h3>
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-            </div>
-            <p className="text-teal-100">
-              Respond to anonymous employee messages privately
-            </p>
-          </button>
-        )}
-
-        <button
-          onClick={() => navigate("/company/legal-requests")}
-          className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-xl shadow-sm p-6 text-white hover:shadow-lg transition text-left"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">{t('company.legalRequests')}</h3>
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
-              />
-            </svg>
-          </div>
-          <p className="text-slate-200">
-            {t('company.legalRequestsDesc')}
-          </p>
-        </button>
+                {action.badge && (
+                  <span className="absolute top-3 right-3 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                    {action.badge}
+                  </span>
+                )}
+                <div className={`w-11 h-11 ${action.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform`}>
+                  <Icon size={20} className={action.color} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900">{action.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{action.desc}</p>
+                </div>
+                <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
