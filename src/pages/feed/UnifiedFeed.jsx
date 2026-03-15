@@ -8,9 +8,9 @@ import { isAdmin, getPostsWithPrivacyFilter } from "../../services/postManagemen
 import { useTranslation } from "react-i18next";
 import { getPinnedPosts } from "../../services/postEnhancedFeaturesService";
 import { PostSkeleton } from "../../components/SkeletonLoader";
-import PullToRefresh from "../../components/PullToRefresh";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { Search, X, Plus, Pin, ChevronDown, SlidersHorizontal } from "lucide-react";
 
 const UnifiedFeed = ({ feedType, title, description, colors }) => {
   const { t } = useTranslation();
@@ -25,37 +25,21 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
 
   const userIsAdmin = isAdmin(userData?.role);
 
-  // Initial load and real-time updates
   useEffect(() => {
     if (!userData?.companyId) return;
-
-    // Load posts initially
     loadPosts();
-
-    // Set up real-time listener for changes (lightweight)
     const postsRef = collection(db, "posts");
-    const postsQuery = query(
-      postsRef,
-      where("companyId", "==", userData.companyId)
-    );
-
+    const postsQuery = query(postsRef, where("companyId", "==", userData.companyId));
     const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
-      // Only reload if there are actual changes
-      if (!snapshot.metadata.hasPendingWrites) {
-        loadPosts();
-      }
+      if (!snapshot.metadata.hasPendingWrites) loadPosts();
     }, (error) => {
       console.error("Error with real-time updates:", error);
     });
-
     return () => unsubscribe();
   }, [userData, feedType]);
 
-  useEffect(() => {
-    filterPosts();
-  }, [posts, searchTerm, selectedCategory]);
+  useEffect(() => { filterPosts(); }, [posts, searchTerm, selectedCategory]);
 
-  // Scroll to top when search or category filter changes
   useEffect(() => {
     if (searchTerm || selectedCategory !== "all") {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -64,55 +48,23 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
 
   const loadPosts = async () => {
     if (!userData?.companyId) return;
-
     try {
       setLoading(true);
-
-      // Load posts with privacy filtering based on user role and department
-      const postsData = await getPostsWithPrivacyFilter(
-        userData.companyId,
-        feedType,
-        userData
-      );
-
-      // Load pinned posts for this feed type (also filtered)
+      const postsData = await getPostsWithPrivacyFilter(userData.companyId, feedType, userData);
       const pinned = await getPinnedPosts(userData.companyId, feedType);
-
-      // Apply privacy filtering to pinned posts as well
       const filteredPinned = pinned.filter(post => {
         if (post.isArchived) return false;
-
-        // Super admin and company admin can see all posts
-        if (userData.role === "super_admin" || userData.role === "company_admin") {
-          return true;
-        }
-
+        if (userData.role === "super_admin" || userData.role === "company_admin") return true;
         const privacyLevel = post.privacyLevel || "company_public";
-
-        // Public posts - everyone can see
-        if (privacyLevel === "company_public") {
-          return true;
-        }
-
-        // HR-only posts
-        if (privacyLevel === "hr_only") {
-          return userData.role === "hr" || userData.role === "company_admin" || userData.role === "super_admin";
-        }
-
-        // Department-only posts
+        if (privacyLevel === "company_public") return true;
+        if (privacyLevel === "hr_only") return userData.role === "hr" || userData.role === "company_admin" || userData.role === "super_admin";
         if (privacyLevel === "department_only") {
-          if (userData.role === "hr") {
-            return true;
-          }
-          if (userData.departmentId && post.departmentId) {
-            return userData.departmentId === post.departmentId;
-          }
+          if (userData.role === "hr") return true;
+          if (userData.departmentId && post.departmentId) return userData.departmentId === post.departmentId;
           return false;
         }
-
         return true;
       });
-
       setPinnedPosts(filteredPinned);
       setPosts(postsData);
     } catch (error) {
@@ -124,341 +76,146 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
 
   const filterPosts = () => {
     let filtered = [...posts];
-
-    // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(
-        (post) =>
-          post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.content?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filter by category
-    if (selectedCategory !== "all") {
       filtered = filtered.filter((post) =>
-        post.category === selectedCategory
+        post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.content?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((post) => post.category === selectedCategory);
+    }
     setFilteredPosts(filtered);
   };
 
-  const handlePostUpdate = () => {
-    loadPosts();
-  };
+  const handlePostUpdate = () => { loadPosts(); };
 
-  // Utility function to format timestamps
-  const getTimeAgo = (date) => {
-    if (!date) return "Just now";
-
-    const seconds = Math.floor((new Date() - date) / 1000);
-
-    if (seconds < 60) return "Just now";
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    if (seconds < 2592000) return `${Math.floor(seconds / 86400)}d ago`;
-
-    // For older posts, show the actual date
-    return date.toLocaleDateString();
-  };
+  const categories = [...new Set(posts.map((post) => post.category).filter(Boolean))].sort();
 
   if (loading) {
     return (
-      <div className="p-4 space-y-4 bg-[var(--color-background-softGray)]">
+      <div className="max-w-2xl mx-auto p-4 space-y-4">
         <PostSkeleton count={5} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-background-softGray)] pb-24">
-      {/* Header with gradient and modern design */}
-      <div className="bg-[var(--color-background-white)] border-b border-[var(--color-border-light)] sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4">
-            <div
-              className={`w-12 h-12 rounded-xl bg-gradient-to-r ${colors.gradient} flex items-center justify-center shadow-md`}
-            >
-              <svg
-                className="w-6 h-6 text-[var(--color-text-onDark)]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h1
-                className={`text-2xl sm:text-3xl font-bold bg-gradient-to-r ${colors.gradient} bg-clip-text text-transparent`}
-              >
-                {title}
-              </h1>
-              <p className="text-[var(--color-text-secondary)] text-sm mt-0.5">
-                {description}
-              </p>
-            </div>
+    <div className="min-h-screen pb-24">
+      {/* Feed header with search */}
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-3">
+        {/* Title + description */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${colors.gradient} flex items-center justify-center shadow-sm`}>
+            <SlidersHorizontal size={18} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">{title}</h1>
+            <p className="text-xs text-gray-500">{description}</p>
           </div>
         </div>
-      </div>
 
-      {/* Filters Section */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-[var(--color-background-white)] rounded-xl border border-[var(--color-border-light)] p-4 shadow-sm">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search Input */}
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg
-                  className="h-5 w-5 text-[var(--color-text-tertiary)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder={t("common.search")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-[var(--color-background-lightMist)] border border-[var(--color-border-light)] rounded-lg 
-                         text-[var(--color-text-primary)] placeholder-[var(--color-text-tertiary)]
-                         focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-teal)] focus:border-transparent
-                         transition-all duration-200"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
+        {/* Search and filter bar */}
+        <div className="flex gap-2">
+          <div className="flex-1 relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder={t("common.search")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X size={14} className="text-gray-400" />
+              </button>
+            )}
+          </div>
 
-            {/* Category Filter */}
+          {categories.length > 0 && (
             <div className="relative">
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full sm:w-48 pl-4 pr-10 py-2.5 bg-[var(--color-background-lightMist)] border border-[var(--color-border-light)] rounded-lg
-                         text-[var(--color-text-primary)] appearance-none cursor-pointer
-                         focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-teal)] focus:border-transparent
-                         transition-all duration-200"
+                className="appearance-none pl-3 pr-8 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] cursor-pointer transition-all"
               >
                 <option value="all">{t('feed.allCategories')}</option>
-                {[...new Set(posts.map((post) => post.category).filter(Boolean))].sort().map(
-                  (category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  )
-                )}
+                {categories.map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[var(--color-text-tertiary)]">
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Filters Display */}
-          {(searchTerm || selectedCategory !== "all") && (
-            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[var(--color-border-light)]">
-              <span className="text-sm text-[var(--color-text-secondary)] font-medium">
-                {t('feed.activeFilters')}
-              </span>
-              {searchTerm && (
-                <span
-                  className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full font-medium"
-                  style={{
-                    backgroundColor: 'rgba(26, 188, 156, 0.1)',
-                    color: '#1abc9c',
-                    border: '1px solid rgba(26, 188, 156, 0.3)'
-                  }}
-                >
-                  Search: "{searchTerm}"
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="rounded-full p-0.5 transition-colors"
-                    style={{
-                      color: '#1abc9c'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(26, 188, 156, 0.2)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </span>
-              )}
-              {selectedCategory !== "all" && (
-                <span
-                  className="inline-flex items-center gap-1 px-3 py-1 text-sm rounded-full font-medium"
-                  style={{
-                    backgroundColor: 'rgba(45, 62, 80, 0.1)',
-                    color: '#2d3e50',
-                    border: '1px solid rgba(45, 62, 80, 0.3)'
-                  }}
-                >
-                  Category: {selectedCategory}
-                  <button
-                    onClick={() => setSelectedCategory("all")}
-                    className="rounded-full p-0.5 transition-colors"
-                    style={{
-                      color: '#2d3e50'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(45, 62, 80, 0.2)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </span>
-              )}
+              <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
           )}
         </div>
+
+        {/* Active filters */}
+        {(searchTerm || selectedCategory !== "all") && (
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            <span className="text-xs font-medium text-gray-400">{t('feed.activeFilters')}</span>
+            {searchTerm && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#1ABC9C]/10 text-[#1ABC9C] text-xs font-medium rounded-lg border border-[#1ABC9C]/20">
+                &ldquo;{searchTerm}&rdquo;
+                <button onClick={() => setSearchTerm("")} className="hover:text-[#16a085]"><X size={12} /></button>
+              </span>
+            )}
+            {selectedCategory !== "all" && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg border border-gray-200">
+                {selectedCategory}
+                <button onClick={() => setSelectedCategory("all")} className="hover:text-gray-800"><X size={12} /></button>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Posts List */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      {/* Posts */}
+      <div className="max-w-2xl mx-auto px-4 space-y-3">
         {filteredPosts.length === 0 ? (
-          <div className="bg-[var(--color-background-white)] rounded-xl border border-[var(--color-border-light)] p-12 text-center shadow-sm">
-            <div className="max-w-md mx-auto">
-              <div
-                className={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-r ${colors.gradient} flex items-center justify-center shadow-lg`}
-              >
-                <svg
-                  className="w-10 h-10 text-[var(--color-text-onDark)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
-                {t("post.noPostsYet")}
-              </h3>
-              <p className="text-[var(--color-text-secondary)] mb-6">
-                {searchTerm || selectedCategory !== "all"
-                  ? t('feed.noPostsYet')
-                  : t('feed.createFirst')}
-              </p>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className={`inline-flex items-center gap-2 bg-gradient-to-r ${colors.gradient} text-[var(--color-text-onDark)] px-6 py-3 rounded-lg font-semibold 
-                           hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200`}
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                {t("post.create")}
-              </button>
+          <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+            <div className={`w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-r ${colors.gradient} flex items-center justify-center shadow-lg`}>
+              <Plus size={28} className="text-white" />
             </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{t("post.noPostsYet")}</h3>
+            <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
+              {searchTerm || selectedCategory !== "all"
+                ? t('feed.noPostsYet')
+                : t('feed.createFirst')}
+            </p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className={`inline-flex items-center gap-2 bg-gradient-to-r ${colors.gradient} text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg active:scale-95 transition-all`}
+            >
+              <Plus size={18} />
+              {t("post.create")}
+            </button>
           </div>
         ) : (
           <>
-            {/* Results Count */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                Showing{" "}
-                <span className="font-semibold text-[var(--color-text-primary)]">
-                  {filteredPosts.length}
-                </span>{" "}
-                {filteredPosts.length === 1 ? "post" : "posts"}
-              </p>
-            </div>
+            {/* Results count */}
+            <p className="text-xs text-gray-400 font-medium px-1">
+              {filteredPosts.length} {filteredPosts.length === 1 ? "post" : "posts"}
+            </p>
 
-            {/* Pinned Posts */}
+            {/* Pinned posts */}
             {pinnedPosts.length > 0 && (
-              <div className="space-y-4 mb-6">
-                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-                  {t('feed.pinnedPosts')}
-                </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 px-1">
+                  <Pin size={12} className="text-purple-500" />
+                  <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t('feed.pinnedPosts')}</span>
+                </div>
                 {pinnedPosts.map((post) => (
                   <div
                     key={post.id}
-                    className="bg-[var(--color-background-white)] rounded-xl shadow-md border-2 border-purple-200
-                             hover:shadow-lg hover:border-purple-300 transition-all duration-200"
+                    className="bg-white rounded-2xl shadow-sm border-2 border-purple-100 hover:border-purple-200 hover:shadow-md transition-all"
                   >
                     {userIsAdmin && (
-                      <div className="p-3 sm:p-4 border-b border-[var(--color-border-light)] bg-[var(--color-background-lightMist)] bg-opacity-50 rounded-t-xl">
-                        <AdminActionPanel
-                          post={post}
-                          currentUser={userData}
-                          onUpdate={handlePostUpdate}
-                        />
+                      <div className="p-3 border-b border-gray-50 bg-gray-50/50 rounded-t-2xl">
+                        <AdminActionPanel post={post} currentUser={userData} onUpdate={handlePostUpdate} />
                       </div>
                     )}
                     <PostEnhanced post={post} />
@@ -467,20 +224,15 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
               </div>
             )}
 
-            {/* Regular Posts Grid */}
+            {/* Regular posts */}
             {filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-[var(--color-background-white)] rounded-xl shadow-sm border border-[var(--color-border-light)]
-                         hover:shadow-md hover:border-[var(--color-border-medium)] transition-all duration-200"
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all"
               >
                 {userIsAdmin && (
-                  <div className="p-3 sm:p-4 border-b border-[var(--color-border-light)] bg-[var(--color-background-lightMist)] bg-opacity-50 rounded-t-xl">
-                    <AdminActionPanel
-                      post={post}
-                      currentUser={userData}
-                      onUpdate={handlePostUpdate}
-                    />
+                  <div className="p-3 border-b border-gray-50 bg-gray-50/50 rounded-t-2xl">
+                    <AdminActionPanel post={post} currentUser={userData} onUpdate={handlePostUpdate} />
                   </div>
                 )}
                 <PostEnhanced post={post} />
@@ -490,73 +242,27 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
         )}
       </div>
 
-      {/* Create Post Modal */}
+      {/* Create post modal */}
       {showCreateModal && (
         <CreatePost
           type={
-            feedType === "creative_content"
-              ? "creative"
-              : feedType === "problem_report"
-              ? "complaint"
-              : "discussion"
+            feedType === "creative_content" ? "creative"
+            : feedType === "problem_report" ? "complaint"
+            : "discussion"
           }
           onClose={() => setShowCreateModal(false)}
           onSuccess={loadPosts}
         />
       )}
 
-      {/* Floating Action Button */}
+      {/* FAB */}
       <button
         onClick={() => setShowCreateModal(true)}
-        className={`
-          fixed bottom-24 right-6
-          sm:bottom-28 sm:right-8 
-          bg-gradient-to-r ${colors.gradient} 
-          text-[var(--color-text-onDark)]
-          w-14 h-14 
-          sm:w-auto sm:h-auto 
-          sm:px-6 sm:py-3.5
-          rounded-full 
-          shadow-2xl 
-          hover:shadow-3xl 
-          transition-all 
-          duration-300 
-          transform 
-          hover:scale-110 
-          active:scale-95
-          z-[100]
-          flex 
-          items-center 
-          justify-center
-          gap-2 
-          group
-          border-2
-          border-[var(--color-background-white)]
-          backdrop-blur-sm
-        `}
+        className={`fixed bottom-24 right-5 lg:bottom-8 lg:right-8 w-14 h-14 lg:w-auto lg:h-auto lg:px-5 lg:py-3 bg-gradient-to-r ${colors.gradient} text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 z-50 border-2 border-white/30`}
         aria-label="Create new post"
-        style={{ zIndex: 100 }}
       >
-        {/* Animated ring effect */}
-        <span className="absolute inset-0 rounded-full bg-[var(--color-background-white)] opacity-20 group-hover:animate-ping"></span>
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 sm:h-5 sm:w-5 relative z-10"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2.5}
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        <span className="hidden sm:inline-block font-semibold whitespace-nowrap relative z-10">
-          {t('post.create')}
-        </span>
+        <Plus size={22} className="lg:w-5 lg:h-5" />
+        <span className="hidden lg:inline font-semibold text-sm">{t('post.create')}</span>
       </button>
     </div>
   );

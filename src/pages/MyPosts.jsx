@@ -15,6 +15,7 @@ import {
 } from "../utils/constants";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { ChevronUp, Shield, FileText, Eye } from "lucide-react";
 
 const getTimeAgo = (date) => {
   if (!date) return "Just now";
@@ -31,10 +32,10 @@ const getTimeAgo = (date) => {
 
 const getPostTypeColor = (type) => {
   switch (type) {
-    case PostType.PROBLEM_REPORT: return "bg-red-100 text-red-700 border-red-200";
-    case PostType.CREATIVE_CONTENT: return "bg-purple-100 text-purple-700 border-purple-200";
-    case PostType.TEAM_DISCUSSION: return "bg-blue-100 text-blue-700 border-blue-200";
-    default: return "bg-gray-100 text-gray-700 border-gray-200";
+    case PostType.PROBLEM_REPORT: return "bg-red-50 text-red-600 border-red-100";
+    case PostType.CREATIVE_CONTENT: return "bg-purple-50 text-purple-600 border-purple-100";
+    case PostType.TEAM_DISCUSSION: return "bg-blue-50 text-blue-600 border-blue-100";
+    default: return "bg-gray-50 text-gray-600 border-gray-100";
   }
 };
 
@@ -49,6 +50,7 @@ const getPostTypeLabel = (type) => {
 
 const HRReplyHint = ({ postId, userId, navigate }) => {
   const [hasUnread, setHasUnread] = useState(false);
+  const [hasThread, setHasThread] = useState(false);
 
   useEffect(() => {
     const check = async () => {
@@ -58,6 +60,7 @@ const HRReplyHint = ({ postId, userId, navigate }) => {
         const data = threadDoc.data();
         const messages = data.messages || [];
         if (messages.length === 0) return;
+        setHasThread(true);
         const lastReadByReporter = data.lastReadBy?.reporter || null;
         const lastReadTime = lastReadByReporter?.toDate
           ? lastReadByReporter.toDate()
@@ -78,35 +81,20 @@ const HRReplyHint = ({ postId, userId, navigate }) => {
     check();
   }, [postId]);
 
-  // Show link regardless of unread status if thread has any messages
-  const [hasThread, setHasThread] = useState(false);
-  useEffect(() => {
-    const checkThread = async () => {
-      try {
-        const threadDoc = await getDoc(doc(db, "anonymousThreads", postId));
-        if (threadDoc.exists() && (threadDoc.data().messages || []).length > 0) {
-          setHasThread(true);
-        }
-      } catch {}
-    };
-    checkThread();
-  }, [postId]);
-
   if (!hasThread) return null;
 
   return (
     <button
       onClick={(e) => { e.stopPropagation(); navigate(`/messages/${postId}`); }}
-      className={`mt-2 w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition ${
+      className={`mt-3 w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
         hasUnread
-          ? 'bg-teal-50 border border-teal-200 text-teal-700'
-          : 'bg-gray-50 border border-gray-200 text-gray-500'
+          ? 'bg-teal-50 border border-teal-200 text-teal-700 hover:bg-teal-100'
+          : 'bg-gray-50 border border-gray-200 text-gray-500 hover:bg-gray-100'
       }`}
     >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-      {hasUnread ? '🔒 HR replied — tap to view private message' : '🔒 View private conversation with HR'}
+      <Shield size={14} />
+      {hasUnread ? 'HR replied — tap to view private message' : 'View private conversation with HR'}
+      {hasUnread && <span className="ml-auto w-2 h-2 bg-teal-500 rounded-full animate-pulse" />}
     </button>
   );
 };
@@ -121,13 +109,8 @@ const MyPosts = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [expandedPost, setExpandedPost] = useState(null);
 
-  useEffect(() => {
-    loadMyPosts();
-  }, [userData]);
-
-  useEffect(() => {
-    filterPosts();
-  }, [posts, activeTab]);
+  useEffect(() => { loadMyPosts(); }, [userData]);
+  useEffect(() => { filterPosts(); }, [posts, activeTab]);
 
   const loadMyPosts = async () => {
     try {
@@ -145,20 +128,11 @@ const MyPosts = () => {
   const filterPosts = () => {
     let filtered = [...posts];
     switch (activeTab) {
-      case "problems":
-        filtered = filtered.filter((p) => p.type === PostType.PROBLEM_REPORT);
-        break;
-      case "creative":
-        filtered = filtered.filter((p) => p.type === PostType.CREATIVE_CONTENT);
-        break;
-      case "discussions":
-        filtered = filtered.filter((p) => p.type === PostType.TEAM_DISCUSSION);
-        break;
-      case "unread":
-        filtered = filtered.filter((p) => p.hasUnreadUpdates);
-        break;
-      default:
-        break;
+      case "problems": filtered = filtered.filter((p) => p.type === PostType.PROBLEM_REPORT); break;
+      case "creative": filtered = filtered.filter((p) => p.type === PostType.CREATIVE_CONTENT); break;
+      case "discussions": filtered = filtered.filter((p) => p.type === PostType.TEAM_DISCUSSION); break;
+      case "unread": filtered = filtered.filter((p) => p.hasUnreadUpdates); break;
+      default: break;
     }
     setFilteredPosts(filtered);
   };
@@ -175,60 +149,53 @@ const MyPosts = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 rounded-full border-b-2 border-[#1ABC9C] animate-spin" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 rounded-xl border-2 border-[#1ABC9C] border-t-transparent animate-spin" />
       </div>
     );
   }
 
   const tabs = [
     { value: "all", label: t("myPosts.allPosts", "All"), count: posts.length },
-    {
-      value: "problems",
-      label: t("myPosts.problems", "Problems"),
-      count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT).length,
-    },
-    {
-      value: "creative",
-      label: t("myPosts.creative", "Creative"),
-      count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT).length,
-    },
-    {
-      value: "discussions",
-      label: t("myPosts.discussions", "Discussions"),
-      count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION).length,
-    },
-    {
-      value: "unread",
-      label: t("myPosts.unreadUpdates", "Unread"),
-      count: posts.filter((p) => p.hasUnreadUpdates).length,
-    },
+    { value: "problems", label: t("myPosts.problems", "Problems"), count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT).length },
+    { value: "creative", label: t("myPosts.creative", "Creative"), count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT).length },
+    { value: "discussions", label: t("myPosts.discussions", "Discussions"), count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION).length },
+    { value: "unread", label: t("myPosts.unreadUpdates", "Unread"), count: posts.filter((p) => p.hasUnreadUpdates).length },
   ];
 
   return (
     <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <h1 className="text-xl font-bold text-gray-900">{t("myPosts.title", "My Posts")}</h1>
-        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
-          {posts.length}
-        </span>
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+          <FileText size={20} className="text-purple-600" />
+        </div>
+        <div>
+          <h1 className="text-lg font-bold text-gray-900">{t("myPosts.title", "My Posts")}</h1>
+          <p className="text-xs text-gray-400">{posts.length} total posts</p>
+        </div>
       </div>
 
-      {/* Filter tabs (horizontal scroll) */}
-      <div className="flex gap-2 overflow-x-auto pb-1 mb-4" style={{ scrollbarWidth: "none" }}>
+      {/* Filter tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-5 no-scrollbar" style={{ scrollbarWidth: "none" }}>
         {tabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
-            className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
-            style={{
-              backgroundColor: activeTab === tab.value ? "#2D3E50" : "white",
-              color: activeTab === tab.value ? "white" : "#4b5563",
-              border: activeTab === tab.value ? "none" : "1px solid #e5e7eb",
-            }}
+            className={`flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === tab.value
+                ? "bg-[#2D3E50] text-white shadow-sm"
+                : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"
+            }`}
           >
-            {tab.label} {tab.count > 0 && `(${tab.count})`}
+            {tab.label}
+            {tab.count > 0 && (
+              <span className={`ml-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                activeTab === tab.value ? "bg-white/20" : "bg-gray-100"
+              }`}>
+                {tab.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -236,15 +203,13 @@ const MyPosts = () => {
       {/* Empty state */}
       {filteredPosts.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
+            <FileText size={28} className="text-gray-300" />
           </div>
           <h3 className="text-base font-semibold text-gray-900 mb-1">
             {t("myPosts.noPosts", "No posts")}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 max-w-xs">
             {activeTab === "all"
               ? t("myPosts.noPostsYet", "You haven't created any posts yet")
               : `No ${activeTab} posts found`}
@@ -259,54 +224,39 @@ const MyPosts = () => {
           const isAnonymous = post.isAnonymous;
 
           return (
-            <div
-              key={post.id}
-              className="bg-white rounded-2xl shadow-sm overflow-hidden"
-            >
+            <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
               {!isExpanded ? (
-                /* Collapsed card */
                 <div className="p-4">
-                  {/* Top row: type pill + time + unread dot */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}
-                    >
+                  {/* Top row: badges + time */}
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}>
                       {getPostTypeLabel(post.type)}
                     </span>
                     {isAnonymous && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-purple-50 text-purple-600 border border-purple-100">
                         Anonymous
                       </span>
                     )}
-                    <span className="text-[10px] text-gray-400 ml-auto">
-                      {getTimeAgo(post.createdAt)}
-                    </span>
+                    <span className="text-[10px] text-gray-400 ml-auto">{getTimeAgo(post.createdAt)}</span>
                     {post.hasUnreadUpdates && (
-                      <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0 animate-pulse" />
                     )}
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                    {post.title}
-                  </h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">{post.title}</h3>
 
-                  {/* Status + priority badges (for problems) */}
+                  {/* Status badges */}
                   {post.type === PostType.PROBLEM_REPORT && (
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {post.status && PostStatusConfig[post.status] && (
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
-                        >
+                        <span className={`text-[10px] px-2 py-0.5 rounded-lg font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}>
                           {PostStatusConfig[post.status].label}
                         </span>
                       )}
                       {post.priority && PostPriorityConfig[post.priority] && (
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
-                        >
-                          {PostPriorityConfig[post.priority].icon}{" "}
-                          {PostPriorityConfig[post.priority].label}
+                        <span className={`text-[10px] px-2 py-0.5 rounded-lg font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}>
+                          {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
                         </span>
                       )}
                     </div>
@@ -319,47 +269,36 @@ const MyPosts = () => {
                   {/* Expand button */}
                   <button
                     onClick={() => handleExpandPost(post)}
-                    className="text-xs text-[#1ABC9C] font-medium"
+                    className="mt-3 flex items-center gap-1.5 text-xs text-[#1ABC9C] font-semibold hover:text-[#17a589] transition-colors"
                   >
-                    {t("myPosts.viewDetails", "View details")} ›
+                    <Eye size={13} />
+                    {t("myPosts.viewDetails", "View details")}
                   </button>
                 </div>
               ) : (
-                /* Expanded card */
                 <div>
                   {/* Collapse header */}
                   <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}
-                      >
+                      <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}>
                         {getPostTypeLabel(post.type)}
                       </span>
                       {isAnonymous && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-purple-50 text-purple-600 border border-purple-100">
                           Anonymous
-                        </span>
-                      )}
-                      {post.hasUnreadUpdates && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-100 text-yellow-700">
-                          New Update
                         </span>
                       )}
                     </div>
                     <button
                       onClick={handleCollapsePost}
-                      className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors"
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
-                        <path d="M5 15l7-7 7 7" />
-                      </svg>
+                      <ChevronUp size={16} className="text-gray-500" />
                     </button>
                   </div>
 
-                  {/* Full post content */}
                   <PostEnhanced post={post} />
 
-                  {/* Anonymous thread (reporter view) */}
                   {isAnonymous && (
                     <AnonymousThread
                       postId={post.id}
