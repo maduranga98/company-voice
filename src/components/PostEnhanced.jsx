@@ -8,15 +8,15 @@ import {
   X,
   Download,
   FileText,
-  Image as ImageIcon,
   Edit2,
   Trash2,
   MoreVertical,
+  User,
+  Clock,
 } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import VotingButton from "./VotingButton";
 import PollDisplay from "./PollDisplay";
-import CommentsThreaded from "./CommentsThreaded";
 import ReportContentModal from "./ReportContentModal";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
@@ -27,7 +27,6 @@ import {
   ReportableContentType,
 } from "../utils/constants";
 import { getEditHistory } from "../services/postEnhancedFeaturesService";
-import { editPost } from "../services/postEnhancementsService";
 import { deletePost } from "../services/postManagementService";
 import { showSuccess, showError, showPromise } from "../services/toastService";
 import CommentsEnhanced from "./CommentsEnhanced";
@@ -49,10 +48,8 @@ const PostEnhanced = ({ post }) => {
   const [deleting, setDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Check if this is a problem report to show status/priority
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
 
-  // Check if current user is the post author (handle both uid and id)
   const isAuthor =
     userData &&
     (userData.id === post.authorId || userData.uid === post.authorId);
@@ -64,40 +61,21 @@ const PostEnhanced = ({ post }) => {
       : new Date(timestamp);
     const diffInSeconds = Math.floor((now - postDate) / 1000);
 
-    if (diffInSeconds < 60) {
-      return t("time.justNow");
-    }
-
+    if (diffInSeconds < 60) return t("time.justNow");
     const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) {
-      return t("time.minutesAgo", { count: diffInMinutes });
-    }
-
+    if (diffInMinutes < 60) return t("time.minutesAgo", { count: diffInMinutes });
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) {
-      return t("time.hoursAgo", { count: diffInHours });
-    }
-
+    if (diffInHours < 24) return t("time.hoursAgo", { count: diffInHours });
     const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) {
-      return t("time.daysAgo", { count: diffInDays });
-    }
-
+    if (diffInDays < 7) return t("time.daysAgo", { count: diffInDays });
     const diffInWeeks = Math.floor(diffInDays / 7);
-    if (diffInWeeks < 4) {
-      return t("time.weeksAgo", { count: diffInWeeks });
-    }
-
+    if (diffInWeeks < 4) return t("time.weeksAgo", { count: diffInWeeks });
     const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths < 12) {
-      return t("time.monthsAgo", { count: diffInMonths });
-    }
-
+    if (diffInMonths < 12) return t("time.monthsAgo", { count: diffInMonths });
     const diffInYears = Math.floor(diffInDays / 365);
     return t("time.yearsAgo", { count: diffInYears });
   };
 
-  // Load edit history
   const handleShowEditHistory = async () => {
     setLoadingHistory(true);
     try {
@@ -111,7 +89,6 @@ const PostEnhanced = ({ post }) => {
     }
   };
 
-  // Open attachment preview
   const handleAttachmentClick = (attachment) => {
     if (attachment.type?.startsWith("image/")) {
       setSelectedAttachment(attachment);
@@ -121,70 +98,47 @@ const PostEnhanced = ({ post }) => {
     }
   };
 
-  // Delete post handler with proper cleanup and notifications
   const handleDeletePost = async () => {
     if (!isAuthor) {
-      showError(
-        t("posts.errors.unauthorizedDelete") ||
-          "You can only delete your own posts"
-      );
+      showError(t("posts.errors.unauthorizedDelete") || "You can only delete your own posts");
       return;
     }
-
     setDeleting(true);
     setShowDeleteConfirm(false);
-
     try {
-      // Use toast promise for better UX
       await showPromise(deletePost(post.id, userData), {
         pending: t("posts.deleting") || "Deleting post...",
         success: t("posts.deleteSuccess") || "Post deleted successfully",
         error: t("posts.deleteError") || "Failed to delete post",
       });
-
-      // Use callback instead of hard reload to update parent state
-      // Parent component should handle removing post from list
       if (window.onPostDeleted) {
         window.onPostDeleted(post.id);
       } else {
-        // Fallback: wait a bit for Firestore to propagate, then soft reload
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+        setTimeout(() => { window.location.reload(); }, 500);
       }
     } catch (error) {
       console.error("Error deleting post:", error);
-      showError(
-        error.message || t("posts.deleteError") || "Failed to delete post"
-      );
+      showError(error.message || t("posts.deleteError") || "Failed to delete post");
     } finally {
       setDeleting(false);
     }
   };
 
-  // Edit post handler - open edit modal
   const handleEditPost = () => {
     if (!isAuthor) {
-      showError(
-        t("posts.errors.unauthorizedEdit") || "You can only edit your own posts"
-      );
+      showError(t("posts.errors.unauthorizedEdit") || "You can only edit your own posts");
       return;
     }
     setShowEditModal(true);
     setShowOptionsMenu(false);
   };
 
-  // Handle successful edit
   const handleEditSuccess = () => {
     setShowEditModal(false);
     showSuccess(t("posts.editSuccess") || "Post updated successfully");
-    // Optionally refresh the post data
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
+    setTimeout(() => { window.location.reload(); }, 500);
   };
 
-  // Content length limit for "Read More"
   const CONTENT_LIMIT = 300;
   const content = post.description || post.content || "";
   const shouldTruncate = content.length > CONTENT_LIMIT;
@@ -193,95 +147,30 @@ const PostEnhanced = ({ post }) => {
       ? content.substring(0, CONTENT_LIMIT) + "..."
       : content;
 
-  // Get dynamic styling based on status and priority
-  const getPostStyling = () => {
-    if (!isProblemReport) {
-      return {
-        border: "border-slate-200 hover:border-slate-300",
-        bg: "bg-white",
-        leftBorder: "",
-      };
-    }
-
-    // For problem reports, apply color coding
-    let styling = {
-      border: "border-slate-200",
-      bg: "bg-white",
-      leftBorder: "border-l-4",
-    };
-
-    // Priority-based colors (overridden by status colors)
-    if (post.priority === "critical") {
-      styling.border = "border-red-300 hover:border-red-400";
-      styling.leftBorder += " border-l-red-500";
-      styling.bg = "bg-red-50";
-    } else if (post.priority === "high") {
-      styling.border = "border-orange-200 hover:border-orange-300";
-      styling.leftBorder += " border-l-orange-500";
-      styling.bg = "bg-orange-50";
-    }
-
-    // Status-based colors (take precedence)
+  // Simplified status color - just a subtle dot
+  const getStatusDotColor = () => {
     switch (post.status) {
-      case "open":
-        styling.border = "border-gray-300 hover:border-gray-400";
-        styling.leftBorder += " border-l-gray-400";
-        break;
-      case "acknowledged":
-        styling.border = "border-blue-200 hover:border-blue-300";
-        styling.leftBorder += " border-l-blue-500";
-        styling.bg = "bg-blue-50";
-        break;
-      case "in_progress":
-        styling.border = "border-yellow-200 hover:border-yellow-300";
-        styling.leftBorder += " border-l-yellow-500";
-        styling.bg = "bg-yellow-50";
-        break;
-      case "under_review":
-        styling.border = "border-purple-200 hover:border-purple-300";
-        styling.leftBorder += " border-l-purple-500";
-        styling.bg = "bg-purple-50";
-        break;
-      case "working_on":
-        styling.border = "border-indigo-200 hover:border-indigo-300";
-        styling.leftBorder += " border-l-indigo-500";
-        styling.bg = "bg-indigo-50";
-        break;
-      case "resolved":
-        styling.border = "border-green-200 hover:border-green-300";
-        styling.leftBorder += " border-l-green-500";
-        styling.bg = "bg-green-50";
-        break;
+      case "open": return "bg-gray-400";
+      case "acknowledged": return "bg-blue-400";
+      case "in_progress": return "bg-yellow-400";
+      case "under_review": return "bg-purple-400";
+      case "working_on": return "bg-indigo-400";
+      case "resolved": return "bg-green-400";
       case "closed":
-      case "not_a_problem":
-        styling.border = "border-slate-300 hover:border-slate-400";
-        styling.leftBorder += " border-l-slate-400";
-        styling.bg = "bg-slate-50";
-        break;
-      case "rejected":
-        styling.border = "border-red-200 hover:border-red-300";
-        styling.leftBorder += " border-l-red-500";
-        styling.bg = "bg-red-50";
-        break;
-      default:
-        break;
+      case "not_a_problem": return "bg-slate-400";
+      case "rejected": return "bg-red-400";
+      default: return "bg-gray-400";
     }
-
-    return styling;
   };
-
-  const styling = getPostStyling();
 
   return (
     <>
-      <article
-        className={`${styling.bg} rounded-2xl border ${styling.border} ${styling.leftBorder} overflow-visible transition-all relative`}
-      >
+      <article className="bg-white rounded-2xl overflow-visible transition-all relative">
         {/* Pinned Banner */}
         {post.isPinned && (
-          <div className="bg-purple-50 border-b border-purple-100 px-4 py-2.5 flex items-center gap-2 rounded-t-2xl">
-            <Pin className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
-            <span className="text-xs font-semibold text-purple-700">
+          <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2 rounded-t-2xl">
+            <Pin className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+            <span className="text-xs font-semibold text-amber-700">
               {t('postActions.pinnedPost')}
             </span>
           </div>
@@ -289,7 +178,7 @@ const PostEnhanced = ({ post }) => {
 
         {/* Archived Banner */}
         {post.isArchived && (
-          <div className="bg-slate-50 border-b border-slate-100 px-4 py-2.5 flex items-center gap-2 rounded-t-2xl">
+          <div className="bg-slate-50 border-b border-slate-100 px-4 py-2 flex items-center gap-2 rounded-t-2xl">
             <Archive className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
             <span className="text-xs font-semibold text-slate-600">
               Archived Post
@@ -297,186 +186,113 @@ const PostEnhanced = ({ post }) => {
           </div>
         )}
 
-        {/* Post Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100">
-          <div className="flex items-start justify-between gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#2D3E50] to-[#1e3a4a] rounded-xl flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0">
+        {/* Post Header - Simplified */}
+        <div className="p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="w-9 h-9 bg-gradient-to-br from-[#2D3E50] to-[#1e3a4a] rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
                 {post.authorName?.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-medium text-slate-900 text-sm sm:text-base truncate">
-                  {post.authorName}
-                </h3>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-xs text-slate-500">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-slate-900 text-sm truncate">
+                    {post.authorName}
+                  </h3>
+                  <span className="text-[11px] text-slate-400 flex-shrink-0">
                     {getTimeAgo(post.createdAt)}
-                  </p>
+                  </span>
                   {post.editHistory && post.editHistory.length > 0 && (
                     <button
                       onClick={handleShowEditHistory}
                       disabled={loadingHistory}
-                      className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 transition"
+                      className="flex items-center gap-0.5 text-[11px] text-slate-400 hover:text-slate-600 transition flex-shrink-0"
                     >
                       <History className="w-3 h-3" />
                       <span className="hidden sm:inline">Edited</span>
                     </button>
                   )}
                 </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1 items-end">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 bg-gray-50 text-gray-600 text-[10px] font-semibold rounded-lg border border-gray-100 whitespace-nowrap flex-shrink-0">
-                  {post.category}
-                </span>
-
-                {/* Edit/Delete Menu for Post Author */}
-                {isAuthor && !post.isArchived && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                      className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
-                      title="Post options"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-
-                    {/* Options Dropdown */}
-                    {showOptionsMenu && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                        <button
-                          onClick={handleEditPost}
-                          className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                          {t('postActions.editPost')}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowDeleteConfirm(true);
-                            setShowOptionsMenu(false);
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          {t('postActions.deletePost')}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Status & Priority Badges for Problem Reports */}
-              {isProblemReport && (
-                <div className="flex gap-1 flex-wrap justify-end">
-                  {post.status && PostStatusConfig[post.status] && (
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold ${
-                        PostStatusConfig[post.status].bgColor
-                      } ${PostStatusConfig[post.status].textColor}`}
-                    >
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="px-2 py-0.5 bg-gray-50 text-gray-500 text-[10px] font-medium rounded-md">
+                    {post.category}
+                  </span>
+                  {/* Compact status + priority for problem reports */}
+                  {isProblemReport && post.status && PostStatusConfig[post.status] && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-50 text-gray-600">
+                      <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor()}`} />
                       {PostStatusConfig[post.status].label}
                     </span>
                   )}
-                  {post.priority && PostPriorityConfig[post.priority] && (
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-semibold ${
-                        PostPriorityConfig[post.priority].bgColor
-                      } ${PostPriorityConfig[post.priority].textColor}`}
-                    >
+                  {isProblemReport && post.priority && PostPriorityConfig[post.priority] && post.priority !== "medium" && (
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}>
                       {PostPriorityConfig[post.priority].icon}
-                      <span className="ml-1 hidden sm:inline">
-                        {PostPriorityConfig[post.priority].label}
-                      </span>
                     </span>
                   )}
                 </div>
-              )}
+              </div>
             </div>
+
+            {/* Edit/Delete Menu */}
+            {isAuthor && !post.isArchived && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                  className="p-1.5 text-slate-300 hover:text-slate-500 hover:bg-slate-50 rounded-lg transition"
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+                {showOptionsMenu && (
+                  <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
+                    <button
+                      onClick={handleEditPost}
+                      className="w-full px-3.5 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      {t('postActions.editPost')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDeleteConfirm(true);
+                        setShowOptionsMenu(false);
+                      }}
+                      className="w-full px-3.5 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      {t('postActions.deletePost')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Assigned To Info for Problem Reports */}
+          {/* Assigned To - Compact */}
           {isProblemReport && post.assignedTo && (
-            <div className="mt-2 flex items-center text-xs text-slate-600 bg-blue-50 px-2 py-1 rounded">
-              <svg
-                className="w-3 h-3 mr-1 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              <span className="truncate">
-                {t('postActions.assignedTo')}{" "}
-                <span className="font-medium">{post.assignedTo.name}</span>
-              </span>
+            <div className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
+              <User className="w-3 h-3" />
+              <span>{t('postActions.assignedTo')} <span className="font-semibold">{post.assignedTo.name}</span></span>
             </div>
           )}
         </div>
 
         {/* Post Content */}
-        <div className="p-4 sm:p-6">
-          <h2 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-3 break-words">
+        <div className="px-4 sm:px-5 pb-4">
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-2 break-words leading-snug">
             {post.title}
           </h2>
-          <div className="text-sm sm:text-base text-slate-700 leading-relaxed break-words">
+          <div className="text-sm text-slate-600 leading-relaxed break-words">
             <style>{`
-              .post-content ul {
-                list-style-type: disc;
-                padding-left: 1.5rem;
-                margin: 0.5rem 0;
-              }
-              .post-content ol {
-                list-style-type: decimal;
-                padding-left: 1.5rem;
-                margin: 0.5rem 0;
-              }
-              .post-content li {
-                margin: 0.25rem 0;
-              }
-              .post-content li p {
-                margin: 0;
-                display: inline;
-              }
-              .post-content h2 {
-                font-size: 1.5em;
-                font-weight: 600;
-                margin: 0.75rem 0 0.5rem 0;
-              }
-              .post-content h3 {
-                font-size: 1.25em;
-                font-weight: 600;
-                margin: 0.5rem 0;
-              }
-              .post-content blockquote {
-                border-left: 3px solid #e2e8f0;
-                padding-left: 1rem;
-                margin: 0.5rem 0;
-                color: #64748b;
-              }
-              .post-content code {
-                background-color: #f1f5f9;
-                padding: 0.125rem 0.375rem;
-                border-radius: 0.25rem;
-                font-family: monospace;
-                font-size: 0.875em;
-              }
-              .post-content p {
-                margin: 0.5rem 0;
-              }
-              .post-content strong {
-                font-weight: 600;
-              }
-              .post-content em {
-                font-style: italic;
-              }
+              .post-content ul { list-style-type: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
+              .post-content ol { list-style-type: decimal; padding-left: 1.5rem; margin: 0.5rem 0; }
+              .post-content li { margin: 0.25rem 0; }
+              .post-content li p { margin: 0; display: inline; }
+              .post-content h2 { font-size: 1.25em; font-weight: 600; margin: 0.75rem 0 0.5rem 0; }
+              .post-content h3 { font-size: 1.1em; font-weight: 600; margin: 0.5rem 0; }
+              .post-content blockquote { border-left: 3px solid #e2e8f0; padding-left: 1rem; margin: 0.5rem 0; color: #64748b; }
+              .post-content code { background-color: #f1f5f9; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.875em; }
+              .post-content p { margin: 0.5rem 0; }
+              .post-content strong { font-weight: 600; }
+              .post-content em { font-style: italic; }
             `}</style>
             <div
               className="post-content"
@@ -485,54 +301,20 @@ const PostEnhanced = ({ post }) => {
             {shouldTruncate && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="ml-2 text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1 mt-2"
+                className="text-[#1ABC9C] hover:text-[#16a085] font-medium text-sm mt-1"
               >
-                {isExpanded ? (
-                  <>
-                    {t('postActions.showLess')}
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 15l7-7 7 7"
-                      />
-                    </svg>
-                  </>
-                ) : (
-                  <>
-                    {t('postActions.readMore')}
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </>
-                )}
+                {isExpanded ? t('postActions.showLess') : t('postActions.readMore')}
               </button>
             )}
           </div>
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-3">
+            <div className="flex flex-wrap gap-1.5 mt-3">
               {post.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-2 py-1 bg-gray-50 text-gray-500 text-[11px] font-medium rounded-lg border border-gray-100"
+                  className="px-2 py-0.5 bg-gray-50 text-gray-400 text-[11px] font-medium rounded-md"
                 >
                   #{tag}
                 </span>
@@ -543,35 +325,25 @@ const PostEnhanced = ({ post }) => {
 
         {/* Poll Display */}
         {post.poll && post.poll.options && post.poll.options.length > 0 && (
-          <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
+          <div className="px-4 sm:px-5 pb-4">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
               <div className="flex items-center gap-2 mb-3">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <h4 className="font-semibold text-blue-900">Poll</h4>
+                <h4 className="font-semibold text-blue-900 text-sm">Poll</h4>
               </div>
               <PollDisplay poll={post.poll} postId={post.id} />
             </div>
           </div>
         )}
 
-        {/* Post Attachments with Enhanced Preview */}
+        {/* Attachments */}
         {post.attachments && post.attachments.length > 0 && (
-          <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+          <div className="px-4 sm:px-5 pb-4">
             {post.attachments.length === 1 ? (
               post.attachments[0].type?.startsWith("image/") ? (
-                <div className="relative w-full h-48 sm:h-64 md:h-80 bg-slate-100 rounded-lg overflow-hidden group">
+                <div className="relative w-full h-48 sm:h-64 bg-slate-50 rounded-xl overflow-hidden group">
                   <img
                     src={post.attachments[0].url}
                     alt={post.title}
@@ -590,26 +362,24 @@ const PostEnhanced = ({ post }) => {
                   href={post.attachments[0].url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition group"
+                  className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition group"
                 >
                   <div className="p-2 bg-slate-200 rounded-lg">
-                    <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-slate-600" />
+                    <FileText className="w-6 h-6 text-slate-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-slate-900 truncate">
-                      {post.attachments[0].name}
-                    </p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{post.attachments[0].name}</p>
                     <p className="text-xs text-slate-500">Click to view</p>
                   </div>
                   <Download className="w-4 h-4 text-slate-400 group-hover:text-slate-600 flex-shrink-0" />
                 </a>
               )
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {post.attachments.map((attachment, index) => (
                   <div
                     key={index}
-                    className="relative h-32 sm:h-40 bg-slate-100 rounded-lg overflow-hidden group cursor-pointer"
+                    className="relative h-28 sm:h-36 bg-slate-50 rounded-xl overflow-hidden group cursor-pointer"
                     onClick={() => handleAttachmentClick(attachment)}
                   >
                     {attachment.type?.startsWith("image/") ? (
@@ -620,13 +390,13 @@ const PostEnhanced = ({ post }) => {
                           className="w-full h-full object-cover hover:opacity-90 transition"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center">
-                          <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition" />
+                          <Eye className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition" />
                         </div>
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full bg-slate-50 hover:bg-slate-100 transition p-2">
-                        <FileText className="w-8 h-8 text-slate-400 mb-2" />
-                        <p className="text-xs text-slate-600 text-center truncate max-w-full px-2">
+                        <FileText className="w-7 h-7 text-slate-400 mb-1.5" />
+                        <p className="text-[10px] text-slate-500 text-center truncate max-w-full px-2">
                           {attachment.name}
                         </p>
                       </div>
@@ -639,7 +409,6 @@ const PostEnhanced = ({ post }) => {
         )}
 
         {/* Post Actions & Comments */}
-        {/* Post Actions & Comments - CORRECTED */}
         <CommentsEnhanced
           postId={post.id}
           initialCommentCount={post.comments || 0}
@@ -648,17 +417,12 @@ const PostEnhanced = ({ post }) => {
           postTitle={post.title}
           reactionButton={
             <>
-              {/* Voting System */}
               <VotingButton
                 postId={post.id}
                 initialUpvotes={post.upvotes || []}
                 initialDownvotes={post.downvotes || []}
               />
-
-              {/* Divider */}
-              <div className="h-6 w-px bg-slate-200 mx-2" />
-
-              {/* Reactions */}
+              <div className="h-5 w-px bg-slate-200 mx-1.5" />
               <ReactionButton
                 postId={post.id}
                 initialReactions={post.reactions || {}}
@@ -672,11 +436,11 @@ const PostEnhanced = ({ post }) => {
             userData && userData.uid !== post.authorId && !post.isRemoved ? (
               <button
                 onClick={() => setShowReportModal(true)}
-                className="ml-auto flex items-center gap-1 px-2 sm:px-3 py-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm"
+                className="ml-auto flex items-center gap-1 px-2 sm:px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm"
                 title="Report this post"
               >
-                <Flag className="w-4 h-4" />
-                <span className="hidden sm:inline">Report</span>
+                <Flag className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-xs">Report</span>
               </button>
             ) : null
           }
@@ -698,38 +462,30 @@ const PostEnhanced = ({ post }) => {
       {showEditHistory && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
-              <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
-                Edit History
-              </h3>
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <h3 className="text-lg font-semibold text-slate-900">Edit History</h3>
               <button
                 onClick={() => setShowEditHistory(false)}
-                className="text-slate-400 hover:text-slate-600 transition"
+                className="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-50 rounded-lg transition"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="flex-1 overflow-y-auto p-5">
               {editHistory.length === 0 ? (
-                <p className="text-center text-slate-500 py-8">
-                  No edit history available
-                </p>
+                <p className="text-center text-slate-500 py-8">No edit history available</p>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {editHistory.map((entry, index) => (
-                    <div key={index} className="bg-slate-50 rounded-lg p-4">
+                    <div key={index} className="bg-slate-50 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-slate-900 text-sm">
-                          {entry.editedByName}
-                        </span>
+                        <span className="font-medium text-slate-900 text-sm">{entry.editedByName}</span>
                         <span className="text-xs text-slate-500">
-                          {entry.timestamp?.toDate?.()?.toLocaleString() ||
-                            "Unknown time"}
+                          {entry.timestamp?.toDate?.()?.toLocaleString() || "Unknown time"}
                         </span>
                       </div>
-                      <div className="text-sm text-slate-700">
-                        <strong>Changed fields:</strong>{" "}
-                        {Object.keys(entry.changes).join(", ")}
+                      <div className="text-sm text-slate-600">
+                        <strong>Changed:</strong> {Object.keys(entry.changes).join(", ")}
                       </div>
                     </div>
                   ))}
@@ -779,48 +535,37 @@ const PostEnhanced = ({ post }) => {
           onClick={() => !deleting && setShowDeleteConfirm(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6"
+            className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-red-100 rounded-full">
-                <Trash2 className="w-6 h-6 text-red-600" />
+            <div className="text-center mb-5">
+              <div className="w-12 h-12 mx-auto mb-3 bg-red-100 rounded-full flex items-center justify-center">
+                <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {t('postActions.deletePost')}
-                </h3>
-                <p className="text-sm text-slate-500">
-                  {t('postActions.deleteConfirm')}
-                </p>
-              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-1">
+                {t('postActions.deletePost')}
+              </h3>
+              <p className="text-sm text-slate-500">
+                {t('postActions.confirmDelete')}
+              </p>
             </div>
-            <p className="text-slate-700 mb-6">
-              {t('postActions.confirmDelete')}
-            </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={deleting}
-                className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition disabled:opacity-50"
+                className="flex-1 py-2.5 text-slate-700 hover:bg-slate-50 rounded-xl transition text-sm font-medium border border-slate-200 disabled:opacity-50"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={handleDeletePost}
                 disabled={deleting}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {deleting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    {t('postActions.deleting')}
-                  </>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <>
-                    <Trash2 className="w-4 h-4" />
-                    {t('common.delete')}
-                  </>
+                  t('common.delete')
                 )}
               </button>
             </div>

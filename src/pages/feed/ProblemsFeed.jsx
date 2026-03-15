@@ -21,10 +21,10 @@ const ProblemsFeed = () => {
         title={t("feed.problems")}
         description={t("feed.problemsDescription")}
         colors={{
-          gradient: "from-red-600 to-orange-600",
-          text: "text-red-900",
-          bg: "bg-red-50",
-          border: "border-red-200",
+          gradient: "from-rose-500 to-orange-500",
+          text: "text-rose-900",
+          bg: "bg-rose-50",
+          border: "border-rose-200",
         }}
       />
     </>

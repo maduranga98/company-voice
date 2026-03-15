@@ -11,10 +11,10 @@ const CreativeFeed = () => {
       title={t("feed.creativeTitle")}
       description={t("feed.creativeDescriptiom")}
       colors={{
-        gradient: "from-purple-600 to-pink-600",
-        text: "text-purple-900",
-        bg: "bg-purple-50",
-        border: "border-purple-200",
+        gradient: "from-violet-500 to-fuchsia-500",
+        text: "text-violet-900",
+        bg: "bg-violet-50",
+        border: "border-violet-200",
       }}
     />
   );
