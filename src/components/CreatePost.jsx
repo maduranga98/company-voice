@@ -7,6 +7,7 @@ import PollCreator from "./PollCreator";
 import AnonymityGuaranteeScreen from "./AnonymityGuaranteeScreen";
 import { useTranslation } from "react-i18next";
 import { encryptAuthorId } from "../services/postManagementService";
+import { X, Paperclip, Eye, EyeOff, Send, Sparkles, AlertTriangle, MessageCircle, ChevronDown, Image as ImageIcon, FileText } from "lucide-react";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -18,6 +19,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const [pollData, setPollData] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [showAnonymityGuarantee, setShowAnonymityGuarantee] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -28,7 +30,6 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
     departmentId: "",
   });
 
-  // Validate user data on component mount
   useEffect(() => {
     if (!userData) {
       setError("Loading user data...");
@@ -37,235 +38,125 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
     } else if (!userData.companyId) {
       setError("Company information missing. Please contact support.");
     } else {
-      setError(""); // Clear error if everything is valid
+      setError("");
     }
   }, [userData]);
 
-  // Load departments on mount
   useEffect(() => {
     const loadDepartments = async () => {
       if (!userData?.companyId) return;
-
       try {
         const deptRef = collection(db, "departments");
-        const q = query(
-          deptRef,
-          where("companyId", "==", userData.companyId),
-          orderBy("name", "asc")
-        );
-
+        const q = query(deptRef, where("companyId", "==", userData.companyId), orderBy("name", "asc"));
         const snapshot = await getDocs(q);
         const deptList = [];
-        snapshot.forEach((doc) => {
-          deptList.push({ id: doc.id, ...doc.data() });
-        });
-
+        snapshot.forEach((doc) => { deptList.push({ id: doc.id, ...doc.data() }); });
         setDepartments(deptList);
       } catch (error) {
         console.error("Error loading departments:", error);
       }
     };
-
     loadDepartments();
   }, [userData?.companyId]);
 
   const config = {
     creative: {
       title: "Share Something Creative",
-      icon: (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-        />
-      ),
-      iconBg: "bg-purple-50",
-      iconColor: "text-purple-600",
-      categories: [
-        "Art",
-        "Design",
-        "Writing",
-        "Photography",
-        "Music",
-        "Video",
-        "Innovation",
-        "DIY Project",
-        "Success Story",
-        "Team Achievement",
-        "Other",
-      ],
-      placeholder: {
-        title: "Give your creation a catchy title",
-        description: "Share your creative work, story, or idea...",
-      },
+      icon: Sparkles,
+      iconColor: "text-violet-500",
+      iconBg: "bg-violet-50",
+      accentColor: "violet",
+      categories: ["Art", "Design", "Writing", "Photography", "Music", "Video", "Innovation", "DIY Project", "Success Story", "Team Achievement", "Other"],
+      placeholder: { title: "Give your creation a catchy title", description: "Share your creative work, story, or idea..." },
       buttonText: "Share Creation",
-      buttonColor: "bg-purple-600 hover:bg-purple-700",
+      buttonGradient: "from-violet-500 to-fuchsia-500",
       postType: "creative_content",
     },
     complaint: {
       title: "Report a Problem",
-      icon: (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-        />
-      ),
-      iconBg: "bg-red-50",
-      iconColor: "text-red-600",
-      categories: [
-        "Safety Issue",
-        "Equipment Problem",
-        "Workplace Concern",
-        "Process Issue",
-        "Communication Gap",
-        "Resource Shortage",
-        "Technical Problem",
-        "Environment Issue",
-        "Policy Concern",
-        "Harassment",
-        "Other",
-      ],
-      placeholder: {
-        title: "Briefly describe the problem",
-        description: "Provide details about the issue you're experiencing...",
-      },
+      icon: AlertTriangle,
+      iconColor: "text-rose-500",
+      iconBg: "bg-rose-50",
+      accentColor: "rose",
+      categories: ["Safety Issue", "Equipment Problem", "Workplace Concern", "Process Issue", "Communication Gap", "Resource Shortage", "Technical Problem", "Environment Issue", "Policy Concern", "Harassment", "Other"],
+      placeholder: { title: "Briefly describe the problem", description: "Provide details about the issue you're experiencing..." },
       buttonText: "Submit Report",
-      buttonColor: "bg-red-600 hover:bg-red-700",
+      buttonGradient: "from-rose-500 to-orange-500",
       postType: "problem_report",
     },
     discussion: {
       title: "Start a Discussion",
-      icon: (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-        />
-      ),
+      icon: MessageCircle,
+      iconColor: "text-blue-500",
       iconBg: "bg-blue-50",
-      iconColor: "text-blue-600",
-      categories: [
-        "General Discussion",
-        "Ideas & Suggestions",
-        "Team Updates",
-        "Announcements",
-        "Questions",
-        "Feedback",
-        "Collaboration",
-        "Events",
-        "Other",
-      ],
-      placeholder: {
-        title: "What would you like to discuss?",
-        description:
-          "Share your thoughts, ideas, or questions with the team...",
-      },
+      accentColor: "blue",
+      categories: ["General Discussion", "Ideas & Suggestions", "Team Updates", "Announcements", "Questions", "Feedback", "Collaboration", "Events", "Other"],
+      placeholder: { title: "What would you like to discuss?", description: "Share your thoughts, ideas, or questions with the team..." },
       buttonText: "Start Discussion",
-      buttonColor: "bg-blue-600 hover:bg-blue-700",
+      buttonGradient: "from-blue-500 to-cyan-500",
       postType: "team_discussion",
     },
   };
 
   const currentConfig = config[type] || config.creative;
+  const IconComponent = currentConfig.icon;
 
   const handleInputChange = (e) => {
     const { name, value, type: inputType, checked } = e.target;
-
-    // Intercept the anonymous toggle for problem reports
     if (name === "isAnonymous" && checked && type === "complaint") {
       const alreadySeen = sessionStorage.getItem("voxwel_anon_guarantee_shown");
       if (!alreadySeen) {
-        // Show the guarantee screen; don't update formData yet
         setShowAnonymityGuarantee(true);
         return;
       }
     }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: inputType === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: inputType === "checkbox" ? checked : value }));
   };
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
-    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    const maxFileSize = 10 * 1024 * 1024;
     const maxFiles = 5;
-
-    // Validate each file
     const validFiles = [];
     const errors = [];
 
     files.forEach((file) => {
-      const isValidType =
-        file.type.startsWith("image/") ||
-        file.type.startsWith("video/") ||
-        file.type === "application/pdf" ||
-        file.type.includes("document") ||
-        file.type.includes("word") ||
-        file.type.includes("msword") ||
-        file.type.includes("officedocument");
-
+      const isValidType = file.type.startsWith("image/") || file.type.startsWith("video/") || file.type === "application/pdf" || file.type.includes("document") || file.type.includes("word") || file.type.includes("msword") || file.type.includes("officedocument");
       const isValidSize = file.size <= maxFileSize;
-
       if (!isValidType) {
-        errors.push(
-          `${file.name}: Invalid file type. Only images, videos, PDFs, and documents are allowed.`
-        );
+        errors.push(`${file.name}: Invalid file type.`);
       } else if (!isValidSize) {
-        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        errors.push(
-          `${file.name}: File too large (${fileSizeMB}MB). Maximum size is 10MB.`
-        );
+        errors.push(`${file.name}: File too large (max 10MB).`);
       } else {
         validFiles.push(file);
       }
     });
 
-    // Check total file count
     if (validFiles.length + selectedFiles.length > maxFiles) {
-      setError(
-        `Maximum ${maxFiles} files allowed. You selected ${
-          validFiles.length + selectedFiles.length
-        } files total.`
-      );
+      setError(`Maximum ${maxFiles} files allowed.`);
       return;
     }
-
-    // Show errors if any
     if (errors.length > 0) {
       setError(errors.join("\n"));
-      // Still add valid files if there are any
-      if (validFiles.length === 0) {
-        return;
-      }
+      if (validFiles.length === 0) return;
     } else {
-      setError(""); // Clear any previous errors
+      setError("");
     }
 
     const fileObjects = validFiles.map((file) => ({
       file,
-      preview: file.type.startsWith("image/")
-        ? URL.createObjectURL(file)
-        : null,
+      preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
       name: file.name,
       type: file.type,
       size: file.size,
     }));
-
     setSelectedFiles((prev) => [...prev, ...fileObjects]);
   };
 
   const removeFile = (index) => {
     setSelectedFiles((prev) => {
       const newFiles = [...prev];
-      if (newFiles[index].preview) {
-        URL.revokeObjectURL(newFiles[index].preview);
-      }
+      if (newFiles[index].preview) URL.revokeObjectURL(newFiles[index].preview);
       newFiles.splice(index, 1);
       return newFiles;
     });
@@ -273,45 +164,26 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
 
   const uploadFiles = async () => {
     if (selectedFiles.length === 0) return [];
-
     setUploadProgress(0);
     const totalFiles = selectedFiles.length;
     let completedFiles = 0;
 
     const uploadPromises = selectedFiles.map(async (fileObj) => {
       const file = fileObj.file;
-      const fileRef = ref(
-        storage,
-        `posts/${userData.companyId}/${Date.now()}_${file.name}`
-      );
-
+      const fileRef = ref(storage, `posts/${userData.companyId}/${Date.now()}_${file.name}`);
       return new Promise((resolve, reject) => {
         const uploadTask = uploadBytesResumable(fileRef, file);
-
-        uploadTask.on(
-          "state_changed",
+        uploadTask.on("state_changed",
           (snapshot) => {
-            // Calculate overall progress
-            const fileProgress =
-              snapshot.bytesTransferred / snapshot.totalBytes;
-            const overallProgress =
-              ((completedFiles + fileProgress) / totalFiles) * 100;
+            const fileProgress = snapshot.bytesTransferred / snapshot.totalBytes;
+            const overallProgress = ((completedFiles + fileProgress) / totalFiles) * 100;
             setUploadProgress(Math.round(overallProgress));
           },
-          (error) => {
-            console.error("Upload error:", error);
-            reject(error);
-          },
+          (error) => reject(error),
           async () => {
-            // Upload completed successfully
             completedFiles++;
             const url = await getDownloadURL(fileRef);
-            resolve({
-              url,
-              name: file.name,
-              type: file.type,
-              size: file.size,
-            });
+            resolve({ url, name: file.name, type: file.type, size: file.size });
           }
         );
       });
@@ -328,45 +200,27 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
     setError("");
 
     try {
-      // Validate user data
-      if (!userData?.id) {
-        throw new Error("User authentication required. Please log in again.");
-      }
+      if (!userData?.id) throw new Error("User authentication required. Please log in again.");
+      if (!userData?.companyId) throw new Error("Company information missing. Please contact support.");
+      if (formData.privacyLevel === "department_only" && !formData.departmentId) throw new Error("Please select a department for department-only posts.");
 
-      if (!userData?.companyId) {
-        throw new Error("Company information missing. Please contact support.");
-      }
-
-      // Validate department selection for department-only posts
-      if (formData.privacyLevel === "department_only" && !formData.departmentId) {
-        throw new Error("Please select a department for department-only posts.");
-      }
-
-      // Upload files if any
       let uploadedAttachments = [];
       if (selectedFiles.length > 0) {
         try {
           uploadedAttachments = await uploadFiles();
         } catch (uploadError) {
-          console.error("Error uploading files:", uploadError);
           throw new Error("Failed to upload attachments. Please try again.");
         }
       }
 
-      // Prepare post data
       const postData = {
         title: formData.title.trim(),
         content: formData.description.trim(),
         category: formData.category,
-        tags: formData.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
+        tags: formData.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
         isAnonymous: formData.isAnonymous,
         authorId: formData.isAnonymous ? encryptAuthorId(userData.id) : userData.id,
-        authorName: formData.isAnonymous
-          ? "Anonymous"
-          : userData.displayName || "Unknown User",
+        authorName: formData.isAnonymous ? "Anonymous" : userData.displayName || "Unknown User",
         authorEmail: userData.email || "",
         authorDepartmentId: userData.departmentId || null,
         companyId: userData.companyId,
@@ -376,7 +230,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         privacyLevel: formData.privacyLevel,
         departmentId: formData.privacyLevel === "department_only" ? formData.departmentId : null,
         attachments: uploadedAttachments,
-        poll: pollData, // Include poll data if present
+        poll: pollData,
         likes: [],
         comments: 0,
         views: 0,
@@ -384,21 +238,11 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         updatedAt: serverTimestamp(),
       };
 
-      // Save to posts collection
       await addDoc(collection(db, "posts"), postData);
-
-      // Success callbacks
-      if (onSuccess) {
-        onSuccess();
-      }
-
-      if (onClose) {
-        onClose();
-      }
+      if (onSuccess) onSuccess();
+      if (onClose) onClose();
     } catch (error) {
       console.error("Error creating post:", error);
-
-      // User-friendly error messages
       if (error.message.includes("authentication")) {
         setError("Please log in again to create a post.");
       } else if (error.message.includes("Company information")) {
@@ -406,237 +250,115 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
       } else if (error.message.includes("attachments")) {
         setError(error.message);
       } else if (error.code === "permission-denied") {
-        setError(
-          "You don't have permission to create posts. Please contact your admin."
-        );
+        setError("You don't have permission to create posts. Please contact your admin.");
       } else {
-        setError("Failed to create post. Please try again.");
+        setError(error.message || "Failed to create post. Please try again.");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  const privacyOptions = [
+    { value: "company_public", label: t('createPost.companyPublic'), icon: Eye, desc: "Visible to all employees" },
+    { value: "department_only", label: t('createPost.departmentOnly'), icon: EyeOff, desc: "Department members only" },
+    { value: "hr_only", label: t('createPost.hrOnly'), icon: EyeOff, desc: "HR and admins only" },
+  ];
+
   return (
     <>
-    {showAnonymityGuarantee && (
-      <AnonymityGuaranteeScreen
-        onContinue={() => {
-          sessionStorage.setItem("voxwel_anon_guarantee_shown", "1");
-          setFormData((prev) => ({ ...prev, isAnonymous: true }));
-          setShowAnonymityGuarantee(false);
-        }}
-        onBack={() => {
-          setShowAnonymityGuarantee(false);
-          // isAnonymous remains false (unchecked)
-        }}
-      />
-    )}
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-9999 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]">
-        {/* STICKY HEADER */}
-        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-slate-100 p-6 z-10">
-          <div className="flex items-center justify-between">
+      {showAnonymityGuarantee && (
+        <AnonymityGuaranteeScreen
+          onContinue={() => {
+            sessionStorage.setItem("voxwel_anon_guarantee_shown", "1");
+            setFormData((prev) => ({ ...prev, isAnonymous: true }));
+            setShowAnonymityGuarantee(false);
+          }}
+          onBack={() => setShowAnonymityGuarantee(false)}
+        />
+      )}
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg my-4 flex flex-col max-h-[calc(100vh-2rem)]">
+          {/* Header */}
+          <div className="flex items-center justify-between p-5 border-b border-gray-100">
             <div className="flex items-center gap-3">
-              <div className={`${currentConfig.iconBg} rounded-full p-2.5`}>
-                <svg
-                  className={`w-5 h-5 ${currentConfig.iconColor}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  {currentConfig.icon}
-                </svg>
+              <div className={`w-9 h-9 ${currentConfig.iconBg} rounded-xl flex items-center justify-center`}>
+                <IconComponent className={`w-4.5 h-4.5 ${currentConfig.iconColor}`} size={18} />
               </div>
-              <h2 className="text-xl font-semibold text-slate-900">
-                {currentConfig.title}
-              </h2>
+              <h2 className="text-lg font-bold text-gray-900">{currentConfig.title}</h2>
             </div>
             <button
               onClick={onClose}
               type="button"
-              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-2 transition"
-              aria-label="Close modal"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X size={20} />
             </button>
           </div>
-        </div>
 
-        {/* SCROLLABLE CONTENT AREA */}
-        <div className="overflow-y-auto flex-1 p-6">
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
-              <p className="text-sm text-red-700 whitespace-pre-line">
-                {error}
-              </p>
-            </div>
-          )}
-
-          {/* Form Fields */}
-          <form
-            id="create-post-form"
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                {t('createPost.postTitle')} {pollData && <span className="text-slate-500 text-xs">(Optional for polls)</span>}
-              </label>
-              <input
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleInputChange}
-                required={!pollData}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-                placeholder={currentConfig.placeholder.title}
-              />
-            </div>
-
-            {/* Poll Creator - MOVED TO TOP */}
-            <PollCreator onPollChange={setPollData} initialPoll={pollData} />
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                {t('createPost.postDescription')} {pollData && <span className="text-slate-500 text-xs">(Optional for polls)</span>}
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                required={!pollData}
-                rows="8"
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition resize-none"
-                placeholder={currentConfig.placeholder.description}
-              />
-              <p className="text-xs text-slate-500 mt-1.5">
-                {t('createPost.contentPlaceholder')}
-              </p>
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                {t('createPost.postCategory')}
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-              >
-                <option value="">{t('createPost.selectCategory')}</option>
-                {currentConfig.categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Tags (Optional)
-              </label>
-              <input
-                name="tags"
-                type="text"
-                value={formData.tags}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-                placeholder="creativity, innovation, teamwork (comma-separated)"
-              />
-            </div>
-
-            {/* Privacy Level */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                {t('createPost.postPrivacy')}
-              </label>
-              <select
-                name="privacyLevel"
-                value={formData.privacyLevel}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-              >
-                <option value="company_public">{t('createPost.companyPublic')}</option>
-                <option value="department_only">{t('createPost.departmentOnly')}</option>
-                <option value="hr_only">{t('createPost.hrOnly')}</option>
-              </select>
-              <p className="text-xs text-slate-500 mt-1.5">
-                {formData.privacyLevel === "company_public" && "Visible to all employees in the company"}
-                {formData.privacyLevel === "department_only" && "Only visible to members of the selected department"}
-                {formData.privacyLevel === "hr_only" && "Only visible to HR and company admins"}
-              </p>
-            </div>
-
-            {/* Department Selection - Only show when department_only is selected */}
-            {formData.privacyLevel === "department_only" && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Select Department <span className="text-red-600">*</span>
-                </label>
-                <select
-                  name="departmentId"
-                  value={formData.departmentId}
-                  onChange={handleInputChange}
-                  required={formData.privacyLevel === "department_only"}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-                >
-                  <option value="">Choose a department</option>
-                  {departments.map((dept) => (
-                    <option key={dept.id} value={dept.id}>
-                      {dept.icon} {dept.name}
-                    </option>
-                  ))}
-                </select>
-                {departments.length === 0 && (
-                  <p className="text-xs text-orange-600 mt-1.5">
-                    No departments available. Please contact your admin to set up departments.
-                  </p>
-                )}
+          {/* Scrollable Form */}
+          <div className="overflow-y-auto flex-1 p-5">
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+                <p className="text-sm text-red-600 whitespace-pre-line">{error}</p>
               </div>
             )}
 
-            {/* Anonymous Option */}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="isAnonymous"
-                name="isAnonymous"
-                checked={formData.isAnonymous}
-                onChange={handleInputChange}
-                className="w-4 h-4 text-slate-900 border-slate-300 rounded focus:ring-slate-900"
-              />
-              <label htmlFor="isAnonymous" className="text-sm text-slate-700">
-                {t('createPost.anonymous')}
-              </label>
-            </div>
+            <form id="create-post-form" onSubmit={handleSubmit} className="space-y-4">
+              {/* Title */}
+              <div>
+                <input
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required={!pollData}
+                  className="w-full px-0 py-2 bg-transparent border-0 border-b-2 border-gray-200 text-lg font-semibold text-gray-900 placeholder-gray-300 focus:outline-none focus:border-gray-900 transition-colors"
+                  placeholder={currentConfig.placeholder.title}
+                />
+              </div>
 
-            {/* Attachments */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                {t('createPost.attachFiles')}
-              </label>
-              <div className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center hover:border-slate-300 transition">
+              {/* Description */}
+              <div>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required={!pollData}
+                  rows="5"
+                  className="w-full px-0 py-2 bg-transparent border-0 border-b border-gray-100 text-gray-700 placeholder-gray-300 focus:outline-none focus:border-gray-300 transition-colors resize-none text-sm leading-relaxed"
+                  placeholder={currentConfig.placeholder.description}
+                />
+              </div>
+
+              {/* Category - Pill selector */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  {t('createPost.postCategory')}
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {currentConfig.categories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, category: cat }))}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        formData.category === cat
+                          ? `bg-gradient-to-r ${currentConfig.buttonGradient} text-white shadow-sm`
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Poll Creator */}
+              <PollCreator onPollChange={setPollData} initialPoll={pollData} />
+
+              {/* Attachments */}
+              <div>
                 <input
                   type="file"
                   id="fileUpload"
@@ -645,120 +367,172 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                <label
-                  htmlFor="fileUpload"
-                  className="cursor-pointer flex flex-col items-center"
-                >
-                  <svg
-                    className="w-10 h-10 text-slate-400 mb-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {selectedFiles.length === 0 ? (
+                  <label
+                    htmlFor="fileUpload"
+                    className="flex items-center gap-3 p-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 hover:bg-gray-50 transition group"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                  <span className="text-sm text-slate-600 font-medium">
-                    Click to upload files
-                  </span>
-                  <span className="text-xs text-slate-500 mt-1">
-                    Images, videos, PDFs, or documents (Max 10MB each, 5 files
-                    total)
-                  </span>
-                </label>
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition">
+                      <Paperclip size={18} className="text-gray-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{t('createPost.attachFiles')}</p>
+                      <p className="text-xs text-gray-400">Images, PDFs, documents (max 10MB, 5 files)</p>
+                    </div>
+                  </label>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        Attachments ({selectedFiles.length})
+                      </span>
+                      <label htmlFor="fileUpload" className="text-xs text-[#1ABC9C] font-medium cursor-pointer hover:underline">
+                        + Add more
+                      </label>
+                    </div>
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {selectedFiles.map((file, index) => (
+                        <div key={index} className="relative flex-shrink-0 group">
+                          {file.preview ? (
+                            <img src={file.preview} alt={file.name} className="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                          ) : (
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
+                              <FileText size={20} className="text-gray-400" />
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Selected Files Preview */}
-              {selectedFiles.length > 0 && (
-                <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {selectedFiles.map((file, index) => (
-                    <div key={index} className="relative group">
-                      {file.preview ? (
-                        <img
-                          src={file.preview}
-                          alt={file.name}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                      ) : (
-                        <div className="w-full h-24 bg-slate-100 rounded-lg flex items-center justify-center">
-                          <svg
-                            className="w-8 h-8 text-slate-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                            />
-                          </svg>
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
-                      >
-                        ×
-                      </button>
-                      <p className="text-xs text-slate-600 mt-1 truncate">
-                        {file.name}
-                      </p>
-                    </div>
-                  ))}
+              {/* Bottom row: Anonymous + Privacy */}
+              <div className="flex items-center gap-3 pt-1">
+                {/* Anonymous toggle */}
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <div className={`w-8 h-5 rounded-full transition-colors relative ${formData.isAnonymous ? 'bg-[#1ABC9C]' : 'bg-gray-200'}`}>
+                    <input
+                      type="checkbox"
+                      name="isAnonymous"
+                      checked={formData.isAnonymous}
+                      onChange={handleInputChange}
+                      className="sr-only"
+                    />
+                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${formData.isAnonymous ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                  </div>
+                  <span className="text-xs text-gray-500 group-hover:text-gray-700 transition">{t('createPost.anonymous')}</span>
+                </label>
+
+                <div className="h-4 w-px bg-gray-200" />
+
+                {/* Privacy */}
+                <div className="relative flex-1">
+                  <select
+                    name="privacyLevel"
+                    value={formData.privacyLevel}
+                    onChange={handleInputChange}
+                    className="w-full appearance-none px-3 py-1.5 bg-gray-50 border-0 rounded-lg text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-300 cursor-pointer pr-7"
+                  >
+                    {privacyOptions.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Department Selection */}
+              {formData.privacyLevel === "department_only" && (
+                <div>
+                  <select
+                    name="departmentId"
+                    value={formData.departmentId}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    <option value="">Choose a department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>{dept.icon} {dept.name}</option>
+                    ))}
+                  </select>
+                  {departments.length === 0 && (
+                    <p className="text-xs text-orange-500 mt-1">No departments available.</p>
+                  )}
                 </div>
               )}
-            </div>
-          </form>
-        </div>
 
-        {/* STICKY FOOTER */}
-        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-slate-100 p-6 z-10">
-          {/* Upload Progress Bar */}
-          {loading &&
-            uploadProgress > 0 &&
-            uploadProgress < 100 &&
-            selectedFiles.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
-                  <span>{t('createPost.attachFiles')}...</span>
+              {/* Advanced: Tags */}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-xs text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
+              >
+                <ChevronDown size={12} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+                {showAdvanced ? "Hide" : "More"} options
+              </button>
+
+              {showAdvanced && (
+                <div>
+                  <input
+                    name="tags"
+                    type="text"
+                    value={formData.tags}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                    placeholder="Tags (comma-separated)"
+                  />
+                </div>
+              )}
+            </form>
+          </div>
+
+          {/* Footer */}
+          <div className="p-4 border-t border-gray-100">
+            {loading && uploadProgress > 0 && uploadProgress < 100 && selectedFiles.length > 0 && (
+              <div className="mb-3">
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+                  <span>Uploading files...</span>
                   <span className="font-semibold">{uploadProgress}%</span>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                   <div
-                    className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out"
+                    className={`bg-gradient-to-r ${currentConfig.buttonGradient} h-full rounded-full transition-all duration-300`}
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
               </div>
             )}
 
-          <button
-            type="submit"
-            form="create-post-form"
-            disabled={loading || !userData?.id || !userData?.companyId}
-            className={`w-full py-3 rounded-lg font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${currentConfig.buttonColor}`}
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                {uploadProgress > 0 && uploadProgress < 100
-                  ? `Uploading... ${uploadProgress}%`
-                  : t('createPost.submitting')}
-              </span>
-            ) : (
-              currentConfig.buttonText
-            )}
-          </button>
+            <button
+              type="submit"
+              form="create-post-form"
+              disabled={loading || !userData?.id || !userData?.companyId || !formData.category}
+              className={`w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${currentConfig.buttonGradient} transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2`}
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {uploadProgress > 0 && uploadProgress < 100 ? `Uploading... ${uploadProgress}%` : t('createPost.submitting')}
+                </>
+              ) : (
+                <>
+                  <Send size={16} />
+                  {currentConfig.buttonText}
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };
