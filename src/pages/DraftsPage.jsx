@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from 'react-i18next';
-import { FileText, Trash2, Send, Edit } from "lucide-react";
+import {
+  FileText,
+  Trash2,
+  Send,
+  Edit,
+  Clock,
+  Tag,
+  FolderOpen,
+} from "lucide-react";
 import {
   getUserDrafts,
   publishDraft,
@@ -73,115 +81,147 @@ const DraftsPage = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span className="sr-only">{t('common.loading')}</span>
+      <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col items-center justify-center py-16">
+          <div
+            className="w-9 h-9 rounded-full border-2 border-gray-200 animate-spin"
+            style={{ borderTopColor: "#1ABC9C" }}
+          />
+          <p className="mt-3 text-xs text-gray-400">{t('common.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8 min-h-screen">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <FileText className="w-6 h-6" />
-          {t('drafts.title')}
-        </h1>
-        <p className="text-slate-600 mt-1">
-          Manage your saved draft posts
-        </p>
+      <div className="mb-8">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm"
+            style={{ backgroundColor: "#2D3E50" }}
+          >
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#2D3E50" }}>
+              {t('drafts.title')}
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Manage your saved draft posts
+            </p>
+          </div>
+          {drafts.length > 0 && (
+            <span
+              className="ml-auto px-2.5 py-1 rounded-xl text-xs font-semibold text-white"
+              style={{ backgroundColor: "#1ABC9C" }}
+            >
+              {drafts.length}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-5 p-4 bg-red-50 border border-gray-100 rounded-2xl shadow-sm">
+          <p className="text-sm text-red-700 font-medium">{error}</p>
         </div>
       )}
 
       {/* Drafts List */}
       {drafts.length === 0 ? (
-        <div className="text-center py-12 bg-slate-50 rounded-lg">
-          <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-600">{t('drafts.noDrafts')}</p>
-          <p className="text-sm text-slate-500 mt-1">
+        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FolderOpen className="w-7 h-7 text-gray-300" />
+          </div>
+          <h3 className="text-lg font-semibold mb-1" style={{ color: "#2D3E50" }}>
+            {t('drafts.noDrafts')}
+          </h3>
+          <p className="text-sm text-gray-500 max-w-xs mx-auto">
             {t('drafts.noDraftsDescription')}
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {drafts.map((draft) => (
             <div
               key={draft.id}
-              className="bg-white border border-slate-200 rounded-lg p-5 hover:border-slate-300 transition"
+              className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden"
             >
-              {/* Draft Header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    {draft.title}
-                  </h3>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded">
-                      {draft.category}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {draft.type?.replace(/_/g, " ")}
-                    </span>
+              <div className="p-5">
+                {/* Draft Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-semibold truncate" style={{ color: "#2D3E50" }}>
+                      {draft.title}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs px-2.5 py-1 bg-gray-50 text-gray-600 rounded-xl border border-gray-100 font-medium">
+                        {draft.category}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {draft.type?.replace(/_/g, " ")}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Draft Content Preview */}
-              <p className="text-sm text-slate-700 line-clamp-2 mb-3">
-                {draft.content}
-              </p>
+                {/* Draft Content Preview */}
+                <p className="text-sm text-gray-600 line-clamp-2 mb-3 leading-relaxed">
+                  {draft.content}
+                </p>
 
-              {/* Draft Metadata */}
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                <span>{t('drafts.lastUpdated')} {formatDate(draft.updatedAt)}</span>
-                {draft.tags && draft.tags.length > 0 && (
-                  <div className="flex gap-1">
-                    {draft.tags.slice(0, 3).map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-0.5 bg-slate-50 rounded"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+                {/* Draft Metadata */}
+                <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    {t('drafts.lastUpdated')} {formatDate(draft.updatedAt)}
+                  </span>
+                  {draft.tags && draft.tags.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <Tag className="w-3 h-3 text-gray-400" />
+                      {draft.tags.slice(0, 3).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-0.5 bg-gray-50 rounded-lg text-gray-500 border border-gray-100"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-                <button
-                  onClick={() => handlePublish(draft.id)}
-                  className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
-                >
-                  <Send className="w-4 h-4" />
-                  {t('drafts.publish')}
-                </button>
-                <button
-                  onClick={() => {
-                    /* Navigate to edit */
-                  }}
-                  className="flex items-center gap-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg transition"
-                >
-                  <Edit className="w-4 h-4" />
-                  {t('common.edit')}
-                </button>
-                <button
-                  onClick={() => handleDelete(draft.id)}
-                  className="ml-auto flex items-center gap-1 px-4 py-2 text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  {t('common.delete')}
-                </button>
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => handlePublish(draft.id)}
+                    className="flex items-center gap-1.5 px-4 py-2.5 text-white text-sm font-medium rounded-xl shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
+                    style={{ backgroundColor: "#1ABC9C" }}
+                  >
+                    <Send className="w-4 h-4" />
+                    {t('drafts.publish')}
+                  </button>
+                  <button
+                    onClick={() => {
+                      /* Navigate to edit */
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-sm font-medium rounded-xl transition-all border border-gray-100"
+                    style={{ color: "#2D3E50" }}
+                  >
+                    <Edit className="w-4 h-4" />
+                    {t('common.edit')}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(draft.id)}
+                    className="ml-auto flex items-center gap-1.5 px-4 py-2.5 text-red-500 hover:bg-red-50 text-sm font-medium rounded-xl transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {t('common.delete')}
+                  </button>
+                </div>
               </div>
             </div>
           ))}

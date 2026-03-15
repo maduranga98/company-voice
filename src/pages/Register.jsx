@@ -10,6 +10,20 @@ import {
 import { db } from "../config/firebase";
 import { checkUsernameExists, hashPassword } from "../services/authService";
 import { useTranslation } from 'react-i18next';
+import {
+  ArrowLeft,
+  UserPlus,
+  User,
+  AtSign,
+  Phone,
+  Lock,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  AlertCircle,
+  CircleCheck,
+  Users,
+} from "lucide-react";
 
 const Register = () => {
   const { t } = useTranslation();
@@ -219,288 +233,319 @@ const Register = () => {
     }
   };
 
+  const inputClasses = "w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-900 placeholder-gray-400 transition-all hover:bg-white focus:outline-none";
+
+  const handleFocus = (e) => {
+    e.target.style.boxShadow = "0 0 0 2px #1ABC9C40";
+    e.target.style.borderColor = "#1ABC9C";
+    e.target.style.backgroundColor = "#fff";
+  };
+
+  const handleBlur = (e) => {
+    e.target.style.boxShadow = "none";
+    e.target.style.borderColor = "";
+    e.target.style.backgroundColor = "";
+  };
+
   if (!company) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-slate-200 border-t-slate-900 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 text-sm">{t('common.loading')}</p>
+          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: "#1ABC9C" }} />
+          <p className="text-gray-500 text-sm">{t('common.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-md">
         {/* Back Button */}
         <button
           onClick={() => navigate("/login")}
-          className="flex items-center text-slate-600 hover:text-slate-900 transition-colors mb-6 group"
+          className="flex items-center text-gray-500 hover:text-gray-800 transition-colors mb-6 group"
         >
-          <svg
-            className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
+          <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
           {t('auth.register.backToLogin')}
         </button>
 
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-slate-900 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-semibold text-slate-900 mb-1">
-            {t('auth.register.joinCompany', { companyName: company.name })}
-          </h1>
-          <p className="text-sm text-slate-500">{t('auth.register.createEmployeeAccount')}</p>
-        </div>
-
-        {/* Alerts */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg">
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-lg">
-            <p className="text-sm text-emerald-700">{success}</p>
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
-          <div>
-            <label
-              htmlFor="fullName"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
-            >
-              {t('auth.register.fullName')}
-            </label>
-            <input
-              id="fullName"
-              name="fullName"
-              type="text"
-              value={formData.fullName}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
-              placeholder="John Doe"
-            />
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 sm:p-8">
+          {/* Header */}
+          <div className="text-center mb-7">
+            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: "#2D3E50" }}>
+              <UserPlus className="w-7 h-7 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold mb-1" style={{ color: "#2D3E50" }}>
+              {t('auth.register.joinCompany', { companyName: company.name })}
+            </h1>
+            <p className="text-sm text-gray-500">{t('auth.register.createEmployeeAccount')}</p>
           </div>
 
-          {/* Username */}
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
-            >
-              {t('auth.register.username')}
-            </label>
-            <div className="relative">
-              <input
-                id="username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3.5 py-2.5 pr-10 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
-                placeholder="johndoe"
-              />
-              {/* Status indicator */}
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                {checkingUsername && (
-                  <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" />
-                )}
-                {!checkingUsername && usernameChecked && usernameAvailable && (
-                  <svg
-                    className="w-5 h-5 text-emerald-600"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
-                {!checkingUsername && usernameChecked && !usernameAvailable && (
-                  <svg
-                    className="w-5 h-5 text-red-600"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
+          {/* Alerts */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-4 border rounded-xl flex items-start space-x-3" style={{ backgroundColor: "#1ABC9C10", borderColor: "#1ABC9C30" }}>
+              <CircleCheck className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#1ABC9C" }} />
+              <p className="text-sm" style={{ color: "#15967d" }}>{success}</p>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Full Name */}
+            <div>
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#2D3E50" }}
+              >
+                {t('auth.register.fullName')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  required
+                  className={inputClasses}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="John Doe"
+                />
               </div>
             </div>
-            <p className="text-xs text-slate-500 mt-1.5">
-              {t('auth.register.usernameHint')}
-            </p>
-            {usernameChecked && (
-              <div
-                className={`flex items-center gap-1.5 mt-2 text-sm ${
-                  usernameAvailable ? "text-emerald-600" : "text-red-600"
-                }`}
+
+            {/* Username */}
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#2D3E50" }}
               >
-                {usernameAvailable ? (
-                  <span>✓ {t('auth.register.usernameAvailable')}</span>
-                ) : (
-                  <span>✗ {t('auth.register.usernameTaken')}</span>
-                )}
+                {t('auth.register.username')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <AtSign className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  className={`${inputClasses} pr-10`}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="johndoe"
+                />
+                {/* Status indicator */}
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  {checkingUsername && (
+                    <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                  )}
+                  {!checkingUsername && usernameChecked && usernameAvailable && (
+                    <CheckCircle2 className="w-5 h-5" style={{ color: "#1ABC9C" }} />
+                  )}
+                  {!checkingUsername && usernameChecked && !usernameAvailable && (
+                    <XCircle className="w-5 h-5 text-red-500" />
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+              <p className="text-xs text-gray-400 mt-1.5">
+                {t('auth.register.usernameHint')}
+              </p>
+              {usernameChecked && (
+                <div
+                  className={`flex items-center gap-1.5 mt-2 text-sm ${
+                    usernameAvailable ? "" : "text-red-600"
+                  }`}
+                  style={usernameAvailable ? { color: "#1ABC9C" } : {}}
+                >
+                  {usernameAvailable ? (
+                    <span>{t('auth.register.usernameAvailable')}</span>
+                  ) : (
+                    <span>{t('auth.register.usernameTaken')}</span>
+                  )}
+                </div>
+              )}
+            </div>
 
-          {/* Mobile Number */}
-          <div>
-            <label
-              htmlFor="mobile"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
-            >
-              {t('auth.register.mobile')}
-            </label>
-            <input
-              id="mobile"
-              name="mobile"
-              type="tel"
-              value={formData.mobile}
-              onChange={handleInputChange}
-              required
-              pattern="[0-9]{10}"
-              maxLength="10"
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
-              placeholder="1234567890"
-            />
-            <p className="text-xs text-slate-500 mt-1.5">{t('auth.register.mobileHint')}</p>
-          </div>
+            {/* Mobile Number */}
+            <div>
+              <label
+                htmlFor="mobile"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#2D3E50" }}
+              >
+                {t('auth.register.mobile')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Phone className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  id="mobile"
+                  name="mobile"
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
+                  required
+                  pattern="[0-9]{10}"
+                  maxLength="10"
+                  className={inputClasses}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="1234567890"
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1.5">{t('auth.register.mobileHint')}</p>
+            </div>
 
-          {/* Gender */}
-          <div>
-            <label
-              htmlFor="gender"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
-            >
-              {t('auth.register.gender')}
-            </label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
-            >
-              <option value="">{t('auth.register.selectGender')}</option>
-              <option value="male">{t('auth.register.male')}</option>
-              <option value="female">{t('auth.register.female')}</option>
-              <option value="other">{t('auth.register.other')}</option>
-              <option value="prefer_not_to_say">{t('auth.register.preferNotToSay')}</option>
-            </select>
-          </div>
+            {/* Gender */}
+            <div>
+              <label
+                htmlFor="gender"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#2D3E50" }}
+              >
+                {t('auth.register.gender')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Users className="w-5 h-5 text-gray-400" />
+                </div>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-900 transition-all hover:bg-white focus:outline-none appearance-none"
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                >
+                  <option value="">{t('auth.register.selectGender')}</option>
+                  <option value="male">{t('auth.register.male')}</option>
+                  <option value="female">{t('auth.register.female')}</option>
+                  <option value="other">{t('auth.register.other')}</option>
+                  <option value="prefer_not_to_say">{t('auth.register.preferNotToSay')}</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
 
-          {/* Password */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#2D3E50" }}
+              >
+                {t('auth.register.password')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  minLength="6"
+                  className={inputClasses}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1.5">
+                {t('auth.register.passwordHint')}
+              </p>
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#2D3E50" }}
+              >
+                {t('auth.register.confirmPassword')}
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                  className={inputClasses}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || !usernameAvailable}
+              className="w-full mt-2 text-white py-3.5 rounded-xl font-semibold focus:outline-none focus:ring-4 focus:ring-opacity-30 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transform hover:scale-[1.01] active:scale-[0.99]"
+              style={{ backgroundColor: "#1ABC9C" }}
+              onMouseEnter={(e) => { if (!loading && usernameAvailable) e.target.style.backgroundColor = "#17a88c"; }}
+              onMouseLeave={(e) => { e.target.style.backgroundColor = "#1ABC9C"; }}
             >
-              {t('auth.register.password')}
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              minLength="6"
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
-              placeholder="••••••••"
-            />
-            <p className="text-xs text-slate-500 mt-1.5">
-              {t('auth.register.passwordHint')}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin text-white" />
+                  {t('auth.register.creatingAccount')}
+                </span>
+              ) : (
+                t('auth.register.createAccount')
+              )}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-7 text-center">
+            <p className="text-sm text-gray-500">
+              {t('auth.register.haveAccount')}{" "}
+              <Link
+                to="/login"
+                className="font-semibold hover:opacity-80 transition"
+                style={{ color: "#1ABC9C" }}
+              >
+                {t('auth.register.signIn')}
+              </Link>
             </p>
           </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
-            >
-              {t('auth.register.confirmPassword')}
-            </label>
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-shadow"
-              placeholder="••••••••"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || !usernameAvailable}
-            className="w-full mt-6 bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                {t('auth.register.creatingAccount')}
-              </span>
-            ) : (
-              t('auth.register.createAccount')
-            )}
-          </button>
-        </form>
-
-        {/* Footer */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-slate-600">
-            {t('auth.register.haveAccount')}{" "}
-            <Link
-              to="/login"
-              className="text-slate-900 font-medium hover:underline"
-            >
-              {t('auth.register.signIn')}
-            </Link>
-          </p>
         </div>
       </div>
     </div>

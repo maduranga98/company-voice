@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { History, X, Upload, FileText, Trash2 } from "lucide-react";
+import { History, X, Upload, FileText, Trash2, Loader2 } from "lucide-react";
 import { editPost, getPostEditHistory } from "../services/postEnhancementsService";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "../config/firebase";
+
+const NAVY = "#2D3E50";
+const TEAL = "#1ABC9C";
 
 const EditPost = ({ post, onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -234,17 +237,28 @@ const EditPost = ({ post, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999] overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-2xl my-8 flex flex-col max-h-[calc(100vh-4rem)]">
         {/* HEADER */}
-        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-slate-100 p-6 z-10">
+        <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 p-6 z-10">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Edit Post</h2>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: `${NAVY}10` }}
+              >
+                <FileText className="w-4.5 h-4.5" style={{ color: NAVY }} />
+              </div>
+              <h2 className="text-lg font-semibold" style={{ color: NAVY }}>
+                Edit Post
+              </h2>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowHistory(!showHistory)}
                 type="button"
-                className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition"
+                className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
+                style={{ color: NAVY }}
               >
                 <History className="w-4 h-4" />
                 History
@@ -252,7 +266,7 @@ const EditPost = ({ post, onClose, onSuccess }) => {
               <button
                 onClick={onClose}
                 type="button"
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-2 transition"
+                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl p-2 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -264,24 +278,24 @@ const EditPost = ({ post, onClose, onSuccess }) => {
         <div className="overflow-y-auto flex-1 p-6">
           {/* Edit History Panel */}
           {showHistory && (
-            <div className="mb-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
+            <div className="mb-5 p-4 bg-gray-50/80 rounded-xl border border-gray-100">
+              <h3 className="text-sm font-semibold mb-3" style={{ color: NAVY }}>
                 Edit History
               </h3>
               {editHistory.length === 0 ? (
-                <p className="text-sm text-slate-600">No edit history yet</p>
+                <p className="text-sm text-gray-500">No edit history yet</p>
               ) : (
                 <div className="space-y-3 max-h-64 overflow-y-auto">
                   {editHistory.map((edit) => (
                     <div
                       key={edit.id}
-                      className="p-3 bg-white rounded border border-slate-200"
+                      className="p-3 bg-white rounded-xl border border-gray-100 shadow-sm"
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-xs font-medium text-slate-700">
+                        <span className="text-xs font-medium" style={{ color: NAVY }}>
                           {edit.editorName}
                         </span>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-gray-400">
                           {formatDate(edit.editedAt)}
                         </span>
                       </div>
@@ -289,15 +303,15 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                         {Object.entries(edit.changes || {}).map(
                           ([field, change]) => (
                             <div key={field} className="text-xs">
-                              <span className="font-medium text-slate-700">
+                              <span className="font-medium" style={{ color: NAVY }}>
                                 {field}:
                               </span>
                               <div className="ml-2 mt-1">
-                                <div className="text-red-600 line-through">
+                                <div className="text-red-500 line-through">
                                   {String(change.old).substring(0, 100)}
                                   {String(change.old).length > 100 ? "..." : ""}
                                 </div>
-                                <div className="text-green-600">
+                                <div style={{ color: TEAL }}>
                                   {String(change.new).substring(0, 100)}
                                   {String(change.new).length > 100 ? "..." : ""}
                                 </div>
@@ -315,14 +329,14 @@ const EditPost = ({ post, onClose, onSuccess }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+            <div className="mb-4 p-3.5 bg-red-50 border border-red-100 rounded-xl">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
           {/* Edit Count */}
           {post.editCount > 0 && (
-            <div className="mb-4 text-sm text-slate-600">
+            <div className="mb-4 text-sm text-gray-500">
               This post has been edited {post.editCount} time(s).
               {post.lastEditedBy && (
                 <span>
@@ -338,7 +352,7 @@ const EditPost = ({ post, onClose, onSuccess }) => {
           <form id="edit-post-form" onSubmit={handleSubmit} className="space-y-5">
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: NAVY }}>
                 Title
               </label>
               <input
@@ -347,13 +361,14 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 value={formData.title}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-shadow"
+                style={{ color: NAVY, "--tw-ring-color": TEAL }}
               />
             </div>
 
             {/* Content */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: NAVY }}>
                 Content
               </label>
               <textarea
@@ -362,13 +377,14 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 onChange={handleInputChange}
                 required
                 rows="10"
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition resize-none"
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-shadow resize-none"
+                style={{ color: NAVY, "--tw-ring-color": TEAL }}
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: NAVY }}>
                 Category
               </label>
               <input
@@ -377,13 +393,14 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 value={formData.category}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-shadow"
+                style={{ color: NAVY, "--tw-ring-color": TEAL }}
               />
             </div>
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: NAVY }}>
                 Tags
               </label>
               <input
@@ -391,45 +408,47 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 type="text"
                 value={formData.tags}
                 onChange={handleInputChange}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:border-transparent transition-shadow"
+                style={{ color: NAVY, "--tw-ring-color": TEAL }}
                 placeholder="tag1, tag2, tag3"
               />
             </div>
 
             {/* Attachments Section */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="block text-sm font-medium mb-1.5" style={{ color: NAVY }}>
                 Attachments
               </label>
 
               {/* Existing Attachments */}
               {existingAttachments.length > 0 && (
                 <div className="mb-3">
-                  <p className="text-xs text-slate-600 mb-2">Existing Files:</p>
+                  <p className="text-xs text-gray-500 mb-2">Existing Files:</p>
                   <div className="space-y-2">
                     {existingAttachments.map((attachment, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-2 bg-slate-50 rounded-lg border border-slate-200"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100"
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <FileText className="w-4 h-4 text-slate-600 flex-shrink-0" />
+                          <FileText className="w-4 h-4 flex-shrink-0" style={{ color: NAVY }} />
                           <a
                             href={attachment.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline truncate"
+                            className="text-sm hover:underline truncate"
+                            style={{ color: TEAL }}
                           >
                             {attachment.name}
                           </a>
-                          <span className="text-xs text-slate-500 flex-shrink-0">
+                          <span className="text-xs text-gray-400 flex-shrink-0">
                             ({(attachment.size / 1024).toFixed(1)} KB)
                           </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => removeExistingAttachment(index)}
-                          className="ml-2 p-1.5 text-red-600 hover:bg-red-50 rounded transition flex-shrink-0"
+                          className="ml-2 p-1.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -442,34 +461,35 @@ const EditPost = ({ post, onClose, onSuccess }) => {
               {/* New Files */}
               {newFiles.length > 0 && (
                 <div className="mb-3">
-                  <p className="text-xs text-slate-600 mb-2">New Files to Upload:</p>
+                  <p className="text-xs text-gray-500 mb-2">New Files to Upload:</p>
                   <div className="space-y-2">
                     {newFiles.map((fileObj, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200"
+                        className="flex items-center justify-between p-3 rounded-xl border"
+                        style={{ backgroundColor: `${TEAL}08`, borderColor: `${TEAL}30` }}
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           {fileObj.preview ? (
                             <img
                               src={fileObj.preview}
                               alt={fileObj.name}
-                              className="w-8 h-8 object-cover rounded flex-shrink-0"
+                              className="w-8 h-8 object-cover rounded-lg flex-shrink-0"
                             />
                           ) : (
-                            <FileText className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <FileText className="w-4 h-4 flex-shrink-0" style={{ color: TEAL }} />
                           )}
-                          <span className="text-sm text-slate-900 truncate">
+                          <span className="text-sm truncate" style={{ color: NAVY }}>
                             {fileObj.name}
                           </span>
-                          <span className="text-xs text-slate-500 flex-shrink-0">
+                          <span className="text-xs text-gray-400 flex-shrink-0">
                             ({(fileObj.size / 1024).toFixed(1)} KB)
                           </span>
                         </div>
                         <button
                           type="button"
                           onClick={() => removeNewFile(index)}
-                          className="ml-2 p-1.5 text-red-600 hover:bg-red-50 rounded transition flex-shrink-0"
+                          className="ml-2 p-1.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors flex-shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -482,20 +502,20 @@ const EditPost = ({ post, onClose, onSuccess }) => {
               {/* Upload Progress */}
               {uploadProgress > 0 && uploadProgress < 100 && (
                 <div className="mb-3">
-                  <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div className="w-full bg-gray-100 rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
+                      className="h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%`, backgroundColor: TEAL }}
                     />
                   </div>
-                  <p className="text-xs text-slate-600 mt-1">
+                  <p className="text-xs text-gray-500 mt-1.5">
                     Uploading... {uploadProgress}%
                   </p>
                 </div>
               )}
 
               {/* Add Files Button */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <input
                   type="file"
                   id="file-upload"
@@ -506,12 +526,13 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 cursor-pointer transition"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors shadow-sm"
+                  style={{ color: NAVY }}
                 >
                   <Upload className="w-4 h-4" />
                   Add Files
                 </label>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-gray-400">
                   Max 5 files, 10MB each. Images, videos, PDFs, and documents.
                 </p>
               </div>
@@ -520,12 +541,12 @@ const EditPost = ({ post, onClose, onSuccess }) => {
         </div>
 
         {/* FOOTER */}
-        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-slate-100 p-6 z-10">
+        <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-100 p-6 z-10">
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
               type="button"
-              className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition"
+              className="px-4 py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 text-sm font-medium transition-colors"
             >
               Cancel
             </button>
@@ -533,8 +554,10 @@ const EditPost = ({ post, onClose, onSuccess }) => {
               type="submit"
               form="edit-post-form"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 text-white font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md text-sm"
+              style={{ backgroundColor: loading ? "#9CA3AF" : TEAL }}
             >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>

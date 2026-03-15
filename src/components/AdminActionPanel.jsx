@@ -320,7 +320,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   };
 
   return (
-    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+    <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-4 mb-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -353,7 +353,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
             value={status}
             onChange={(e) => handleStatusChange(e.target.value)}
             disabled={loading}
-            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+            className={`w-full px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
               PostStatusConfig[status]?.bgColor
             } ${PostStatusConfig[status]?.textColor}`}
             style={{ borderColor: PostStatusConfig[status]?.borderColor }}
@@ -380,7 +380,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
             value={priority}
             onChange={(e) => handlePriorityChange(e.target.value)}
             disabled={loading}
-            className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
+            className={`w-full px-3 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
               PostPriorityConfig[priority]?.bgColor
             } ${PostPriorityConfig[priority]?.textColor}`}
             style={{ borderColor: PostPriorityConfig[priority]?.borderColor }}
@@ -468,7 +468,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                           placeholder="Search users..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                           onClick={(e) => e.stopPropagation()}
                         />
                       </div>
@@ -585,7 +585,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
               value={selectedDueDate}
               onChange={(e) => handleDueDateChange(e.target.value)}
               disabled={loading}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               min={new Date().toISOString().split("T")[0]}
             />
           </div>
@@ -606,7 +606,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
               disabled={loading}
               placeholder="Add a comment explaining your action..."
               rows="3"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
             />
             <button
               onClick={handleAddComment}
