@@ -12,7 +12,6 @@ import {
   Trash2,
   MoreVertical,
   User,
-  Clock,
 } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import VotingButton from "./VotingButton";
