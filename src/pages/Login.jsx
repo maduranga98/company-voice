@@ -207,7 +207,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding/Info */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] 2xl:w-3/5 p-8 lg:p-10 xl:p-14 2xl:p-16 flex-col justify-center relative overflow-hidden" style={{ background: "linear-gradient(135deg, #2D3E50 0%, #1a2a3a 100%)" }}>
+      <div className="hidden lg:flex lg:w-1/2 xl:w-[53%] p-8 lg:p-10 xl:p-12 flex-col justify-center relative overflow-hidden" style={{ background: "linear-gradient(135deg, #2D3E50 0%, #1a2a3a 100%)" }}>
         {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
@@ -222,64 +222,64 @@ const Login = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mx-auto">
+        <div className="relative z-10 max-w-md lg:max-w-lg mx-auto">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-4 lg:space-x-5 mb-8 lg:mb-10 xl:mb-12">
+          <div className="flex items-center space-x-4 mb-8 lg:mb-10">
             <img
               src="/voxwel-logo.png"
               alt="VoxWel Logo"
-              className="w-24 h-24 lg:w-28 lg:h-28 xl:w-36 xl:h-36 object-contain bg-white/20 backdrop-blur-sm rounded-2xl shadow-2xl"
+              className="w-24 h-24 lg:w-28 lg:h-28 object-contain bg-white/20 backdrop-blur-sm rounded-2xl shadow-2xl"
             />
             <div>
-              <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-1 lg:mb-2">
+              <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">
                 VoxWel
               </h1>
-              <p className="font-bold text-sm lg:text-base xl:text-lg" style={{ color: "#1ABC9C" }}>
+              <p className="font-bold text-sm lg:text-base" style={{ color: "#1ABC9C" }}>
                 {t("auth.login.tagline")}
               </p>
             </div>
           </div>
 
           {/* Main Heading */}
-          <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-white mb-4 lg:mb-6 leading-tight">
+          <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 lg:mb-5 leading-tight">
             {t("auth.login.mainHeading")}
           </h2>
 
-          <p className="text-sm lg:text-base xl:text-lg text-white/90 mb-8 lg:mb-10 xl:mb-12 leading-relaxed font-medium">
+          <p className="text-sm lg:text-base text-white/90 mb-8 lg:mb-10 leading-relaxed font-medium">
             {t("auth.login.mainDescription")}
           </p>
 
           {/* Feature List */}
-          <div className="space-y-3 lg:space-y-4 xl:space-y-5">
+          <div className="space-y-3 lg:space-y-3.5">
             {[
               {
-                icon: <Lightbulb className="w-5 h-5 lg:w-6 lg:h-6 text-white" strokeWidth={2.5} />,
+                icon: <Lightbulb className="w-5 h-5 text-white" strokeWidth={2.5} />,
                 titleKey: "auth.login.featureCreativeTitle",
                 textKey: "auth.login.featureCreativeText",
               },
               {
-                icon: <Shield className="w-5 h-5 lg:w-6 lg:h-6 text-white" strokeWidth={2.5} />,
+                icon: <Shield className="w-5 h-5 text-white" strokeWidth={2.5} />,
                 titleKey: "auth.login.featureSecureTitle",
                 textKey: "auth.login.featureSecureText",
               },
               {
-                icon: <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6 text-white" strokeWidth={2.5} />,
+                icon: <MessageSquare className="w-5 h-5 text-white" strokeWidth={2.5} />,
                 titleKey: "auth.login.featureDiscussionsTitle",
                 textKey: "auth.login.featureDiscussionsText",
               },
             ].map((feature, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-3 lg:space-x-4 bg-white rounded-xl lg:rounded-2xl p-4 lg:p-5 xl:p-6 transform hover:scale-[1.02] transition-all duration-300 shadow-sm border border-gray-100"
+                className="flex items-start space-x-3 bg-white rounded-xl lg:rounded-2xl p-3.5 lg:p-4 transform hover:scale-[1.02] transition-all duration-300 shadow-sm border border-gray-100"
               >
-                <div className="rounded-lg lg:rounded-xl p-2.5 lg:p-3 flex-shrink-0 shadow-sm" style={{ backgroundColor: "#1ABC9C" }}>
+                <div className="rounded-lg lg:rounded-xl p-2.5 flex-shrink-0 shadow-sm" style={{ backgroundColor: "#1ABC9C" }}>
                   {feature.icon}
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm lg:text-base xl:text-lg mb-1" style={{ color: "#2D3E50" }}>
+                  <h3 className="font-bold text-sm mb-0.5" style={{ color: "#2D3E50" }}>
                     {t(feature.titleKey)}
                   </h3>
-                  <p className="text-gray-500 text-xs lg:text-sm xl:text-base leading-relaxed">
+                  <p className="text-gray-500 text-xs lg:text-sm leading-relaxed">
                     {t(feature.textKey)}
                   </p>
                 </div>
@@ -290,8 +290,8 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-10 xl:p-12 bg-gray-50 overflow-y-auto">
-        <div className="w-full max-w-md lg:max-w-md xl:max-w-lg">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-10 bg-gray-50 overflow-y-auto">
+        <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
@@ -310,18 +310,18 @@ const Login = () => {
           </div>
 
           {/* Login Card */}
-          <div className="bg-white rounded-2xl shadow-sm p-7 sm:p-8 lg:p-9 xl:p-10 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-sm p-7 sm:p-8 border border-gray-100">
             {!showQRScanner ? (
               <>
                 {/* Header */}
-                <div className="mb-6 lg:mb-7 xl:mb-8">
+                <div className="mb-7">
                   <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-2xl lg:text-2xl xl:text-3xl font-bold" style={{ color: "#2D3E50" }}>
+                    <h1 className="text-2xl font-bold" style={{ color: "#2D3E50" }}>
                       {t("auth.login.welcome")}
                     </h1>
                     <LanguageSwitcher />
                   </div>
-                  <p className="text-gray-500 text-sm lg:text-sm xl:text-base">
+                  <p className="text-gray-500 text-sm">
                     {t("auth.login.title")}
                   </p>
                 </div>
@@ -339,12 +339,12 @@ const Login = () => {
                 )}
 
                 {/* Login Form */}
-                <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-5 xl:space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Username Field */}
                   <div>
                     <label
                       htmlFor="username"
-                      className="block text-sm xl:text-base font-semibold mb-2"
+                      className="block text-sm font-semibold mb-2"
                       style={{ color: "#2D3E50" }}
                     >
                       {t("auth.login.username")}
@@ -359,7 +359,7 @@ const Login = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                        className="w-full pl-12 pr-4 py-3 xl:py-3.5 border border-gray-100 rounded-xl focus:ring-2 focus:border-transparent transition-all bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-400 text-sm xl:text-base"
+                        className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-xl focus:ring-2 focus:border-transparent transition-all bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-400"
                         style={{ focusRingColor: "#1ABC9C" }}
                         onFocus={(e) => { e.target.style.boxShadow = "0 0 0 2px #1ABC9C40"; e.target.style.borderColor = "#1ABC9C"; }}
                         onBlur={(e) => { e.target.style.boxShadow = "none"; e.target.style.borderColor = ""; }}
@@ -372,7 +372,7 @@ const Login = () => {
                   <div>
                     <label
                       htmlFor="password"
-                      className="block text-sm xl:text-base font-semibold mb-2"
+                      className="block text-sm font-semibold mb-2"
                       style={{ color: "#2D3E50" }}
                     >
                       {t("auth.login.password")}
@@ -387,7 +387,7 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full pl-12 pr-12 py-3 xl:py-3.5 border border-gray-100 rounded-xl focus:ring-2 focus:border-transparent transition-all bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-400 text-sm xl:text-base"
+                        className="w-full pl-12 pr-12 py-3 border border-gray-100 rounded-xl focus:ring-2 focus:border-transparent transition-all bg-gray-50 hover:bg-white text-gray-900 placeholder-gray-400"
                         onFocus={(e) => { e.target.style.boxShadow = "0 0 0 2px #1ABC9C40"; e.target.style.borderColor = "#1ABC9C"; }}
                         onBlur={(e) => { e.target.style.boxShadow = "none"; e.target.style.borderColor = ""; }}
                         placeholder={t("auth.login.passwordPlaceholder")}
@@ -426,7 +426,7 @@ const Login = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full text-white py-3.5 xl:py-4 rounded-xl font-semibold text-base xl:text-lg focus:outline-none focus:ring-4 focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transform hover:scale-[1.01] active:scale-[0.99]"
+                    className="w-full text-white py-3.5 rounded-xl font-semibold text-base focus:outline-none focus:ring-4 focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transform hover:scale-[1.01] active:scale-[0.99]"
                     style={{ backgroundColor: "#1ABC9C", focusRingColor: "#1ABC9C" }}
                     onMouseEnter={(e) => { if (!loading) e.target.style.backgroundColor = "#17a88c"; }}
                     onMouseLeave={(e) => { e.target.style.backgroundColor = "#1ABC9C"; }}
@@ -443,7 +443,7 @@ const Login = () => {
                 </form>
 
                 {/* Divider */}
-                <div className="relative my-6 lg:my-7 xl:my-8">
+                <div className="relative my-7">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-100"></div>
                   </div>
@@ -459,7 +459,7 @@ const Login = () => {
                   type="button"
                   onClick={startQRScanner}
                   disabled={loading}
-                  className="w-full flex items-center justify-center px-4 py-3.5 xl:py-4 border border-gray-100 rounded-xl text-gray-600 font-semibold text-base xl:text-lg hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-sm"
+                  className="w-full flex items-center justify-center px-4 py-3.5 border border-gray-100 rounded-xl text-gray-600 font-semibold hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-30 transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-sm"
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1ABC9C"; e.currentTarget.style.color = "#1ABC9C"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = ""; e.currentTarget.style.color = ""; }}
                 >
@@ -468,7 +468,7 @@ const Login = () => {
                 </button>
 
                 {/* Footer */}
-                <p className="mt-6 lg:mt-7 xl:mt-8 text-center text-sm xl:text-base text-gray-400">
+                <p className="mt-7 text-center text-sm text-gray-400">
                   {t("auth.login.newToVoxWel")}{" "}
                   <a
                     href="https://www.voxwel.com"
