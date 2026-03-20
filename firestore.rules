@@ -33,7 +33,9 @@ service cloud.firestore {
 
     // Role checks
     function isSuperAdmin() {
-      return isAuthenticated() && getUserRole() == 'super_admin';
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/authSessions/$(request.auth.uid)) &&
+             getUserRole() == 'super_admin';
     }
 
     function isCompanyAdmin() {
@@ -76,7 +78,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && request.auth.uid == sessionId;
       allow create: if isAuthenticated() && request.auth.uid == sessionId;
       allow update: if isAuthenticated() && request.auth.uid == sessionId;
-      allow delete: if false;
+      allow delete: if isAuthenticated() && request.auth.uid == sessionId;
     }
 
     // ============================================
