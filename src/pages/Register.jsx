@@ -7,7 +7,8 @@ import {
   collection,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
+import { signInAnonymously } from "firebase/auth";
 import { checkUsernameExists, hashPassword } from "../services/authService";
 import { useTranslation } from 'react-i18next';
 import {
@@ -108,6 +109,12 @@ const Register = () => {
 
   const loadCompany = async () => {
     try {
+      // Ensure Firebase anonymous auth exists so Firestore security rules pass.
+      // On mobile (fresh browser from QR scan), there is no existing auth session.
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+
       const companyDoc = await getDoc(doc(db, "companies", companyId));
       if (companyDoc.exists()) {
         setCompany({ id: companyDoc.id, ...companyDoc.data() });
@@ -249,10 +256,26 @@ const Register = () => {
 
   if (!company) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: "#1ABC9C" }} />
-          <p className="text-gray-500 text-sm">{t('common.loading')}</p>
+          {error ? (
+            <div className="max-w-sm mx-auto">
+              <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
+              <p className="text-red-700 text-sm font-medium mb-4">{error}</p>
+              <button
+                onClick={() => navigate("/login")}
+                className="text-sm font-semibold hover:opacity-80 transition"
+                style={{ color: "#1ABC9C" }}
+              >
+                {t('auth.register.backToLogin')}
+              </button>
+            </div>
+          ) : (
+            <>
+              <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: "#1ABC9C" }} />
+              <p className="text-gray-500 text-sm">{t('common.loading')}</p>
+            </>
+          )}
         </div>
       </div>
     );
