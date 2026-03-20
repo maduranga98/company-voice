@@ -100,8 +100,9 @@ export const loginWithUsernamePassword = async (username, password) => {
       const authSessionData = {
         userId: activeUserDoc.id,
         username: activeUserData.username,
-        companyId: activeUserData.companyId || null,
+        companyId: activeUserData.companyId ?? null,
         role: activeUserData.role,
+        firebaseUid: firebaseAuthResult.user.uid,
         createdAt: serverTimestamp(),
       };
 
