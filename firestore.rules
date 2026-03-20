@@ -64,6 +64,15 @@ service cloud.firestore {
       return isSuperAdmin() || belongsToCompany(companyId);
     }
 
+    // Check if the user is in the login flow (temporary pending session).
+    // During login, a temporary authSession with role "pending" is created
+    // before the user queries run. This allows the login queries to proceed.
+    function isLoginPending() {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/authSessions/$(request.auth.uid))
+        && getSession().role == 'pending';
+    }
+
     // Check if user is admin/HR in the given company
     function isAdminOrHRInCompany(companyId) {
       return isAdminOrHR() && (isSuperAdmin() || getUserCompanyId() == companyId);
@@ -90,10 +99,13 @@ service cloud.firestore {
     // - Only admin/HR/super_admin can create/update users
     // - Users can update their own non-role fields
     match /users/{userId} {
+      // Allow reads during login flow (pending session) so user lookup queries work.
+      // Once login completes, the session is updated with the real role.
       allow read: if isAuthenticated()
         && (isSuperAdmin()
             || getUserId() == userId
-            || getUserCompanyId() == resource.data.companyId);
+            || getUserCompanyId() == resource.data.companyId
+            || isLoginPending());
 
       allow create: if isAdminOrHR() || isSuperAdmin();
 
@@ -114,7 +126,7 @@ service cloud.firestore {
     // - Company admins can update their own company (non-critical fields)
     match /companies/{companyId} {
       allow read: if isAuthenticated()
-        && (isSuperAdmin() || belongsToCompany(companyId));
+        && (isSuperAdmin() || belongsToCompany(companyId) || isLoginPending());
 
       allow create: if isSuperAdmin();
 
