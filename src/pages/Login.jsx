@@ -77,10 +77,12 @@ const Login = () => {
     try {
       setError("");
 
-      let navigated = false;
+      let handled = false;
 
       try {
         const qrData = JSON.parse(decodedText);
+
+        // Handle company registration QR codes
         if (qrData.type === "company_registration" && qrData.companyId) {
           if (html5QrCodeRef.current) {
             await html5QrCodeRef.current.stop();
@@ -91,7 +93,25 @@ const Login = () => {
               companyName: qrData.companyName,
             },
           });
-          navigated = true;
+          handled = true;
+        }
+        // Handle credential QR codes (username + password)
+        else if (qrData.username && qrData.password) {
+          if (html5QrCodeRef.current) {
+            await html5QrCodeRef.current.stop();
+          }
+          setShowQRScanner(false);
+          setScanning(false);
+          setLoading(true);
+          try {
+            await login(qrData.username, qrData.password);
+            navigate("/dashboard");
+          } catch (loginError) {
+            setError(loginError.message || t("auth.login.invalidCredentials"));
+          } finally {
+            setLoading(false);
+          }
+          handled = true;
         }
       } catch {
         // Not JSON — try parsing as URL
@@ -104,19 +124,19 @@ const Login = () => {
               await html5QrCodeRef.current.stop();
             }
             navigate('/register', { state: { companyId, companyName } });
-            navigated = true;
+            handled = true;
           }
         } catch {}
       }
 
-      if (!navigated) {
-        setError("Error: Invalid QR code. Please scan a valid company registration QR code");
+      if (!handled) {
+        setError(t("auth.login.invalidQRCode") || "Invalid QR code. Please scan a valid QR code.");
         setShowQRScanner(false);
         setScanning(false);
       }
     } catch (error) {
       console.error("QR Scan error:", error);
-      setError("Error: Invalid QR code. Please scan a valid company registration QR code");
+      setError(t("auth.login.invalidQRCode") || "Invalid QR code. Please scan a valid QR code.");
       setScanning(false);
       setShowQRScanner(false);
     }
