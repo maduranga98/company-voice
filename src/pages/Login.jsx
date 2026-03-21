@@ -227,7 +227,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Branding/Info */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-[53%] p-8 lg:p-10 xl:p-12 flex-col justify-center relative overflow-hidden" style={{ background: "linear-gradient(135deg, #2D3E50 0%, #1a2a3a 100%)" }}>
+      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 2xl:w-[53%] py-6 px-6 lg:py-8 lg:px-8 xl:p-10 2xl:p-12 flex-col justify-center relative overflow-hidden overflow-y-auto" style={{ background: "linear-gradient(135deg, #2D3E50 0%, #1a2a3a 100%)" }}>
         {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
@@ -242,64 +242,64 @@ const Login = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-md lg:max-w-lg mx-auto">
+        <div className="relative z-10 max-w-md mx-auto">
           {/* Logo and Brand */}
-          <div className="flex items-center space-x-4 mb-8 lg:mb-10">
+          <div className="flex items-center space-x-3 lg:space-x-4 mb-5 lg:mb-6 xl:mb-8">
             <img
               src="/voxwel-logo.png"
               alt="VoxWel Logo"
-              className="w-24 h-24 lg:w-28 lg:h-28 object-contain bg-white/20 backdrop-blur-sm rounded-2xl shadow-2xl"
+              className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 object-contain bg-white/20 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl"
             />
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">
+              <h1 className="text-xl lg:text-2xl xl:text-3xl font-bold text-white mb-0.5 lg:mb-1">
                 VoxWel
               </h1>
-              <p className="font-bold text-sm lg:text-base" style={{ color: "#1ABC9C" }}>
+              <p className="font-bold text-xs lg:text-sm" style={{ color: "#1ABC9C" }}>
                 {t("auth.login.tagline")}
               </p>
             </div>
           </div>
 
           {/* Main Heading */}
-          <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4 lg:mb-5 leading-tight">
+          <h2 className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl font-bold text-white mb-2 lg:mb-3 xl:mb-4 leading-tight">
             {t("auth.login.mainHeading")}
           </h2>
 
-          <p className="text-sm lg:text-base text-white/90 mb-8 lg:mb-10 leading-relaxed font-medium">
+          <p className="text-xs lg:text-sm xl:text-base text-white/90 mb-5 lg:mb-6 xl:mb-8 leading-relaxed font-medium">
             {t("auth.login.mainDescription")}
           </p>
 
           {/* Feature List */}
-          <div className="space-y-3 lg:space-y-3.5">
+          <div className="space-y-2 lg:space-y-2.5 xl:space-y-3">
             {[
               {
-                icon: <Lightbulb className="w-5 h-5 text-white" strokeWidth={2.5} />,
+                icon: <Lightbulb className="w-4 h-4 lg:w-5 lg:h-5 text-white" strokeWidth={2.5} />,
                 titleKey: "auth.login.featureCreativeTitle",
                 textKey: "auth.login.featureCreativeText",
               },
               {
-                icon: <Shield className="w-5 h-5 text-white" strokeWidth={2.5} />,
+                icon: <Shield className="w-4 h-4 lg:w-5 lg:h-5 text-white" strokeWidth={2.5} />,
                 titleKey: "auth.login.featureSecureTitle",
                 textKey: "auth.login.featureSecureText",
               },
               {
-                icon: <MessageSquare className="w-5 h-5 text-white" strokeWidth={2.5} />,
+                icon: <MessageSquare className="w-4 h-4 lg:w-5 lg:h-5 text-white" strokeWidth={2.5} />,
                 titleKey: "auth.login.featureDiscussionsTitle",
                 textKey: "auth.login.featureDiscussionsText",
               },
             ].map((feature, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-3 bg-white rounded-xl lg:rounded-2xl p-3.5 lg:p-4 transform hover:scale-[1.02] transition-all duration-300 shadow-sm border border-gray-100"
+                className="flex items-start space-x-2.5 lg:space-x-3 bg-white rounded-lg lg:rounded-xl xl:rounded-2xl p-2.5 lg:p-3 xl:p-3.5 transform hover:scale-[1.02] transition-all duration-300 shadow-sm border border-gray-100"
               >
-                <div className="rounded-lg lg:rounded-xl p-2.5 flex-shrink-0 shadow-sm" style={{ backgroundColor: "#1ABC9C" }}>
+                <div className="rounded-lg p-2 lg:p-2.5 flex-shrink-0 shadow-sm" style={{ backgroundColor: "#1ABC9C" }}>
                   {feature.icon}
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm mb-0.5" style={{ color: "#2D3E50" }}>
+                  <h3 className="font-bold text-xs lg:text-sm mb-0.5" style={{ color: "#2D3E50" }}>
                     {t(feature.titleKey)}
                   </h3>
-                  <p className="text-gray-500 text-xs lg:text-sm leading-relaxed">
+                  <p className="text-gray-500 text-[11px] lg:text-xs xl:text-sm leading-relaxed">
                     {t(feature.textKey)}
                   </p>
                 </div>
@@ -310,7 +310,7 @@ const Login = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-10 bg-gray-50 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 xl:p-10 bg-gray-50 overflow-y-auto">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
@@ -330,7 +330,7 @@ const Login = () => {
           </div>
 
           {/* Login Card */}
-          <div className="bg-white rounded-2xl shadow-sm p-7 sm:p-8 border border-gray-100">
+          <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 lg:p-7 xl:p-8 border border-gray-100">
             {!showQRScanner ? (
               <>
                 {/* Header */}
