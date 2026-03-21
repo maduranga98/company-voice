@@ -28,7 +28,7 @@ export const createDepartment = async (departmentData, companyId) => {
     // Validate department name is unique
     const existingDepts = await getDepartments(companyId, false);
     const nameExists = existingDepts.some(
-      (dept) => dept.name.toLowerCase() === departmentData.name.toLowerCase()
+      (dept) => dept.name.toLowerCase() === departmentData.name.toLowerCase(),
     );
 
     if (nameExists) {
@@ -73,7 +73,7 @@ export const updateDepartment = async (departmentId, updates, companyId) => {
       const nameExists = existingDepts.some(
         (dept) =>
           dept.id !== departmentId &&
-          dept.name.toLowerCase() === updates.name.toLowerCase()
+          dept.name.toLowerCase() === updates.name.toLowerCase(),
       );
 
       if (nameExists) {
@@ -106,7 +106,7 @@ export const updateDepartment = async (departmentId, updates, companyId) => {
  */
 export const deleteDepartment = async (
   departmentId,
-  reassignToDeptId = null
+  reassignToDeptId = null,
 ) => {
   try {
     const batch = writeBatch(db);
@@ -115,7 +115,7 @@ export const deleteDepartment = async (
     if (reassignToDeptId) {
       const usersQuery = query(
         collection(db, "users"),
-        where("departmentId", "==", departmentId)
+        where("departmentId", "==", departmentId),
       );
       const usersSnapshot = await getDocs(usersQuery);
 
@@ -159,7 +159,7 @@ export const getDepartments = async (companyId, includeInactive = false) => {
     let q = query(
       departmentsRef,
       where("companyId", "==", companyId),
-      orderBy("name", "asc")
+      orderBy("name", "asc"),
     );
 
     if (!includeInactive) {
@@ -167,7 +167,7 @@ export const getDepartments = async (companyId, includeInactive = false) => {
         departmentsRef,
         where("companyId", "==", companyId),
         where("isActive", "==", true),
-        orderBy("name", "asc")
+        orderBy("name", "asc"),
       );
     }
 
@@ -177,7 +177,7 @@ export const getDepartments = async (companyId, includeInactive = false) => {
     const usersQuery = query(
       collection(db, "users"),
       where("companyId", "==", companyId),
-      where("status", "==", "active")
+      where("status", "==", "active"),
     );
     const usersSnapshot = await getDocs(usersQuery);
 
@@ -227,7 +227,7 @@ export const getDepartmentById = async (departmentId) => {
     const membersQuery = query(
       collection(db, "users"),
       where("departmentId", "==", departmentId),
-      where("status", "==", "active")
+      where("status", "==", "active"),
     );
     const membersSnapshot = await getDocs(membersQuery);
 
@@ -287,6 +287,7 @@ export const assignUserToDepartment = async (userId, departmentId) => {
     await addDoc(collection(db, "departmentAssignmentLogs"), {
       userId,
       userName: userSnap.data().displayName,
+      companyId: userSnap.data().companyId,
       oldDepartmentId: oldDepartmentId || null,
       newDepartmentId: departmentId,
       changedAt: serverTimestamp(),
@@ -446,18 +447,18 @@ export const getDepartmentStats = async (departmentId) => {
     // Get members count
     const membersQuery = query(
       collection(db, "users"),
-      where("departmentId", "==", departmentId)
+      where("departmentId", "==", departmentId),
     );
     const membersSnapshot = await getDocs(membersQuery);
     stats.totalMembers = membersSnapshot.size;
     stats.activeMembers = membersSnapshot.docs.filter(
-      (doc) => doc.data().status === "active"
+      (doc) => doc.data().status === "active",
     ).length;
 
     // Get posts assigned to department
     const postsQuery = query(
       collection(db, "posts"),
-      where("assignedToDepartment", "==", departmentId)
+      where("assignedToDepartment", "==", departmentId),
     );
     const postsSnapshot = await getDocs(postsQuery);
     stats.totalPosts = postsSnapshot.size;
