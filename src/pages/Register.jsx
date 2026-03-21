@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation, useSearchParams, Link } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  useSearchParams,
+  Link,
+} from "react-router-dom";
 import {
   doc,
   getDoc,
@@ -10,7 +15,7 @@ import {
 import { db, auth } from "../config/firebase";
 import { signInAnonymously } from "firebase/auth";
 import { checkUsernameExists, hashPassword } from "../services/authService";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   UserPlus,
@@ -31,9 +36,10 @@ const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { companyId: stateCompanyId, companyName: stateCompanyName } = location.state || {};
-  const companyId = stateCompanyId || searchParams.get('companyId');
-  const companyName = stateCompanyName || searchParams.get('companyName');
+  const { companyId: stateCompanyId, companyName: stateCompanyName } =
+    location.state || {};
+  const companyId = stateCompanyId || searchParams.get("companyId");
+  const companyName = stateCompanyName || searchParams.get("companyName");
 
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -89,11 +95,11 @@ const Register = () => {
         setUsernameChecked(true);
 
         if (exists) {
-          setError(t('auth.register.usernameAlreadyTaken'));
+          setError(t("auth.register.usernameAlreadyTaken"));
         }
       } catch (error) {
         console.error("Error checking username:", error);
-        setError(t('auth.register.usernameAvailabilityFailed'));
+        setError(t("auth.register.usernameAvailabilityFailed"));
       } finally {
         setCheckingUsername(false);
       }
@@ -109,21 +115,37 @@ const Register = () => {
 
   const loadCompany = async () => {
     try {
-      // Ensure Firebase anonymous auth exists so Firestore security rules pass.
-      // On mobile (fresh browser from QR scan), there is no existing auth session.
+      // Wait for anonymous auth — mobile cold-starts need this
       if (!auth.currentUser) {
         await signInAnonymously(auth);
       }
+
+      // Small delay to ensure auth state is propagated
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       const companyDoc = await getDoc(doc(db, "companies", companyId));
       if (companyDoc.exists()) {
         setCompany({ id: companyDoc.id, ...companyDoc.data() });
       } else {
-        setError(t('auth.register.companyNotFound'));
+        setError(t("auth.register.companyNotFound"));
       }
     } catch (error) {
       console.error("Error loading company:", error);
-      setError(t('auth.register.companyLoadFailed'));
+      // Retry once — mobile networks can be flaky on first load
+      try {
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
+        const companyDoc = await getDoc(doc(db, "companies", companyId));
+        if (companyDoc.exists()) {
+          setCompany({ id: companyDoc.id, ...companyDoc.data() });
+        } else {
+          setError(t("auth.register.companyNotFound"));
+        }
+      } catch (retryError) {
+        console.error("Retry failed:", retryError);
+        setError(t("auth.register.companyLoadFailed"));
+      }
     }
   };
 
@@ -132,7 +154,7 @@ const Register = () => {
 
     // For username, only allow alphanumeric characters
     if (name === "username") {
-      const alphanumericValue = value.replace(/[^a-zA-Z0-9]/g, '');
+      const alphanumericValue = value.replace(/[^a-zA-Z0-9]/g, "");
       setFormData((prev) => ({
         ...prev,
         [name]: alphanumericValue,
@@ -160,7 +182,9 @@ const Register = () => {
 
     // Validate alphanumeric username
     if (!/^[a-zA-Z0-9]+$/.test(formData.username)) {
-      setError("Username must contain only letters and numbers (no spaces or special characters)");
+      setError(
+        "Username must contain only letters and numbers (no spaces or special characters)",
+      );
       return false;
     }
 
@@ -216,7 +240,7 @@ const Register = () => {
         updatedAt: serverTimestamp(),
       });
 
-      setSuccess(t('auth.register.registrationPending'));
+      setSuccess(t("auth.register.registrationPending"));
 
       setFormData({
         fullName: "",
@@ -240,7 +264,8 @@ const Register = () => {
     }
   };
 
-  const inputClasses = "w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-900 placeholder-gray-400 transition-all hover:bg-white focus:outline-none";
+  const inputClasses =
+    "w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-gray-900 placeholder-gray-400 transition-all hover:bg-white focus:outline-none";
 
   const handleFocus = (e) => {
     e.target.style.boxShadow = "0 0 0 2px #1ABC9C40";
@@ -267,13 +292,16 @@ const Register = () => {
                 className="text-sm font-semibold hover:opacity-80 transition"
                 style={{ color: "#1ABC9C" }}
               >
-                {t('auth.register.backToLogin')}
+                {t("auth.register.backToLogin")}
               </button>
             </div>
           ) : (
             <>
-              <Loader2 className="w-10 h-10 animate-spin mx-auto mb-4" style={{ color: "#1ABC9C" }} />
-              <p className="text-gray-500 text-sm">{t('common.loading')}</p>
+              <Loader2
+                className="w-10 h-10 animate-spin mx-auto mb-4"
+                style={{ color: "#1ABC9C" }}
+              />
+              <p className="text-gray-500 text-sm">{t("common.loading")}</p>
             </>
           )}
         </div>
@@ -290,20 +318,28 @@ const Register = () => {
           className="flex items-center text-gray-500 hover:text-gray-800 transition-colors mb-6 group"
         >
           <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-          {t('auth.register.backToLogin')}
+          {t("auth.register.backToLogin")}
         </button>
 
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 sm:p-8">
           {/* Header */}
           <div className="text-center mb-7">
-            <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: "#2D3E50" }}>
+            <div
+              className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+              style={{ backgroundColor: "#2D3E50" }}
+            >
               <UserPlus className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold mb-1" style={{ color: "#2D3E50" }}>
-              {t('auth.register.joinCompany', { companyName: company.name })}
+            <h1
+              className="text-2xl font-bold mb-1"
+              style={{ color: "#2D3E50" }}
+            >
+              {t("auth.register.joinCompany", { companyName: company.name })}
             </h1>
-            <p className="text-sm text-gray-500">{t('auth.register.createEmployeeAccount')}</p>
+            <p className="text-sm text-gray-500">
+              {t("auth.register.createEmployeeAccount")}
+            </p>
           </div>
 
           {/* Alerts */}
@@ -315,9 +351,17 @@ const Register = () => {
           )}
 
           {success && (
-            <div className="mb-6 p-4 border rounded-xl flex items-start space-x-3" style={{ backgroundColor: "#1ABC9C10", borderColor: "#1ABC9C30" }}>
-              <CircleCheck className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: "#1ABC9C" }} />
-              <p className="text-sm" style={{ color: "#15967d" }}>{success}</p>
+            <div
+              className="mb-6 p-4 border rounded-xl flex items-start space-x-3"
+              style={{ backgroundColor: "#1ABC9C10", borderColor: "#1ABC9C30" }}
+            >
+              <CircleCheck
+                className="w-5 h-5 flex-shrink-0 mt-0.5"
+                style={{ color: "#1ABC9C" }}
+              />
+              <p className="text-sm" style={{ color: "#15967d" }}>
+                {success}
+              </p>
             </div>
           )}
 
@@ -330,7 +374,7 @@ const Register = () => {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#2D3E50" }}
               >
-                {t('auth.register.fullName')}
+                {t("auth.register.fullName")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -358,7 +402,7 @@ const Register = () => {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#2D3E50" }}
               >
-                {t('auth.register.username')}
+                {t("auth.register.username")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -381,16 +425,23 @@ const Register = () => {
                   {checkingUsername && (
                     <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
                   )}
-                  {!checkingUsername && usernameChecked && usernameAvailable && (
-                    <CheckCircle2 className="w-5 h-5" style={{ color: "#1ABC9C" }} />
-                  )}
-                  {!checkingUsername && usernameChecked && !usernameAvailable && (
-                    <XCircle className="w-5 h-5 text-red-500" />
-                  )}
+                  {!checkingUsername &&
+                    usernameChecked &&
+                    usernameAvailable && (
+                      <CheckCircle2
+                        className="w-5 h-5"
+                        style={{ color: "#1ABC9C" }}
+                      />
+                    )}
+                  {!checkingUsername &&
+                    usernameChecked &&
+                    !usernameAvailable && (
+                      <XCircle className="w-5 h-5 text-red-500" />
+                    )}
                 </div>
               </div>
               <p className="text-xs text-gray-400 mt-1.5">
-                {t('auth.register.usernameHint')}
+                {t("auth.register.usernameHint")}
               </p>
               {usernameChecked && (
                 <div
@@ -400,9 +451,9 @@ const Register = () => {
                   style={usernameAvailable ? { color: "#1ABC9C" } : {}}
                 >
                   {usernameAvailable ? (
-                    <span>{t('auth.register.usernameAvailable')}</span>
+                    <span>{t("auth.register.usernameAvailable")}</span>
                   ) : (
-                    <span>{t('auth.register.usernameTaken')}</span>
+                    <span>{t("auth.register.usernameTaken")}</span>
                   )}
                 </div>
               )}
@@ -415,7 +466,7 @@ const Register = () => {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#2D3E50" }}
               >
-                {t('auth.register.mobile')}
+                {t("auth.register.mobile")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -436,7 +487,9 @@ const Register = () => {
                   placeholder="1234567890"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-1.5">{t('auth.register.mobileHint')}</p>
+              <p className="text-xs text-gray-400 mt-1.5">
+                {t("auth.register.mobileHint")}
+              </p>
             </div>
 
             {/* Gender */}
@@ -446,7 +499,7 @@ const Register = () => {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#2D3E50" }}
               >
-                {t('auth.register.gender')}
+                {t("auth.register.gender")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -462,15 +515,27 @@ const Register = () => {
                   onFocus={handleFocus}
                   onBlur={handleBlur}
                 >
-                  <option value="">{t('auth.register.selectGender')}</option>
-                  <option value="male">{t('auth.register.male')}</option>
-                  <option value="female">{t('auth.register.female')}</option>
-                  <option value="other">{t('auth.register.other')}</option>
-                  <option value="prefer_not_to_say">{t('auth.register.preferNotToSay')}</option>
+                  <option value="">{t("auth.register.selectGender")}</option>
+                  <option value="male">{t("auth.register.male")}</option>
+                  <option value="female">{t("auth.register.female")}</option>
+                  <option value="other">{t("auth.register.other")}</option>
+                  <option value="prefer_not_to_say">
+                    {t("auth.register.preferNotToSay")}
+                  </option>
                 </select>
                 <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
               </div>
@@ -483,7 +548,7 @@ const Register = () => {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#2D3E50" }}
               >
-                {t('auth.register.password')}
+                {t("auth.register.password")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -504,7 +569,7 @@ const Register = () => {
                 />
               </div>
               <p className="text-xs text-gray-400 mt-1.5">
-                {t('auth.register.passwordHint')}
+                {t("auth.register.passwordHint")}
               </p>
             </div>
 
@@ -515,7 +580,7 @@ const Register = () => {
                 className="block text-sm font-semibold mb-2"
                 style={{ color: "#2D3E50" }}
               >
-                {t('auth.register.confirmPassword')}
+                {t("auth.register.confirmPassword")}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -542,16 +607,21 @@ const Register = () => {
               disabled={loading || !usernameAvailable}
               className="w-full mt-2 text-white py-3.5 rounded-xl font-semibold focus:outline-none focus:ring-4 focus:ring-opacity-30 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transform hover:scale-[1.01] active:scale-[0.99]"
               style={{ backgroundColor: "#1ABC9C" }}
-              onMouseEnter={(e) => { if (!loading && usernameAvailable) e.target.style.backgroundColor = "#17a88c"; }}
-              onMouseLeave={(e) => { e.target.style.backgroundColor = "#1ABC9C"; }}
+              onMouseEnter={(e) => {
+                if (!loading && usernameAvailable)
+                  e.target.style.backgroundColor = "#17a88c";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = "#1ABC9C";
+              }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin text-white" />
-                  {t('auth.register.creatingAccount')}
+                  {t("auth.register.creatingAccount")}
                 </span>
               ) : (
-                t('auth.register.createAccount')
+                t("auth.register.createAccount")
               )}
             </button>
           </form>
@@ -559,13 +629,13 @@ const Register = () => {
           {/* Footer */}
           <div className="mt-7 text-center">
             <p className="text-sm text-gray-500">
-              {t('auth.register.haveAccount')}{" "}
+              {t("auth.register.haveAccount")}{" "}
               <Link
                 to="/login"
                 className="font-semibold hover:opacity-80 transition"
                 style={{ color: "#1ABC9C" }}
               >
-                {t('auth.register.signIn')}
+                {t("auth.register.signIn")}
               </Link>
             </p>
           </div>
