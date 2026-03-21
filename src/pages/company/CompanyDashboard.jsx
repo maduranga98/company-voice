@@ -260,36 +260,37 @@ const CompanyDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 px-4 sm:px-6 lg:px-0">
       {/* Welcome header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
           {t('company.dashboardTitle')}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-xs lg:text-sm text-gray-500 mt-1">
           {t('company.dashboardSubtitle')}
         </p>
       </div>
 
       {/* Pending employees alert */}
       {pendingUsers > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4">
-          <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Users size={20} className="text-amber-600" />
+        <div className="bg-amber-50 border border-amber-200 rounded-xl lg:rounded-2xl p-3 lg:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4">
+          <div className="w-9 h-9 lg:w-10 lg:h-10 bg-amber-100 rounded-lg lg:rounded-xl flex items-center justify-center flex-shrink-0">
+            <Users size={18} className="text-amber-600 lg:hidden" />
+            <Users size={20} className="text-amber-600 hidden lg:block" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-amber-800">
+            <p className="text-xs lg:text-sm font-semibold text-amber-800">
               {pendingUsers}{" "}
               {pendingUsers === 1 ? t('company.employeeSingular') : t('company.employeePlural')}{" "}
               {t('company.pendingApprovalAlert')}
             </p>
-            <p className="text-xs text-amber-600 mt-0.5">
+            <p className="text-[11px] lg:text-xs text-amber-600 mt-0.5">
               {t('company.reviewApproveRegistrations')}
             </p>
           </div>
           <button
             onClick={() => navigate("/company/member-management?filter=pending")}
-            className="px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition font-medium text-sm flex-shrink-0"
+            className="px-3 lg:px-4 py-1.5 lg:py-2 bg-amber-500 text-white rounded-lg lg:rounded-xl hover:bg-amber-600 transition font-medium text-xs lg:text-sm flex-shrink-0 w-full sm:w-auto text-center"
           >
             {t('company.reviewNow')}
           </button>
@@ -297,58 +298,60 @@ const CompanyDashboard = () => {
       )}
 
       {/* Key metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {metricCards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.label}
-              className={`bg-white rounded-2xl p-5 border ${card.border} ${
+              className={`bg-white rounded-xl lg:rounded-2xl p-3 lg:p-5 border ${card.border} ${
                 card.highlight ? "ring-2 ring-red-200" : ""
               } transition-all hover:shadow-md`}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className={`w-10 h-10 ${card.bg} rounded-xl flex items-center justify-center`}>
-                  <Icon size={20} className={card.color} />
+              <div className="flex items-center justify-between mb-2 lg:mb-3">
+                <div className={`w-8 h-8 lg:w-10 lg:h-10 ${card.bg} rounded-lg lg:rounded-xl flex items-center justify-center`}>
+                  <Icon size={16} className={`${card.color} lg:hidden`} />
+                  <Icon size={20} className={`${card.color} hidden lg:block`} />
                 </div>
               </div>
-              <p className="text-3xl font-bold text-gray-900">{card.value}</p>
-              <p className="text-xs font-medium text-gray-500 mt-1">{card.label}</p>
+              <p className="text-2xl lg:text-3xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-[11px] lg:text-xs font-medium text-gray-500 mt-1">{card.label}</p>
             </div>
           );
         })}
       </div>
 
       {/* Post type breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
         {feedCards.map((card) => {
           const Icon = card.icon;
           return (
             <button
               key={card.path}
               onClick={() => navigate(card.path)}
-              className={`bg-white rounded-2xl p-5 border border-gray-100 ${card.hoverBorder} hover:shadow-md transition-all text-left group`}
+              className={`bg-white rounded-xl lg:rounded-2xl p-4 lg:p-5 border border-gray-100 ${card.hoverBorder} hover:shadow-md transition-all text-left group`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-11 h-11 ${card.bg} rounded-xl flex items-center justify-center`}>
-                  <Icon size={22} className={card.color} />
+              <div className="flex items-center justify-between mb-3 lg:mb-4">
+                <div className={`w-9 h-9 lg:w-11 lg:h-11 ${card.bg} rounded-lg lg:rounded-xl flex items-center justify-center`}>
+                  <Icon size={18} className={`${card.color} lg:hidden`} />
+                  <Icon size={22} className={`${card.color} hidden lg:block`} />
                 </div>
-                <ChevronRight size={18} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
+                <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
               </div>
-              <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-              <p className="text-sm font-medium text-gray-500 mt-1">{card.label}</p>
+              <p className="text-xl lg:text-2xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-xs lg:text-sm font-medium text-gray-500 mt-1">{card.label}</p>
             </button>
           );
         })}
       </div>
 
       {/* Recent posts needing attention */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">
+      <div className="bg-white rounded-xl lg:rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-4 lg:px-6 py-4 lg:py-5 border-b border-gray-100">
+          <h2 className="text-base lg:text-lg font-bold text-gray-900">
             {t('company.recentPostsTitle')}
           </h2>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-xs lg:text-sm text-gray-500 mt-0.5">
             {t('company.recentPostsSubtitle')}
           </p>
         </div>
@@ -417,29 +420,31 @@ const CompanyDashboard = () => {
 
       {/* Quick actions grid */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <h2 className="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.path}
                 onClick={() => navigate(action.path)}
-                className="bg-white rounded-2xl p-4 border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all text-left group flex items-center gap-4 relative"
+                className="bg-white rounded-xl lg:rounded-2xl p-3 lg:p-4 border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all text-left group flex items-center gap-3 lg:gap-4 relative"
               >
                 {action.badge && (
-                  <span className="absolute top-3 right-3 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                  <span className="absolute top-2 right-2 lg:top-3 lg:right-3 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full">
                     {action.badge}
                   </span>
                 )}
-                <div className={`w-11 h-11 ${action.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform`}>
-                  <Icon size={20} className={action.color} />
+                <div className={`w-9 h-9 lg:w-11 lg:h-11 ${action.bg} rounded-lg lg:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform`}>
+                  <Icon size={16} className={`${action.color} lg:hidden`} />
+                  <Icon size={20} className={`${action.color} hidden lg:block`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900">{action.label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{action.desc}</p>
+                  <p className="text-xs lg:text-sm font-semibold text-gray-900">{action.label}</p>
+                  <p className="text-[11px] lg:text-xs text-gray-400 mt-0.5 line-clamp-1">{action.desc}</p>
                 </div>
-                <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-400 transition-colors flex-shrink-0" />
+                <ChevronRight size={14} className="text-gray-300 group-hover:text-gray-400 transition-colors flex-shrink-0 lg:hidden" />
+                <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-400 transition-colors flex-shrink-0 hidden lg:block" />
               </button>
             );
           })}

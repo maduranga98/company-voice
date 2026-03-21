@@ -110,15 +110,16 @@ const MemberManagement = () => {
     }
   };
 
-  const handleAssignTag = async (tagId) => {
+  const handleAssignTag = async (tagId, member = null) => {
+    const targetMember = member || selectedMember;
     try {
       setLoading(true);
-      const memberRef = doc(db, "users", selectedMember.id);
+      const memberRef = doc(db, "users", targetMember.id);
       await updateDoc(memberRef, {
         userTagId: tagId,
       });
 
-      alert(t('company.tagAssigned'));
+      alert(tagId ? t('company.tagAssigned') : t('company.tagRemoved', 'Tag removed successfully'));
       setShowTagModal(false);
       setSelectedMember(null);
       loadData();
@@ -130,21 +131,22 @@ const MemberManagement = () => {
     }
   };
 
-  const handleAssignDepartment = async (departmentId) => {
+  const handleAssignDepartment = async (departmentId, member = null) => {
+    const targetMember = member || selectedMember;
     try {
       setLoading(true);
       if (departmentId) {
-        await assignUserToDepartment(selectedMember.id, departmentId);
+        await assignUserToDepartment(targetMember.id, departmentId);
       } else {
         // Remove from department
-        const memberRef = doc(db, "users", selectedMember.id);
+        const memberRef = doc(db, "users", targetMember.id);
         await updateDoc(memberRef, {
           departmentId: null,
           updatedAt: serverTimestamp(),
         });
       }
 
-      alert(t('company.departmentAssigned'));
+      alert(departmentId ? t('company.departmentAssigned') : t('company.departmentRemoved', 'Department removed successfully'));
       setShowDepartmentModal(false);
       setSelectedMember(null);
       loadData();
@@ -322,22 +324,22 @@ const MemberManagement = () => {
           </svg>
           {t('common.back')}
         </button>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
               {t('company.memberManagementTitle')}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm lg:text-base">
               {t('company.memberManagementDesc')}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-shrink-0">
             <button
               onClick={() => navigate("/company/tag-management")}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+              className="px-3 lg:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 text-sm"
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 lg:w-5 lg:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -349,14 +351,15 @@ const MemberManagement = () => {
                   d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
                 />
               </svg>
-              {t('company.manageTags')}
+              <span className="hidden sm:inline">{t('company.manageTags')}</span>
+              <span className="sm:hidden">{t('company.tag')}</span>
             </button>
             <button
               onClick={() => navigate("/company/departments")}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+              className="px-3 lg:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm"
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 lg:w-5 lg:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -368,13 +371,14 @@ const MemberManagement = () => {
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
               </svg>
-              {t('company.manageDepartments')}
+              <span className="hidden sm:inline">{t('company.manageDepartments')}</span>
+              <span className="sm:hidden">{t('company.dept')}</span>
             </button>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.totalMembers')}</p>
             <p className="text-2xl font-bold text-gray-900">{members.length}</p>
@@ -414,7 +418,7 @@ const MemberManagement = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -517,8 +521,8 @@ const MemberManagement = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -588,14 +592,29 @@ const MemberManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {memberTag ? (
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${
-                            getColorClasses(memberTag.color).bgClass
-                          } ${getColorClasses(memberTag.color).textClass}`}
-                        >
-                          <span className="mr-1">{memberTag.icon}</span>
-                          {memberTag.name}
-                        </span>
+                        <div className="inline-flex items-center gap-1">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium ${
+                              getColorClasses(memberTag.color).bgClass
+                            } ${getColorClasses(memberTag.color).textClass}`}
+                          >
+                            <span className="mr-1">{memberTag.icon}</span>
+                            {memberTag.name}
+                          </span>
+                          <button
+                            onClick={() => {
+                              if (confirm(t('company.confirmRemoveTag', `Remove tag "${memberTag.name}" from ${member.displayName}?`))) {
+                                handleAssignTag(null, member);
+                              }
+                            }}
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
+                            title={t('company.removeTag')}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
                       ) : (
                         <span className="text-sm text-gray-400 italic">
                           {t('company.notTagged')}
@@ -604,10 +623,25 @@ const MemberManagement = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {memberDepartment ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                          <span className="mr-1">{memberDepartment.icon}</span>
-                          {memberDepartment.name}
-                        </span>
+                        <div className="inline-flex items-center gap-1">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            <span className="mr-1">{memberDepartment.icon}</span>
+                            {memberDepartment.name}
+                          </span>
+                          <button
+                            onClick={() => {
+                              if (confirm(t('company.confirmRemoveDepartment', `Remove ${member.displayName} from "${memberDepartment.name}" department?`))) {
+                                handleAssignDepartment(null, member);
+                              }
+                            }}
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
+                            title={t('company.removeFromDepartment')}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
                       ) : (
                         <span className="text-sm text-gray-400 italic">
                           {t('company.noDepartment')}
