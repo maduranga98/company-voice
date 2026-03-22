@@ -557,7 +557,8 @@ service cloud.firestore {
     // - Never deleted
     match /anonymousThreads/{postId} {
       allow read: if isAuthenticated()
-        && (isSuperAdmin()
+        && (resource == null
+            || isSuperAdmin()
             || (getUserRole() in ['hr', 'company_admin']
                 && getUserCompanyId() == resource.data.companyId)
             || getUserId() == resource.data.reporterId

@@ -73,34 +73,40 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
     if (!isAnonymousPost || !postId) return;
 
     const threadRef = doc(db, "anonymousThreads", postId);
-    const unsubscribe = onSnapshot(threadRef, (snap) => {
-      if (!snap.exists()) {
-        setMessages([]);
-        setThreadData(null);
-        setUnreadCount(0);
-        return;
+    const unsubscribe = onSnapshot(
+      threadRef,
+      (snap) => {
+        if (!snap.exists()) {
+          setMessages([]);
+          setThreadData(null);
+          setUnreadCount(0);
+          return;
+        }
+
+        const data = snap.data();
+        setThreadData(data);
+
+        const decrypted = (data.messages || []).map((msg) => ({
+          ...msg,
+          content: decryptMessage(msg.encryptedContent),
+        }));
+        setMessages(decrypted);
+
+        // Count unread messages from the other party
+        const lastReadRaw = data.lastReadBy?.[senderRole];
+        const lastReadDate = lastReadRaw?.toDate ? lastReadRaw.toDate() : null;
+
+        const unread = decrypted.filter((msg) => {
+          if (msg.sender !== otherSender) return false;
+          if (!lastReadDate) return true;
+          return new Date(msg.timestamp) > lastReadDate;
+        });
+        setUnreadCount(unread.length);
+      },
+      (error) => {
+        console.error("Anonymous thread snapshot error:", error);
       }
-
-      const data = snap.data();
-      setThreadData(data);
-
-      const decrypted = (data.messages || []).map((msg) => ({
-        ...msg,
-        content: decryptMessage(msg.encryptedContent),
-      }));
-      setMessages(decrypted);
-
-      // Count unread messages from the other party
-      const lastReadRaw = data.lastReadBy?.[senderRole];
-      const lastReadDate = lastReadRaw?.toDate ? lastReadRaw.toDate() : null;
-
-      const unread = decrypted.filter((msg) => {
-        if (msg.sender !== otherSender) return false;
-        if (!lastReadDate) return true;
-        return new Date(msg.timestamp) > lastReadDate;
-      });
-      setUnreadCount(unread.length);
-    });
+    );
 
     return () => unsubscribe();
   }, [postId, isAnonymousPost, senderRole, otherSender]);
