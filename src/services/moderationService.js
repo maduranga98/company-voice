@@ -509,7 +509,7 @@ const escalateReport = async (reportId, moderatorId, notes) => {
   const report = reportDoc.data();
 
   // Notify super admins
-  await notifySuperAdminsOfEscalation(reportId);
+  await notifySuperAdminsOfEscalation(reportId, report.companyId);
 
   await logModerationActivity({
     activityType: ModerationActivityType.REPORT_ESCALATED,
@@ -574,6 +574,7 @@ const removeAndSuspend = async (report, moderatorId, notes, strikeInfo) => {
       message: `Your account has been suspended for 30 days due to a severe violation: ${
         strikeInfo.violationType || "Content policy violation"
       }`,
+      companyId,
       metadata: {
         suspensionEnd: suspensionEnd.toISOString(),
         reason: strikeInfo.explanation,
@@ -648,7 +649,7 @@ const issueStrikeToUser = async (userId, companyId, strikeInfo) => {
     await addDoc(collection(db, "userStrikes"), strike);
 
     // Apply restrictions based on strike level
-    await applyStrikeRestrictions(userId, newStrikeLevel);
+    await applyStrikeRestrictions(userId, newStrikeLevel, companyId);
 
     // Notify user
     const strikeConfig = StrikeConfig[newStrikeLevel];
@@ -657,6 +658,7 @@ const issueStrikeToUser = async (userId, companyId, strikeInfo) => {
       type: NotificationType.STRIKE_RECEIVED,
       title: `Strike ${newStrikeLevel} - ${strikeConfig.label}`,
       message: `Your ${strikeInfo.contentType} violated community guidelines: ${strikeInfo.violationType}. ${strikeConfig.consequence}`,
+      companyId,
       metadata: {
         strikeLevel: newStrikeLevel,
         violationType: strikeInfo.violationType,
@@ -713,7 +715,7 @@ const issueStrikeDirectly = async (
 /**
  * Apply restrictions based on strike level
  */
-const applyStrikeRestrictions = async (userId, strikeLevel) => {
+const applyStrikeRestrictions = async (userId, strikeLevel, companyId) => {
   const config = StrikeConfig[strikeLevel];
 
   if (strikeLevel === StrikeLevel.SECOND) {
@@ -723,6 +725,7 @@ const applyStrikeRestrictions = async (userId, strikeLevel) => {
 
     await addDoc(collection(db, "userRestrictions"), {
       userId,
+      companyId,
       restrictionType: RestrictionType.POSTING,
       startedAt: serverTimestamp(),
       endsAt: Timestamp.fromDate(restrictionEnd),
@@ -735,6 +738,7 @@ const applyStrikeRestrictions = async (userId, strikeLevel) => {
       type: NotificationType.ACCOUNT_RESTRICTED,
       title: "Posting Restricted",
       message: `You cannot post or comment for 7 days due to repeated violations.`,
+      companyId,
       metadata: {
         restrictionEnd: restrictionEnd.toISOString(),
       },
@@ -766,6 +770,7 @@ const applyStrikeRestrictions = async (userId, strikeLevel) => {
       type: NotificationType.ACCOUNT_SUSPENDED,
       title: "Account Suspended",
       message: `Your account has been suspended for 30 days. All strikes will be reset after the suspension period.`,
+      companyId,
       metadata: {
         suspensionEnd: suspensionEnd.toISOString(),
       },
@@ -948,6 +953,7 @@ const notifyAdminsOfNewReport = async (companyId, reportId, contentType) => {
         type: NotificationType.CONTENT_REPORTED,
         title: "New Content Report",
         message: `A ${contentType} has been reported and needs review.`,
+        companyId,
         metadata: {
           reportId,
           contentType,
@@ -982,8 +988,9 @@ const notifyHRTeam = async (companyId, reportId, reason, contentType) => {
       await createNotification({
         userId: hrDoc.id,
         type: "critical_report",
-        title: "🚨 CRITICAL: Urgent Report Requires Review",
+        title: "CRITICAL: Urgent Report Requires Review",
         message: `A ${contentType} has been flagged for ${reason}. Immediate review required. Legal hold applied.`,
+        companyId,
         metadata: {
           reportId,
           contentType,
@@ -1015,7 +1022,7 @@ const notifyHRTeam = async (companyId, reportId, reason, contentType) => {
 /**
  * Notify super admins of escalated report
  */
-const notifySuperAdminsOfEscalation = async (reportId) => {
+const notifySuperAdminsOfEscalation = async (reportId, companyId) => {
   try {
     const superAdminsQuery = query(
       collection(db, "users"),
@@ -1029,6 +1036,7 @@ const notifySuperAdminsOfEscalation = async (reportId) => {
         type: NotificationType.CONTENT_REPORTED,
         title: "Report Escalated",
         message: `A content report has been escalated and requires your review.`,
+        companyId,
         metadata: {
           reportId,
           escalated: true,

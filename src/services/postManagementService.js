@@ -157,7 +157,7 @@ export const updatePostStatus = async (postId, newStatus, adminUser, comment = "
     });
 
     // Notify post author
-    await notifyAuthor(postSnap.data(), NotificationType.STATUS_CHANGED, {
+    await notifyAuthor(postId, postSnap.data(), NotificationType.STATUS_CHANGED, {
       status: newStatus,
       adminName: adminUser.displayName,
       comment,
@@ -212,7 +212,7 @@ export const updatePostPriority = async (postId, newPriority, adminUser) => {
 
     // Notify author if priority is elevated to critical or high
     if (newPriority === PostPriority.CRITICAL || newPriority === PostPriority.HIGH) {
-      await notifyAuthor(postSnap.data(), NotificationType.PRIORITY_CHANGED, {
+      await notifyAuthor(postId, postSnap.data(), NotificationType.PRIORITY_CHANGED, {
         priority: newPriority,
         adminName: adminUser.displayName,
       });
@@ -406,6 +406,8 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
       throw new Error("Post not found");
     }
 
+    const postData = postSnap.data();
+
     // Add comment to comments collection
     const commentData = {
       postId,
@@ -414,6 +416,7 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
       authorName: adminUser.displayName,
       authorRole: adminUser.role,
       isAdminComment: true, // Flag to distinguish admin comments
+      companyId: postData.companyId,
       createdAt: serverTimestamp(),
     };
 
@@ -432,11 +435,11 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
       adminId: adminUser.id,
       adminName: adminUser.displayName,
       comment: commentText,
+      companyId: postData.companyId,
     });
 
     // Notify post author
-    const postData = postSnap.data();
-    await notifyAuthor(postData, NotificationType.ADMIN_COMMENT, {
+    await notifyAuthor(postId, postData, NotificationType.ADMIN_COMMENT, {
       adminName: adminUser.displayName,
       comment: commentText,
     });
@@ -478,9 +481,9 @@ export const logPostActivity = async (postId, activityType, metadata = {}) => {
     const activityData = {
       postId,
       type: activityType,
+      companyId: companyId || null,
       metadata: {
         ...metadata,
-        companyId, // Add companyId for easier filtering
       },
       createdAt: serverTimestamp(),
     };
@@ -636,7 +639,7 @@ const createNotification = async (notificationData) => {
  * @param {object} metadata - Additional notification data
  * @returns {Promise<void>}
  */
-const notifyAuthor = async (postData, notificationType, metadata) => {
+const notifyAuthor = async (postId, postData, notificationType, metadata) => {
   try {
     // For anonymous posts, don't create direct notifications
     // Author will see updates only in "My Posts" dashboard
@@ -645,9 +648,7 @@ const notifyAuthor = async (postData, notificationType, metadata) => {
     }
 
     // For named posts, create notification
-    const authorId = postData.isAnonymous
-      ? decryptAuthorId(postData.authorId)
-      : postData.authorId;
+    const authorId = postData.authorId;
 
     if (!authorId) {
       return;
@@ -679,7 +680,8 @@ const notifyAuthor = async (postData, notificationType, metadata) => {
       type: notificationType,
       title,
       message,
-      postId: postData.id || postData.postId,
+      postId,
+      companyId: postData.companyId,
     });
   } catch (error) {
     console.error("Error notifying author:", error);

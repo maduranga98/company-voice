@@ -170,6 +170,25 @@ const CommentsEnhanced = ({
       await deleteDoc(doc(db, "comments", commentId));
       const postRef = doc(db, "posts", postId);
       await updateDoc(postRef, { comments: increment(-1) });
+
+      // Notify post author about comment deletion (if not self)
+      if (postAuthorId && userData?.id !== postAuthorId && userData?.companyId) {
+        try {
+          await addDoc(collection(db, "notifications"), {
+            userId: postAuthorId,
+            type: "comment",
+            title: t("notifications.commentDeleted", "Comment deleted"),
+            message: t("notifications.commentDeletedMessage", "A comment was removed from your post."),
+            postId,
+            companyId: userData.companyId,
+            read: false,
+            createdAt: serverTimestamp(),
+          });
+        } catch (notifErr) {
+          // Don't fail the delete if notification fails
+          console.error("Error creating comment delete notification:", notifErr);
+        }
+      }
     } catch (error) {
       setError("Failed to delete comment.");
     }
