@@ -89,16 +89,17 @@ const CompanyAnalytics = () => {
         ...doc.data(),
       }));
 
-      // Fetch all comments for the company posts
+      // Fetch all comments for the company
       const commentsRef = collection(db, "comments");
-      const commentsSnapshot = await getDocs(commentsRef);
-      const allComments = commentsSnapshot.docs.map((doc) => ({
+      const commentsQuery = query(
+        commentsRef,
+        where("companyId", "==", userData.companyId)
+      );
+      const commentsSnapshot = await getDocs(commentsQuery);
+      const companyComments = commentsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      const companyComments = allComments.filter((comment) =>
-        posts.some((post) => post.id === comment.postId)
-      );
 
       // Fetch all users for the company
       const usersRef = collection(db, "users");

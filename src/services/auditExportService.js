@@ -106,7 +106,7 @@ export const queryAuditLogs = async (companyId, filters = {}) => {
 
   // ---- postActivities ----
   const buildPostConstraints = () => {
-    const constraints = [where("metadata.companyId", "==", companyId)];
+    const constraints = [where("companyId", "==", companyId)];
     if (actionType !== "all" && !isLegalFilter) {
       constraints.push(where("type", "==", actionType));
     }

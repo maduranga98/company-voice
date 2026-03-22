@@ -46,7 +46,7 @@ const decryptMessage = (encryptedText) => {
  * @param {string} companyId - The company ID for access scoping
  * @returns {Promise<{success: boolean, existed: boolean}>}
  */
-export const createThread = async (postId, companyId) => {
+export const createThread = async (postId, companyId, reporterId = null) => {
   try {
     const threadRef = doc(db, "anonymousThreads", postId);
     const existing = await getDoc(threadRef);
@@ -58,6 +58,7 @@ export const createThread = async (postId, companyId) => {
     await setDoc(threadRef, {
       postId,
       companyId,
+      ...(reporterId ? { reporterId } : {}),
       messages: [],
       lastReporterActivity: null,
       lastInvestigatorActivity: null,

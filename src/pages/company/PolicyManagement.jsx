@@ -65,7 +65,7 @@ const EMPTY_FORM = {
 };
 
 const PolicyManagement = () => {
-  const { userData, logout } = useAuth();
+  const { userData } = useAuth();
   const navigate = useNavigate();
 
   const [policies, setPolicies] = useState([]);
@@ -296,11 +296,6 @@ const PolicyManagement = () => {
     return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
-
   // ─── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -348,12 +343,6 @@ const PolicyManagement = () => {
               >
                 <Plus className="w-4 h-4" />
                 <span>New Policy</span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
-              >
-                Logout
               </button>
             </div>
           </div>
