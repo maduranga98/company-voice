@@ -244,12 +244,13 @@ const CommentsThreaded = ({
 
   // Real-time comments listener
   useEffect(() => {
-    if (!showComments || !postId) return;
+    if (!showComments || !postId || !userData?.companyId) return;
 
     const commentsRef = collection(db, "comments");
     const q = query(
       commentsRef,
       where("postId", "==", postId),
+      where("companyId", "==", userData.companyId),
       orderBy("createdAt", "asc")
     );
 
@@ -276,7 +277,7 @@ const CommentsThreaded = ({
     );
 
     return () => unsubscribe();
-  }, [postId, showComments]);
+  }, [postId, showComments, userData?.companyId]);
 
   const handleAddComment = async () => {
     if (!newComment.trim() || loading) return;
