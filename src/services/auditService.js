@@ -227,9 +227,9 @@ export const getPostActivities = async (companyId, options = {}) => {
     const activitiesRef = collection(db, "postActivities");
     let constraints = [];
 
-    // Add company filter if metadata.companyId exists
+    // Add company filter using top-level companyId field
     if (companyId) {
-      constraints.push(where("metadata.companyId", "==", companyId));
+      constraints.push(where("companyId", "==", companyId));
     }
 
     // Filter by activity type

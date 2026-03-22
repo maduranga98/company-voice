@@ -7,6 +7,7 @@ import {
   addMessage,
   markThreadRead,
 } from "../services/anonymousThreadService";
+import { useAuth } from "../contexts/AuthContext";
 import { ThreadSender, UserRole } from "../utils/constants";
 
 const ANONYMOUS_SECRET =
@@ -54,6 +55,7 @@ const formatTime = (timestamp) => {
  *   isAnonymousPost  - Boolean; component renders nothing when false
  */
 const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, defaultOpen }) => {
+  const { userData } = useAuth();
   const [isOpen, setIsOpen] = useState(defaultOpen || false);
   const [messages, setMessages] = useState([]);
   const [threadData, setThreadData] = useState(null);
@@ -118,7 +120,8 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
 
     if (opening) {
       // Ensure the thread document exists before subscribing UI
-      await createThread(postId, companyId);
+      // Pass reporterId for reporters so the Firestore rule allows future updates
+      await createThread(postId, companyId, !isInvestigator ? userData?.id : null);
       // Mark all existing messages as read
       await markThreadRead(postId, senderRole);
       setUnreadCount(0);

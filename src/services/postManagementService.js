@@ -125,11 +125,7 @@ export const checkRateLimit = async (userId, companyId) => {
  */
 export const updatePostStatus = async (postId, newStatus, adminUser, comment = "") => {
   try {
-    // Verify admin permission
-    if (!isAdmin(adminUser.role)) {
-      throw new Error("Only admins can update post status");
-    }
-
+    // Verify permission: admin OR assigned user
     const postRef = doc(db, "posts", postId);
     const postSnap = await getDoc(postRef);
 
@@ -137,7 +133,14 @@ export const updatePostStatus = async (postId, newStatus, adminUser, comment = "
       throw new Error("Post not found");
     }
 
-    const oldStatus = postSnap.data().status;
+    const postData = postSnap.data();
+    const isAssigned = postData.assignedTo?.id === adminUser.id;
+
+    if (!isAdmin(adminUser.role) && !isAssigned) {
+      throw new Error("Only admins or assigned users can update post status");
+    }
+
+    const oldStatus = postData.status;
 
     // Update post status
     await updateDoc(postRef, {
@@ -288,6 +291,7 @@ export const assignPost = async (postId, assignment, adminUser) => {
         title: "New assignment",
         message: `You've been assigned to: ${postData.title}`,
         postId: postId,
+        companyId: postData.companyId,
       });
     }
 
@@ -395,10 +399,6 @@ export const setDueDate = async (postId, dueDate, adminUser) => {
  */
 export const addAdminComment = async (postId, commentText, adminUser) => {
   try {
-    if (!isAdmin(adminUser.role)) {
-      throw new Error("Only admins can add admin comments");
-    }
-
     const postRef = doc(db, "posts", postId);
     const postSnap = await getDoc(postRef);
 
@@ -407,6 +407,11 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
     }
 
     const postData = postSnap.data();
+    const isAssigned = postData.assignedTo?.id === adminUser.id;
+
+    if (!isAdmin(adminUser.role) && !isAssigned) {
+      throw new Error("Only admins or assigned users can add comments");
+    }
 
     // Add comment to comments collection
     const commentData = {

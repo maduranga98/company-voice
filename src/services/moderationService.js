@@ -210,10 +210,11 @@ export const getCompanyReports = async (companyId, status = null) => {
         }
       }
 
-      // Count reports for same content
+      // Count reports for same content (filtered by company for Firestore rule compliance)
       const sameContentReportsQuery = query(
         collection(db, "contentReports"),
-        where("contentId", "==", reportData.contentId)
+        where("contentId", "==", reportData.contentId),
+        where("companyId", "==", companyId)
       );
       const sameContentReports = await getDocs(sameContentReportsQuery);
       reportData.totalReportsForContent = sameContentReports.size;
