@@ -159,7 +159,8 @@ service cloud.firestore {
         && (isSuperAdmin()
             || (getUserCompanyId() == resource.data.companyId
                 && (getUserId() == resource.data.authorId
-                    || getUserRole() in ['hr', 'company_admin'])));
+                    || getUserRole() in ['hr', 'company_admin']
+                    || getUserId() == resource.data.assignedTo.id)));
 
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
@@ -176,6 +177,31 @@ service cloud.firestore {
         allow delete: if isAuthenticated() && getUserId() == likeId;
         allow update: if false;
       }
+
+      // Comments subcollection (used by deletePost cascade)
+      match /comments/{commentId} {
+        allow read: if isAuthenticated()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        allow create: if isAuthenticated()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        allow delete: if isAuthenticated()
+          && (isSuperAdmin()
+              || (getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId
+                  && (getUserId() == resource.data.authorId
+                      || getUserRole() in ['hr', 'company_admin'])));
+        allow update: if false;
+      }
+
+      // Reactions subcollection (used by deletePost cascade)
+      match /reactions/{reactionId} {
+        allow read: if isAuthenticated()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        allow create: if isAuthenticated()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        allow delete: if isAuthenticated()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        allow update: if false;
+      }
     }
 
     // ============================================
@@ -187,7 +213,8 @@ service cloud.firestore {
     match /comments/{commentId} {
       allow read: if isAuthenticated()
         && (isSuperAdmin()
-            || getUserCompanyId() == resource.data.companyId);
+            || getUserCompanyId() == resource.data.companyId
+            || (resource.data.isAdminComment == true && !('companyId' in resource.data)));
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);

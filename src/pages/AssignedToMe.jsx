@@ -11,7 +11,6 @@ import {
   PostPriority,
   PostPriorityConfig,
 } from "../utils/constants";
-import { isAdmin } from "../services/postManagementService";
 import {
   ClipboardCheck,
   AlertTriangle,
@@ -39,8 +38,6 @@ const AssignedToMe = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedPriority, setSelectedPriority] = useState("all");
   const [expandedPost, setExpandedPost] = useState(null);
-
-  const userIsAdmin = isAdmin(userData?.role);
 
   useEffect(() => {
     if (userData?.id && userData?.companyId) {
@@ -305,15 +302,13 @@ const AssignedToMe = () => {
                       </button>
                     </div>
 
-                    {userIsAdmin && (
-                      <div className="p-4 pb-0">
-                        <AdminActionPanel
-                          post={post}
-                          currentUser={userData}
-                          onUpdate={handlePostUpdate}
-                        />
-                      </div>
-                    )}
+                    <div className="p-4 pb-0">
+                      <AdminActionPanel
+                        post={post}
+                        currentUser={userData}
+                        onUpdate={handlePostUpdate}
+                      />
+                    </div>
                     <Post post={post} />
                   </div>
                 )}
