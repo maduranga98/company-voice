@@ -281,7 +281,7 @@ const CompanyAnalytics = () => {
       const departments = await getDepartments(userData.companyId, false);
       const departmentStatsData = [];
       for (const dept of departments) {
-        const stats = await getDepartmentStats(dept.id);
+        const stats = await getDepartmentStats(dept.id, userData.companyId);
         departmentStatsData.push({
           id: dept.id,
           name: dept.name,
