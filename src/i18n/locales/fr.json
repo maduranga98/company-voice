@@ -321,6 +321,7 @@
     "changeRoleFor": "Changer le rôle de ce membre",
     "currentRole": "(Actuel)",
     "adminRoleDesc": "Accès complet pour gérer l'entreprise, les membres, les départements et les paramètres",
+    "hrRoleDesc": "Accès aux publications RH uniquement, gérer les rapports et les relations avec les employés",
     "employeeRoleDesc": "Accès standard pour soumettre des publications et participer aux discussions",
     "roleChanged": "Rôle changé avec succès !",
     "failedToChangeRole": "Échec du changement de rôle",

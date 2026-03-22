@@ -8,8 +8,9 @@ import { isAdmin, getPostsWithPrivacyFilter } from "../../services/postManagemen
 import { useTranslation } from "react-i18next";
 import { getPinnedPosts } from "../../services/postEnhancedFeaturesService";
 import { PostSkeleton } from "../../components/SkeletonLoader";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { UserRole } from "../../utils/constants";
 import { Search, X, Plus, Pin, ChevronDown, Sparkles, MessageCircle, AlertTriangle } from "lucide-react";
 
 const feedIcons = {
@@ -36,8 +37,22 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
   useEffect(() => {
     if (!userData?.companyId) return;
     loadPosts();
+
+    // Build a role-appropriate snapshot listener to avoid permission-denied errors.
+    // Admins/HR can listen to all posts; employees only listen to public posts.
     const postsRef = collection(db, "posts");
-    const postsQuery = query(postsRef, where("companyId", "==", userData.companyId));
+    let postsQuery;
+    if (userData.role === UserRole.SUPER_ADMIN || userData.role === UserRole.COMPANY_ADMIN || userData.role === UserRole.HR) {
+      postsQuery = query(postsRef, where("companyId", "==", userData.companyId));
+    } else {
+      // For employees, listen only to company_public posts to avoid permission errors.
+      // Full privacy-filtered data is loaded via loadPosts().
+      postsQuery = query(
+        postsRef,
+        where("companyId", "==", userData.companyId),
+        where("privacyLevel", "==", "company_public")
+      );
+    }
     const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
       if (!snapshot.metadata.hasPendingWrites) loadPosts();
     }, (error) => {
@@ -59,20 +74,8 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
     try {
       setLoading(true);
       const postsData = await getPostsWithPrivacyFilter(userData.companyId, feedType, userData);
-      const pinned = await getPinnedPosts(userData.companyId, feedType);
-      const filteredPinned = pinned.filter(post => {
-        if (post.isArchived) return false;
-        if (userData.role === "super_admin" || userData.role === "company_admin") return true;
-        const privacyLevel = post.privacyLevel || "company_public";
-        if (privacyLevel === "company_public") return true;
-        if (privacyLevel === "hr_only") return userData.role === "hr" || userData.role === "company_admin" || userData.role === "super_admin";
-        if (privacyLevel === "department_only") {
-          if (userData.role === "hr") return true;
-          if (userData.departmentId && post.departmentId) return userData.departmentId === post.departmentId;
-          return false;
-        }
-        return true;
-      });
+      const pinned = await getPinnedPosts(userData.companyId, feedType, userData);
+      const filteredPinned = pinned.filter(post => !post.isArchived);
       setPinnedPosts(filteredPinned);
       setPosts(postsData);
     } catch (error) {

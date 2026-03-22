@@ -221,7 +221,12 @@ const MemberManagement = () => {
         updatedAt: serverTimestamp(),
       });
 
-      const roleLabel = newRole === UserRole.COMPANY_ADMIN ? t('company.roleAdmin') : t('company.roleEmployee');
+      const roleLabelMap = {
+        [UserRole.COMPANY_ADMIN]: t('company.roleAdmin'),
+        [UserRole.HR]: t('company.roleHR'),
+        [UserRole.EMPLOYEE]: t('company.roleEmployee'),
+      };
+      const roleLabel = roleLabelMap[newRole] || newRole;
       showSuccess(t('company.roleChanged', `Role changed to ${roleLabel}`));
       setShowRoleModal(false);
       setSelectedMember(null);
@@ -935,6 +940,34 @@ const MemberManagement = () => {
                     </div>
                     <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleChangeRole(UserRole.HR)}
+                  className={`w-full p-4 text-left border-2 rounded-lg hover:border-green-300 transition ${
+                    selectedMember.role === UserRole.HR
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                          {t('company.roleHR')}
+                        </span>
+                        {selectedMember.role === UserRole.HR && (
+                          <span className="text-xs text-blue-600 font-medium">{t('company.currentRole', '(Current)')}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('company.hrRoleDesc', 'Access to HR-only posts, manage reports, and handle employee relations')}
+                      </p>
+                    </div>
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
                 </button>

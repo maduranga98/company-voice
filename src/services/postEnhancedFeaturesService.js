@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { logPostActivity } from "./postManagementService";
-import { PostActivityType } from "../utils/constants";
+import { PostActivityType, UserRole } from "../utils/constants";
 
 // ============================================
 // EDIT HISTORY TRACKING
@@ -175,24 +175,64 @@ export const unpinPost = async (postId, userId, userName) => {
  * @param {string} feedType - Feed type (optional)
  * @returns {Promise<Array>}
  */
-export const getPinnedPosts = async (companyId, feedType = null) => {
+export const getPinnedPosts = async (companyId, feedType = null, user = null) => {
   try {
-    let q = query(
-      collection(db, "posts"),
-      where("companyId", "==", companyId),
-      where("isPinned", "==", true),
-      orderBy("pinnedAt", "desc")
-    );
+    const postsRef = collection(db, "posts");
+    const mapDoc = (doc) => ({ id: doc.id, ...doc.data() });
 
-    if (feedType) {
-      q = query(q, where("type", "==", feedType));
+    // Admins/HR can fetch all pinned posts in one query
+    if (!user || user.role === UserRole.SUPER_ADMIN || user.role === UserRole.COMPANY_ADMIN || user.role === UserRole.HR) {
+      const constraints = [
+        where("companyId", "==", companyId),
+        where("isPinned", "==", true),
+        orderBy("pinnedAt", "desc"),
+      ];
+      if (feedType) constraints.push(where("type", "==", feedType));
+      const snapshot = await getDocs(query(postsRef, ...constraints));
+      return snapshot.docs.map(mapDoc);
     }
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    // For employees, split queries to avoid permission-denied errors
+    const queries = [];
+    const baseConstraints = [
+      where("companyId", "==", companyId),
+      where("isPinned", "==", true),
+    ];
+    if (feedType) baseConstraints.push(where("type", "==", feedType));
+
+    // Public pinned posts
+    queries.push(
+      getDocs(query(postsRef, ...baseConstraints, where("privacyLevel", "==", "company_public"), orderBy("pinnedAt", "desc")))
+    );
+
+    // Department-only pinned posts for user's department
+    if (user.departmentId) {
+      queries.push(
+        getDocs(query(postsRef, ...baseConstraints, where("privacyLevel", "==", "department_only"), where("departmentId", "==", user.departmentId), orderBy("pinnedAt", "desc")))
+      );
+    }
+
+    // User's own pinned posts
+    const userId = user.id || user.uid;
+    if (userId) {
+      queries.push(
+        getDocs(query(postsRef, ...baseConstraints, where("authorId", "==", userId), orderBy("pinnedAt", "desc")))
+      );
+    }
+
+    const results = await Promise.all(queries);
+    const postMap = new Map();
+    results.forEach((snapshot) => {
+      snapshot.docs.forEach((doc) => {
+        if (!postMap.has(doc.id)) postMap.set(doc.id, mapDoc(doc));
+      });
+    });
+
+    return Array.from(postMap.values()).sort((a, b) => {
+      const aTime = a.pinnedAt?.toDate?.() || a.pinnedAt || 0;
+      const bTime = b.pinnedAt?.toDate?.() || b.pinnedAt || 0;
+      return bTime - aTime;
+    });
   } catch (error) {
     console.error("Error getting pinned posts:", error);
     return [];
