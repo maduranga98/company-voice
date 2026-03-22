@@ -431,20 +431,21 @@ export const setDepartmentHead = async (departmentId, userId) => {
 /**
  * Get department statistics
  * @param {string} departmentId - Department ID
+ * @param {string} [companyId] - Company ID (required to query posts safely)
  * @returns {Promise<object>}
  */
-export const getDepartmentStats = async (departmentId) => {
-  try {
-    const stats = {
-      totalMembers: 0,
-      activeMembers: 0,
-      totalPosts: 0,
-      resolvedIssues: 0,
-      pendingIssues: 0,
-      avgResponseTime: 0,
-    };
+export const getDepartmentStats = async (departmentId, companyId) => {
+  const stats = {
+    totalMembers: 0,
+    activeMembers: 0,
+    totalPosts: 0,
+    resolvedIssues: 0,
+    pendingIssues: 0,
+    avgResponseTime: 0,
+  };
 
-    // Get members count
+  // Get members count — scoped to just this department
+  try {
     const membersQuery = query(
       collection(db, "users"),
       where("departmentId", "==", departmentId),
@@ -454,30 +455,35 @@ export const getDepartmentStats = async (departmentId) => {
     stats.activeMembers = membersSnapshot.docs.filter(
       (doc) => doc.data().status === "active",
     ).length;
-
-    // Get posts assigned to department
-    const postsQuery = query(
-      collection(db, "posts"),
-      where("assignedToDepartment", "==", departmentId),
-    );
-    const postsSnapshot = await getDocs(postsQuery);
-    stats.totalPosts = postsSnapshot.size;
-
-    // Count by status
-    postsSnapshot.forEach((doc) => {
-      const post = doc.data();
-      if (post.status === "resolved" || post.status === "closed") {
-        stats.resolvedIssues++;
-      } else if (post.status === "open" || post.status === "in_progress") {
-        stats.pendingIssues++;
-      }
-    });
-
-    return stats;
   } catch (error) {
-    console.error("Error fetching department stats:", error);
-    throw new Error("Failed to fetch department statistics");
+    console.error("Error fetching department member stats:", error);
   }
+
+  // Get posts assigned to department — must scope by companyId to satisfy security rules
+  if (companyId) {
+    try {
+      const postsQuery = query(
+        collection(db, "posts"),
+        where("companyId", "==", companyId),
+        where("assignedToDepartment", "==", departmentId),
+      );
+      const postsSnapshot = await getDocs(postsQuery);
+      stats.totalPosts = postsSnapshot.size;
+
+      postsSnapshot.forEach((doc) => {
+        const post = doc.data();
+        if (post.status === "resolved" || post.status === "closed") {
+          stats.resolvedIssues++;
+        } else if (post.status === "open" || post.status === "in_progress") {
+          stats.pendingIssues++;
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching department post stats:", error);
+    }
+  }
+
+  return stats;
 };
 
 /**
