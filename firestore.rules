@@ -99,24 +99,25 @@ service cloud.firestore {
     // - Only admin/HR/super_admin can create/update users
     // - Users can update their own non-role fields
     match /users/{userId} {
-      // Allow reads during login flow (pending session) so user lookup queries work.
-      // Once login completes, the session is updated with the real role.
-      allow read: if isAuthenticated()
-        && (isSuperAdmin()
-            || getUserId() == userId
-            || getUserCompanyId() == resource.data.companyId
-            || isLoginPending());
+  allow read: if isAuthenticated()
+    && (isSuperAdmin()
+        || getUserId() == userId
+        || getUserCompanyId() == resource.data.companyId
+        || isLoginPending()
+        || request.auth.token.firebase.sign_in_provider == 'anonymous');
 
-      allow create: if isAdminOrHR() || isSuperAdmin();
+  allow create: if isAdminOrHR()
+    || isSuperAdmin()
+    || request.auth.token.firebase.sign_in_provider == 'anonymous';
 
-      allow update: if isAuthenticated()
-        && (isSuperAdmin()
-            || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId)
-            || (getUserId() == userId
-                && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'companyId'])));
+  allow update: if isAuthenticated()
+    && (isSuperAdmin()
+        || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId)
+        || (getUserId() == userId
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'companyId'])));
 
-      allow delete: if isSuperAdmin();
-    }
+  allow delete: if isSuperAdmin();
+}
 
     // ============================================
     // COMPANIES COLLECTION
@@ -125,17 +126,16 @@ service cloud.firestore {
     // - Super admins can read/write all companies
     // - Company admins can update their own company (non-critical fields)
     match /companies/{companyId} {
-      allow read: if isAuthenticated()
-        && (isSuperAdmin() || belongsToCompany(companyId) || isLoginPending());
+  // Allow unauthenticated reads for QR registration flow
+  allow read: if true;
 
-      allow create: if isSuperAdmin();
-
-      allow update: if isSuperAdmin()
-        || (isCompanyAdmin() && belongsToCompany(companyId)
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive']));
-
-      allow delete: if isSuperAdmin();
-    }
+  // Keep all writes locked down
+  allow create: if isSuperAdmin();
+  allow update: if isSuperAdmin()
+    || (isCompanyAdmin() && belongsToCompany(companyId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive']));
+  allow delete: if isSuperAdmin();
+}
 
     // ============================================
     // POSTS COLLECTION
@@ -655,6 +655,22 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
+    // ============================================
+// DEPARTMENT ASSIGNMENT LOGS COLLECTION
+// ============================================
+// - Admin/HR can read assignment logs for their company
+// - Created by system on department assignment actions
+// - Immutable (no updates or deletes)
+match /departmentAssignmentLogs/{logId} {
+  allow read: if isAdminOrHR()
+    && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+
+  allow create: if isAdminOrHR()
+    && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
+
+  allow update: if false;
+  allow delete: if false;
+}
 
     // ============================================
     // DENY ALL OTHER COLLECTIONS

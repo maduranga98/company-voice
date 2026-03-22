@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { UserRole } from "../../utils/constants";
-import { getDepartments } from "../../services/departmentservice";
+import { getDepartments, removeUserFromDepartment } from "../../services/departmentservice";
 import DepartmentAssignment from "../../components/DepartmentAssignment";
 import {
   Users,
@@ -48,11 +48,15 @@ const MemberManagementWithDepartments = () => {
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [tags, setTags] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
+  const [selectedTag, setSelectedTag] = useState("all");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [tagAssigningMember, setTagAssigningMember] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [assigningUser, setAssigningUser] = useState(null);
   const [bulkMode, setBulkMode] = useState(false);
@@ -84,6 +88,20 @@ const MemberManagementWithDepartments = () => {
       const depts = await getDepartments(userData.companyId, false);
       setDepartments(depts);
 
+      // Load tags
+      const tagsRef = collection(db, "userTags");
+      const tagsQuery = query(
+        tagsRef,
+        where("companyId", "==", userData.companyId)
+      );
+      const tagsSnapshot = await getDocs(tagsQuery);
+      const tagsData = [];
+      tagsSnapshot.forEach((doc) => {
+        tagsData.push({ id: doc.id, ...doc.data() });
+      });
+      tagsData.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+      setTags(tagsData);
+
       // Load members
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("companyId", "==", userData.companyId));
@@ -98,6 +116,14 @@ const MemberManagementWithDepartments = () => {
         if (dept) {
           memberData.departmentName = dept.name;
           memberData.departmentIcon = dept.icon;
+        }
+
+        // Find tag info
+        const tag = tagsData.find((t) => t.id === memberData.userTagId);
+        if (tag) {
+          memberData.tagName = tag.name;
+          memberData.tagIcon = tag.icon;
+          memberData.tagColor = tag.color;
         }
 
         membersData.push(memberData);
@@ -266,6 +292,44 @@ const MemberManagementWithDepartments = () => {
     alert("Department assignment successful!");
   };
 
+  const handleAssignTag = async (tagId, member) => {
+    try {
+      const memberRef = doc(db, "users", member.id);
+      await updateDoc(memberRef, {
+        userTagId: tagId || null,
+        updatedAt: serverTimestamp(),
+      });
+      alert(tagId ? "Tag assigned successfully!" : "Tag removed successfully!");
+      setShowTagModal(false);
+      setTagAssigningMember(null);
+      loadData();
+    } catch (error) {
+      console.error("Error assigning tag:", error);
+      alert("Failed to assign tag");
+    }
+  };
+
+  const handleRemoveTag = async (member) => {
+    if (!confirm(`Remove tag "${member.tagName}" from ${member.displayName}?`)) {
+      return;
+    }
+    await handleAssignTag(null, member);
+  };
+
+  const handleRemoveDepartment = async (member) => {
+    if (!confirm(`Remove ${member.displayName} from "${member.departmentName}" department?`)) {
+      return;
+    }
+    try {
+      await removeUserFromDepartment(member.id);
+      alert("Department removed successfully!");
+      loadData();
+    } catch (error) {
+      console.error("Error removing department:", error);
+      alert("Failed to remove department");
+    }
+  };
+
   const handleSelectUser = (userId) => {
     setSelectedUsers((prev) => {
       if (prev.includes(userId)) {
@@ -297,6 +361,15 @@ const MemberManagementWithDepartments = () => {
       // Role filter
       if (selectedRole !== "all" && member.role !== selectedRole) {
         return false;
+      }
+
+      // Tag filter
+      if (selectedTag !== "all") {
+        if (selectedTag === "untagged") {
+          if (member.userTagId) return false;
+        } else {
+          if (member.userTagId !== selectedTag) return false;
+        }
       }
 
       // Department filter
@@ -367,6 +440,19 @@ const MemberManagementWithDepartments = () => {
     );
   };
 
+  const getTagColorClasses = (color) => {
+    const colorMap = {
+      purple: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
+      blue: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
+      indigo: { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200" },
+      green: { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
+      yellow: { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
+      red: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
+      gray: { bg: "bg-gray-50", text: "text-gray-700", border: "border-gray-200" },
+    };
+    return colorMap[color] || colorMap.gray;
+  };
+
   const filteredMembers = getFilteredMembers();
 
   if (loading && members.length === 0) {
@@ -404,6 +490,13 @@ const MemberManagementWithDepartments = () => {
               </button>
             )}
             <button
+              onClick={() => navigate("/company/tag-management")}
+              className="px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
+            >
+              <Tag className="w-4 h-4" />
+              Manage Tags
+            </button>
+            <button
               onClick={() => navigate("/company/departments")}
               className="px-4 py-2.5 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#16a085] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
             >
@@ -414,7 +507,7 @@ const MemberManagementWithDepartments = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#2D3E50]/5 flex items-center justify-center">
@@ -454,6 +547,19 @@ const MemberManagementWithDepartments = () => {
           </div>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                <Tag className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tagged</p>
+                <p className="text-2xl font-bold text-indigo-600">
+                  {members.filter((m) => m.userTagId).length}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#1ABC9C]/10 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-[#1ABC9C]" />
               </div>
@@ -482,7 +588,7 @@ const MemberManagementWithDepartments = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {/* Search */}
             <div>
               <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
@@ -514,6 +620,26 @@ const MemberManagementWithDepartments = () => {
                 <option value={UserRole.COMPANY_ADMIN}>Admin</option>
                 <option value={UserRole.HR}>HR</option>
                 <option value={UserRole.EMPLOYEE}>Employee</option>
+              </select>
+            </div>
+
+            {/* Tag Filter */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
+                Tag
+              </label>
+              <select
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value)}
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
+              >
+                <option value="all">All Tags</option>
+                <option value="untagged">Untagged</option>
+                {tags.map((tag) => (
+                  <option key={tag.id} value={tag.id}>
+                    {tag.icon} {tag.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -560,6 +686,7 @@ const MemberManagementWithDepartments = () => {
                 onClick={() => {
                   setSearchTerm("");
                   setSelectedRole("all");
+                  setSelectedTag("all");
                   setSelectedDepartment("all");
                   setSelectedStatus("all");
                   setSelectedUsers([]);
@@ -603,6 +730,9 @@ const MemberManagementWithDepartments = () => {
                     Member
                   </th>
                   <th className="hidden md:table-cell px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Tag
+                  </th>
+                  <th className="hidden md:table-cell px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Department
                   </th>
                   <th className="hidden lg:table-cell px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -644,8 +774,13 @@ const MemberManagementWithDepartments = () => {
                           <div className="text-xs text-gray-400 truncate">
                             {member.email}
                           </div>
-                          {/* Show department and role on mobile */}
+                          {/* Show tag, department and role on mobile */}
                           <div className="md:hidden mt-1 flex flex-wrap gap-2">
+                            {member.tagName && (
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${getTagColorClasses(member.tagColor).bg} ${getTagColorClasses(member.tagColor).text}`}>
+                                {member.tagIcon} {member.tagName}
+                              </span>
+                            )}
                             {member.departmentName && (
                               <span className="text-xs text-gray-500 flex items-center gap-1">
                                 <span>{member.departmentIcon}</span>
@@ -657,13 +792,56 @@ const MemberManagementWithDepartments = () => {
                         </div>
                       </div>
                     </td>
+                    {/* Tag Cell */}
+                    <td className="hidden md:table-cell px-4 sm:px-6 py-4 whitespace-nowrap">
+                      {member.tagName ? (
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                              getTagColorClasses(member.tagColor).bg
+                            } ${getTagColorClasses(member.tagColor).text} ${
+                              getTagColorClasses(member.tagColor).border
+                            }`}
+                          >
+                            <span className="mr-1">{member.tagIcon}</span>
+                            {member.tagName}
+                          </span>
+                          <button
+                            onClick={() => handleRemoveTag(member)}
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            title="Remove tag"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setTagAssigningMember(member);
+                            setShowTagModal(true);
+                          }}
+                          className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                        >
+                          <Tag className="w-3.5 h-3.5" />
+                          Assign
+                        </button>
+                      )}
+                    </td>
+                    {/* Department Cell */}
                     <td className="hidden md:table-cell px-4 sm:px-6 py-4 whitespace-nowrap">
                       {member.departmentName ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{member.departmentIcon}</span>
-                          <span className="text-sm text-gray-700">
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-[#1ABC9C]/10 text-[#1ABC9C] border border-[#1ABC9C]/20">
+                            <span className="mr-1">{member.departmentIcon}</span>
                             {member.departmentName}
                           </span>
+                          <button
+                            onClick={() => handleRemoveDepartment(member)}
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            title="Remove from department"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       ) : (
                         <button
@@ -715,6 +893,16 @@ const MemberManagementWithDepartments = () => {
                             title="View Details"
                           >
                             <Eye className="w-4.5 h-4.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setTagAssigningMember(member);
+                              setShowTagModal(true);
+                            }}
+                            className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            title="Assign Tag"
+                          >
+                            <Tag className="w-4.5 h-4.5" />
                           </button>
                           <button
                             onClick={() => handleAssignToDepartment(member)}
@@ -793,6 +981,116 @@ const MemberManagementWithDepartments = () => {
           )}
         </div>
       </div>
+
+      {/* Tag Assignment Modal */}
+      {showTagModal && tagAssigningMember && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-lg font-bold text-[#2D3E50]">
+                    Assign Tag
+                  </h2>
+                  <p className="text-sm text-gray-400 mt-0.5">
+                    {tagAssigningMember.displayName}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowTagModal(false);
+                    setTagAssigningMember(null);
+                  }}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {tags.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
+                    <Tag className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <p className="text-sm text-gray-500 mb-4">
+                    No tags available. Create tags first.
+                  </p>
+                  <button
+                    onClick={() => navigate("/company/tag-management")}
+                    className="px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-medium"
+                  >
+                    Go to Tag Management
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {/* Remove Tag Option */}
+                  {tagAssigningMember.userTagId && (
+                    <button
+                      onClick={() => handleAssignTag(null, tagAssigningMember)}
+                      className="w-full p-3 text-left border-2 border-dashed border-gray-200 rounded-xl hover:border-red-300 hover:bg-red-50/50 transition-colors group"
+                    >
+                      <span className="text-sm font-medium text-gray-500 group-hover:text-red-600">
+                        Remove current tag
+                      </span>
+                    </button>
+                  )}
+
+                  {tags.map((tag) => {
+                    const colors = getTagColorClasses(tag.color);
+                    const isActive = tagAssigningMember.userTagId === tag.id;
+                    return (
+                      <button
+                        key={tag.id}
+                        onClick={() => handleAssignTag(tag.id, tagAssigningMember)}
+                        className={`w-full p-3 text-left border-2 rounded-xl hover:border-[#2D3E50]/30 transition-colors ${
+                          isActive
+                            ? "border-[#1ABC9C] bg-[#1ABC9C]/5"
+                            : "border-gray-100"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}
+                          >
+                            <span className="mr-1.5 text-base">{tag.icon}</span>
+                            {tag.name}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {isActive && (
+                              <span className="text-xs text-[#1ABC9C] font-medium">Current</span>
+                            )}
+                            <span className="text-xs text-gray-400">
+                              P{tag.priority}
+                            </span>
+                          </div>
+                        </div>
+                        {tag.description && (
+                          <p className="text-xs text-gray-400 mt-1.5 pl-1">
+                            {tag.description}
+                          </p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="mt-5">
+                <button
+                  onClick={() => {
+                    setShowTagModal(false);
+                    setTagAssigningMember(null);
+                  }}
+                  className="w-full px-4 py-2.5 text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Department Assignment Modal */}
       {showDepartmentModal && (
@@ -930,15 +1228,26 @@ const MemberManagementWithDepartments = () => {
                   </div>
                 </div>
 
-                {viewingMember.userTagId && (
-                  <div className="bg-gray-50/80 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Tag className="w-3.5 h-3.5 text-gray-400" />
-                      <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">User Tag</label>
-                    </div>
-                    <p className="text-sm font-medium text-[#2D3E50]">{viewingMember.userTagId}</p>
+                <div className="bg-gray-50/80 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Tag className="w-3.5 h-3.5 text-gray-400" />
+                    <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Tag</label>
                   </div>
-                )}
+                  {viewingMember.tagName ? (
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${
+                        getTagColorClasses(viewingMember.tagColor).bg
+                      } ${getTagColorClasses(viewingMember.tagColor).text} ${
+                        getTagColorClasses(viewingMember.tagColor).border
+                      }`}
+                    >
+                      <span className="mr-1">{viewingMember.tagIcon}</span>
+                      {viewingMember.tagName}
+                    </span>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">Not assigned</p>
+                  )}
+                </div>
               </div>
 
               {/* Actions */}

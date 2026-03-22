@@ -41,7 +41,7 @@ const DepartmentManagement = () => {
 
       // Load stats for all departments in parallel
       const statsPromises = depts.map((dept) =>
-        getDepartmentStats(dept.id)
+        getDepartmentStats(dept.id, userData.companyId)
           .then((stat) => ({ id: dept.id, stat }))
           .catch((error) => {
             console.error(`Error loading stats for ${dept.id}:`, error);
