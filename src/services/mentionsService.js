@@ -167,6 +167,7 @@ export const createMentionNotifications = async (text, companyId, context) => {
           commentId: context.commentId || null,
           mentionedBy: context.authorName,
           mentionedById: context.authorId,
+          companyId,
           read: false,
           createdAt: serverTimestamp(),
         };

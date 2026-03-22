@@ -603,9 +603,11 @@ service cloud.firestore {
     // ============================================
     // - Users can read/create their own acknowledgements
     // - Admin/HR can read all acknowledgements in their company
+    // - Allow reads on non-existent docs (resource == null) for existence checks
     match /policyAcknowledgements/{ackId} {
       allow read: if isAuthenticated()
-        && (isSuperAdmin()
+        && (resource == null
+            || isSuperAdmin()
             || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId)
             || getUserId() == resource.data.userId);
 

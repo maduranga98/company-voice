@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle2, Clock, BarChart3 } from "lucide-react";
 import { votePoll, getUserVotes, getPollStats, hasUserVoted } from "../services/pollService";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,6 +12,13 @@ const PollDisplay = ({ poll, postId, onVoteUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [localPoll, setLocalPoll] = useState(poll);
+
+  // Sync localPoll with poll prop when it changes (e.g. from parent onSnapshot)
+  useEffect(() => {
+    if (poll && !loading) {
+      setLocalPoll(poll);
+    }
+  }, [poll]);
 
   if (!poll || !poll.options) {
     return null;
