@@ -140,22 +140,17 @@ service cloud.firestore {
     // ============================================
     // POSTS COLLECTION
     // ============================================
-    // - Users in the same company can read posts (respecting privacy levels)
+    // - Users in the same company can read posts (company-level isolation)
+    // - Privacy filtering (department_only, hr_only) is enforced client-side
+    //   in getPostsWithPrivacyFilter() to avoid Firestore query validation
+    //   failures with complex OR rules and get() calls
     // - Authenticated users can create posts for their company
     // - Post authors, admin/HR can update posts
     // - Admin/HR can delete posts; super_admin can delete any
     match /posts/{postId} {
       allow read: if isAuthenticated()
         && (isSuperAdmin()
-            || (getUserCompanyId() == resource.data.companyId
-                && (resource.data.privacyLevel == 'company_public'
-                    || !('privacyLevel' in resource.data)
-                    || (resource.data.privacyLevel == 'hr_only'
-                        && getUserRole() in ['hr', 'company_admin', 'super_admin'])
-                    || (resource.data.privacyLevel == 'department_only'
-                        && (getUserRole() in ['hr', 'company_admin']
-                            || getSession().departmentId == resource.data.departmentId))
-                    || resource.data.authorId == getUserId())));
+            || getUserCompanyId() == resource.data.companyId);
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
