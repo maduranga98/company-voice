@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { showSuccess, showError, showWarning } from "../../services/toastService";
 import {
   getDepartments,
   createDepartment,
@@ -59,7 +60,7 @@ const DepartmentManagement = () => {
       setDepartmentStats(stats);
     } catch (error) {
       console.error("Error loading departments:", error);
-      alert(t('company.failedToLoadDepartments'));
+      showError(t('company.failedToLoadDepartments'));
     } finally {
       setLoading(false);
     }
@@ -92,7 +93,7 @@ const DepartmentManagement = () => {
           // Show department selection modal
           const otherDepts = departments.filter((d) => d.id !== departmentId);
           if (otherDepts.length === 0) {
-            alert(t('company.cannotDeleteOnlyDepartment'));
+            showWarning(t('company.cannotDeleteOnlyDepartment'));
             return;
           }
 
@@ -107,10 +108,10 @@ const DepartmentManagement = () => {
       }
 
       await loadDepartments();
-      alert(t('company.departmentDeleted'));
+      showSuccess(t('company.departmentDeleted'));
     } catch (error) {
       console.error("Error deleting department:", error);
-      alert(t('company.failedToDeleteDepartment'));
+      showError(t('company.failedToDeleteDepartment'));
     }
   };
 
@@ -122,10 +123,10 @@ const DepartmentManagement = () => {
           departmentData,
           userData.companyId
         );
-        alert(t('company.departmentUpdated'));
+        showSuccess(t('company.departmentUpdated'));
       } else {
         await createDepartment(departmentData, userData.companyId);
-        alert(t('company.departmentCreated'));
+        showSuccess(t('company.departmentCreated'));
       }
 
       setShowModal(false);
@@ -133,7 +134,7 @@ const DepartmentManagement = () => {
     } catch (error) {
       console.error("Error saving department:", error);
       // Show specific error message if available
-      alert(error.message || t('company.failedToSaveDepartment'));
+      showError(error.message || t('company.failedToSaveDepartment'));
     }
   };
 
