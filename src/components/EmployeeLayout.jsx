@@ -20,11 +20,12 @@ import {
   HelpCircle,
   BookOpen,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 
 const EmployeeLayout = ({ children }) => {
   const { t, i18n } = useTranslation();
-  const { userData } = useAuth();
+  const { userData, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,6 +33,19 @@ const EmployeeLayout = ({ children }) => {
   const [showPostSheet, setShowPostSheet] = useState(false);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      setLoggingOut(false);
+    }
+  };
 
   // Detect active wall from pathname
   const getActiveWall = () => {
@@ -217,6 +231,15 @@ const EmployeeLayout = ({ children }) => {
               {unreadNotifCount > 0 && (
                 <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#FF6B6B] rounded-full border-2 border-[#2D3E50]" />
               )}
+            </button>
+            {/* Logout button */}
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/[0.08] hover:bg-red-500/20 transition-colors disabled:opacity-50"
+              title={t("auth.logout", "Logout")}
+            >
+              <LogOut size={16} className="text-white/70" />
             </button>
           </div>
         </div>
@@ -430,14 +453,22 @@ const EmployeeLayout = ({ children }) => {
           </button>
         </nav>
 
-        {/* Create Post at bottom */}
-        <div className="px-4 py-4 border-t border-gray-100 flex-shrink-0">
+        {/* Create Post + Logout at bottom */}
+        <div className="px-4 py-4 border-t border-gray-100 flex-shrink-0 space-y-2">
           <button
             onClick={() => setShowPostSheet(true)}
             className="w-full py-3 bg-[#1ABC9C] text-white text-sm font-semibold rounded-xl hover:bg-[#17a589] active:bg-[#148f77] transition-colors shadow-lg shadow-[#1ABC9C]/20 flex items-center justify-center gap-2"
           >
             <Plus size={16} />
             {t("post.create", "Create Post")}
+          </button>
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+          >
+            <LogOut size={16} />
+            <span>{loggingOut ? t("common.loading", "Logging out...") : t("auth.logout", "Logout")}</span>
           </button>
         </div>
       </div>

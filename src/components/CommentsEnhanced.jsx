@@ -188,8 +188,10 @@ const CommentsEnhanced = ({
         text: replyText.trim(),
         authorId: userData.id,
         authorName: userData.displayName,
+        authorRole: userData.role,
         parentCommentId,
         isAnonymous: false,
+        companyId: userData.companyId,
         createdAt: serverTimestamp(),
       });
       const postRef = doc(db, "posts", postId);
