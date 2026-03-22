@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { showSuccess, showError, showWarning } from "../../services/toastService";
 import {
   collection,
   query,
@@ -66,7 +67,7 @@ const TagManagement = () => {
       setTags(tagsData);
     } catch (error) {
       console.error("Error loading tags:", error);
-      alert(t('company.failedToLoadTags'));
+      showError(t('company.failedToLoadTags'));
     } finally {
       setLoading(false);
     }
@@ -76,7 +77,7 @@ const TagManagement = () => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert(t('company.pleaseEnterTagName'));
+      showWarning(t('company.pleaseEnterTagName'));
       return;
     }
 
@@ -93,13 +94,13 @@ const TagManagement = () => {
         // Update existing tag
         const tagRef = doc(db, "userTags", editingTag.id);
         await updateDoc(tagRef, tagData);
-        alert(t('company.tagUpdated'));
+        showSuccess(t('company.tagUpdated'));
       } else {
         // Create new tag
         tagData.createdAt = serverTimestamp();
         tagData.createdBy = userData.id;
         await addDoc(collection(db, "userTags"), tagData);
-        alert(t('company.tagCreated'));
+        showSuccess(t('company.tagCreated'));
       }
 
       setShowCreateModal(false);
@@ -108,7 +109,7 @@ const TagManagement = () => {
       loadTags();
     } catch (error) {
       console.error("Error saving tag:", error);
-      alert(t('company.failedToSaveTag'));
+      showError(t('company.failedToSaveTag'));
     } finally {
       setLoading(false);
     }
@@ -134,11 +135,11 @@ const TagManagement = () => {
     try {
       setLoading(true);
       await deleteDoc(doc(db, "userTags", tagId));
-      alert(t('company.tagDeleted'));
+      showSuccess(t('company.tagDeleted'));
       loadTags();
     } catch (error) {
       console.error("Error deleting tag:", error);
-      alert(t('company.failedToDeleteTag'));
+      showError(t('company.failedToDeleteTag'));
     } finally {
       setLoading(false);
     }

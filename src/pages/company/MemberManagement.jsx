@@ -18,6 +18,7 @@ import {
   getDepartments,
   assignUserToDepartment,
 } from "../../services/departmentservice";
+import { showSuccess, showError, showWarning } from "../../services/toastService";
 
 const MemberManagement = () => {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ const MemberManagement = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [showTagModal, setShowTagModal] = useState(false);
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
 
   // Check URL params for filter
@@ -104,7 +106,7 @@ const MemberManagement = () => {
       setDepartments(departmentsData);
     } catch (error) {
       console.error("Error loading data:", error);
-      alert(t('company.failedToLoadData'));
+      showError(t('company.failedToLoadData'));
     } finally {
       setLoading(false);
     }
@@ -119,13 +121,13 @@ const MemberManagement = () => {
         userTagId: tagId,
       });
 
-      alert(tagId ? t('company.tagAssigned') : t('company.tagRemoved', 'Tag removed successfully'));
+      showSuccess(tagId ? t('company.tagAssigned') : t('company.tagRemoved', 'Tag removed successfully'));
       setShowTagModal(false);
       setSelectedMember(null);
       loadData();
     } catch (error) {
       console.error("Error assigning tag:", error);
-      alert(t('company.failedToAssignTag'));
+      showError(t('company.failedToAssignTag'));
     } finally {
       setLoading(false);
     }
@@ -146,13 +148,13 @@ const MemberManagement = () => {
         });
       }
 
-      alert(departmentId ? t('company.departmentAssigned') : t('company.departmentRemoved', 'Department removed successfully'));
+      showSuccess(departmentId ? t('company.departmentAssigned') : t('company.departmentRemoved', 'Department removed successfully'));
       setShowDepartmentModal(false);
       setSelectedMember(null);
       loadData();
     } catch (error) {
       console.error("Error assigning department:", error);
-      alert(t('company.failedToAssignDepartment'));
+      showError(t('company.failedToAssignDepartment'));
     } finally {
       setLoading(false);
     }
@@ -171,11 +173,11 @@ const MemberManagement = () => {
         updatedAt: serverTimestamp(),
       });
 
-      alert(t('company.memberApproved'));
+      showSuccess(t('company.memberApproved'));
       loadData();
     } catch (error) {
       console.error("Error approving member:", error);
-      alert(t('company.failedToApproveMember'));
+      showError(t('company.failedToApproveMember'));
     } finally {
       setLoading(false);
     }
@@ -193,11 +195,45 @@ const MemberManagement = () => {
       const memberRef = doc(db, "users", memberId);
       await deleteDoc(memberRef);
 
-      alert(t('company.memberRejected'));
+      showSuccess(t('company.memberRejected'));
       loadData();
     } catch (error) {
       console.error("Error rejecting member:", error);
-      alert(t('company.failedToRejectMember'));
+      showError(t('company.failedToRejectMember'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeRole = async (newRole) => {
+    if (!selectedMember) return;
+    if (selectedMember.role === newRole) {
+      setShowRoleModal(false);
+      setSelectedMember(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const memberRef = doc(db, "users", selectedMember.id);
+      await updateDoc(memberRef, {
+        role: newRole,
+        updatedAt: serverTimestamp(),
+      });
+
+      const roleLabelMap = {
+        [UserRole.COMPANY_ADMIN]: t('company.roleAdmin'),
+        [UserRole.HR]: t('company.roleHR'),
+        [UserRole.EMPLOYEE]: t('company.roleEmployee'),
+      };
+      const roleLabel = roleLabelMap[newRole] || newRole;
+      showSuccess(t('company.roleChanged', `Role changed to ${roleLabel}`));
+      setShowRoleModal(false);
+      setSelectedMember(null);
+      loadData();
+    } catch (error) {
+      console.error("Error changing role:", error);
+      showError(t('company.failedToChangeRole', 'Failed to change role'));
     } finally {
       setLoading(false);
     }
@@ -685,6 +721,16 @@ const MemberManagement = () => {
                           >
                             {memberDepartment ? t('company.dept') : t('company.assignDept')}
                           </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setShowRoleModal(true);
+                            }}
+                            className="text-purple-600 hover:text-purple-800 font-medium"
+                          >
+                            {t('company.changeRole', 'Role')}
+                          </button>
                         </div>
                       )}
                     </td>
@@ -845,6 +891,120 @@ const MemberManagement = () => {
                 <button
                   onClick={() => {
                     setShowDepartmentModal(false);
+                    setSelectedMember(null);
+                  }}
+                  className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                >
+                  {t('common.cancel')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Role Modal */}
+      {showRoleModal && selectedMember && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                {t('company.changeRoleTitle', 'Change Role')}
+              </h2>
+              <p className="text-sm text-gray-600 mb-4">
+                {t('company.changeRoleFor', `Change role for ${selectedMember.displayName}`)}
+              </p>
+
+              <div className="space-y-2">
+                <button
+                  onClick={() => handleChangeRole(UserRole.COMPANY_ADMIN)}
+                  className={`w-full p-4 text-left border-2 rounded-lg hover:border-blue-300 transition ${
+                    selectedMember.role === UserRole.COMPANY_ADMIN
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          {t('company.roleAdmin')}
+                        </span>
+                        {selectedMember.role === UserRole.COMPANY_ADMIN && (
+                          <span className="text-xs text-blue-600 font-medium">{t('company.currentRole', '(Current)')}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('company.adminRoleDesc', 'Full access to manage company, members, departments, and settings')}
+                      </p>
+                    </div>
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleChangeRole(UserRole.HR)}
+                  className={`w-full p-4 text-left border-2 rounded-lg hover:border-green-300 transition ${
+                    selectedMember.role === UserRole.HR
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                          {t('company.roleHR')}
+                        </span>
+                        {selectedMember.role === UserRole.HR && (
+                          <span className="text-xs text-blue-600 font-medium">{t('company.currentRole', '(Current)')}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('company.hrRoleDesc', 'Access to HR-only posts, manage reports, and handle employee relations')}
+                      </p>
+                    </div>
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleChangeRole(UserRole.EMPLOYEE)}
+                  className={`w-full p-4 text-left border-2 rounded-lg hover:border-gray-400 transition ${
+                    selectedMember.role === UserRole.EMPLOYEE
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {t('company.roleEmployee')}
+                        </span>
+                        {selectedMember.role === UserRole.EMPLOYEE && (
+                          <span className="text-xs text-blue-600 font-medium">{t('company.currentRole', '(Current)')}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {t('company.employeeRoleDesc', 'Standard access to submit posts and participate in discussions')}
+                      </p>
+                    </div>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  onClick={() => {
+                    setShowRoleModal(false);
                     setSelectedMember(null);
                   }}
                   className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"

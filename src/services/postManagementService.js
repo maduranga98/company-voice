@@ -811,68 +811,96 @@ export const getPostsWithPrivacyFilter = async (companyId, feedType, user) => {
       return [];
     }
 
-    // Fetch all posts for the company and feed type
     const postsRef = collection(db, "posts");
-    const q = query(
-      postsRef,
-      where("companyId", "==", companyId),
-      where("type", "==", feedType),
-      orderBy("createdAt", "desc")
-    );
-
-    const snapshot = await getDocs(q);
-    const allPosts = snapshot.docs.map((doc) => ({
+    const mapDoc = (doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate(),
       updatedAt: doc.data().updatedAt?.toDate(),
-    }));
-
-    // Filter posts based on user role and privacy level
-    const filteredPosts = allPosts.filter((post) => {
-      // Skip archived posts
-      if (post.isArchived) {
-        return false;
-      }
-
-      // Super admin and company admin can see all posts
-      if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.COMPANY_ADMIN) {
-        return true;
-      }
-
-      const privacyLevel = post.privacyLevel || "company_public";
-
-      // Public posts - everyone can see
-      if (privacyLevel === "company_public") {
-        return true;
-      }
-
-      // HR-only posts - only HR, company_admin, and super_admin can see
-      if (privacyLevel === "hr_only") {
-        return user.role === UserRole.HR || user.role === UserRole.COMPANY_ADMIN || user.role === UserRole.SUPER_ADMIN;
-      }
-
-      // Department-only posts - only users in the same department can see
-      if (privacyLevel === "department_only") {
-        // HR can see all department posts
-        if (user.role === UserRole.HR) {
-          return true;
-        }
-
-        // Check if user is in the same department
-        if (user.departmentId && post.departmentId) {
-          return user.departmentId === post.departmentId;
-        }
-
-        // If post has no department or user has no department, hide it
-        return false;
-      }
-
-      // Default: show the post
-      return true;
     });
 
-    return filteredPosts;
+    // Admins and HR can read all posts - single query is fine
+    if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.COMPANY_ADMIN || user.role === UserRole.HR) {
+      const q = query(
+        postsRef,
+        where("companyId", "==", companyId),
+        where("type", "==", feedType),
+        orderBy("createdAt", "desc")
+      );
+      const snapshot = await getDocs(q);
+      const allPosts = snapshot.docs.map(mapDoc);
+      return allPosts.filter((post) => !post.isArchived);
+    }
+
+    // For regular employees, split into separate queries that match
+    // Firestore security rules to avoid permission-denied errors
+    const queries = [];
+
+    // 1. Public posts (no privacyLevel field or company_public)
+    queries.push(
+      getDocs(
+        query(
+          postsRef,
+          where("companyId", "==", companyId),
+          where("type", "==", feedType),
+          where("privacyLevel", "==", "company_public"),
+          orderBy("createdAt", "desc")
+        )
+      )
+    );
+
+    // 2. Department-only posts for the user's department
+    if (user.departmentId) {
+      queries.push(
+        getDocs(
+          query(
+            postsRef,
+            where("companyId", "==", companyId),
+            where("type", "==", feedType),
+            where("privacyLevel", "==", "department_only"),
+            where("departmentId", "==", user.departmentId),
+            orderBy("createdAt", "desc")
+          )
+        )
+      );
+    }
+
+    // 3. User's own posts (they can always see their own, regardless of privacy)
+    const userId = user.id || user.uid;
+    if (userId) {
+      queries.push(
+        getDocs(
+          query(
+            postsRef,
+            where("companyId", "==", companyId),
+            where("type", "==", feedType),
+            where("authorId", "==", userId),
+            orderBy("createdAt", "desc")
+          )
+        )
+      );
+    }
+
+    const results = await Promise.all(queries);
+
+    // Merge and deduplicate by post ID
+    const postMap = new Map();
+    results.forEach((snapshot) => {
+      if (snapshot.docs) {
+        snapshot.docs.forEach((doc) => {
+          if (!postMap.has(doc.id)) {
+            postMap.set(doc.id, mapDoc(doc));
+          }
+        });
+      }
+    });
+
+    // Filter archived and sort by date
+    const allPosts = Array.from(postMap.values())
+      .filter((post) => !post.isArchived)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    return allPosts;
   } catch (error) {
     console.error("Error getting posts with privacy filter:", error);
     return [];
