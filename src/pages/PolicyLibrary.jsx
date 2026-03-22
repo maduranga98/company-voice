@@ -58,18 +58,20 @@ const PolicyLibrary = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [pols, acks] = await Promise.all([
-        getPublishedPolicies(userData.companyId),
-        getUserAcknowledgements(userData.id, userData.companyId),
-      ]);
+      const pols = await getPublishedPolicies(userData.companyId);
       setPolicies(pols);
+    } catch (err) {
+      console.error("Error loading policies:", err);
+    }
+    try {
+      const acks = await getUserAcknowledgements(userData.id, userData.companyId);
       const ids = new Set(acks.map((a) => a.policyId));
       setAcknowledgedIds(ids);
       const details = {};
       acks.forEach((a) => { details[a.policyId] = a.acknowledgedAt; });
       setAckDetails(details);
     } catch (err) {
-      console.error("Error loading policies:", err);
+      console.error("Error loading acknowledgements:", err);
     } finally {
       setLoading(false);
     }

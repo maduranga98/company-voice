@@ -58,9 +58,9 @@ const CommentsEnhanced = ({
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    if (!showComments || !postId) return;
+    if (!showComments || !postId || !userData?.companyId) return;
     const commentsRef = collection(db, "comments");
-    const q = query(commentsRef, where("postId", "==", postId), orderBy("createdAt", "asc"));
+    const q = query(commentsRef, where("postId", "==", postId), where("companyId", "==", userData.companyId), orderBy("createdAt", "asc"));
     const unsubscribe = onSnapshot(q,
       (snapshot) => {
         const fetchedComments = [];
@@ -74,7 +74,7 @@ const CommentsEnhanced = ({
       }
     );
     return () => unsubscribe();
-  }, [postId, showComments]);
+  }, [postId, showComments, userData?.companyId]);
 
   const handleTextChange = async (e) => {
     const text = e.target.value;

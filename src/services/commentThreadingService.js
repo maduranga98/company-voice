@@ -65,16 +65,22 @@ export async function addCommentReply(postId, parentCommentId, replyData, compan
  * @param {string} commentId - The parent comment ID
  * @returns {Promise<Array>} Array of reply comments
  */
-export async function getCommentReplies(commentId) {
+export async function getCommentReplies(commentId, companyId) {
   if (!commentId) {
     throw new Error("Comment ID is required");
   }
 
   try {
+    const constraints = [
+      where("parentCommentId", "==", commentId),
+      orderBy("createdAt", "asc"),
+    ];
+    if (companyId) {
+      constraints.splice(1, 0, where("companyId", "==", companyId));
+    }
     const repliesQuery = query(
       collection(db, "comments"),
-      where("parentCommentId", "==", commentId),
-      orderBy("createdAt", "asc")
+      ...constraints
     );
 
     const snapshot = await getDocs(repliesQuery);

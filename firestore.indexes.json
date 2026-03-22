@@ -77,6 +77,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
           "order": "ASCENDING"
         }
