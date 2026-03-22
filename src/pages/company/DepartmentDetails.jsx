@@ -19,7 +19,7 @@ const DepartmentDetails = () => {
       setLoading(true);
       setError(null);
       const deptData = await getDepartmentById(id);
-      const deptStats = await getDepartmentStats(id);
+      const deptStats = await getDepartmentStats(id, deptData?.companyId);
       setDepartment(deptData);
       setStats(deptStats);
     } catch (error) {
