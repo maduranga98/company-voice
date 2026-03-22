@@ -146,7 +146,7 @@ service cloud.firestore {
     //   failures with complex OR rules and get() calls
     // - Authenticated users can create posts for their company
     // - Post authors, admin/HR can update posts
-    // - Admin/HR can delete posts; super_admin can delete any
+    // - Post authors, admin/HR can delete posts; super_admin can delete any
     match /posts/{postId} {
       allow read: if isAuthenticated()
         && (isSuperAdmin()
@@ -163,8 +163,9 @@ service cloud.firestore {
 
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
-            || (getUserRole() in ['hr', 'company_admin']
-                && getUserCompanyId() == resource.data.companyId));
+            || (getUserCompanyId() == resource.data.companyId
+                && (getUserId() == resource.data.authorId
+                    || getUserRole() in ['hr', 'company_admin'])));
 
       // Likes subcollection
       match /likes/{likeId} {
@@ -199,8 +200,9 @@ service cloud.firestore {
 
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
-            || (getUserRole() in ['hr', 'company_admin']
-                && getUserCompanyId() == resource.data.companyId));
+            || (getUserCompanyId() == resource.data.companyId
+                && (getUserId() == resource.data.authorId
+                    || getUserRole() in ['hr', 'company_admin'])));
     }
 
     // ============================================
@@ -346,10 +348,13 @@ service cloud.firestore {
     // CONTENT MODERATION: REPORTS COLLECTION
     // ============================================
     // - Any authenticated user can create a report (for their company)
-    // - Admin/HR can read and manage reports
+    // - Users can read their own reports (to check for duplicates)
+    // - Admin/HR can read and manage all reports in their company
     match /contentReports/{reportId} {
-      allow read: if isAdminOrHR()
-        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+      allow read: if isAuthenticated()
+        && (isSuperAdmin()
+            || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId)
+            || getUserId() == resource.data.reportedBy);
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
@@ -401,12 +406,12 @@ service cloud.firestore {
     // CONTENT MODERATION: ACTIVITY LOGS COLLECTION
     // ============================================
     // - Admin/HR can read moderation activities
-    // - Created by system on moderation actions
+    // - Any authenticated user can create (triggered by reporting content)
     match /moderationActivities/{activityId} {
       allow read: if isAdminOrHR()
         && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
 
-      allow create: if isAdminOrHR()
+      allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
 
       allow update: if false;
@@ -666,6 +671,80 @@ match /departmentAssignmentLogs/{logId} {
   allow update: if false;
   allow delete: if false;
 }
+
+    // ============================================
+    // DELETED POSTS COLLECTION (Soft-delete archive)
+    // ============================================
+    // - Post authors can write when soft-deleting their own posts
+    // - Admin/HR/super_admin can read and write
+    match /deletedPosts/{postId} {
+      allow read: if isAdminOrHR()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+
+      allow create: if isAuthenticated()
+        && (isSuperAdmin()
+            || (getUserCompanyId() == request.resource.data.companyId
+                && (getUserId() == request.resource.data.deletedBy.id
+                    || getUserRole() in ['hr', 'company_admin'])));
+
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+
+      // Subcollections: comments, likes, reactions
+      match /{subcollection}/{docId} {
+        allow read: if isAdminOrHR()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/deletedPosts/$(postId)).data.companyId);
+
+        allow create: if isAuthenticated()
+          && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/deletedPosts/$(postId)).data.companyId
+              || getUserCompanyId() == request.resource.data.companyId);
+
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // ============================================
+    // DELETED POST EDIT HISTORY (Soft-delete archive)
+    // ============================================
+    match /deletedPostEditHistory/{historyId} {
+      allow read: if isAdminOrHR()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+
+      allow create: if isAuthenticated()
+        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
+
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ============================================
+    // DELETED POST ACTIVITIES (Soft-delete archive)
+    // ============================================
+    match /deletedPostActivities/{activityId} {
+      allow read: if isAdminOrHR()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+
+      allow create: if isAuthenticated()
+        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
+
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // ============================================
+    // DELETED POST VIEWS (Soft-delete archive)
+    // ============================================
+    match /deletedPostViews/{viewId} {
+      allow read: if isAdminOrHR()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+
+      allow create: if isAuthenticated()
+        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
+
+      allow update: if false;
+      allow delete: if false;
+    }
 
     // ============================================
     // DENY ALL OTHER COLLECTIONS
