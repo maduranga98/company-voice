@@ -174,7 +174,13 @@ service cloud.firestore {
           && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
         allow create: if isAuthenticated()
           && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
-        allow delete: if isAuthenticated() && getUserId() == likeId;
+        // Allow like owner to unlike, or post author/admin to delete during post deletion
+        allow delete: if isAuthenticated()
+          && (isSuperAdmin()
+              || getUserId() == likeId
+              || (getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId
+                  && (getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
+                      || getUserRole() in ['hr', 'company_admin'])));
         allow update: if false;
       }
 
@@ -184,10 +190,12 @@ service cloud.firestore {
           && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
         allow create: if isAuthenticated()
           && (isSuperAdmin() || getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId);
+        // Allow comment author, post author, or admin/HR to delete
         allow delete: if isAuthenticated()
           && (isSuperAdmin()
               || (getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId
                   && (getUserId() == resource.data.authorId
+                      || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
                       || getUserRole() in ['hr', 'company_admin'])));
         allow update: if false;
       }
@@ -293,7 +301,10 @@ service cloud.firestore {
             || (getUserRole() in ['hr', 'company_admin']
                 && getUserCompanyId() == resource.data.companyId));
 
-      allow delete: if false;
+      // Allow deletion during post soft-delete cascade
+      allow delete: if isAuthenticated()
+        && (isSuperAdmin()
+            || getUserCompanyId() == resource.data.companyId);
     }
 
     // ============================================
@@ -312,7 +323,10 @@ service cloud.firestore {
             || (getUserId() == resource.data.userId
                 && getUserCompanyId() == resource.data.companyId));
 
-      allow delete: if false;
+      // Allow deletion during post soft-delete cascade
+      allow delete: if isAuthenticated()
+        && (isSuperAdmin()
+            || getUserCompanyId() == resource.data.companyId);
     }
 
     // ============================================
@@ -592,8 +606,8 @@ service cloud.firestore {
       allow update: if isAdminOrHR()
         && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
 
-      allow delete: if isSuperAdmin()
-        || (isCompanyAdmin() && getUserCompanyId() == resource.data.companyId);
+      allow delete: if isAdminOrHR()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
     }
 
     // ============================================
@@ -645,7 +659,9 @@ service cloud.firestore {
         && getUserId() == request.resource.data.userId;
 
       allow update: if false;
-      allow delete: if false;
+      // Allow admin/HR to delete acknowledgements when deleting a policy
+      allow delete: if isAdminOrHR()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
     }
 
     // ============================================
@@ -685,7 +701,11 @@ service cloud.firestore {
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
 
       allow update: if false;
-      allow delete: if false;
+
+      // Allow deletion during post soft-delete cascade
+      allow delete: if isAuthenticated()
+        && (isSuperAdmin()
+            || getUserCompanyId() == resource.data.companyId);
     }
     // ============================================
 // DEPARTMENT ASSIGNMENT LOGS COLLECTION

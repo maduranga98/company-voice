@@ -139,7 +139,7 @@ const MyPosts = () => {
 
   const handleExpandPost = async (post) => {
     setExpandedPost(post.id);
-    await markPostAsViewed(post.id, userData.id);
+    await markPostAsViewed(post.id, userData.id, userData.companyId);
     setPosts((prev) =>
       prev.map((p) => (p.id === post.id ? { ...p, hasUnreadUpdates: false } : p))
     );

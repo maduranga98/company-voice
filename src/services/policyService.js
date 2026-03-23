@@ -3,6 +3,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDocs,
   query,
   where,
@@ -45,6 +46,19 @@ export const publishPolicy = async (policyId) => {
     publishedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+  return { success: true };
+};
+
+export const deletePolicy = async (policyId) => {
+  await deleteDoc(doc(db, POLICIES_COLLECTION, policyId));
+  // Also delete associated acknowledgements
+  const acksQuery = query(
+    collection(db, ACKNOWLEDGEMENTS_COLLECTION),
+    where("policyId", "==", policyId)
+  );
+  const acksSnapshot = await getDocs(acksQuery);
+  const deletePromises = acksSnapshot.docs.map((d) => deleteDoc(d.ref));
+  await Promise.all(deletePromises);
   return { success: true };
 };
 
