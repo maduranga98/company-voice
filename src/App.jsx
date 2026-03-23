@@ -32,6 +32,7 @@ import EmployeeMessages from "./pages/EmployeeMessages";
 import EmployeeMessageThread from "./pages/EmployeeMessageThread";
 
 import PrivateRoute from "./components/PrivateRoute";
+import { useAuth } from "./contexts/AuthContext";
 import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
@@ -65,6 +66,22 @@ import VendorRiskDashboard from "./pages/hr/VendorRiskDashboard";
 // HR Pages
 import HRConversations from "./pages/hr/HRConversations";
 import HRInbox from "./pages/hr/HRInbox";
+
+const CompanyDashboardGuard = () => {
+  const { userData } = useAuth();
+  if (userData?.role === "hr") {
+    return <Navigate to="/hr/inbox" replace />;
+  }
+  return <CompanyDashboard />;
+};
+
+const AuditExportGuard = () => {
+  const { userData } = useAuth();
+  if (userData?.role === "hr") {
+    return <Navigate to="/hr/inbox" replace />;
+  }
+  return <AuditExportPage />;
+};
 
 function App() {
   return (
@@ -292,7 +309,7 @@ function App() {
               element={
                 <PrivateRoute>
                   <CompanyAdminLayout>
-                    <CompanyDashboard />
+                    <CompanyDashboardGuard />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }
@@ -422,7 +439,7 @@ function App() {
               element={
                 <PrivateRoute>
                   <CompanyAdminLayout>
-                    <AuditExportPage />
+                    <AuditExportGuard />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }
