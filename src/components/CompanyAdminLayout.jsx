@@ -4,6 +4,14 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { subscribeToCompanyThreads } from "../services/anonymousThreadService";
 import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
+import { db } from "../config/firebase";
+import {
   LayoutDashboard,
   Lightbulb,
   AlertTriangle,
@@ -29,6 +37,7 @@ import {
   FileDown,
   ClipboardCheck,
   Shield,
+  Inbox,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -40,6 +49,7 @@ const CompanyAdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasUnreadThreads, setHasUnreadThreads] = useState(false);
+  const [hasUnreadHRPosts, setHasUnreadHRPosts] = useState(false);
 
   // Collapsible section state
   const [expandedSections, setExpandedSections] = useState({
@@ -59,6 +69,27 @@ const CompanyAdminLayout = ({ children }) => {
     const unsubscribe = subscribeToCompanyThreads(userData.companyId, (threads) => {
       setHasUnreadThreads(threads.some((t) => t.unreadCount > 0));
     });
+    return () => unsubscribe();
+  }, [userData?.companyId, userData?.role]);
+
+  // Listen for unread HR-only posts (open status with no admin comments)
+  useEffect(() => {
+    if (
+      !userData?.companyId ||
+      (userData.role !== "hr" && userData.role !== "company_admin")
+    ) {
+      return;
+    }
+    const q = query(
+      collection(db, "posts"),
+      where("companyId", "==", userData.companyId),
+      where("privacyLevel", "==", "hr_only"),
+      where("status", "==", "open"),
+      orderBy("createdAt", "desc")
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setHasUnreadHRPosts(snapshot.size > 0);
+    }, () => setHasUnreadHRPosts(false));
     return () => unsubscribe();
   }, [userData?.companyId, userData?.role]);
 
@@ -108,19 +139,22 @@ const CompanyAdminLayout = ({ children }) => {
     return null;
   };
 
+  const isHR = userData?.role === "hr";
+
   // Navigation sections for the sidebar
   const navSections = [
     {
       id: "main",
       items: [
         { label: t("navigation.dashboard", "Dashboard"), path: "/company/dashboard", icon: LayoutDashboard },
-        { label: t("navigation.analytics", "Analytics"), path: "/company/analytics", icon: BarChart3 },
+        ...(!isHR ? [{ label: t("navigation.analytics", "Analytics"), path: "/company/analytics", icon: BarChart3 }] : []),
       ],
     },
     {
       id: "content",
       title: t("navigation.content", "Content"),
       items: [
+        { label: t("navigation.hrInbox", "HR Inbox"), path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
         { label: t("navigation.creative", "Creative"), path: "/feed/creative", icon: Lightbulb },
         { label: t("navigation.problems", "Problems"), path: "/feed/problems", icon: AlertTriangle },
         { label: t("navigation.discussions", "Discussions"), path: "/feed/discussions", icon: MessageSquare },
@@ -130,7 +164,8 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.moderation", "Moderation"), path: "/moderation", icon: Shield },
       ],
     },
-    {
+    // Management section - hidden for HR role
+    ...(!isHR ? [{
       id: "management",
       title: t("navigation.management", "Management"),
       items: [
@@ -138,7 +173,7 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.departments", "Departments"), path: "/company/departments", icon: Building2 },
         { label: t("navigation.tags", "Tags"), path: "/company/tag-management", icon: Tags },
       ],
-    },
+    }] : []),
     {
       id: "compliance",
       title: t("navigation.compliance", "Compliance"),
@@ -146,7 +181,7 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.policies", "Policies"), path: "/company/policies", icon: BookOpen },
         { label: t("navigation.auditLog", "Audit Log"), path: "/company/audit-log", icon: ClipboardList },
         { label: t("navigation.auditExport", "Audit Export"), path: "/company/audit-export", icon: FileDown },
-        { label: t("navigation.legalRequests", "Legal Requests"), path: "/company/legal-requests", icon: Scale },
+        ...(!isHR ? [{ label: t("navigation.legalRequests", "Legal Requests"), path: "/company/legal-requests", icon: Scale }] : []),
         { label: t("navigation.vendorRisk", "Vendor Risk"), path: "/hr/vendor-risk", icon: ShieldAlert },
       ],
     },
@@ -154,8 +189,8 @@ const CompanyAdminLayout = ({ children }) => {
       id: "settings",
       title: t("navigation.settings", "Settings"),
       items: [
-        { label: t("navigation.billing", "Billing"), path: "/company/billing", icon: CreditCard },
-        { label: t("navigation.qrCode", "QR Code"), path: "/company/qr-code", icon: QrCode },
+        ...(!isHR ? [{ label: t("navigation.billing", "Billing"), path: "/company/billing", icon: CreditCard }] : []),
+        ...(!isHR ? [{ label: t("navigation.qrCode", "QR Code"), path: "/company/qr-code", icon: QrCode }] : []),
         { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
       ],
     },
@@ -218,13 +253,20 @@ const CompanyAdminLayout = ({ children }) => {
     );
   };
 
-  // Mobile bottom nav - only 4 key items
-  const mobileBottomTabs = [
-    { id: "dashboard", label: "Dashboard", path: "/company/dashboard", icon: LayoutDashboard },
-    { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
-    { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
-    { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
-  ];
+  // Mobile bottom nav - HR sees Walls, Conversations, Moderation, Profile
+  const mobileBottomTabs = isHR
+    ? [
+        { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
+        { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
+        { id: "moderation", label: "Moderation", path: "/moderation", icon: Shield },
+        { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
+      ]
+    : [
+        { id: "dashboard", label: "Dashboard", path: "/company/dashboard", icon: LayoutDashboard },
+        { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
+        { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
+        { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
+      ];
 
   const sidebarContent = (
     <>
@@ -412,6 +454,7 @@ function getPageTitle(pathname, t) {
     "/feed/discussions": t("navigation.discussions", "Discussions"),
     "/my-posts": t("navigation.myPosts", "My Posts"),
     "/assigned-to-me": t("navigation.assignedToMe", "Assigned to Me"),
+    "/hr/inbox": t("navigation.hrInbox", "HR Inbox"),
     "/hr/conversations": t("navigation.conversations", "Conversations"),
     "/moderation": t("navigation.moderation", "Moderation"),
     "/company/members": t("navigation.members", "Members"),
