@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, doc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,7 +7,7 @@ import PollCreator from "./PollCreator";
 import AnonymityGuaranteeScreen from "./AnonymityGuaranteeScreen";
 import { useTranslation } from "react-i18next";
 import { encryptAuthorId } from "../services/postManagementService";
-import { X, Paperclip, Eye, EyeOff, Send, Sparkles, AlertTriangle, MessageCircle, ChevronDown, Image as ImageIcon, FileText } from "lucide-react";
+import { X, Paperclip, Eye, EyeOff, Send, Sparkles, AlertTriangle, MessageCircle, ChevronDown, Image as ImageIcon, FileText, Shield, Lock } from "lucide-react";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const { userData } = useAuth();
@@ -238,7 +238,36 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         updatedAt: serverTimestamp(),
       };
 
-      await addDoc(collection(db, "posts"), postData);
+      const newPostRef = await addDoc(collection(db, "posts"), postData);
+
+      // Notify HR and company admin users when an hr_only post is created
+      if (postData.privacyLevel === "hr_only") {
+        try {
+          const hrUsersQuery = query(
+            collection(db, "users"),
+            where("companyId", "==", postData.companyId),
+            where("role", "in", ["hr", "company_admin"])
+          );
+          const hrSnapshot = await getDocs(hrUsersQuery);
+          const notificationPromises = hrSnapshot.docs.map((hrDoc) =>
+            addDoc(collection(db, "notifications"), {
+              userId: hrDoc.id,
+              type: "hr_post_received",
+              title: "New HR Post Received",
+              message: `A new post has been sent directly to HR: "${postData.title}"`,
+              companyId: postData.companyId,
+              metadata: { postId: newPostRef.id },
+              read: false,
+              createdAt: serverTimestamp(),
+            })
+          );
+          await Promise.all(notificationPromises);
+        } catch (notifError) {
+          // Don't fail post creation if notifications fail
+          console.error("Error sending HR notifications:", notifError);
+        }
+      }
+
       if (onSuccess) onSuccess();
       if (onClose) onClose();
     } catch (error) {
@@ -262,7 +291,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
   const privacyOptions = [
     { value: "company_public", label: t('createPost.companyPublic'), icon: Eye, desc: "Visible to all employees" },
     { value: "department_only", label: t('createPost.departmentOnly'), icon: EyeOff, desc: "Department members only" },
-    { value: "hr_only", label: t('createPost.hrOnly'), icon: EyeOff, desc: "HR and admins only" },
+    { value: "hr_only", label: t('createPost.sendToHR', 'Send to HR only'), icon: Shield, desc: t('createPost.sendToHRDesc', 'Only HR and admins can see this') },
   ];
 
   return (
@@ -467,6 +496,16 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                   {departments.length === 0 && (
                     <p className="text-xs text-orange-500 mt-1">No departments available.</p>
                   )}
+                </div>
+              )}
+
+              {/* HR Only info banner */}
+              {formData.privacyLevel === "hr_only" && (
+                <div className="bg-teal-50 border border-teal-200 rounded-xl px-4 py-3 flex items-start gap-2">
+                  <Lock size={14} className="text-teal-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-teal-700">
+                    {t('createPost.hrOnlyBanner', 'This post will only be visible to your HR team and company admins. Your anonymity is still fully protected.')}
+                  </p>
                 </div>
               )}
 

@@ -52,10 +52,10 @@ const RoleDefinitions = () => {
       'View Moderation Logs': { super_admin: true, company_admin: true, hr: true, employee: false },
     },
     'Management': {
-      'Manage Members': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Assign Tags': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Manage Departments': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Invite Employees': { super_admin: true, company_admin: true, hr: true, employee: false },
+      'Manage Members': { super_admin: true, company_admin: true, hr: false, employee: false },
+      'Assign Tags': { super_admin: true, company_admin: true, hr: false, employee: false },
+      'Manage Departments': { super_admin: true, company_admin: true, hr: false, employee: false },
+      'Invite Employees': { super_admin: true, company_admin: true, hr: false, employee: false },
     },
     'Templates': {
       'Create Templates': { super_admin: true, company_admin: true, hr: true, employee: false },
@@ -67,6 +67,11 @@ const RoleDefinitions = () => {
       'View Analytics': { super_admin: true, company_admin: true, hr: true, employee: false },
       'View Audit Logs': { super_admin: true, company_admin: true, hr: true, employee: false },
       'Export Reports': { super_admin: true, company_admin: true, hr: true, employee: false },
+    },
+    'HR Features': {
+      'View HR Inbox': { super_admin: true, company_admin: true, hr: true, employee: false },
+      'Receive HR Posts': { super_admin: true, company_admin: true, hr: true, employee: false },
+      'Send Post to HR': { super_admin: false, company_admin: false, hr: false, employee: true },
     },
     'Company Management': {
       'Manage Companies': { super_admin: true, company_admin: false, hr: false, employee: false },

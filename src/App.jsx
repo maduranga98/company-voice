@@ -64,6 +64,7 @@ import VendorRiskDashboard from "./pages/hr/VendorRiskDashboard";
 
 // HR Pages
 import HRConversations from "./pages/hr/HRConversations";
+import HRInbox from "./pages/hr/HRInbox";
 
 function App() {
   return (
@@ -438,6 +439,16 @@ function App() {
             />
 
             {/* ── HR ROUTES (with admin sidebar layout) ── */}
+            <Route
+              path="/hr/inbox"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <HRInbox />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/hr/vendor-risk"
               element={

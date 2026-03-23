@@ -120,7 +120,25 @@
     "walls": "Walls",
     "messages": "Messages",
     "help": "Help",
-    "post": "Post"
+    "post": "Post",
+    "hrInbox": "HR Inbox",
+    "hrInboxBadge": "New HR posts",
+    "conversations": "Conversations",
+    "moderation": "Moderation",
+    "members": "Members",
+    "departments": "Departments",
+    "tags": "Tags",
+    "compliance": "Compliance",
+    "policies": "Policies",
+    "auditLog": "Audit Log",
+    "auditExport": "Audit Export",
+    "legalRequests": "Legal Requests",
+    "vendorRisk": "Vendor Risk",
+    "billing": "Billing",
+    "qrCode": "QR Code",
+    "analytics": "Analytics",
+    "content": "Content",
+    "management": "Management"
   },
   "language": {
     "chooseLanguage": "Choose language"
@@ -648,6 +666,16 @@
     "teamDiscussion": "Team Discussion",
     "confirmDelete": "Are you sure you want to delete this template?"
   },
+  "hrInbox": {
+    "subtitle": "Posts sent directly to HR",
+    "all": "All",
+    "open": "Open",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "total": "Total",
+    "empty": "No HR posts yet",
+    "emptyDesc": "Posts sent to HR will appear here"
+  },
   "createPost": {
     "title": "Create Post",
     "postTitle": "Title",
@@ -663,6 +691,9 @@
     "companyPublic": "Company Public",
     "departmentOnly": "Department Only",
     "hrOnly": "HR Only",
+    "sendToHR": "Send to HR only",
+    "sendToHRDesc": "Only HR and admins can see this",
+    "hrOnlyBanner": "This post will only be visible to your HR team and company admins. Your anonymity is still fully protected.",
     "anonymous": "Post Anonymously",
     "saveDraft": "Save as Draft",
     "schedulePost": "Schedule Post",

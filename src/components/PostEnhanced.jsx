@@ -24,6 +24,7 @@ import {
   PostPriorityConfig,
   PostType,
   ReportableContentType,
+  UserRole,
 } from "../utils/constants";
 import { getEditHistory } from "../services/postEnhancedFeaturesService";
 import { deletePost } from "../services/postManagementService";
@@ -52,6 +53,9 @@ const PostEnhanced = ({ post }) => {
   const isAuthor =
     userData &&
     (userData.id === post.authorId || userData.uid === post.authorId);
+  const isAdmin =
+    userData &&
+    [UserRole.SUPER_ADMIN, UserRole.COMPANY_ADMIN, UserRole.HR].includes(userData.role);
 
   const getTimeAgo = (timestamp) => {
     const now = new Date();
@@ -98,7 +102,7 @@ const PostEnhanced = ({ post }) => {
   };
 
   const handleDeletePost = async () => {
-    if (!isAuthor) {
+    if (!isAuthor && !isAdmin) {
       showError(t("posts.errors.unauthorizedDelete") || "You can only delete your own posts");
       return;
     }
@@ -232,7 +236,7 @@ const PostEnhanced = ({ post }) => {
             </div>
 
             {/* Edit/Delete Menu */}
-            {isAuthor && !post.isArchived && (
+            {(isAuthor || isAdmin) && !post.isArchived && (
               <div className="relative">
                 <button
                   onClick={() => setShowOptionsMenu(!showOptionsMenu)}
@@ -242,13 +246,15 @@ const PostEnhanced = ({ post }) => {
                 </button>
                 {showOptionsMenu && (
                   <div className="absolute right-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50">
-                    <button
-                      onClick={handleEditPost}
-                      className="w-full px-3.5 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      {t('postActions.editPost')}
-                    </button>
+                    {isAuthor && (
+                      <button
+                        onClick={handleEditPost}
+                        className="w-full px-3.5 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        {t('postActions.editPost')}
+                      </button>
+                    )}
                     <button
                       onClick={() => {
                         setShowDeleteConfirm(true);
