@@ -62,19 +62,10 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
       const postsData = await getPostsWithPrivacyFilter(userData.companyId, feedType, userData);
       const pinned = await getPinnedPosts(userData.companyId, feedType);
       const userId = userData.id || userData.uid;
+      // Only show pinned posts to the person who pinned them
       const filteredPinned = pinned.filter(post => {
         if (post.isArchived) return false;
-        if (userData.role === "super_admin" || userData.role === "company_admin") return true;
-        if (userId && post.authorId === userId) return true;
-        const privacyLevel = post.privacyLevel || "company_public";
-        if (privacyLevel === "company_public") return true;
-        if (privacyLevel === "hr_only") return userData.role === "hr";
-        if (privacyLevel === "department_only") {
-          if (userData.role === "hr") return true;
-          if (userData.departmentId && post.departmentId) return userData.departmentId === post.departmentId;
-          return false;
-        }
-        return true;
+        return userId && post.pinnedBy === userId;
       });
       setPinnedPosts(filteredPinned);
       setPosts(postsData);
