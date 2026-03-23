@@ -12,6 +12,7 @@ import {
   getDoc,
   increment,
   deleteDoc,
+  setDoc,
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -542,7 +543,7 @@ export const getPostActivityTimeline = async (postId, limitCount = 50) => {
  * @param {string} authorId - Author user ID
  * @returns {Promise<void>}
  */
-export const markPostAsViewed = async (postId, authorId) => {
+export const markPostAsViewed = async (postId, authorId, companyId) => {
   try {
     const viewRef = doc(db, "postViews", `${postId}_${authorId}`);
 
@@ -554,9 +555,11 @@ export const markPostAsViewed = async (postId, authorId) => {
       const postSnap = await getDoc(postRef);
 
       if (postSnap.exists()) {
-        await addDoc(collection(db, "postViews"), {
+        const postCompanyId = companyId || postSnap.data().companyId;
+        await setDoc(viewRef, {
           postId,
           authorId,
+          companyId: postCompanyId,
           lastViewedAt: serverTimestamp(),
         });
       }
@@ -582,6 +585,7 @@ export const hasUnreadUpdates = async (post, authorId) => {
       viewRef,
       where("postId", "==", post.id),
       where("authorId", "==", authorId),
+      where("companyId", "==", post.companyId),
       limit(1)
     );
 
@@ -933,103 +937,113 @@ export const deletePost = async (postId, user) => {
       deletedAt: serverTimestamp(),
     };
 
-    // Use batch for atomic operations
-    const batch = writeBatch(db);
+    // 1. Create deletedPosts parent document FIRST so subcollection rules can
+    //    reference it via get() for company isolation checks
+    await setDoc(deletedPostRef, deletedPostData);
 
-    // Save post to deletedPosts collection
-    batch.set(deletedPostRef, deletedPostData);
+    // Use batch for subcollection deletions from original post
+    const deleteBatch = writeBatch(db);
 
-    // 1. Copy all comments to deletedPosts collection
+    // 2. Copy all comments to deletedPosts subcollection
     const commentsQuery = query(collection(db, `posts/${postId}/comments`));
     const commentsSnap = await getDocs(commentsQuery);
     const commentsCopyBatch = writeBatch(db);
     commentsSnap.forEach((commentDoc) => {
       const commentData = commentDoc.data();
       const deletedCommentRef = doc(db, `deletedPosts/${postId}/comments`, commentDoc.id);
-      commentsCopyBatch.set(deletedCommentRef, commentData);
-      batch.delete(doc(db, `posts/${postId}/comments`, commentDoc.id));
+      commentsCopyBatch.set(deletedCommentRef, { ...commentData, companyId: postData.companyId });
+      deleteBatch.delete(doc(db, `posts/${postId}/comments`, commentDoc.id));
     });
     await commentsCopyBatch.commit();
 
-    // 2. Copy all likes and delete originals
+    // 3. Copy all likes and delete originals
     const likesQuery = query(collection(db, `posts/${postId}/likes`));
     const likesSnap = await getDocs(likesQuery);
     const likesCopyBatch = writeBatch(db);
     likesSnap.forEach((likeDoc) => {
       const likeData = likeDoc.data();
       const deletedLikeRef = doc(db, `deletedPosts/${postId}/likes`, likeDoc.id);
-      likesCopyBatch.set(deletedLikeRef, likeData);
-      batch.delete(doc(db, `posts/${postId}/likes`, likeDoc.id));
+      likesCopyBatch.set(deletedLikeRef, { ...likeData, companyId: postData.companyId });
+      deleteBatch.delete(doc(db, `posts/${postId}/likes`, likeDoc.id));
     });
     await likesCopyBatch.commit();
 
-    // 3. Copy all reactions and delete originals
+    // 4. Copy all reactions and delete originals
     const reactionsQuery = query(collection(db, `posts/${postId}/reactions`));
     const reactionsSnap = await getDocs(reactionsQuery);
     const reactionsCopyBatch = writeBatch(db);
     reactionsSnap.forEach((reactionDoc) => {
       const reactionData = reactionDoc.data();
       const deletedReactionRef = doc(db, `deletedPosts/${postId}/reactions`, reactionDoc.id);
-      reactionsCopyBatch.set(deletedReactionRef, reactionData);
-      batch.delete(doc(db, `posts/${postId}/reactions`, reactionDoc.id));
+      reactionsCopyBatch.set(deletedReactionRef, { ...reactionData, companyId: postData.companyId });
+      deleteBatch.delete(doc(db, `posts/${postId}/reactions`, reactionDoc.id));
     });
     await reactionsCopyBatch.commit();
 
-    // Commit the batch for main deletions
-    await batch.commit();
+    // Commit subcollection deletions from original post
+    await deleteBatch.commit();
 
-    // 4. Move edit history
+    // 5. Move edit history
     const editHistoryQuery = query(
       collection(db, "postEditHistory"),
-      where("postId", "==", postId)
+      where("postId", "==", postId),
+      where("companyId", "==", postData.companyId)
     );
     const editHistorySnap = await getDocs(editHistoryQuery);
-    const historyBatch = writeBatch(db);
-    const historyMoveBatch = writeBatch(db);
-    editHistorySnap.forEach((historyDoc) => {
-      const historyData = historyDoc.data();
-      const deletedHistoryRef = doc(db, "deletedPostEditHistory", historyDoc.id);
-      historyMoveBatch.set(deletedHistoryRef, historyData);
-      historyBatch.delete(doc(db, "postEditHistory", historyDoc.id));
-    });
-    await historyMoveBatch.commit();
-    await historyBatch.commit();
+    if (!editHistorySnap.empty) {
+      const historyMoveBatch = writeBatch(db);
+      const historyBatch = writeBatch(db);
+      editHistorySnap.forEach((historyDoc) => {
+        const historyData = historyDoc.data();
+        const deletedHistoryRef = doc(db, "deletedPostEditHistory", historyDoc.id);
+        historyMoveBatch.set(deletedHistoryRef, historyData);
+        historyBatch.delete(doc(db, "postEditHistory", historyDoc.id));
+      });
+      await historyMoveBatch.commit();
+      await historyBatch.commit();
+    }
 
-    // 5. Move post activities
+    // 6. Move post activities
     const activitiesQuery = query(
       collection(db, "postActivities"),
-      where("postId", "==", postId)
+      where("postId", "==", postId),
+      where("companyId", "==", postData.companyId)
     );
     const activitiesSnap = await getDocs(activitiesQuery);
-    const activitiesBatch = writeBatch(db);
-    const activitiesMoveBatch = writeBatch(db);
-    activitiesSnap.forEach((activityDoc) => {
-      const activityData = activityDoc.data();
-      const deletedActivityRef = doc(db, "deletedPostActivities", activityDoc.id);
-      activitiesMoveBatch.set(deletedActivityRef, activityData);
-      activitiesBatch.delete(doc(db, "postActivities", activityDoc.id));
-    });
-    await activitiesMoveBatch.commit();
-    await activitiesBatch.commit();
+    if (!activitiesSnap.empty) {
+      const activitiesMoveBatch = writeBatch(db);
+      const activitiesBatch = writeBatch(db);
+      activitiesSnap.forEach((activityDoc) => {
+        const activityData = activityDoc.data();
+        const deletedActivityRef = doc(db, "deletedPostActivities", activityDoc.id);
+        activitiesMoveBatch.set(deletedActivityRef, activityData);
+        activitiesBatch.delete(doc(db, "postActivities", activityDoc.id));
+      });
+      await activitiesMoveBatch.commit();
+      await activitiesBatch.commit();
+    }
 
-    // 6. Move post views
+    // 7. Move post views
     const viewsQuery = query(
       collection(db, "postViews"),
-      where("postId", "==", postId)
+      where("postId", "==", postId),
+      where("companyId", "==", postData.companyId)
     );
     const viewsSnap = await getDocs(viewsQuery);
-    const viewsBatch = writeBatch(db);
-    const viewsMoveBatch = writeBatch(db);
-    viewsSnap.forEach((viewDoc) => {
-      const viewData = viewDoc.data();
-      const deletedViewRef = doc(db, "deletedPostViews", viewDoc.id);
-      viewsMoveBatch.set(deletedViewRef, viewData);
-      viewsBatch.delete(doc(db, "postViews", viewDoc.id));
-    });
-    await viewsMoveBatch.commit();
-    await viewsBatch.commit();
+    if (!viewsSnap.empty) {
+      const viewsMoveBatch = writeBatch(db);
+      const viewsBatch = writeBatch(db);
+      viewsSnap.forEach((viewDoc) => {
+        const viewData = viewDoc.data();
+        const deletedViewRef = doc(db, "deletedPostViews", viewDoc.id);
+        viewsMoveBatch.set(deletedViewRef, viewData);
+        viewsBatch.delete(doc(db, "postViews", viewDoc.id));
+      });
+      await viewsMoveBatch.commit();
+      await viewsBatch.commit();
+    }
 
-    // 7. Finally, delete the original post document
+    // 8. Finally, delete the original post document
     await deleteDoc(postRef);
 
     return {
