@@ -146,7 +146,7 @@ const CompanyAdminLayout = ({ children }) => {
     {
       id: "main",
       items: [
-        { label: t("navigation.dashboard", "Dashboard"), path: "/company/dashboard", icon: LayoutDashboard },
+        ...(!isHR ? [{ label: t("navigation.dashboard", "Dashboard"), path: "/company/dashboard", icon: LayoutDashboard }] : []),
         ...(!isHR ? [{ label: t("navigation.analytics", "Analytics"), path: "/company/analytics", icon: BarChart3 }] : []),
       ],
     },
@@ -180,7 +180,7 @@ const CompanyAdminLayout = ({ children }) => {
       items: [
         { label: t("navigation.policies", "Policies"), path: "/company/policies", icon: BookOpen },
         { label: t("navigation.auditLog", "Audit Log"), path: "/company/audit-log", icon: ClipboardList },
-        { label: t("navigation.auditExport", "Audit Export"), path: "/company/audit-export", icon: FileDown },
+        ...(!isHR ? [{ label: t("navigation.auditExport", "Audit Export"), path: "/company/audit-export", icon: FileDown }] : []),
         ...(!isHR ? [{ label: t("navigation.legalRequests", "Legal Requests"), path: "/company/legal-requests", icon: Scale }] : []),
         { label: t("navigation.vendorRisk", "Vendor Risk"), path: "/hr/vendor-risk", icon: ShieldAlert },
       ],
