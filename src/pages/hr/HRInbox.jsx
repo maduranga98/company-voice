@@ -290,7 +290,7 @@ const HRInbox = () => {
                 {/* Expanded admin panel */}
                 {selectedPost?.id === post.id && (
                   <div className="border-t border-gray-100 p-4">
-                    <AdminActionPanel post={post} />
+                    <AdminActionPanel post={post} currentUser={userData} />
                   </div>
                 )}
               </div>
