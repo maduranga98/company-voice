@@ -69,7 +69,8 @@ import HRInbox from "./pages/hr/HRInbox";
 
 const CompanyDashboardGuard = () => {
   const { userData } = useAuth();
-  if (userData?.role === "hr") {
+  if (!userData) return null;
+  if (userData.role === "hr") {
     return <Navigate to="/hr/inbox" replace />;
   }
   return <CompanyDashboard />;
@@ -77,7 +78,8 @@ const CompanyDashboardGuard = () => {
 
 const AuditExportGuard = () => {
   const { userData } = useAuth();
-  if (userData?.role === "hr") {
+  if (!userData) return null;
+  if (userData.role === "hr") {
     return <Navigate to="/hr/inbox" replace />;
   }
   return <AuditExportPage />;
