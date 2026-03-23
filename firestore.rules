@@ -620,9 +620,9 @@ service cloud.firestore {
     // ============================================
     // VENDOR REPORTS COLLECTION
     // ============================================
-    // - Any authenticated company member can create and read vendor reports
-    //   (anonymous whistleblowing submissions and reference code validation)
-    // - Admin/HR can update vendor reports (status changes, reviews)
+    // - Any authenticated company member can create, read, and update vendor reports
+    //   (anonymous whistleblowing submissions, reference code validation,
+    //    and corroboration count increments / auto-escalation)
     // - Never deleted (audit trail)
     match /vendorReports/{reportId} {
       allow read: if isAuthenticated()
@@ -631,7 +631,7 @@ service cloud.firestore {
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
 
-      allow update: if isAdminOrHR()
+      allow update: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
 
       allow delete: if false;
