@@ -15,12 +15,14 @@ import {
   FileText,
   ArrowLeft,
   Bell,
+  Trash2,
 } from "lucide-react";
 import {
   createPolicy,
   updatePolicy,
   publishPolicy,
   archivePolicy,
+  deletePolicy,
   getPolicies,
   getPolicyAcknowledgements,
   getPolicyAcknowledgementStats,
@@ -254,6 +256,20 @@ const PolicyManagement = () => {
     }
   };
 
+  const handleDelete = async (policy) => {
+    if (!window.confirm(`Are you sure you want to permanently delete "${policy.title}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await deletePolicy(policy.id);
+      showToast("Policy deleted.");
+      loadPolicies();
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to delete policy.");
+    }
+  };
+
   // ─── Stats modal ────────────────────────────────────────────────
   const openStatsModal = async (policy) => {
     setStatsPolicy(policy);
@@ -475,6 +491,13 @@ const PolicyManagement = () => {
                               </button>
                             </>
                           )}
+                          <button
+                            onClick={() => handleDelete(policy)}
+                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>

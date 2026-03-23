@@ -288,8 +288,8 @@ const PolicyLibrary = () => {
 
       {/* Policy Detail Modal */}
       {showModal && selectedPolicy && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-[60] p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto pb-20 sm:pb-0">
             <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
               <div className="flex-1 mr-4">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
