@@ -180,44 +180,67 @@ export const getCompanyReports = async (companyId, status = null) => {
       // Mask reporter identity
       reportData.reporterDisplayName = "Anonymous Reporter";
 
-      // Get content author info
-      if (reportData.contentType === "POST") {
-        const postDocRef = doc(db, "posts", reportData.contentId);
-        const postDoc = await getDoc(postDocRef);
+      // Get content author info - wrapped in try/catch because the referenced
+      // content may have been deleted, causing Firestore permission errors
+      // when reading non-existent documents
+      try {
+        if (reportData.contentType === "POST") {
+          const postDocRef = doc(db, "posts", reportData.contentId);
+          const postDoc = await getDoc(postDocRef);
 
-        if (postDoc.exists()) {
-          const postData = postDoc.data();
-          if (postData.isAnonymous) {
-            reportData.contentAuthorName = "Anonymous User";
+          if (postDoc.exists()) {
+            const postData = postDoc.data();
+            if (postData.isAnonymous) {
+              reportData.contentAuthorName = "Anonymous User";
+            } else {
+              try {
+                const authorDocRef = doc(db, "users", postData.authorId);
+                const authorDoc = await getDoc(authorDocRef);
+                reportData.contentAuthorName = authorDoc.exists()
+                  ? authorDoc.data().displayName
+                  : "Unknown";
+              } catch {
+                reportData.contentAuthorName = "Unknown";
+              }
+            }
           } else {
-            const authorDocRef = doc(db, "users", postData.authorId);
-            const authorDoc = await getDoc(authorDocRef);
-            reportData.contentAuthorName = authorDoc.exists()
-              ? authorDoc.data().displayName
-              : "Unknown";
+            reportData.contentAuthorName = reportData.contentAuthorName || "Unknown";
+          }
+        } else {
+          const commentDocRef = doc(db, "comments", reportData.contentId);
+          const commentDoc = await getDoc(commentDocRef);
+
+          if (commentDoc.exists()) {
+            try {
+              const authorDocRef = doc(db, "users", commentDoc.data().authorId);
+              const authorDoc = await getDoc(authorDocRef);
+              reportData.contentAuthorName = authorDoc.exists()
+                ? authorDoc.data().displayName
+                : "Unknown";
+            } catch {
+              reportData.contentAuthorName = "Unknown";
+            }
+          } else {
+            reportData.contentAuthorName = reportData.contentAuthorName || "Unknown";
           }
         }
-      } else {
-        const commentDocRef = doc(db, "comments", reportData.contentId);
-        const commentDoc = await getDoc(commentDocRef);
-
-        if (commentDoc.exists()) {
-          const authorDocRef = doc(db, "users", commentDoc.data().authorId);
-          const authorDoc = await getDoc(authorDocRef);
-          reportData.contentAuthorName = authorDoc.exists()
-            ? authorDoc.data().displayName
-            : "Unknown";
-        }
+      } catch {
+        // Content was deleted or inaccessible - use fallback values
+        reportData.contentAuthorName = reportData.contentAuthorName || "Unknown";
       }
 
       // Count reports for same content (filtered by company for Firestore rule compliance)
-      const sameContentReportsQuery = query(
-        collection(db, "contentReports"),
-        where("contentId", "==", reportData.contentId),
-        where("companyId", "==", companyId)
-      );
-      const sameContentReports = await getDocs(sameContentReportsQuery);
-      reportData.totalReportsForContent = sameContentReports.size;
+      try {
+        const sameContentReportsQuery = query(
+          collection(db, "contentReports"),
+          where("contentId", "==", reportData.contentId),
+          where("companyId", "==", companyId)
+        );
+        const sameContentReports = await getDocs(sameContentReportsQuery);
+        reportData.totalReportsForContent = sameContentReports.size;
+      } catch {
+        reportData.totalReportsForContent = 1;
+      }
 
       reports.push(reportData);
     }
@@ -294,7 +317,8 @@ export const getReportById = async (reportId) => {
     // Get author's moderation history
     if (reportData.contentAuthorId) {
       reportData.authorHistory = await getUserModerationHistory(
-        reportData.contentAuthorId
+        reportData.contentAuthorId,
+        reportData.companyId
       );
     }
 
@@ -791,13 +815,19 @@ const applyStrikeRestrictions = async (userId, strikeLevel, companyId) => {
 /**
  * Get user's moderation history
  */
-export const getUserModerationHistory = async (userId) => {
+export const getUserModerationHistory = async (userId, companyId = null) => {
   try {
-    const strikesQuery = query(
+    // Include companyId filter for Firestore rule compliance
+    // (userStrikes read rule requires getUserCompanyId() == resource.data.companyId)
+    const strikesConstraints = [
       collection(db, "userStrikes"),
       where("userId", "==", userId),
-      orderBy("issuedAt", "desc")
-    );
+    ];
+    if (companyId) {
+      strikesConstraints.push(where("companyId", "==", companyId));
+    }
+    strikesConstraints.push(orderBy("issuedAt", "desc"));
+    const strikesQuery = query(...strikesConstraints);
     const strikesSnapshot = await getDocs(strikesQuery);
 
     const strikes = strikesSnapshot.docs.map((doc) => ({
@@ -805,12 +835,16 @@ export const getUserModerationHistory = async (userId) => {
       ...doc.data(),
     }));
 
-    // Get active restrictions
-    const restrictionsQuery = query(
+    // Get active restrictions (include companyId for rule compliance)
+    const restrictionsConstraints = [
       collection(db, "userRestrictions"),
       where("userId", "==", userId),
-      where("isActive", "==", true)
-    );
+      where("isActive", "==", true),
+    ];
+    if (companyId) {
+      restrictionsConstraints.push(where("companyId", "==", companyId));
+    }
+    const restrictionsQuery = query(...restrictionsConstraints);
     const restrictionsSnapshot = await getDocs(restrictionsQuery);
     const restrictions = restrictionsSnapshot.docs.map((doc) => ({
       id: doc.id,
