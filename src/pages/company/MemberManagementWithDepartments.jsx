@@ -39,6 +39,7 @@ import {
   Building,
   Mail,
   Shield,
+  ShieldCheck,
   Tag,
 } from "lucide-react";
 
@@ -62,6 +63,8 @@ const MemberManagementWithDepartments = () => {
   const [bulkMode, setBulkMode] = useState(false);
   const [viewingMember, setViewingMember] = useState(null);
   const [showMemberDetailsModal, setShowMemberDetailsModal] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [roleChangingMember, setRoleChangingMember] = useState(null);
 
   useEffect(() => {
     if (!userData?.companyId) {
@@ -327,6 +330,23 @@ const MemberManagementWithDepartments = () => {
     } catch (error) {
       console.error("Error removing department:", error);
       alert("Failed to remove department");
+    }
+  };
+
+  const handleChangeRole = async (newRole, member) => {
+    try {
+      const memberRef = doc(db, "users", member.id);
+      await updateDoc(memberRef, {
+        role: newRole,
+        updatedAt: serverTimestamp(),
+      });
+      alert(`Role updated to ${newRole === UserRole.COMPANY_ADMIN ? "Admin" : newRole === UserRole.HR ? "HR" : "Employee"} successfully!`);
+      setShowRoleModal(false);
+      setRoleChangingMember(null);
+      loadData();
+    } catch (error) {
+      console.error("Error changing role:", error);
+      alert("Failed to change role");
     }
   };
 
@@ -896,6 +916,16 @@ const MemberManagementWithDepartments = () => {
                           </button>
                           <button
                             onClick={() => {
+                              setRoleChangingMember(member);
+                              setShowRoleModal(true);
+                            }}
+                            className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Change Role"
+                          >
+                            <ShieldCheck className="w-4.5 h-4.5" />
+                          </button>
+                          <button
+                            onClick={() => {
                               setTagAssigningMember(member);
                               setShowTagModal(true);
                             }}
@@ -1081,6 +1111,80 @@ const MemberManagementWithDepartments = () => {
                   onClick={() => {
                     setShowTagModal(false);
                     setTagAssigningMember(null);
+                  }}
+                  className="w-full px-4 py-2.5 text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Change Modal */}
+      {showRoleModal && roleChangingMember && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-lg font-bold text-[#2D3E50]">
+                    Change Role
+                  </h2>
+                  <p className="text-sm text-gray-400 mt-0.5">
+                    {roleChangingMember.displayName}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowRoleModal(false);
+                    setRoleChangingMember(null);
+                  }}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  { role: UserRole.COMPANY_ADMIN, label: "Admin", desc: "Full company management access", icon: "shield", className: "bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-400" },
+                  { role: UserRole.HR, label: "HR", desc: "Human resources management access", icon: "users", className: "bg-teal-50 text-teal-700 border-teal-200 hover:border-teal-400" },
+                  { role: UserRole.EMPLOYEE, label: "Employee", desc: "Standard employee access", icon: "user", className: "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-400" },
+                ].map((option) => {
+                  const isActive = roleChangingMember.role === option.role;
+                  return (
+                    <button
+                      key={option.role}
+                      onClick={() => handleChangeRole(option.role, roleChangingMember)}
+                      className={`w-full p-4 text-left border-2 rounded-xl transition-colors ${
+                        isActive
+                          ? "border-[#1ABC9C] bg-[#1ABC9C]/5"
+                          : `border-gray-100 hover:${option.className}`
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-semibold text-[#2D3E50]">
+                            {option.label}
+                          </span>
+                          <p className="text-xs text-gray-400 mt-0.5">{option.desc}</p>
+                        </div>
+                        {isActive && (
+                          <span className="text-xs text-[#1ABC9C] font-medium">Current</span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-5">
+                <button
+                  onClick={() => {
+                    setShowRoleModal(false);
+                    setRoleChangingMember(null);
                   }}
                   className="w-full px-4 py-2.5 text-gray-600 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-200"
                 >

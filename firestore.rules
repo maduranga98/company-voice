@@ -159,13 +159,16 @@ service cloud.firestore {
         && (isSuperAdmin()
             || (getUserCompanyId() == resource.data.companyId
                 && (getUserId() == resource.data.authorId
+                    || request.auth.uid == resource.data.authorId
                     || getUserRole() in ['hr', 'company_admin']
-                    || getUserId() == resource.data.assignedTo.id)));
+                    || ('assignedTo' in resource.data && resource.data.assignedTo != null
+                        && getUserId() == resource.data.assignedTo.id))));
 
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
             || (getUserCompanyId() == resource.data.companyId
                 && (getUserId() == resource.data.authorId
+                    || request.auth.uid == resource.data.authorId
                     || getUserRole() in ['hr', 'company_admin'])));
 
       // Likes subcollection
@@ -178,8 +181,10 @@ service cloud.firestore {
         allow delete: if isAuthenticated()
           && (isSuperAdmin()
               || getUserId() == likeId
+              || request.auth.uid == likeId
               || (getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId
                   && (getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
+                      || request.auth.uid == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
                       || getUserRole() in ['hr', 'company_admin'])));
         allow update: if false;
       }
@@ -195,7 +200,9 @@ service cloud.firestore {
           && (isSuperAdmin()
               || (getUserCompanyId() == get(/databases/$(database)/documents/posts/$(postId)).data.companyId
                   && (getUserId() == resource.data.authorId
+                      || request.auth.uid == resource.data.authorId
                       || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
+                      || request.auth.uid == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
                       || getUserRole() in ['hr', 'company_admin'])));
         allow update: if false;
       }
@@ -737,6 +744,7 @@ match /departmentAssignmentLogs/{logId} {
         && (isSuperAdmin()
             || (getUserCompanyId() == request.resource.data.companyId
                 && (getUserId() == request.resource.data.deletedBy.id
+                    || request.auth.uid == request.resource.data.deletedBy.id
                     || getUserRole() in ['hr', 'company_admin'])));
 
       allow update: if isSuperAdmin();

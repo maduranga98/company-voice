@@ -854,6 +854,9 @@ export const getPostsWithPrivacyFilter = async (companyId, feedType, user) => {
       // Authors can always see their own posts
       if (userId && post.authorId === userId) return true;
 
+      // Users can see posts assigned to them
+      if (userId && post.assignedTo?.id === userId) return true;
+
       const privacyLevel = post.privacyLevel || "company_public";
 
       if (privacyLevel === "company_public") return true;
