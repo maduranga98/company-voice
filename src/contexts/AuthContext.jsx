@@ -134,9 +134,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    // Sign out from Firebase Auth (anonymous session)
-    await signOut(auth);
-
+    // Do NOT call signOut(auth) — that destroys the anonymous session
+    // and forces a new Firebase Auth user to be created on the next login.
+    // Instead, reset the authSession to pending to block Firestore rule access.
+    const firebaseUser = auth.currentUser;
+    if (firebaseUser) {
+      try {
+        await setDoc(doc(db, "authSessions", firebaseUser.uid), {
+          userId: "pending",
+          role: "pending",
+          companyId: null,
+          firebaseUid: firebaseUser.uid,
+          createdAt: serverTimestamp(),
+        });
+      } catch (err) {
+        console.error("Error clearing auth session on logout:", err);
+      }
+    }
     setCurrentUser(null);
     setUserData(null);
     localStorage.removeItem("currentUser");
