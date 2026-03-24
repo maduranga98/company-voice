@@ -11,7 +11,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
-import { signInAnonymously, signOut } from "firebase/auth";
+import { signInAnonymously } from "firebase/auth";
 import CryptoJS from "crypto-js";
 
 // Hash password
@@ -24,9 +24,13 @@ export const loginWithUsernamePassword = async (username, password) => {
   try {
     const hashedPassword = hashPassword(password);
 
-    // Sign in anonymously FIRST so all subsequent Firestore queries are authenticated.
-    // Firestore security rules require request.auth != null for reading users.
-    const firebaseAuthResult = await signInAnonymously(auth);
+    // Reuse existing anonymous session if available, otherwise create one.
+    // This prevents unbounded accumulation of Firebase Auth anonymous users.
+    let firebaseUser = auth.currentUser;
+    if (!firebaseUser) {
+      const firebaseAuthResult = await signInAnonymously(auth);
+      firebaseUser = firebaseAuthResult.user;
+    }
 
     // Create a temporary auth session so Firestore rules can resolve getSession()
     // during the user queries below. This is needed because rules call getUserRole()
@@ -36,10 +40,10 @@ export const loginWithUsernamePassword = async (username, password) => {
       username: username.toLowerCase(),
       companyId: null,
       role: "pending",
-      firebaseUid: firebaseAuthResult.user.uid,
+      firebaseUid: firebaseUser.uid,
       createdAt: serverTimestamp(),
     };
-    await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), tempSessionData);
+    await setDoc(doc(db, "authSessions", firebaseUser.uid), tempSessionData);
 
     try {
       // Query users collection for custom authentication
@@ -113,11 +117,11 @@ export const loginWithUsernamePassword = async (username, password) => {
         username: activeUserData.username,
         companyId: activeUserData.companyId ?? null,
         role: activeUserData.role,
-        firebaseUid: firebaseAuthResult.user.uid,
+        firebaseUid: firebaseUser.uid,
         createdAt: serverTimestamp(),
       };
 
-      await setDoc(doc(db, "authSessions", firebaseAuthResult.user.uid), authSessionData);
+      await setDoc(doc(db, "authSessions", firebaseUser.uid), authSessionData);
 
       // Update last login
       await updateDoc(doc(db, "users", activeUserDoc.id), {
@@ -129,8 +133,16 @@ export const loginWithUsernamePassword = async (username, password) => {
 
       return activeUserData;
     } catch (loginError) {
-      // Login failed — sign out to prevent auth state mismatch
-      await signOut(auth);
+      // Login failed — reset authSession to pending to block Firestore rule access.
+      // Do NOT call signOut(auth) as that would destroy the anonymous session and
+      // force a new Firebase Auth user to be created on the next login attempt.
+      await setDoc(doc(db, "authSessions", firebaseUser.uid), {
+        userId: "pending",
+        role: "pending",
+        companyId: null,
+        firebaseUid: firebaseUser.uid,
+        createdAt: serverTimestamp(),
+      });
       throw loginError;
     }
   } catch (error) {
