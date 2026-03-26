@@ -81,6 +81,49 @@ const generateAuthToken = onCall({ cors: true, memory: '128MiB' }, async (reques
   }
 });
 
+/**
+ * Initialize super admin user (one-time setup)
+ * Creates the default super admin account if it does not already exist.
+ * This callable function is idempotent — safe to call multiple times.
+ */
+const setupSuperAdmin = onCall({ cors: true, memory: '128MiB' }, async () => {
+  try {
+    const SUPER_ADMIN_USERNAME = 'superadmin';
+    const SUPER_ADMIN_PASSWORD = 'Admin@123';
+    const hashedPassword = hashPassword(SUPER_ADMIN_PASSWORD);
+
+    // Check if super admin already exists
+    const existing = await db.collection(COLLECTIONS.USERS)
+      .where('username', '==', SUPER_ADMIN_USERNAME)
+      .where('role', '==', 'super_admin')
+      .limit(1)
+      .get();
+
+    if (!existing.empty) {
+      return { success: true, message: 'Super admin already exists' };
+    }
+
+    // Create super admin user
+    await db.collection(COLLECTIONS.USERS).add({
+      username: SUPER_ADMIN_USERNAME,
+      password: hashedPassword,
+      displayName: 'Super Admin',
+      email: 'superadmin@companyvoice.app',
+      role: 'super_admin',
+      status: 'active',
+      companyId: null,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastLogin: null,
+    });
+
+    return { success: true, message: 'Super admin created successfully' };
+  } catch (error) {
+    console.error('Error setting up super admin:', error);
+    throw new HttpsError('internal', error.message);
+  }
+});
+
 module.exports = {
   generateAuthToken,
+  setupSuperAdmin,
 };

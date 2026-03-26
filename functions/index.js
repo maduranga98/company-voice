@@ -53,6 +53,7 @@ const {
 // Auth API
 const {
   generateAuthToken,
+  setupSuperAdmin,
 } = require('./api/authApi');
 
 // Webhooks - COMMENTED OUT FOR NOW
@@ -125,3 +126,4 @@ exports.getUnreadCount = getUnreadCount;
 
 // Export Auth Functions
 exports.generateAuthToken = generateAuthToken;
+exports.setupSuperAdmin = setupSuperAdmin;
