@@ -156,20 +156,13 @@ export const deleteDepartment = async (
 export const getDepartments = async (companyId, includeInactive = false) => {
   try {
     const departmentsRef = collection(db, "departments");
-    let q = query(
+    // Use a simple query without the isActive filter to avoid requiring a
+    // composite index; filter inactive departments in-memory instead.
+    const q = query(
       departmentsRef,
       where("companyId", "==", companyId),
       orderBy("name", "asc"),
     );
-
-    if (!includeInactive) {
-      q = query(
-        departmentsRef,
-        where("companyId", "==", companyId),
-        where("isActive", "==", true),
-        orderBy("name", "asc"),
-      );
-    }
 
     const snapshot = await getDocs(q);
 
@@ -197,7 +190,7 @@ export const getDepartments = async (companyId, includeInactive = false) => {
       memberCount: memberCounts[doc.id] || 0,
     }));
 
-    return departments;
+    return includeInactive ? departments : departments.filter(d => d.isActive !== false);
   } catch (error) {
     console.error("Error fetching departments:", error);
     throw new Error("Failed to fetch departments");

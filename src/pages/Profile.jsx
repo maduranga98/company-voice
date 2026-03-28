@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { db } from "../config/firebase";
-import { doc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { db, storage } from "../config/firebase";
+import { doc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useTranslation } from "react-i18next";
-import { PostType } from "../utils/constants";
+import { PostType, UserRole } from "../utils/constants";
 import {
   Shield,
   ClipboardList,
@@ -35,6 +36,11 @@ const Profile = () => {
   });
   const [editData, setEditData] = useState({ displayName: "", email: "" });
   const [stats, setStats] = useState({ total: 0, problems: 0, ideas: 0 });
+  const [companyData, setCompanyData] = useState(null);
+  const [companyEditData, setCompanyEditData] = useState({ name: "", logoUrl: "" });
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   useEffect(() => {
     if (userData) {
@@ -52,8 +58,24 @@ const Profile = () => {
         email: userData.email || "",
       });
       loadStats();
+      if (userData.role === UserRole.COMPANY_ADMIN && userData.companyId) {
+        loadCompanyData(userData.companyId);
+      }
     }
   }, [userData]);
+
+  const loadCompanyData = async (companyId) => {
+    try {
+      const companyDoc = await getDoc(doc(db, "companies", companyId));
+      if (companyDoc.exists()) {
+        const data = companyDoc.data();
+        setCompanyData({ id: companyDoc.id, ...data });
+        setCompanyEditData({ name: data.name || "", logoUrl: data.logoUrl || "" });
+      }
+    } catch (error) {
+      console.error("Error loading company data:", error);
+    }
+  };
 
   const loadStats = async () => {
     if (!userData?.id || !userData?.companyId) return;
@@ -78,6 +100,10 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    if (userData?.role === UserRole.COMPANY_ADMIN && companyData) {
+      await handleSaveCompany();
+      return;
+    }
     try {
       setLoading(true);
       const userRef = doc(db, "users", userData.id);
@@ -106,7 +132,60 @@ const Profile = () => {
       displayName: profileData.displayName,
       email: profileData.email,
     });
+    setLogoFile(null);
+    setLogoPreview(null);
     setIsEditing(false);
+  };
+
+  const handleLogoSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file.");
+      return;
+    }
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleSaveCompany = async () => {
+    if (!userData?.companyId) return;
+    try {
+      setLoading(true);
+      let logoUrl = companyEditData.logoUrl;
+
+      if (logoFile) {
+        setLogoUploading(true);
+        const logoRef = ref(storage, `companies/${userData.companyId}/logo_${Date.now()}`);
+        await new Promise((resolve, reject) => {
+          const uploadTask = uploadBytesResumable(logoRef, logoFile);
+          uploadTask.on("state_changed", null, reject, async () => {
+            logoUrl = await getDownloadURL(logoRef);
+            resolve();
+          });
+        });
+        setLogoUploading(false);
+      }
+
+      const companyRef = doc(db, "companies", userData.companyId);
+      await updateDoc(companyRef, {
+        name: companyEditData.name.trim(),
+        logoUrl,
+      });
+
+      setCompanyData((prev) => ({ ...prev, name: companyEditData.name.trim(), logoUrl }));
+      setCompanyEditData({ name: companyEditData.name.trim(), logoUrl });
+      setLogoFile(null);
+      setLogoPreview(null);
+      setIsEditing(false);
+      alert(t("profile.companyUpdateSuccess", "Company information updated successfully!"));
+    } catch (error) {
+      console.error("Error updating company:", error);
+      alert(t("profile.companyUpdateError", "Failed to update company information. Please try again."));
+    } finally {
+      setLoading(false);
+      setLogoUploading(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -234,10 +313,10 @@ const Profile = () => {
               </button>
               <button
                 onClick={handleSave}
-                disabled={loading}
+                disabled={loading || logoUploading}
                 className="flex-1 bg-[#1ABC9C] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#17a589] disabled:opacity-50 transition-colors"
               >
-                {loading ? t("profile.saving", "Saving...") : t("profile.saveChanges", "Save")}
+                {logoUploading ? t("profile.uploadingLogo", "Uploading...") : loading ? t("profile.saving", "Saving...") : t("profile.saveChanges", "Save")}
               </button>
             </div>
           )}
@@ -284,6 +363,64 @@ const Profile = () => {
           ))}
         </div>
       </div>
+
+      {/* Company Settings - only for company_admin */}
+      {userData?.role === UserRole.COMPANY_ADMIN && companyData && (
+        <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+            {t("profile.companySettings", "Company Settings")}
+          </h3>
+          <div className="space-y-4">
+            {/* Company Logo */}
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center border border-gray-200 flex-shrink-0">
+                {(logoPreview || companyData.logoUrl) ? (
+                  <img
+                    src={logoPreview || companyData.logoUrl}
+                    alt="Company logo"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-gray-400">
+                    {companyData.name?.charAt(0)?.toUpperCase() || "C"}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-800">{t("profile.companyLogo", "Company Logo")}</p>
+                {isEditing ? (
+                  <label className="mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium cursor-pointer transition">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {logoFile ? t("profile.changeImage", "Change image") : t("profile.uploadLogo", "Upload logo")}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoSelect} />
+                  </label>
+                ) : (
+                  <p className="text-xs text-gray-400 mt-0.5">{t("profile.logoHint", "PNG or JPG, recommended 200×200px")}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Company Name */}
+            <div className="flex justify-between items-center py-2 border-t border-gray-50">
+              <span className="text-sm text-gray-500 flex-shrink-0 mr-4">{t("profile.companyName", "Company Name")}</span>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={companyEditData.name}
+                  onChange={(e) => setCompanyEditData((prev) => ({ ...prev, name: e.target.value }))}
+                  className="text-sm font-medium text-gray-900 text-right border-b-2 border-[#1ABC9C] outline-none bg-transparent flex-1 min-w-0 py-0.5"
+                />
+              ) : (
+                <span className="text-sm font-medium text-gray-900 text-right flex-1 min-w-0 truncate">
+                  {companyData.name || "—"}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick links */}
       <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">

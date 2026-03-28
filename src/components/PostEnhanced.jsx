@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Flag,
   Pin,
@@ -12,6 +12,7 @@ import {
   Trash2,
   MoreVertical,
   User,
+  Bookmark,
 } from "lucide-react";
 import ReactionButton from "./ReactionButton";
 import VotingButton from "./VotingButton";
@@ -28,6 +29,7 @@ import {
 } from "../utils/constants";
 import { getEditHistory } from "../services/postEnhancedFeaturesService";
 import { deletePost } from "../services/postManagementService";
+import { subscribeToBookmark, toggleBookmark } from "../services/bookmarkService";
 import { showSuccess, showError, showPromise } from "../services/toastService";
 import CommentsEnhanced from "./CommentsEnhanced";
 import EditPost from "./EditPost";
@@ -47,6 +49,26 @@ const PostEnhanced = ({ post }) => {
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+
+  useEffect(() => {
+    if (!userData?.id) return;
+    const unsub = subscribeToBookmark(userData.id, post.id, setIsBookmarked);
+    return () => unsub();
+  }, [userData?.id, post.id]);
+
+  const handleToggleBookmark = async () => {
+    if (!userData?.id || bookmarkLoading) return;
+    setBookmarkLoading(true);
+    try {
+      await toggleBookmark(userData.id, post.id, userData.companyId);
+    } catch (err) {
+      console.error("Error toggling bookmark:", err);
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
   const isProblemReport = post.type === PostType.PROBLEM_REPORT;
 
@@ -166,9 +188,19 @@ const PostEnhanced = ({ post }) => {
     }
   };
 
+  const getStatusHighlight = () => {
+    switch (post.status) {
+      case "resolved": return "border-l-4 border-l-green-400 bg-green-50/40";
+      case "closed": return "border-l-4 border-l-slate-400 bg-slate-50/40";
+      case "rejected":
+      case "not_a_problem": return "border-l-4 border-l-red-300 bg-red-50/30";
+      default: return "";
+    }
+  };
+
   return (
     <>
-      <article className="bg-white rounded-2xl overflow-visible transition-all relative">
+      <article className={`bg-white rounded-2xl overflow-visible transition-all relative ${getStatusHighlight()}`}>
         {/* Pinned Banner */}
         {post.isPinned && (
           <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2 rounded-t-2xl">
@@ -438,16 +470,33 @@ const PostEnhanced = ({ post }) => {
             </>
           }
           reportButton={
-            userData && userData.uid !== post.authorId && !post.isRemoved ? (
-              <button
-                onClick={() => setShowReportModal(true)}
-                className="ml-auto flex items-center gap-1 px-2 sm:px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm"
-                title="Report this post"
-              >
-                <Flag className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline text-xs">Report</span>
-              </button>
-            ) : null
+            <div className="ml-auto flex items-center gap-1">
+              {userData && (
+                <button
+                  onClick={handleToggleBookmark}
+                  disabled={bookmarkLoading}
+                  className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg transition-colors text-sm ${
+                    isBookmarked
+                      ? "text-[#1ABC9C] bg-teal-50 hover:bg-teal-100"
+                      : "text-gray-400 hover:text-[#1ABC9C] hover:bg-teal-50"
+                  } disabled:opacity-50`}
+                  title={isBookmarked ? "Remove bookmark" : "Bookmark this post"}
+                >
+                  <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? "fill-current" : ""}`} />
+                  <span className="hidden sm:inline text-xs">{isBookmarked ? "Saved" : "Save"}</span>
+                </button>
+              )}
+              {userData && userData.id !== post.authorId && (
+                <button
+                  onClick={() => setShowReportModal(true)}
+                  className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors text-sm"
+                  title="Report this post"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline text-xs">Report</span>
+                </button>
+              )}
+            </div>
           }
         />
       </article>

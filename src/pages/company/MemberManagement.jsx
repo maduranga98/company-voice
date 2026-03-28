@@ -11,6 +11,7 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { UserRole } from "../../utils/constants";
@@ -174,6 +175,8 @@ const MemberManagement = () => {
       });
 
       showSuccess(t('company.memberApproved'));
+      // Reset filter so approved members are visible in "all" view
+      setSelectedStatus("all");
       loadData();
     } catch (error) {
       console.error("Error approving member:", error);
@@ -200,6 +203,49 @@ const MemberManagement = () => {
     } catch (error) {
       console.error("Error rejecting member:", error);
       showError(t('company.failedToRejectMember'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (member) => {
+    if (!confirm(t('company.confirmRemoveMember', `Remove ${member.displayName} from the company? Their posts will be attributed to "Former Employee".`))) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const batch = writeBatch(db);
+
+      // Re-attribute posts to "Former Employee"
+      const postsQuery = query(
+        collection(db, "posts"),
+        where("authorId", "==", member.id),
+        where("companyId", "==", userData.companyId)
+      );
+      const postsSnapshot = await getDocs(postsQuery);
+      postsSnapshot.forEach((postDoc) => {
+        batch.update(postDoc.ref, {
+          authorName: "Former Employee",
+          isFormerEmployee: true,
+          updatedAt: serverTimestamp(),
+        });
+      });
+
+      // Deactivate the user
+      batch.update(doc(db, "users", member.id), {
+        status: "removed",
+        removedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      await batch.commit();
+
+      showSuccess(t('company.memberRemoved', 'Member removed successfully'));
+      loadData();
+    } catch (error) {
+      console.error("Error removing member:", error);
+      showError(t('company.failedToRemoveMember', 'Failed to remove member'));
     } finally {
       setLoading(false);
     }
@@ -730,6 +776,13 @@ const MemberManagement = () => {
                             className="text-purple-600 hover:text-purple-800 font-medium"
                           >
                             {t('company.changeRole', 'Role')}
+                          </button>
+                          <span className="text-gray-300">|</span>
+                          <button
+                            onClick={() => handleRemoveMember(member)}
+                            className="text-red-600 hover:text-red-800 font-medium"
+                          >
+                            {t('company.removeMember', 'Remove')}
                           </button>
                         </div>
                       )}

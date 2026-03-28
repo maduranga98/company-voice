@@ -34,14 +34,16 @@ const EmployeeMessages = () => {
   const loadThreads = async () => {
     setLoading(true);
     try {
-      const postsQuery = query(
-        collection(db, "posts"),
-        where("companyId", "==", userData.companyId),
-        where("authorId", "==", userData.id)
-      );
-      const postsSnap = await getDocs(postsQuery);
+      // Query by authorId (old non-anon posts) and by creatorId (new posts, including anonymous)
+      const [postsSnap1, postsSnap2] = await Promise.all([
+        getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id))),
+        getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id))),
+      ]);
+      const seenIds = new Set();
       const userPosts = [];
-      postsSnap.forEach((d) => userPosts.push({ id: d.id, ...d.data() }));
+      [...postsSnap1.docs, ...postsSnap2.docs].forEach((d) => {
+        if (!seenIds.has(d.id)) { seenIds.add(d.id); userPosts.push({ id: d.id, ...d.data() }); }
+      });
 
       const threadResults = [];
       for (const post of userPosts) {

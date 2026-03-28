@@ -59,13 +59,11 @@ export const saveEditHistory = async (postId, changes, editedBy, editedByName) =
     });
 
     // Log activity
-    await logPostActivity(
-      postId,
-      PostActivityType.EDITED,
-      editedBy,
-      editedByName,
-      { changes: Object.keys(changes) }
-    );
+    await logPostActivity(postId, PostActivityType.EDITED, {
+      adminId: editedBy,
+      adminName: editedByName,
+      changes: Object.keys(changes),
+    });
 
     return editHistoryEntry;
   } catch (error) {
@@ -125,13 +123,11 @@ export const pinPost = async (postId, userId, userName, companyId) => {
     });
 
     // Log activity
-    await logPostActivity(
-      postId,
-      PostActivityType.PINNED,
-      userId,
-      userName,
-      { companyId }
-    );
+    await logPostActivity(postId, PostActivityType.PINNED, {
+      adminId: userId,
+      adminName: userName,
+      companyId,
+    });
   } catch (error) {
     console.error("Error pinning post:", error);
     throw new Error("Failed to pin post");
@@ -157,12 +153,10 @@ export const unpinPost = async (postId, userId, userName) => {
     });
 
     // Log activity
-    await logPostActivity(
-      postId,
-      PostActivityType.UNPINNED,
-      userId,
-      userName
-    );
+    await logPostActivity(postId, PostActivityType.UNPINNED, {
+      adminId: userId,
+      adminName: userName,
+    });
   } catch (error) {
     console.error("Error unpinning post:", error);
     throw new Error("Failed to unpin post");
@@ -232,13 +226,11 @@ export const archivePost = async (postId, userId, userName, reason = "") => {
     });
 
     // Log activity
-    await logPostActivity(
-      postId,
-      PostActivityType.ARCHIVED,
-      userId,
-      userName,
-      { reason }
-    );
+    await logPostActivity(postId, PostActivityType.ARCHIVED, {
+      adminId: userId,
+      adminName: userName,
+      reason,
+    });
   } catch (error) {
     console.error("Error archiving post:", error);
     throw new Error("Failed to archive post");
@@ -264,12 +256,10 @@ export const unarchivePost = async (postId, userId, userName) => {
     });
 
     // Log activity
-    await logPostActivity(
-      postId,
-      PostActivityType.UNARCHIVED,
-      userId,
-      userName
-    );
+    await logPostActivity(postId, PostActivityType.UNARCHIVED, {
+      adminId: userId,
+      adminName: userName,
+    });
   } catch (error) {
     console.error("Error unarchiving post:", error);
     throw new Error("Failed to unarchive post");

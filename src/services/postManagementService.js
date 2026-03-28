@@ -707,38 +707,41 @@ const notifyAuthor = async (postId, postData, notificationType, metadata) => {
 export const getUserPosts = async (userId, companyId, postType = null) => {
   try {
     const postsRef = collection(db, "posts");
-    let q;
+    const buildConstraints = (authorId) => {
+      const cs = [where("authorId", "==", authorId), where("companyId", "==", companyId)];
+      if (postType) cs.push(where("type", "==", postType));
+      cs.push(orderBy("createdAt", "desc"), limit(100));
+      return cs;
+    };
 
-    if (postType) {
-      q = query(
-        postsRef,
-        where("authorId", "==", userId),
-        where("companyId", "==", companyId),
-        where("type", "==", postType),
-        orderBy("createdAt", "desc"),
-        limit(100)
-      );
-    } else {
-      q = query(
-        postsRef,
-        where("authorId", "==", userId),
-        where("companyId", "==", companyId),
-        orderBy("createdAt", "desc"),
-        limit(100)
-      );
-    }
+    // Fetch by plain authorId (non-anonymous posts)
+    const snapshot = await getDocs(query(postsRef, ...buildConstraints(userId)));
+    // Also fetch by creatorId to catch anonymous posts (which have encrypted authorId)
+    const creatorSnap = await getDocs(
+      query(postsRef, where("creatorId", "==", userId), where("companyId", "==", companyId), orderBy("createdAt", "desc"), limit(100))
+    );
 
-    const snapshot = await getDocs(q);
+    // Merge, deduplicating by post ID
+    const seenIds = new Set();
+    const allDocs = [...snapshot.docs, ...creatorSnap.docs].filter(d => {
+      if (seenIds.has(d.id)) return false;
+      seenIds.add(d.id);
+      return true;
+    });
+
     const posts = [];
-
-    for (const docSnap of snapshot.docs) {
+    for (const docSnap of allDocs) {
       const postData = { id: docSnap.id, ...docSnap.data() };
-
-      // Check for unread updates
       postData.hasUnreadUpdates = await hasUnreadUpdates(postData, userId);
-
       posts.push(postData);
     }
+
+    // Sort by createdAt desc
+    posts.sort((a, b) => {
+      const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+      const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return bTime - aTime;
+    });
 
     return posts;
   } catch (error) {

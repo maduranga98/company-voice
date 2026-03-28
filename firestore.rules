@@ -162,7 +162,11 @@ service cloud.firestore {
                     || request.auth.uid == resource.data.authorId
                     || getUserRole() in ['hr', 'company_admin']
                     || ('assignedTo' in resource.data && resource.data.assignedTo != null
-                        && getUserId() == resource.data.assignedTo.id))));
+                        && getUserId() == resource.data.assignedTo.id)
+                    // Allow any company member to update only the reactions map (BUG15)
+                    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
+                    // Allow any company member to increment the comments counter (BUG13)
+                    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments']))));
 
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
@@ -806,6 +810,25 @@ match /departmentAssignmentLogs/{logId} {
 
       allow update: if false;
       allow delete: if false;
+    }
+
+    // ============================================
+    // BOOKMARKS COLLECTION
+    // ============================================
+    // - Users can read/create/delete their own bookmarks
+    // - No updates (toggle = delete + create)
+    match /bookmarks/{bookmarkId} {
+      allow read: if isAuthenticated()
+        && (isSuperAdmin() || getUserId() == resource.data.userId);
+
+      allow create: if isAuthenticated()
+        && getUserId() == request.resource.data.userId
+        && getUserCompanyId() == request.resource.data.companyId;
+
+      allow delete: if isAuthenticated()
+        && (isSuperAdmin() || getUserId() == resource.data.userId);
+
+      allow update: if false;
     }
 
     // ============================================

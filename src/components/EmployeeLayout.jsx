@@ -94,13 +94,15 @@ const EmployeeLayout = ({ children }) => {
 
     const fetchUnreadCount = async () => {
       try {
-        const postsQuery = query(
-          collection(db, "posts"),
-          where("companyId", "==", userData.companyId),
-          where("authorId", "==", userData.id),
-          where("isAnonymous", "==", true)
-        );
-        const postsSnap = await getDocs(postsQuery);
+        // Query by both authorId and creatorId to find all anonymous posts
+        const [snap1, snap2] = await Promise.all([
+          getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id), where("isAnonymous", "==", true))),
+          getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id), where("isAnonymous", "==", true))),
+        ]);
+        const seenPosts = new Set();
+        const allAnonDocs = [];
+        [...snap1.docs, ...snap2.docs].forEach(d => { if (!seenPosts.has(d.id)) { seenPosts.add(d.id); allAnonDocs.push(d); } });
+        const postsSnap = { docs: allAnonDocs };
 
         let total = 0;
         for (const postDoc of postsSnap.docs) {
@@ -192,7 +194,7 @@ const EmployeeLayout = ({ children }) => {
 
   // Quick links shown in profile or accessible areas
   const quickLinks = [
-    ...(userData?.userTagId ? [{ label: t("navigation.assignedToMe", "Assigned to Me"), path: "/assigned-to-me", icon: ClipboardCheck }] : []),
+    { label: t("navigation.assignedToMe", "Assigned to Me"), path: "/assigned-to-me", icon: ClipboardCheck },
     { label: t("navigation.myPosts", "My Posts"), path: "/my-posts", icon: ClipboardList },
     { label: t("navigation.policies", "Policies"), path: "/policies", icon: BookOpen },
     { label: t("navigation.help", "Help"), path: "/help", icon: HelpCircle },
@@ -388,18 +390,16 @@ const EmployeeLayout = ({ children }) => {
             {t("navigation.myPosts", "My Posts")}
           </button>
 
-          {/* Assigned to Me (if applicable) */}
-          {userData?.userTagId && (
-            <button
-              onClick={() => handleNavigate("/assigned-to-me")}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all ${
-                isAssignedActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              <ClipboardCheck size={16} className={isAssignedActive ? "text-[#1ABC9C]" : "text-gray-400"} />
-              {t("navigation.assignedToMe", "Assigned to Me")}
-            </button>
-          )}
+          {/* Assigned to Me */}
+          <button
+            onClick={() => handleNavigate("/assigned-to-me")}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all ${
+              isAssignedActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            <ClipboardCheck size={16} className={isAssignedActive ? "text-[#1ABC9C]" : "text-gray-400"} />
+            {t("navigation.assignedToMe", "Assigned to Me")}
+          </button>
 
           {/* Profile */}
           <button

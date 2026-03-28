@@ -7,6 +7,7 @@ import PollCreator from "./PollCreator";
 import AnonymityGuaranteeScreen from "./AnonymityGuaranteeScreen";
 import { useTranslation } from "react-i18next";
 import { encryptAuthorId } from "../services/postManagementService";
+import { saveDraft } from "../services/postEnhancementsService";
 import { X, Paperclip, Eye, EyeOff, Send, Sparkles, AlertTriangle, MessageCircle, ChevronDown, Image as ImageIcon, FileText, Shield, Lock } from "lucide-react";
 
 const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
@@ -51,7 +52,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         const snapshot = await getDocs(q);
         const deptList = [];
         snapshot.forEach((doc) => { deptList.push({ id: doc.id, ...doc.data() }); });
-        setDepartments(deptList);
+        setDepartments(deptList.filter(d => d.isActive !== false));
       } catch (error) {
         console.error("Error loading departments:", error);
       }
@@ -109,6 +110,14 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         setShowAnonymityGuarantee(true);
         return;
       }
+    }
+    if (name === "privacyLevel" && value === "department_only") {
+      setFormData((prev) => ({
+        ...prev,
+        privacyLevel: value,
+        departmentId: prev.departmentId || userData?.departmentId || "",
+      }));
+      return;
     }
     setFormData((prev) => ({ ...prev, [name]: inputType === "checkbox" ? checked : value }));
   };
@@ -220,6 +229,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         tags: formData.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
         isAnonymous: formData.isAnonymous,
         authorId: formData.isAnonymous ? encryptAuthorId(userData.id) : userData.id,
+        creatorId: userData.id,
         authorName: formData.isAnonymous ? "Anonymous" : userData.displayName || "Unknown User",
         authorEmail: userData.email || "",
         authorDepartmentId: userData.departmentId || null,
@@ -283,6 +293,37 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
       } else {
         setError(error.message || "Failed to create post. Please try again.");
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    if (!userData?.id || !userData?.companyId) return;
+    setLoading(true);
+    setError("");
+    try {
+      const draftData = {
+        title: formData.title.trim() || "Untitled Draft",
+        content: formData.description.trim(),
+        category: formData.category,
+        tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
+        isAnonymous: formData.isAnonymous,
+        authorId: userData.id,
+        creatorId: userData.id,
+        authorName: userData.displayName || "Unknown User",
+        authorEmail: userData.email || "",
+        authorDepartmentId: userData.departmentId || null,
+        companyId: userData.companyId,
+        type: currentConfig.postType,
+        privacyLevel: formData.privacyLevel,
+        departmentId: formData.privacyLevel === "department_only" ? formData.departmentId : null,
+      };
+      await saveDraft(draftData);
+      if (onClose) onClose();
+    } catch (err) {
+      console.error("Error saving draft:", err);
+      setError("Failed to save draft. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -551,11 +592,20 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
               </div>
             )}
 
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleSaveDraft}
+                disabled={loading || !userData?.id || !userData?.companyId}
+                className="flex-shrink-0 px-4 py-3 rounded-xl font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm"
+              >
+                Save Draft
+              </button>
             <button
               type="submit"
               form="create-post-form"
               disabled={loading || !userData?.id || !userData?.companyId || !formData.category}
-              className={`w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${currentConfig.buttonGradient} transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2`}
+              className={`flex-1 py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${currentConfig.buttonGradient} transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2`}
             >
               {loading ? (
                 <>
@@ -569,6 +619,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
                 </>
               )}
             </button>
+            </div>
           </div>
         </div>
       </div>

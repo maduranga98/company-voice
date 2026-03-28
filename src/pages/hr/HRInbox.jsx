@@ -289,7 +289,7 @@ const HRInbox = () => {
 
                 {/* Expanded admin panel */}
                 {selectedPost?.id === post.id && (
-                  <div className="border-t border-gray-100 p-4">
+                  <div className="border-t border-gray-100 p-4" onClick={(e) => e.stopPropagation()}>
                     <AdminActionPanel post={post} currentUser={userData} />
                   </div>
                 )}
