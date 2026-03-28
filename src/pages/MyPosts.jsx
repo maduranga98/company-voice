@@ -4,10 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import PostEnhanced from "../components/PostEnhanced";
 import AnonymousThread from "../components/AnonymousThread";
+import EditPost from "../components/EditPost";
 import {
   getUserPosts,
   markPostAsViewed,
 } from "../services/postManagementService";
+import { publishDraft } from "../services/postEnhancementsService";
 import { getUserBookmarks } from "../services/bookmarkService";
 import {
   PostType,
@@ -16,7 +18,7 @@ import {
 } from "../utils/constants";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { ChevronUp, Shield, FileText, Eye, Bookmark } from "lucide-react";
+import { ChevronUp, Shield, FileText, Eye, Bookmark, Send, Edit } from "lucide-react";
 
 const getTimeAgo = (date) => {
   if (!date) return "Just now";
@@ -111,6 +113,8 @@ const MyPosts = () => {
   const [savedLoading, setSavedLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [expandedPost, setExpandedPost] = useState(null);
+  const [editingDraft, setEditingDraft] = useState(null);
+  const [publishingId, setPublishingId] = useState(null);
 
   useEffect(() => { loadMyPosts(); }, [userData]);
   useEffect(() => {
@@ -171,6 +175,25 @@ const MyPosts = () => {
       default: break;
     }
     setFilteredPosts(filtered);
+  };
+
+  const handlePublishDraft = async (post) => {
+    setPublishingId(post.id);
+    try {
+      await publishDraft(post.id, { id: userData.id, displayName: userData.displayName });
+      await loadMyPosts();
+      setExpandedPost(null);
+    } catch (error) {
+      console.error("Error publishing draft:", error);
+      alert("Failed to publish. Please try again.");
+    } finally {
+      setPublishingId(null);
+    }
+  };
+
+  const handleEditDraftSuccess = () => {
+    setEditingDraft(null);
+    loadMyPosts();
   };
 
   const handleExpandPost = async (post) => {
@@ -356,6 +379,29 @@ const MyPosts = () => {
 
                   <PostEnhanced post={post} />
 
+                  {/* Draft actions */}
+                  {post.isDraft && (
+                    <div className="px-4 py-3 bg-amber-50 border-t border-amber-100 flex items-center gap-2">
+                      <span className="text-xs text-amber-700 font-medium flex-1">This post is a draft</span>
+                      <button
+                        onClick={() => setEditingDraft(post)}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-xl hover:bg-gray-50 transition-all"
+                      >
+                        <Edit size={13} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handlePublishDraft(post)}
+                        disabled={publishingId === post.id}
+                        className="flex items-center gap-1.5 px-3 py-2 text-white text-xs font-medium rounded-xl transition-all disabled:opacity-60"
+                        style={{ backgroundColor: "#1ABC9C" }}
+                      >
+                        <Send size={13} />
+                        {publishingId === post.id ? "Publishing..." : "Publish"}
+                      </button>
+                    </div>
+                  )}
+
                   {isAnonymous && (
                     <AnonymousThread
                       postId={post.id}
@@ -370,6 +416,14 @@ const MyPosts = () => {
           );
         })}
       </div>
+
+      {editingDraft && (
+        <EditPost
+          post={editingDraft}
+          onClose={() => setEditingDraft(null)}
+          onSuccess={handleEditDraftSuccess}
+        />
+      )}
     </div>
   );
 };
