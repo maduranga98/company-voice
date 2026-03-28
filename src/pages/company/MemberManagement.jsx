@@ -220,22 +220,41 @@ const MemberManagement = () => {
       setLoading(true);
       const batch = writeBatch(db);
 
-      // Re-attribute posts to "Former Employee"
-      const postsQuery = query(
+      // Re-attribute named posts (authorId == member.id for non-anonymous posts)
+      const namedPostsQuery = query(
         collection(db, "posts"),
         where("authorId", "==", member.id),
         where("companyId", "==", userData.companyId)
       );
-      const postsSnapshot = await getDocs(postsQuery);
-      postsSnapshot.forEach((postDoc) => {
+      const namedPostsSnapshot = await getDocs(namedPostsQuery);
+      const updatedIds = new Set();
+      namedPostsSnapshot.forEach((postDoc) => {
         batch.update(postDoc.ref, {
           authorName: "Former Employee",
           isFormerEmployee: true,
           updatedAt: serverTimestamp(),
         });
+        updatedIds.add(postDoc.id);
       });
 
-      // Deactivate the user
+      // Re-attribute anonymous posts (creatorId == member.id; authorId is encrypted)
+      const anonPostsQuery = query(
+        collection(db, "posts"),
+        where("creatorId", "==", member.id),
+        where("companyId", "==", userData.companyId)
+      );
+      const anonPostsSnapshot = await getDocs(anonPostsQuery);
+      anonPostsSnapshot.forEach((postDoc) => {
+        if (!updatedIds.has(postDoc.id)) {
+          batch.update(postDoc.ref, {
+            authorName: "Former Employee",
+            isFormerEmployee: true,
+            updatedAt: serverTimestamp(),
+          });
+        }
+      });
+
+      // Mark the user as removed
       batch.update(doc(db, "users", member.id), {
         status: "removed",
         removedAt: serverTimestamp(),

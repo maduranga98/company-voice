@@ -127,6 +127,20 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "creatorId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "assignedTo.id",
           "order": "ASCENDING"
         },
