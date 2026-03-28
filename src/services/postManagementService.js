@@ -255,11 +255,6 @@ export const assignPost = async (postId, assignment, adminUser) => {
 
     const postData = postSnap.data();
 
-    // Validate assignment based on post anonymity
-    if (postData.isAnonymous && assignment.type === AssignmentType.USER) {
-      throw new Error("Anonymous posts can only be assigned to departments");
-    }
-
     await updateDoc(postRef, {
       assignedTo: {
         type: assignment.type,
