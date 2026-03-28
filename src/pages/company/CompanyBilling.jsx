@@ -304,7 +304,7 @@ function CompanyBillingContent() {
             </div>
 
             <div className="mt-6">
-              {activeTab === 'overview' && <OverviewTab subscription={subscription} usageSummary={usageSummary} />}
+              {activeTab === 'overview' && <OverviewTab subscription={subscription} usageSummary={usageSummary} activeMemberCount={activeMemberCount} />}
               {activeTab === 'invoices' && <InvoicesTab invoices={invoices} />}
               {activeTab === 'payment-methods' && (
                 <PaymentMethodsTab
@@ -360,54 +360,107 @@ function CompanyBillingContent() {
 
 // Tab Components
 
-function OverviewTab({ subscription, usageSummary }) {
+function OverviewTab({ subscription, usageSummary, activeMemberCount }) {
+  const memberCount = activeMemberCount ?? subscription?.currentUserCount ?? 0;
+  const pricePerUser = subscription?.pricePerUser || 1.00;
+  const monthlyCost = memberCount * pricePerUser;
+
+  const kpiCards = [
+    {
+      label: "Active Members",
+      value: activeMemberCount != null ? activeMemberCount : (subscription?.currentUserCount ?? "—"),
+      sub: "Verified active accounts",
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
+      border: "border-indigo-100",
+    },
+    {
+      label: "Monthly Cost",
+      value: formatCurrency(monthlyCost),
+      sub: `${memberCount} × ${formatCurrency(pricePerUser)} per user`,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      border: "border-emerald-100",
+    },
+    {
+      label: "Price Per User",
+      value: formatCurrency(pricePerUser),
+      sub: "Per seat / month",
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      border: "border-amber-100",
+    },
+    {
+      label: "Next Billing Date",
+      value: subscription?.currentPeriodEnd ? formatDate(subscription.currentPeriodEnd) : "—",
+      sub: "Renewal date",
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-100",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Current Billing Period</h3>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Period Start:</span>
-            <span className="font-medium">{formatDate(subscription.currentPeriodStart)}</span>
+    <div className="space-y-6">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {kpiCards.map(({ label, value, sub, color, bg, border }) => (
+          <div key={label} className={`rounded-xl border ${border} ${bg} p-4`}>
+            <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
+            <p className={`text-xl font-bold ${color} leading-tight`}>{value}</p>
+            <p className="text-[10px] text-gray-400 mt-1">{sub}</p>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Period End:</span>
-            <span className="font-medium">{formatDate(subscription.currentPeriodEnd)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Current Users:</span>
-            <span className="font-medium">{subscription.currentUserCount}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Base Amount:</span>
-            <span className="font-medium">{formatCurrency((subscription.currentUserCount || 0) * (subscription.pricePerUser || 1.00))}</span>
-          </div>
-          {usageSummary?.prorationAmount !== 0 && (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Proration:</span>
-              <span className={`font-medium ${usageSummary.prorationAmount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatCurrency(Math.abs(usageSummary.prorationAmount))}
-                {usageSummary.prorationAmount > 0 ? ' credit' : ' charge'}
-              </span>
-            </div>
-          )}
-        </div>
+        ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Stats</h3>
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-600">Subscription Created</p>
-            <p className="text-lg font-semibold">{formatDate(subscription.createdAt)}</p>
+      {/* Detail grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Current Billing Period</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Period Start:</span>
+              <span className="font-medium">{formatDate(subscription.currentPeriodStart)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Period End:</span>
+              <span className="font-medium">{formatDate(subscription.currentPeriodEnd)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Active Members:</span>
+              <span className="font-medium">{activeMemberCount != null ? activeMemberCount : (subscription.currentUserCount ?? "—")}</span>
+            </div>
+            <div className="flex justify-between border-t border-gray-100 pt-3 mt-3">
+              <span className="text-gray-600 font-medium">Total Payable:</span>
+              <span className="font-bold text-gray-900">{formatCurrency(monthlyCost)}</span>
+            </div>
+            {usageSummary?.prorationAmount !== 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Proration:</span>
+                <span className={`font-medium ${usageSummary.prorationAmount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(Math.abs(usageSummary.prorationAmount))}
+                  {usageSummary.prorationAmount > 0 ? ' credit' : ' charge'}
+                </span>
+              </div>
+            )}
           </div>
-          <div>
-            <p className="text-sm text-gray-600">Billing Cycle</p>
-            <p className="text-lg font-semibold">Monthly</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Price Per User</p>
-            <p className="text-lg font-semibold">{formatCurrency(subscription.pricePerUser || 1.00)}</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Stats</h3>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-600">Subscription Created</p>
+              <p className="text-lg font-semibold">{formatDate(subscription.createdAt)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Billing Cycle</p>
+              <p className="text-lg font-semibold">Monthly</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Price Per User</p>
+              <p className="text-lg font-semibold">{formatCurrency(subscription.pricePerUser || 1.00)}</p>
+            </div>
           </div>
         </div>
       </div>

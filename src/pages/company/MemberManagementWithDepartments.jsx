@@ -186,9 +186,12 @@ const MemberManagementWithDepartments = () => {
 
     try {
       const memberRef = doc(db, "users", memberId);
-      await deleteDoc(memberRef);
+      await updateDoc(memberRef, {
+        status: "rejected",
+        updatedAt: serverTimestamp(),
+      });
 
-      alert("Member rejected and removed successfully!");
+      alert("Member rejected successfully!");
       loadData();
     } catch (error) {
       console.error("Error rejecting member:", error);
@@ -252,9 +255,13 @@ const MemberManagementWithDepartments = () => {
 
     try {
       const memberRef = doc(db, "users", memberId);
-      await deleteDoc(memberRef);
+      await updateDoc(memberRef, {
+        status: "removed",
+        removedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
 
-      alert("Member deleted successfully!");
+      alert("Member removed successfully!");
       loadData();
     } catch (error) {
       console.error("Error deleting member:", error);

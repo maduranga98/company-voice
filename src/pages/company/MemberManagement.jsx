@@ -196,7 +196,10 @@ const MemberManagement = () => {
     try {
       setLoading(true);
       const memberRef = doc(db, "users", memberId);
-      await deleteDoc(memberRef);
+      await updateDoc(memberRef, {
+        status: "rejected",
+        updatedAt: serverTimestamp(),
+      });
 
       showSuccess(t('company.memberRejected'));
       loadData();

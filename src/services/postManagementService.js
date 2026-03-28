@@ -509,15 +509,18 @@ export const logPostActivity = async (postId, activityType, metadata = {}) => {
  * @param {number} limitCount - Number of activities to fetch
  * @returns {Promise<Array>}
  */
-export const getPostActivityTimeline = async (postId, limitCount = 50) => {
+export const getPostActivityTimeline = async (postId, companyId = null, limitCount = 50) => {
   try {
     const activitiesRef = collection(db, "postActivities");
-    const q = query(
-      activitiesRef,
+    const constraints = [
       where("postId", "==", postId),
       orderBy("createdAt", "desc"),
-      limit(limitCount)
-    );
+      limit(limitCount),
+    ];
+    if (companyId) {
+      constraints.unshift(where("companyId", "==", companyId));
+    }
+    const q = query(activitiesRef, ...constraints);
 
     const snapshot = await getDocs(q);
     const activities = [];
@@ -855,6 +858,7 @@ export const getPostsWithPrivacyFilter = async (companyId, feedType, user) => {
     const userId = user.id || user.uid;
     const filteredPosts = allPosts.filter((post) => {
       if (post.isArchived) return false;
+      if (post.isDraft) return false;
 
       // Super admin and company admin can see all posts
       if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.COMPANY_ADMIN) {

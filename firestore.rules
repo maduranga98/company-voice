@@ -166,7 +166,9 @@ service cloud.firestore {
                     // Allow any company member to update only the reactions map (BUG15)
                     || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions'])
                     // Allow any company member to increment the comments counter (BUG13)
-                    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments']))));
+                    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments'])
+                    // Allow any company member to increment the reportCount (BUG31)
+                    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportCount']))));
 
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
