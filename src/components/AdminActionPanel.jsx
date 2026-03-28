@@ -50,7 +50,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => { loadAssignmentOptions(); }, [currentUser.companyId]);
-  useEffect(() => { if (post.assignedTo) setSelectedAssignee(post.assignedTo); }, [post.assignedTo]);
+  useEffect(() => { setSelectedAssignee(post.assignedTo || null); }, [post.assignedTo]);
 
   const loadAssignmentOptions = async () => {
     try {
@@ -68,24 +68,23 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       const tagMap = {};
       tagsList.forEach((tag) => { tagMap[tag.id] = tag; });
 
-      if (!post.isAnonymous) {
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("companyId", "==", currentUser.companyId), where("status", "==", "active"));
-        const snapshot = await getDocs(q);
-        const usersList = [];
-        snapshot.forEach((doc) => {
-          const userData = { id: doc.id, ...doc.data() };
-          if (userData.userTagId && tagMap[userData.userTagId]) userData.tagData = tagMap[userData.userTagId];
-          usersList.push(userData);
-        });
-        usersList.sort((a, b) => {
-          const pA = a.tagData?.priority || 0;
-          const pB = b.tagData?.priority || 0;
-          if (pB !== pA) return pB - pA;
-          return (a.displayName || "").localeCompare(b.displayName || "");
-        });
-        setUsers(usersList);
-      }
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("companyId", "==", currentUser.companyId), where("status", "==", "active"));
+      const snapshot = await getDocs(q);
+      const usersList = [];
+      snapshot.forEach((doc) => {
+        const userData = { id: doc.id, ...doc.data() };
+        if (userData.userTagId && tagMap[userData.userTagId]) userData.tagData = tagMap[userData.userTagId];
+        // Only include members who have a tag assigned
+        if (userData.userTagId) usersList.push(userData);
+      });
+      usersList.sort((a, b) => {
+        const pA = a.tagData?.priority || 0;
+        const pB = b.tagData?.priority || 0;
+        if (pB !== pA) return pB - pA;
+        return (a.displayName || "").localeCompare(b.displayName || "");
+      });
+      setUsers(usersList);
     } catch (error) {
       console.error("Error loading assignment options:", error);
     }
@@ -300,7 +299,6 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           <div className="relative">
             <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block">
               {t('adminPanel.assignTo')}
-              {post.isAnonymous && <span className="ml-1 text-orange-500 normal-case font-normal">(Not available for anonymous)</span>}
             </label>
             <button
               onClick={() => setShowAssignDropdown(!showAssignDropdown)}
@@ -335,7 +333,18 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                     Unassign
                   </button>
 
-                  {!post.isAnonymous && filteredUsers.length > 0 && (
+                  {/* Assign to me */}
+                  {currentUser.userTagId && (
+                    <button
+                      onClick={() => { handleAssignment({ type: AssignmentType.USER, id: currentUser.id, name: currentUser.displayName, userTagId: currentUser.userTagId }); setSearchTerm(""); }}
+                      className="w-full px-3 py-2 text-left text-xs hover:bg-indigo-50 flex items-center gap-2 text-indigo-600 font-medium border-b border-gray-100"
+                    >
+                      <span>⭐</span>
+                      <span>Assign to me</span>
+                    </button>
+                  )}
+
+                  {filteredUsers.length > 0 && (
                     <>
                       <div className="px-3 py-1.5 bg-gray-50 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">People</div>
                       {filteredUsers.map((user) => (
@@ -360,11 +369,8 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                       ))}
                     </>
                   )}
-                  {!post.isAnonymous && filteredUsers.length === 0 && (
-                    <div className="px-3 py-4 text-xs text-gray-400 text-center">No people found</div>
-                  )}
-                  {post.isAnonymous && (
-                    <div className="px-3 py-4 text-xs text-gray-400 text-center">Assignment not available for anonymous posts</div>
+                  {filteredUsers.length === 0 && (
+                    <div className="px-3 py-4 text-xs text-gray-400 text-center">No tagged members found</div>
                   )}
                 </div>
               </div>
