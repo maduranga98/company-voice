@@ -716,14 +716,21 @@ export const getUserPosts = async (userId, companyId, postType = null) => {
 
     // Fetch by plain authorId (non-anonymous posts)
     const snapshot = await getDocs(query(postsRef, ...buildConstraints(userId)));
-    // Also fetch by creatorId to catch anonymous posts (which have encrypted authorId)
-    const creatorSnap = await getDocs(
-      query(postsRef, where("creatorId", "==", userId), where("companyId", "==", companyId), orderBy("createdAt", "desc"), limit(100))
-    );
+    // Also fetch by creatorId to catch anonymous posts (which have encrypted authorId).
+    // No orderBy here to avoid requiring a composite index — results are sorted client-side below.
+    let creatorDocs = [];
+    try {
+      const creatorSnap = await getDocs(
+        query(postsRef, where("creatorId", "==", userId), where("companyId", "==", companyId), limit(100))
+      );
+      creatorDocs = creatorSnap.docs;
+    } catch {
+      // creatorId index not yet available — fall back to authorId results only
+    }
 
     // Merge, deduplicating by post ID
     const seenIds = new Set();
-    const allDocs = [...snapshot.docs, ...creatorSnap.docs].filter(d => {
+    const allDocs = [...snapshot.docs, ...creatorDocs].filter(d => {
       if (seenIds.has(d.id)) return false;
       seenIds.add(d.id);
       return true;

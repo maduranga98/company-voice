@@ -97,7 +97,7 @@ export const subscribeToBookmark = (userId, postId, callback) => {
     where("userId", "==", userId),
     where("postId", "==", postId)
   );
-  return onSnapshot(q, (snap) => callback(!snap.empty));
+  return onSnapshot(q, (snap) => callback(!snap.empty), () => {});
 };
 
 /**
