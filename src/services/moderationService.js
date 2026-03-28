@@ -108,7 +108,6 @@ export const createContentReport = async (reportData) => {
     // Update report count on content
     await updateDoc(contentRef, {
       reportCount: increment(1),
-      updatedAt: serverTimestamp(),
     });
 
     // Log activity
