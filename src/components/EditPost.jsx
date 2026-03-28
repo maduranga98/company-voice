@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { History, X, Upload, FileText, Trash2, Loader2 } from "lucide-react";
-import { editPost, getPostEditHistory } from "../services/postEnhancementsService";
+import { History, X, Upload, FileText, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import { editPost, getPostEditHistory, updateDraft } from "../services/postEnhancementsService";
+import { encryptAuthorId } from "../services/postManagementService";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import { storage } from "../config/firebase";
 
@@ -17,6 +18,8 @@ const EditPost = ({ post, onClose, onSuccess }) => {
   const [existingAttachments, setExistingAttachments] = useState(post.attachments || []);
   const [newFiles, setNewFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [isAnonymous, setIsAnonymous] = useState(post.isAnonymous || false);
 
   const [formData, setFormData] = useState({
     title: post.title || "",
@@ -197,6 +200,8 @@ const EditPost = ({ post, onClose, onSuccess }) => {
       // Combine existing attachments with newly uploaded files
       const allAttachments = [...existingAttachments, ...uploadedNewFiles];
 
+      const userId = userData.id || userData.uid;
+
       const updateData = {
         title: formData.title.trim(),
         content: formData.content.trim(),
@@ -208,12 +213,23 @@ const EditPost = ({ post, onClose, onSuccess }) => {
         attachments: allAttachments,
       };
 
-      await editPost(post.id, updateData, {
-        id: userData.id || userData.uid,
-        uid: userData.uid || userData.id,
-        displayName: userData.displayName,
-        role: userData.role,
-      });
+      if (post.isDraft) {
+        // For drafts: use updateDraft (no author check on encrypted ID) and persist anonymous choice
+        await updateDraft(post.id, {
+          ...updateData,
+          isAnonymous,
+          authorId: isAnonymous ? encryptAuthorId(userId) : userId,
+          authorName: isAnonymous ? "Anonymous" : (userData.displayName || "Unknown"),
+          creatorId: userId,
+        });
+      } else {
+        await editPost(post.id, updateData, {
+          id: userId,
+          uid: userData.uid || userData.id,
+          displayName: userData.displayName,
+          role: userData.role,
+        });
+      }
 
       if (onSuccess) {
         onSuccess();
@@ -413,6 +429,28 @@ const EditPost = ({ post, onClose, onSuccess }) => {
                 placeholder="tag1, tag2, tag3"
               />
             </div>
+
+            {/* Anonymous toggle — only for drafts */}
+            {post.isDraft && (
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: isAnonymous ? "#1ABC9C20" : "#2D3E5010" }}>
+                    {isAnonymous ? <EyeOff className="w-4 h-4" style={{ color: "#1ABC9C" }} /> : <Eye className="w-4 h-4" style={{ color: NAVY }} />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: NAVY }}>Post Anonymously</p>
+                    <p className="text-xs text-gray-400">{isAnonymous ? "Your identity will be hidden" : "Your name will be visible"}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAnonymous((v) => !v)}
+                  className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 ${isAnonymous ? "bg-[#1ABC9C]" : "bg-gray-200"}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${isAnonymous ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+            )}
 
             {/* Attachments Section */}
             <div>

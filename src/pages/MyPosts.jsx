@@ -18,7 +18,8 @@ import {
 } from "../utils/constants";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { ChevronUp, Shield, FileText, Eye, Bookmark, Send, Edit } from "lucide-react";
+import { ChevronUp, Shield, FileText, Eye, Bookmark, Send, Edit, EyeOff } from "lucide-react";
+import { encryptAuthorId } from "../services/postManagementService";
 
 const getTimeAgo = (date) => {
   if (!date) return "Just now";
@@ -115,6 +116,7 @@ const MyPosts = () => {
   const [expandedPost, setExpandedPost] = useState(null);
   const [editingDraft, setEditingDraft] = useState(null);
   const [publishingId, setPublishingId] = useState(null);
+  const [draftAnonymous, setDraftAnonymous] = useState(false);
 
   useEffect(() => { loadMyPosts(); }, [userData]);
   useEffect(() => {
@@ -180,6 +182,14 @@ const MyPosts = () => {
   const handlePublishDraft = async (post) => {
     setPublishingId(post.id);
     try {
+      // Apply the current anonymous toggle before publishing
+      const { updateDraft } = await import("../services/postEnhancementsService");
+      await updateDraft(post.id, {
+        isAnonymous: draftAnonymous,
+        authorId: draftAnonymous ? encryptAuthorId(userData.id) : userData.id,
+        authorName: draftAnonymous ? "Anonymous" : (userData.displayName || "Unknown"),
+        creatorId: userData.id,
+      });
       await publishDraft(post.id, { id: userData.id, displayName: userData.displayName });
       await loadMyPosts();
       setExpandedPost(null);
@@ -198,6 +208,7 @@ const MyPosts = () => {
 
   const handleExpandPost = async (post) => {
     setExpandedPost(post.id);
+    if (post.isDraft) setDraftAnonymous(post.isAnonymous || false);
     await markPostAsViewed(post.id, userData.id, userData.companyId);
     setPosts((prev) =>
       prev.map((p) => (p.id === post.id ? { ...p, hasUnreadUpdates: false } : p))
@@ -381,24 +392,45 @@ const MyPosts = () => {
 
                   {/* Draft actions */}
                   {post.isDraft && (
-                    <div className="px-4 py-3 bg-amber-50 border-t border-amber-100 flex items-center gap-2">
-                      <span className="text-xs text-amber-700 font-medium flex-1">This post is a draft</span>
-                      <button
-                        onClick={() => setEditingDraft(post)}
-                        className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-xl hover:bg-gray-50 transition-all"
-                      >
-                        <Edit size={13} />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handlePublishDraft(post)}
-                        disabled={publishingId === post.id}
-                        className="flex items-center gap-1.5 px-3 py-2 text-white text-xs font-medium rounded-xl transition-all disabled:opacity-60"
-                        style={{ backgroundColor: "#1ABC9C" }}
-                      >
-                        <Send size={13} />
-                        {publishingId === post.id ? "Publishing..." : "Publish"}
-                      </button>
+                    <div className="border-t border-amber-100 bg-amber-50">
+                      {/* Anonymous toggle row */}
+                      <div className="px-4 py-2.5 flex items-center gap-3 border-b border-amber-100">
+                        <div className="flex items-center gap-2 flex-1">
+                          {draftAnonymous
+                            ? <EyeOff size={14} className="text-amber-600 flex-shrink-0" />
+                            : <Eye size={14} className="text-amber-600 flex-shrink-0" />
+                          }
+                          <span className="text-xs text-amber-800 font-medium">
+                            {draftAnonymous ? "Post anonymously" : "Post with your name"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setDraftAnonymous((v) => !v)}
+                          className={`w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ${draftAnonymous ? "bg-amber-500" : "bg-gray-300"}`}
+                        >
+                          <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${draftAnonymous ? "translate-x-5" : "translate-x-0.5"}`} />
+                        </button>
+                      </div>
+                      {/* Action buttons row */}
+                      <div className="px-4 py-3 flex items-center gap-2">
+                        <button
+                          onClick={() => setEditingDraft(post)}
+                          className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-xl hover:bg-gray-50 transition-all"
+                        >
+                          <Edit size={13} />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handlePublishDraft(post)}
+                          disabled={publishingId === post.id}
+                          className="flex items-center gap-1.5 px-3 py-2 text-white text-xs font-medium rounded-xl transition-all disabled:opacity-60"
+                          style={{ backgroundColor: "#1ABC9C" }}
+                        >
+                          <Send size={13} />
+                          {publishingId === post.id ? "Publishing..." : "Publish"}
+                        </button>
+                      </div>
                     </div>
                   )}
 
