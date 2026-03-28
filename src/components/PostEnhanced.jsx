@@ -166,9 +166,19 @@ const PostEnhanced = ({ post }) => {
     }
   };
 
+  const getStatusHighlight = () => {
+    switch (post.status) {
+      case "resolved": return "border-l-4 border-l-green-400 bg-green-50/40";
+      case "closed": return "border-l-4 border-l-slate-400 bg-slate-50/40";
+      case "rejected":
+      case "not_a_problem": return "border-l-4 border-l-red-300 bg-red-50/30";
+      default: return "";
+    }
+  };
+
   return (
     <>
-      <article className="bg-white rounded-2xl overflow-visible transition-all relative">
+      <article className={`bg-white rounded-2xl overflow-visible transition-all relative ${getStatusHighlight()}`}>
         {/* Pinned Banner */}
         {post.isPinned && (
           <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2 rounded-t-2xl">

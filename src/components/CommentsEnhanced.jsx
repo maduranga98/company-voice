@@ -12,6 +12,7 @@ import {
   deleteDoc,
   doc,
   increment,
+  getCountFromServer,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -47,6 +48,7 @@ const CommentsEnhanced = ({
   const [editText, setEditText] = useState("");
   const [replyingToId, setReplyingToId] = useState(null);
   const [replyText, setReplyText] = useState("");
+  const [replyIsAnonymous, setReplyIsAnonymous] = useState(false);
 
   const [showMentions, setShowMentions] = useState(false);
   const [mentionSuggestions, setMentionSuggestions] = useState([]);
@@ -56,6 +58,25 @@ const CommentsEnhanced = ({
   const [showReportModal, setShowReportModal] = useState(false);
 
   const textareaRef = useRef(null);
+
+  // Fetch comment count on mount so it shows without opening the comments section (BUG12)
+  useEffect(() => {
+    if (!postId || !userData?.companyId) return;
+    const fetchCount = async () => {
+      try {
+        const q = query(
+          collection(db, "comments"),
+          where("postId", "==", postId),
+          where("companyId", "==", userData.companyId)
+        );
+        const snapshot = await getCountFromServer(q);
+        setCommentCount(snapshot.data().count);
+      } catch (err) {
+        // silently ignore — initialCommentCount is already set as fallback
+      }
+    };
+    fetchCount();
+  }, [postId, userData?.companyId]);
 
   useEffect(() => {
     if (!showComments || !postId || !userData?.companyId) return;
@@ -205,11 +226,11 @@ const CommentsEnhanced = ({
       await addDoc(collection(db, "comments"), {
         postId,
         text: replyText.trim(),
-        authorId: userData.id,
-        authorName: userData.displayName,
+        authorId: replyIsAnonymous ? null : userData.id,
+        authorName: replyIsAnonymous ? "Anonymous" : userData.displayName,
         authorRole: userData.role,
         parentCommentId,
-        isAnonymous: false,
+        isAnonymous: replyIsAnonymous,
         companyId: userData.companyId,
         createdAt: serverTimestamp(),
       });
@@ -217,6 +238,7 @@ const CommentsEnhanced = ({
       await updateDoc(postRef, { comments: increment(1) });
       setReplyingToId(null);
       setReplyText("");
+      setReplyIsAnonymous(false);
     } catch (error) {
       setError("Failed to add reply.");
     }
@@ -369,9 +391,18 @@ const CommentsEnhanced = ({
                                 rows="2"
                                 placeholder={t('comments.addReply')}
                               />
-                              <div className="flex gap-1.5 mt-1.5">
+                              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                                 <button onClick={() => handleSaveReply(comment.id)} className="px-3 py-1 bg-[#1ABC9C] text-white text-xs font-medium rounded-lg hover:opacity-90">Reply</button>
-                                <button onClick={() => { setReplyingToId(null); setReplyText(""); }} className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200">Cancel</button>
+                                <button onClick={() => { setReplyingToId(null); setReplyText(""); setReplyIsAnonymous(false); }} className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200">Cancel</button>
+                                <label className="flex items-center gap-1 cursor-pointer ml-auto">
+                                  <input
+                                    type="checkbox"
+                                    checked={replyIsAnonymous}
+                                    onChange={(e) => setReplyIsAnonymous(e.target.checked)}
+                                    className="w-3 h-3 accent-[#1ABC9C]"
+                                  />
+                                  <span className="text-[10px] text-gray-500">{t('comments.anonymous', 'Anonymous')}</span>
+                                </label>
                               </div>
                             </div>
                           </div>

@@ -5,7 +5,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { auth } from '../../config/firebase';
+import { auth, db } from '../../config/firebase';
+import { collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -49,6 +50,7 @@ function CompanyBillingContent() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [activeMemberCount, setActiveMemberCount] = useState(null);
 
   const companyId = currentUser?.companyId;
 
@@ -92,6 +94,19 @@ function CompanyBillingContent() {
       setPaymentMethods(methodsData?.data || []);
       setPaymentHistory(historyData?.data || []);
       setUsageSummary(usageData?.data);
+
+      // Fetch active member count directly from Firestore as a reliable fallback
+      try {
+        const membersQuery = query(
+          collection(db, "users"),
+          where("companyId", "==", companyId),
+          where("status", "==", "active")
+        );
+        const countSnapshot = await getCountFromServer(membersQuery);
+        setActiveMemberCount(countSnapshot.data().count);
+      } catch (countErr) {
+        console.error('Error fetching active member count:', countErr);
+      }
     } catch (err) {
       console.error('Error loading billing data:', err);
       setError(err.message);
@@ -209,9 +224,9 @@ function CompanyBillingContent() {
                   </span>
                 </div>
                 <div className="mt-2 text-sm text-gray-600">
-                  <p>Current Users: <span className="font-medium text-gray-900">{subscription.currentUserCount}</span></p>
+                  <p>Current Users: <span className="font-medium text-gray-900">{subscription.currentUserCount ?? activeMemberCount ?? '—'}</span></p>
                   <p>Next Billing: <span className="font-medium text-gray-900">{formatDate(subscription.currentPeriodEnd)}</span></p>
-                  <p>Amount: <span className="font-medium text-gray-900">{formatCurrency((subscription.currentUserCount || 0) * (subscription.pricePerUser || 1.00))}</span></p>
+                  <p>Amount: <span className="font-medium text-gray-900">{formatCurrency(((subscription.currentUserCount ?? activeMemberCount) || 0) * (subscription.pricePerUser || 1.00))}</span></p>
                 </div>
               </div>
               <div className="flex space-x-3">

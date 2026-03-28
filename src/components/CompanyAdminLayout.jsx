@@ -159,7 +159,7 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.problems", "Problems"), path: "/feed/problems", icon: AlertTriangle },
         { label: t("navigation.discussions", "Discussions"), path: "/feed/discussions", icon: MessageSquare },
         { label: t("navigation.myPosts", "My Posts"), path: "/my-posts", icon: ClipboardList },
-        ...(userData?.userTagId ? [{ label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck }] : []),
+        { label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck },
         { label: t("navigation.conversations", "Conversations"), path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
         { label: t("navigation.moderation", "Moderation"), path: "/moderation", icon: Shield },
       ],
