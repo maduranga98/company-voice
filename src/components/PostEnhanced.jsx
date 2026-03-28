@@ -234,6 +234,11 @@ const PostEnhanced = ({ post }) => {
                   <h3 className="font-medium text-slate-900 text-sm truncate">
                     {post.authorName}
                   </h3>
+                  {post.isFormerEmployee && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500 border border-gray-200 flex-shrink-0">
+                      Former Employee
+                    </span>
+                  )}
                   <span className="text-[11px] text-slate-400 flex-shrink-0">
                     {getTimeAgo(post.createdAt)}
                   </span>

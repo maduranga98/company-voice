@@ -322,9 +322,14 @@ const MemberManagement = () => {
         }
       }
 
-      // Status filter
-      if (selectedStatus !== "all" && member.status !== selectedStatus) {
-        return false;
+      // Status filter - never show removed members unless explicitly filtering for them
+      if (selectedStatus === "removed") {
+        if (member.status !== "removed") return false;
+      } else if (selectedStatus !== "all") {
+        if (member.status !== selectedStatus) return false;
+      } else {
+        // Default "all" view: hide removed members
+        if (member.status === "removed") return false;
       }
 
       return true;

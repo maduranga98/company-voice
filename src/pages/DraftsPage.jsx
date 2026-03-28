@@ -16,6 +16,7 @@ import {
   deleteDraft,
   updateDraft,
 } from "../services/postEnhancementsService";
+import EditPost from "../components/EditPost";
 
 const DraftsPage = () => {
   const { userData } = useAuth();
@@ -23,6 +24,7 @@ const DraftsPage = () => {
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingDraft, setEditingDraft] = useState(null);
 
   useEffect(() => {
     loadDrafts();
@@ -59,6 +61,15 @@ const DraftsPage = () => {
       console.error("Error publishing draft:", error);
       setError("Failed to publish draft");
     }
+  };
+
+  const handleEdit = (draft) => {
+    setEditingDraft(draft);
+  };
+
+  const handleEditSuccess = () => {
+    setEditingDraft(null);
+    loadDrafts();
   };
 
   const handleDelete = async (draftId) => {
@@ -205,9 +216,7 @@ const DraftsPage = () => {
                     {t('drafts.publish')}
                   </button>
                   <button
-                    onClick={() => {
-                      /* Navigate to edit */
-                    }}
+                    onClick={() => handleEdit(draft)}
                     className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-sm font-medium rounded-xl transition-all border border-gray-100"
                     style={{ color: "#2D3E50" }}
                   >
@@ -226,6 +235,13 @@ const DraftsPage = () => {
             </div>
           ))}
         </div>
+      )}
+      {editingDraft && (
+        <EditPost
+          post={editingDraft}
+          onClose={() => setEditingDraft(null)}
+          onSuccess={handleEditSuccess}
+        />
       )}
     </div>
   );
