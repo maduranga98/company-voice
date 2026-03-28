@@ -14,6 +14,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { decryptAuthorId } from "./postManagementService";
 import {
   ReportStatus,
   ReportableContentType,
@@ -65,18 +66,6 @@ export const createContentReport = async (reportData) => {
       throw new Error("Content not found");
     }
 
-    // Check if user already reported this content
-    const existingReportsQuery = query(
-      collection(db, "contentReports"),
-      where("contentId", "==", contentId),
-      where("reportedBy", "==", reportedBy)
-    );
-    const existingReports = await getDocs(existingReportsQuery);
-
-    if (!existingReports.empty) {
-      throw new Error("You have already reported this content");
-    }
-
     // Detect critical report types for HR auto-escalation
     const criticalReasons = ["harassment", "discrimination", "violence"];
     const isCritical = criticalReasons.includes(reason);
@@ -90,7 +79,14 @@ export const createContentReport = async (reportData) => {
       reportedBy,
       companyId,
       status: ReportStatus.PENDING,
-      contentAuthorId: content.authorId || content.userId,
+      contentAuthorId: (() => {
+        // Use creatorId (real user ID) when available; otherwise try to decrypt for anonymous posts
+        if (content.creatorId) return content.creatorId;
+        if (content.isAnonymous && content.authorId) {
+          try { const d = decryptAuthorId(content.authorId); if (d) return d; } catch {}
+        }
+        return content.authorId || content.userId;
+      })(),
       contentPreview:
         contentType === ReportableContentType.POST
           ? content.title || content.description?.substring(0, 200)
@@ -238,8 +234,13 @@ export const getCompanyReports = async (companyId, status = null) => {
         );
         const sameContentReports = await getDocs(sameContentReportsQuery);
         reportData.totalReportsForContent = sameContentReports.size;
+        const actionedStatuses = ['resolved', 'dismissed'];
+        reportData.previouslyActionedForContent = sameContentReports.docs.filter(
+          d => actionedStatuses.includes(d.data().status)
+        ).length;
       } catch {
         reportData.totalReportsForContent = 1;
+        reportData.previouslyActionedForContent = 0;
       }
 
       reports.push(reportData);

@@ -49,13 +49,12 @@ export const publishPolicy = async (policyId) => {
   return { success: true };
 };
 
-export const deletePolicy = async (policyId) => {
+export const deletePolicy = async (policyId, companyId = null) => {
   await deleteDoc(doc(db, POLICIES_COLLECTION, policyId));
   // Also delete associated acknowledgements
-  const acksQuery = query(
-    collection(db, ACKNOWLEDGEMENTS_COLLECTION),
-    where("policyId", "==", policyId)
-  );
+  const acksQuery = companyId
+    ? query(collection(db, ACKNOWLEDGEMENTS_COLLECTION), where("policyId", "==", policyId), where("companyId", "==", companyId))
+    : query(collection(db, ACKNOWLEDGEMENTS_COLLECTION), where("policyId", "==", policyId));
   const acksSnapshot = await getDocs(acksQuery);
   const deletePromises = acksSnapshot.docs.map((d) => deleteDoc(d.ref));
   await Promise.all(deletePromises);
@@ -115,11 +114,20 @@ export const acknowledgePolicy = async (policyId, companyId, userId) => {
   return { success: true, alreadyAcknowledged: false };
 };
 
-export const getPolicyAcknowledgements = async (policyId) => {
-  const q = query(
-    collection(db, ACKNOWLEDGEMENTS_COLLECTION),
-    where("policyId", "==", policyId)
-  );
+export const getPolicyAcknowledgements = async (policyId, companyId = null) => {
+  let q;
+  if (companyId) {
+    q = query(
+      collection(db, ACKNOWLEDGEMENTS_COLLECTION),
+      where("policyId", "==", policyId),
+      where("companyId", "==", companyId)
+    );
+  } else {
+    q = query(
+      collection(db, ACKNOWLEDGEMENTS_COLLECTION),
+      where("policyId", "==", policyId)
+    );
+  }
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
@@ -136,7 +144,7 @@ export const getUserAcknowledgements = async (userId, companyId) => {
 
 export const getPolicyAcknowledgementStats = async (policyId, companyId) => {
   const [acks, usersSnapshot] = await Promise.all([
-    getPolicyAcknowledgements(policyId),
+    getPolicyAcknowledgements(policyId, companyId),
     getDocs(
       query(
         collection(db, "users"),

@@ -94,13 +94,15 @@ const EmployeeLayout = ({ children }) => {
 
     const fetchUnreadCount = async () => {
       try {
-        const postsQuery = query(
-          collection(db, "posts"),
-          where("companyId", "==", userData.companyId),
-          where("authorId", "==", userData.id),
-          where("isAnonymous", "==", true)
-        );
-        const postsSnap = await getDocs(postsQuery);
+        // Query by both authorId and creatorId to find all anonymous posts
+        const [snap1, snap2] = await Promise.all([
+          getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id), where("isAnonymous", "==", true))),
+          getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id), where("isAnonymous", "==", true))),
+        ]);
+        const seenPosts = new Set();
+        const allAnonDocs = [];
+        [...snap1.docs, ...snap2.docs].forEach(d => { if (!seenPosts.has(d.id)) { seenPosts.add(d.id); allAnonDocs.push(d); } });
+        const postsSnap = { docs: allAnonDocs };
 
         let total = 0;
         for (const postDoc of postsSnap.docs) {

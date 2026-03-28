@@ -811,9 +811,10 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
               <div className="flex items-center justify-between text-xs text-gray-400">
                 <span>Reported {createdDate.toLocaleDateString()}</span>
                 <div className="flex items-center space-x-2">
-                  {report.totalReportsForContent > 1 && (
+                  {report.totalReportsForContent > 0 && (
                     <span className="bg-red-100 text-red-700 px-2.5 py-1 rounded-xl font-medium">
-                      {report.totalReportsForContent} reports on this content
+                      {report.totalReportsForContent} report{report.totalReportsForContent !== 1 ? 's' : ''}
+                      {report.previouslyActionedForContent > 0 && ` — ${report.previouslyActionedForContent} previously actioned`}
                     </span>
                   )}
                   {mainTab === "critical" && (

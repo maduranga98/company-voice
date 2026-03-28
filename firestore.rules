@@ -813,6 +813,25 @@ match /departmentAssignmentLogs/{logId} {
     }
 
     // ============================================
+    // BOOKMARKS COLLECTION
+    // ============================================
+    // - Users can read/create/delete their own bookmarks
+    // - No updates (toggle = delete + create)
+    match /bookmarks/{bookmarkId} {
+      allow read: if isAuthenticated()
+        && (isSuperAdmin() || getUserId() == resource.data.userId);
+
+      allow create: if isAuthenticated()
+        && getUserId() == request.resource.data.userId
+        && getUserCompanyId() == request.resource.data.companyId;
+
+      allow delete: if isAuthenticated()
+        && (isSuperAdmin() || getUserId() == resource.data.userId);
+
+      allow update: if false;
+    }
+
+    // ============================================
     // DENY ALL OTHER COLLECTIONS
     // ============================================
     // Any collection not explicitly listed above is denied by default.

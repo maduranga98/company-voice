@@ -261,7 +261,7 @@ const PolicyManagement = () => {
       return;
     }
     try {
-      await deletePolicy(policy.id);
+      await deletePolicy(policy.id, userData.companyId);
       showToast("Policy deleted.");
       loadPolicies();
     } catch (err) {
