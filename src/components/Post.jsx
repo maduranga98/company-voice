@@ -168,9 +168,16 @@ const Post = ({ post }) => {
               {post.authorName?.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <h3 className="font-medium text-slate-900 text-sm sm:text-base truncate">
-                {post.authorName}
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-medium text-slate-900 text-sm sm:text-base truncate">
+                  {post.authorName}
+                </h3>
+                {post.isFormerEmployee && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500 border border-gray-200 flex-shrink-0">
+                    Former Employee
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-500">
                 {getTimeAgo(post.createdAt)}
               </p>

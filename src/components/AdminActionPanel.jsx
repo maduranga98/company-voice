@@ -300,7 +300,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           <div className="relative">
             <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1 block">
               {t('adminPanel.assignTo')}
-              {post.isAnonymous && <span className="ml-1 text-orange-500 normal-case font-normal">(Depts only)</span>}
+              {post.isAnonymous && <span className="ml-1 text-orange-500 normal-case font-normal">(Not available for anonymous)</span>}
             </label>
             <button
               onClick={() => setShowAssignDropdown(!showAssignDropdown)}
@@ -335,22 +335,6 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                     Unassign
                   </button>
 
-                  {departments.length > 0 && (
-                    <>
-                      <div className="px-3 py-1.5 bg-gray-50 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Departments</div>
-                      {departments.map((dept) => (
-                        <button
-                          key={dept.id}
-                          onClick={() => { handleAssignment({ type: AssignmentType.DEPARTMENT, id: dept.id, name: dept.name }); setSearchTerm(""); }}
-                          className="w-full px-3 py-2 text-left text-xs hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <span>{dept.icon}</span>
-                          <span>{dept.name}</span>
-                        </button>
-                      ))}
-                    </>
-                  )}
-
                   {!post.isAnonymous && filteredUsers.length > 0 && (
                     <>
                       <div className="px-3 py-1.5 bg-gray-50 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">People</div>
@@ -364,7 +348,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                             <span>{user.tagData?.icon || "👤"}</span>
                             <div>
                               <div className="font-medium text-gray-900">{user.displayName}</div>
-                              <div className="text-[10px] text-gray-400">{user.role}</div>
+                              <div className="text-[10px] text-gray-400">{user.tagData?.name || user.role}</div>
                             </div>
                           </div>
                           {user.tagData && (
@@ -375,6 +359,12 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                         </button>
                       ))}
                     </>
+                  )}
+                  {!post.isAnonymous && filteredUsers.length === 0 && (
+                    <div className="px-3 py-4 text-xs text-gray-400 text-center">No people found</div>
+                  )}
+                  {post.isAnonymous && (
+                    <div className="px-3 py-4 text-xs text-gray-400 text-center">Assignment not available for anonymous posts</div>
                   )}
                 </div>
               </div>
