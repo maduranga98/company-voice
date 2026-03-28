@@ -94,14 +94,17 @@ const EmployeeLayout = ({ children }) => {
 
     const fetchUnreadCount = async () => {
       try {
-        // Query by both authorId and creatorId to find all anonymous posts
-        const [snap1, snap2] = await Promise.all([
-          getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id), where("isAnonymous", "==", true))),
-          getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id), where("isAnonymous", "==", true))),
-        ]);
+        // Query by both authorId and creatorId to find all anonymous posts.
+        // Run separately so a missing composite index on creatorId doesn't break the primary query.
+        const snap1 = await getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id), where("isAnonymous", "==", true)));
+        let snap2Docs = [];
+        try {
+          const snap2 = await getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id), where("isAnonymous", "==", true)));
+          snap2Docs = snap2.docs;
+        } catch { /* index not yet available */ }
         const seenPosts = new Set();
         const allAnonDocs = [];
-        [...snap1.docs, ...snap2.docs].forEach(d => { if (!seenPosts.has(d.id)) { seenPosts.add(d.id); allAnonDocs.push(d); } });
+        [...snap1.docs, ...snap2Docs].forEach(d => { if (!seenPosts.has(d.id)) { seenPosts.add(d.id); allAnonDocs.push(d); } });
         const postsSnap = { docs: allAnonDocs };
 
         let total = 0;

@@ -34,14 +34,17 @@ const EmployeeMessages = () => {
   const loadThreads = async () => {
     setLoading(true);
     try {
-      // Query by authorId (old non-anon posts) and by creatorId (new posts, including anonymous)
-      const [postsSnap1, postsSnap2] = await Promise.all([
-        getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id))),
-        getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id))),
-      ]);
+      // Query by authorId (non-anon posts) and by creatorId (anonymous posts with encrypted authorId).
+      // Run separately so a missing index on creatorId doesn't break the primary query.
+      const postsSnap1 = await getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("authorId", "==", userData.id)));
+      let postsSnap2Docs = [];
+      try {
+        const postsSnap2 = await getDocs(query(collection(db, "posts"), where("companyId", "==", userData.companyId), where("creatorId", "==", userData.id)));
+        postsSnap2Docs = postsSnap2.docs;
+      } catch { /* index not yet available */ }
       const seenIds = new Set();
       const userPosts = [];
-      [...postsSnap1.docs, ...postsSnap2.docs].forEach((d) => {
+      [...postsSnap1.docs, ...postsSnap2Docs].forEach((d) => {
         if (!seenIds.has(d.id)) { seenIds.add(d.id); userPosts.push({ id: d.id, ...d.data() }); }
       });
 

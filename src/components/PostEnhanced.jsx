@@ -62,9 +62,10 @@ const PostEnhanced = ({ post }) => {
     if (!userData?.id || bookmarkLoading) return;
     setBookmarkLoading(true);
     try {
-      await toggleBookmark(userData.id, post.id, userData.companyId);
-    } catch (err) {
-      console.error("Error toggling bookmark:", err);
+      const nowBookmarked = await toggleBookmark(userData.id, post.id, userData.companyId);
+      setIsBookmarked(nowBookmarked);
+    } catch {
+      // silently ignore bookmark errors (e.g. rules not yet deployed)
     } finally {
       setBookmarkLoading(false);
     }
