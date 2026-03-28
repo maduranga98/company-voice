@@ -195,9 +195,11 @@ const EmployeeLayout = ({ children }) => {
     },
   ];
 
+  const isAdminOrHR = userData?.role === "company_admin" || userData?.role === "hr";
+
   // Quick links shown in profile or accessible areas
   const quickLinks = [
-    { label: t("navigation.assignedToMe", "Assigned to Me"), path: "/assigned-to-me", icon: ClipboardCheck },
+    ...(isAdminOrHR ? [{ label: t("navigation.assignedToMe", "Assigned to Me"), path: "/assigned-to-me", icon: ClipboardCheck }] : []),
     { label: t("navigation.myPosts", "My Posts"), path: "/my-posts", icon: ClipboardList },
     { label: t("navigation.policies", "Policies"), path: "/policies", icon: BookOpen },
     { label: t("navigation.help", "Help"), path: "/help", icon: HelpCircle },
@@ -393,16 +395,18 @@ const EmployeeLayout = ({ children }) => {
             {t("navigation.myPosts", "My Posts")}
           </button>
 
-          {/* Assigned to Me */}
-          <button
-            onClick={() => handleNavigate("/assigned-to-me")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all ${
-              isAssignedActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            <ClipboardCheck size={16} className={isAssignedActive ? "text-[#1ABC9C]" : "text-gray-400"} />
-            {t("navigation.assignedToMe", "Assigned to Me")}
-          </button>
+          {/* Assigned to Me — admin/HR only */}
+          {isAdminOrHR && (
+            <button
+              onClick={() => handleNavigate("/assigned-to-me")}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all ${
+                isAssignedActive ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <ClipboardCheck size={16} className={isAssignedActive ? "text-[#1ABC9C]" : "text-gray-400"} />
+              {t("navigation.assignedToMe", "Assigned to Me")}
+            </button>
+          )}
 
           {/* Profile */}
           <button
@@ -678,24 +682,18 @@ const EmployeeLayout = ({ children }) => {
               </button>
             </div>
 
-            {/* Anonymous toggle */}
+            {/* Anonymous notice */}
             <div className="mx-4 mb-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-2xl p-4 flex items-center gap-3">
               <div className="w-8 h-8 bg-[#1ABC9C] rounded-xl flex items-center justify-center flex-shrink-0">
                 <Shield size={16} className="text-white" />
               </div>
               <div className="flex-1">
                 <div className="text-[12px] font-semibold text-gray-800">
-                  {t("post.postAnonymously", "Post anonymously")}
+                  {t("post.anonymityProtected", "Your anonymity is protected")}
                 </div>
                 <div className="text-[10px] text-[#15803d] font-medium">
-                  {t("post.anonymousDefault", "ON by default · name encrypted")}
+                  {t("post.anonymousDefault", "Toggle anonymity inside the post form")}
                 </div>
-              </div>
-              <div
-                className="rounded-full flex items-center justify-end px-0.5 flex-shrink-0"
-                style={{ width: "40px", height: "22px", backgroundColor: "#1ABC9C" }}
-              >
-                <div className="w-[18px] h-[18px] bg-white rounded-full shadow-sm" />
               </div>
             </div>
           </div>

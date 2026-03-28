@@ -437,10 +437,11 @@ export const getDepartmentStats = async (departmentId, companyId) => {
     avgResponseTime: 0,
   };
 
-  // Get members count — scoped to just this department
+  // Get members count — scoped to this department and company
   try {
     const membersQuery = query(
       collection(db, "users"),
+      where("companyId", "==", companyId),
       where("departmentId", "==", departmentId),
     );
     const membersSnapshot = await getDocs(membersQuery);

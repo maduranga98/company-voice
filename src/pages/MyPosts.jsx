@@ -8,6 +8,7 @@ import {
   getUserPosts,
   markPostAsViewed,
 } from "../services/postManagementService";
+import { getUserBookmarks } from "../services/bookmarkService";
 import {
   PostType,
   PostStatusConfig,
@@ -15,7 +16,7 @@ import {
 } from "../utils/constants";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { ChevronUp, Shield, FileText, Eye } from "lucide-react";
+import { ChevronUp, Shield, FileText, Eye, Bookmark } from "lucide-react";
 
 const getTimeAgo = (date) => {
   if (!date) return "Just now";
@@ -104,13 +105,21 @@ const MyPosts = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
+  const [savedPosts, setSavedPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savedLoading, setSavedLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [expandedPost, setExpandedPost] = useState(null);
 
   useEffect(() => { loadMyPosts(); }, [userData]);
-  useEffect(() => { filterPosts(); }, [posts, activeTab]);
+  useEffect(() => {
+    if (activeTab === "saved") {
+      loadSavedPosts();
+    } else {
+      filterPosts();
+    }
+  }, [posts, activeTab]);
 
   const loadMyPosts = async () => {
     try {
@@ -125,12 +134,39 @@ const MyPosts = () => {
     }
   };
 
+  const loadSavedPosts = async () => {
+    try {
+      setSavedLoading(true);
+      const bookmarkedIds = await getUserBookmarks(userData.id, userData.companyId);
+      const fetched = await Promise.all(
+        bookmarkedIds.map(async (postId) => {
+          const snap = await getDoc(doc(db, "posts", postId));
+          if (!snap.exists()) return null;
+          const data = snap.data();
+          return {
+            id: snap.id,
+            ...data,
+            createdAt: data.createdAt?.toDate(),
+            updatedAt: data.updatedAt?.toDate(),
+          };
+        })
+      );
+      setSavedPosts(fetched.filter(Boolean));
+      setFilteredPosts(fetched.filter(Boolean));
+    } catch (error) {
+      console.error("Error loading saved posts:", error);
+    } finally {
+      setSavedLoading(false);
+    }
+  };
+
   const filterPosts = () => {
     let filtered = [...posts];
     switch (activeTab) {
       case "problems": filtered = filtered.filter((p) => p.type === PostType.PROBLEM_REPORT); break;
       case "creative": filtered = filtered.filter((p) => p.type === PostType.CREATIVE_CONTENT); break;
       case "discussions": filtered = filtered.filter((p) => p.type === PostType.TEAM_DISCUSSION); break;
+      case "drafts": filtered = filtered.filter((p) => p.isDraft); break;
       case "unread": filtered = filtered.filter((p) => p.hasUnreadUpdates); break;
       default: break;
     }
@@ -160,7 +196,9 @@ const MyPosts = () => {
     { value: "problems", label: t("myPosts.problems", "Problems"), count: posts.filter((p) => p.type === PostType.PROBLEM_REPORT).length },
     { value: "creative", label: t("myPosts.creative", "Creative"), count: posts.filter((p) => p.type === PostType.CREATIVE_CONTENT).length },
     { value: "discussions", label: t("myPosts.discussions", "Discussions"), count: posts.filter((p) => p.type === PostType.TEAM_DISCUSSION).length },
+    { value: "drafts", label: t("myPosts.drafts", "Drafts"), count: posts.filter((p) => p.isDraft).length },
     { value: "unread", label: t("myPosts.unreadUpdates", "Unread"), count: posts.filter((p) => p.hasUnreadUpdates).length },
+    { value: "saved", label: t("myPosts.saved", "Saved"), count: savedPosts.length },
   ];
 
   return (
@@ -200,18 +238,27 @@ const MyPosts = () => {
         ))}
       </div>
 
+      {/* Saved loading */}
+      {activeTab === "saved" && savedLoading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="w-6 h-6 rounded-xl border-2 border-[#1ABC9C] border-t-transparent animate-spin" />
+        </div>
+      )}
+
       {/* Empty state */}
-      {filteredPosts.length === 0 && (
+      {!savedLoading && filteredPosts.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
-            <FileText size={28} className="text-gray-300" />
+            {activeTab === "saved" ? <Bookmark size={28} className="text-gray-300" /> : <FileText size={28} className="text-gray-300" />}
           </div>
           <h3 className="text-base font-semibold text-gray-900 mb-1">
-            {t("myPosts.noPosts", "No posts")}
+            {activeTab === "saved" ? t("myPosts.noSaved", "No saved posts") : t("myPosts.noPosts", "No posts")}
           </h3>
           <p className="text-sm text-gray-500 max-w-xs">
             {activeTab === "all"
               ? t("myPosts.noPostsYet", "You haven't created any posts yet")
+              : activeTab === "saved"
+              ? t("myPosts.noSavedYet", "Bookmark posts to find them here")
               : `No ${activeTab} posts found`}
           </p>
         </div>
@@ -232,6 +279,11 @@ const MyPosts = () => {
                     <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}>
                       {getPostTypeLabel(post.type)}
                     </span>
+                    {post.isDraft && (
+                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-amber-50 text-amber-600 border border-amber-200">
+                        Draft
+                      </span>
+                    )}
                     {isAnonymous && (
                       <span className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-purple-50 text-purple-600 border border-purple-100">
                         Anonymous
@@ -283,6 +335,11 @@ const MyPosts = () => {
                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border ${getPostTypeColor(post.type)}`}>
                         {getPostTypeLabel(post.type)}
                       </span>
+                      {post.isDraft && (
+                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-amber-50 text-amber-600 border border-amber-200">
+                          Draft
+                        </span>
+                      )}
                       {isAnonymous && (
                         <span className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-purple-50 text-purple-600 border border-purple-100">
                           Anonymous
