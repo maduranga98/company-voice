@@ -278,7 +278,7 @@ const PolicyManagement = () => {
     try {
       const [sd, acks, usersSnap] = await Promise.all([
         getPolicyAcknowledgementStats(policy.id, userData.companyId),
-        getPolicyAcknowledgements(policy.id),
+        getPolicyAcknowledgements(policy.id, userData.companyId),
         getDocs(
           query(
             collection(db, "users"),
