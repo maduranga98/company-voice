@@ -51,6 +51,8 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
   useEffect(() => { loadAssignmentOptions(); }, [currentUser.companyId]);
   useEffect(() => { setSelectedAssignee(post.assignedTo || null); }, [post.assignedTo]);
+  useEffect(() => { setStatus(post.status || PostStatus.OPEN); }, [post.status]);
+  useEffect(() => { setPriority(post.priority || PostPriority.MEDIUM); }, [post.priority]);
 
   const loadAssignmentOptions = async () => {
     try {
