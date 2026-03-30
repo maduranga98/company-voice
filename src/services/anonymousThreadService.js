@@ -52,6 +52,14 @@ export const createThread = async (postId, companyId, reporterId = null) => {
     const existing = await getDoc(threadRef);
 
     if (existing.exists()) {
+      // Backfill reporterId if thread was created by HR before the reporter opened it
+      if (reporterId && !existing.data().reporterId) {
+        try {
+          await updateDoc(threadRef, { reporterId });
+        } catch {
+          // Best-effort; may fail if caller lacks write permission before reporterId is set
+        }
+      }
       return { success: true, existed: true };
     }
 

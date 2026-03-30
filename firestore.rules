@@ -591,7 +591,8 @@ service cloud.firestore {
             || (getUserRole() in ['hr', 'company_admin']
                 && getUserCompanyId() == resource.data.companyId)
             || getUserId() == resource.data.reporterId
-            || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId);
+            || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
+            || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.creatorId);
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
@@ -601,7 +602,8 @@ service cloud.firestore {
             || (getUserCompanyId() == resource.data.companyId
                 && (getUserRole() in ['hr', 'company_admin']
                     || getUserId() == resource.data.reporterId
-                    || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId)));
+                    || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
+                    || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.creatorId)));
 
       allow delete: if false;
     }

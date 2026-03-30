@@ -56,6 +56,7 @@ const CompanyAnalytics = () => {
     enabled: false,
   });
   const [allPostsData, setAllPostsData] = useState(null); // Store all data for filtering
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   useEffect(() => {
     if (userData?.companyId) {
@@ -570,39 +571,47 @@ const CompanyAnalytics = () => {
               </svg>
               Export Full Report
             </button>
-            <div className="relative group">
-              <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium transition">
+            <div className="relative">
+              <button
+                onClick={() => setShowExportDropdown((prev) => !prev)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium transition"
+              >
                 Export Options ▾
               </button>
-              <div className="hidden group-hover:block absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-10">
-                <button
-                  onClick={() => {
-                    const csvContent = exportToCSV(analytics, "overview");
-                    downloadCSV(csvContent, `overview-${new Date().toISOString().split("T")[0]}.csv`);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Export Overview
-                </button>
-                <button
-                  onClick={() => {
-                    const csvContent = exportToCSV(analytics, "engagement");
-                    downloadCSV(csvContent, `user-engagement-${new Date().toISOString().split("T")[0]}.csv`);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Export User Engagement
-                </button>
-                <button
-                  onClick={() => {
-                    const csvContent = exportToCSV(analytics, "departments");
-                    downloadCSV(csvContent, `departments-${new Date().toISOString().split("T")[0]}.csv`);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Export Department Performance
-                </button>
-              </div>
+              {showExportDropdown && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-10">
+                  <button
+                    onClick={() => {
+                      const csvContent = exportToCSV(analytics, "overview");
+                      downloadCSV(csvContent, `overview-${new Date().toISOString().split("T")[0]}.csv`);
+                      setShowExportDropdown(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Export Overview
+                  </button>
+                  <button
+                    onClick={() => {
+                      const csvContent = exportToCSV(analytics, "engagement");
+                      downloadCSV(csvContent, `user-engagement-${new Date().toISOString().split("T")[0]}.csv`);
+                      setShowExportDropdown(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Export User Engagement
+                  </button>
+                  <button
+                    onClick={() => {
+                      const csvContent = exportToCSV(analytics, "departments");
+                      downloadCSV(csvContent, `departments-${new Date().toISOString().split("T")[0]}.csv`);
+                      setShowExportDropdown(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Export Department Performance
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

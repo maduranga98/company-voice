@@ -38,6 +38,8 @@ const MemberManagement = () => {
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [showRemovedSection, setShowRemovedSection] = useState(false);
+  const [selectedRemovedIds, setSelectedRemovedIds] = useState([]);
 
   // Check URL params for filter
   useEffect(() => {
@@ -254,9 +256,12 @@ const MemberManagement = () => {
         }
       });
 
+      const hadPosts = namedPostsSnapshot.size > 0 || anonPostsSnapshot.size > 0;
+
       // Mark the user as removed
       batch.update(doc(db, "users", member.id), {
         status: "removed",
+        hadPosts,
         removedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -268,6 +273,30 @@ const MemberManagement = () => {
     } catch (error) {
       console.error("Error removing member:", error);
       showError(t('company.failedToRemoveMember', 'Failed to remove member'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePermanentDelete = async () => {
+    if (selectedRemovedIds.length === 0) return;
+    if (!confirm(t('company.confirmPermanentDelete', `Permanently delete ${selectedRemovedIds.length} member(s) from the database? This cannot be undone.`))) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const batch = writeBatch(db);
+      selectedRemovedIds.forEach((id) => {
+        batch.delete(doc(db, "users", id));
+      });
+      await batch.commit();
+      setSelectedRemovedIds([]);
+      showSuccess(t('company.permanentDeleteSuccess', 'Members permanently deleted'));
+      loadData();
+    } catch (error) {
+      console.error("Error permanently deleting members:", error);
+      showError(t('company.permanentDeleteFailed', 'Failed to delete members'));
     } finally {
       setLoading(false);
     }
@@ -401,6 +430,7 @@ const MemberManagement = () => {
   };
 
   const filteredMembers = getFilteredMembers();
+  const removedMembers = members.filter((m) => m.status === "removed");
 
   if (loading && members.length === 0) {
     return (
@@ -819,6 +849,123 @@ const MemberManagement = () => {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Removed Members Section */}
+      {removedMembers.length > 0 && (
+        <div className="mt-8">
+          <button
+            onClick={() => setShowRemovedSection((prev) => !prev)}
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-700 font-medium text-sm mb-3 transition"
+          >
+            <svg
+              className={`w-4 h-4 transition-transform ${showRemovedSection ? "rotate-90" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            </svg>
+            {t('company.removedMembersSection', 'Removed Members')} ({removedMembers.length})
+          </button>
+
+          {showRemovedSection && (
+            <div className="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden overflow-x-auto">
+              {selectedRemovedIds.length > 0 && (
+                <div className="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center justify-between">
+                  <span className="text-sm text-red-700">
+                    {selectedRemovedIds.length} {t('company.selected', 'selected')}
+                  </span>
+                  <button
+                    onClick={handlePermanentDelete}
+                    className="px-4 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition"
+                  >
+                    {t('company.permanentlyDelete', 'Permanently Delete')}
+                  </button>
+                </div>
+              )}
+              <table className="w-full min-w-[700px]">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={selectedRemovedIds.length === removedMembers.length && removedMembers.length > 0}
+                        onChange={(e) =>
+                          setSelectedRemovedIds(e.target.checked ? removedMembers.map((m) => m.id) : [])
+                        }
+                        className="rounded border-gray-300"
+                      />
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('company.memberColumn')}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('company.emailColumn')}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('company.role')}
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('company.removedOn', 'Removed On')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {removedMembers.map((member) => (
+                    <tr key={member.id} className="hover:bg-gray-50 opacity-75">
+                      <td className="px-4 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedRemovedIds.includes(member.id)}
+                          onChange={(e) =>
+                            setSelectedRemovedIds((prev) =>
+                              e.target.checked ? [...prev, member.id] : prev.filter((id) => id !== member.id)
+                            )
+                          }
+                          className="rounded border-gray-300"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
+                            {member.displayName?.charAt(0).toUpperCase() || "?"}
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-700">
+                              {member.displayName || "Unnamed"}
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                {t('company.removedStatus', 'Removed')}
+                              </span>
+                              {member.hadPosts && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
+                                  {t('company.formerMember', 'Former Member')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {member.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getRoleBadge(member.role)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {member.removedAt?.toDate
+                          ? member.removedAt.toDate().toLocaleDateString()
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
