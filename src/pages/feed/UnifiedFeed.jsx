@@ -117,7 +117,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto p-4 space-y-4">
+      <div className="max-w-5xl mx-auto p-4 space-y-4">
         <PostSkeleton count={5} />
       </div>
     );
@@ -130,7 +130,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
         <div className="absolute inset-0 bg-black/5" />
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="relative max-w-2xl mx-auto px-4 pt-6 pb-5">
+        <div className="relative max-w-5xl mx-auto px-4 pt-6 pb-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
               <FeedIcon size={20} className="text-white" />
@@ -173,7 +173,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="max-w-2xl mx-auto px-4 -mt-3 relative z-10">
+      <div className="max-w-5xl mx-auto px-4 -mt-3 relative z-10">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
           <div className="flex gap-2">
             <div className="flex-1 relative">
@@ -234,7 +234,7 @@ const UnifiedFeed = ({ feedType, title, description, colors }) => {
       </div>
 
       {/* Posts */}
-      <div className="max-w-2xl mx-auto px-4 mt-4 space-y-3">
+      <div className="max-w-5xl mx-auto px-4 mt-4 space-y-3">
         {filteredPosts.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
             <div className={`w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-r ${colors.gradient} flex items-center justify-center shadow-lg`}>

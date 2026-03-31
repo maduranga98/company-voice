@@ -4,6 +4,8 @@ import {
   where,
   orderBy,
   getDocs,
+  getDoc,
+  doc,
   limit as firestoreLimit,
   Timestamp,
 } from "firebase/firestore";
@@ -37,8 +39,41 @@ export const formatTimestamp = (ts) => {
     second: "2-digit",
     hour12: false,
   };
-  // Produces e.g. "Mar 6, 2026, 14:32:01" — strip the comma after year for cleanliness
   return date.toLocaleString("en-US", options).replace(/,(?=\s\d{2}:)/, "");
+};
+
+/**
+ * Format the JSON details into a human-readable string nicely.
+ * @param {object} details
+ * @returns {string}
+ */
+export const formatDetails = (details) => {
+  if (!details || Object.keys(details).length === 0) return "—";
+  return Object.entries(details)
+    .filter(([key, value]) => value !== undefined && value !== null && key !== "ipAddress" && key !== "ip")
+    .map(([key, value]) => {
+      const formattedKey = key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/_/g, " ")
+        .trim();
+      const capitalizedKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
+
+      let formattedValue = value;
+      if (typeof value === "object") {
+        if (value.toDate) {
+          formattedValue = formatTimestamp(value);
+        } else {
+          try {
+            formattedValue = JSON.stringify(value);
+          } catch (e) {
+            formattedValue = String(value);
+          }
+        }
+      }
+
+      return `${capitalizedKey}: ${formattedValue}`;
+    })
+    .join("\n");
 };
 
 /**
@@ -69,6 +104,9 @@ const extractActor = (log) => {
  */
 const extractTarget = (log) => {
   const meta = log.metadata || {};
+  if (meta.postTitle) {
+    return `Post: ${meta.postTitle.length > 30 ? meta.postTitle.substring(0, 30) + '...' : meta.postTitle}`;
+  }
   if (meta.postId || log.postId) return `Post: ${(meta.postId || log.postId || "").substring(0, 8)}`;
   if (meta.userId) return `User: ${meta.userName || meta.userId.substring(0, 8)}`;
   if (meta.departmentName) return `Dept: ${meta.departmentName}`;
@@ -173,6 +211,44 @@ export const queryAuditLogs = async (companyId, filters = {}) => {
 
   let merged = [...postLogs, ...systemLogs];
 
+  // Fetch missing post titles so extractTarget can show useful post names
+  try {
+    const postIdsToFetch = [...new Set(
+      merged
+        .map(log => log.postId || log.metadata?.postId)
+        .filter(id => id && !merged.find(l => (l.postId === id || l.metadata?.postId === id) && l.metadata?.postTitle))
+    )];
+    
+    if (postIdsToFetch.length > 0) {
+      const postTitles = {};
+      const chunkSize = 20;
+      for (let i = 0; i < postIdsToFetch.length; i += chunkSize) {
+        const chunk = postIdsToFetch.slice(i, i + chunkSize);
+        await Promise.all(chunk.map(async (pId) => {
+          try {
+            const pDoc = await getDoc(doc(db, "posts", pId));
+            if (pDoc.exists() && pDoc.data().title) {
+              postTitles[pId] = pDoc.data().title;
+            }
+          } catch (e) {
+            console.error("Error fetching post title for audit log", e);
+          }
+        }));
+      }
+
+      merged = merged.map(log => {
+        const pId = log.postId || log.metadata?.postId;
+        if (pId && postTitles[pId]) {
+          if (!log.metadata) log.metadata = {};
+          if (!log.metadata.postTitle) log.metadata.postTitle = postTitles[pId];
+        }
+        return log;
+      });
+    }
+  } catch (err) {
+    console.error("Error hydrating post titles in audit logs:", err);
+  }
+
   // Client-side: legal disclosure filter
   if (isLegalFilter) {
     merged = merged.filter((log) => LEGAL_TYPES.includes(log.type));
@@ -260,7 +336,7 @@ export const exportToCSV = (logs) => {
 
   logs.forEach((log) => {
     const n = normalizeLog(log);
-    const details = JSON.stringify(n.details).replace(/"/g, '""');
+    const details = formatDetails(n.details).replace(/"/g, '""');
     rows.push([
       `"${n.timestampStr}"`,
       `"${n.actor.replace(/"/g, '""')}"`,
@@ -325,16 +401,16 @@ export const exportToPDF = (logs, companyName = "Company", filters = {}) => {
   doc.text(dateLabel, rightX, 16, { align: "right" });
   doc.text(`Generated: ${formatTimestamp(new Date())}`, rightX, 22, { align: "right" });
 
-  // ---- Table ----
   const tableBody = logs.map((log) => {
     const n = normalizeLog(log);
-    const detailsShort = JSON.stringify(n.details).slice(0, 120);
+    const detailsStr = formatDetails(n.details);
+    const detailsShort = detailsStr.slice(0, 120);
     return [
       n.timestampStr,
       n.actor,
       n.actionType,
       n.target,
-      detailsShort + (detailsShort.length >= 120 ? "…" : ""),
+      detailsShort + (detailsStr.length > 120 ? "…" : ""),
     ];
   });
 

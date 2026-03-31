@@ -10,6 +10,7 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { UserRole } from "../../utils/constants";
@@ -65,6 +66,8 @@ const MemberManagementWithDepartments = () => {
   const [showMemberDetailsModal, setShowMemberDetailsModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [roleChangingMember, setRoleChangingMember] = useState(null);
+  const [showRemovedSection, setShowRemovedSection] = useState(false);
+  const [selectedRemovedIds, setSelectedRemovedIds] = useState([]);
 
   useEffect(() => {
     if (!userData?.companyId) {
@@ -357,6 +360,34 @@ const MemberManagementWithDepartments = () => {
     }
   };
 
+  const handlePermanentDelete = async () => {
+    if (selectedRemovedIds.length === 0) return;
+    if (
+      !confirm(
+        `Permanently delete ${selectedRemovedIds.length} member(s) from the database? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const batch = writeBatch(db);
+      selectedRemovedIds.forEach((id) => {
+        batch.delete(doc(db, "users", id));
+      });
+      await batch.commit();
+      setSelectedRemovedIds([]);
+      alert("Members permanently deleted");
+      loadData();
+    } catch (error) {
+      console.error("Error permanently deleting members:", error);
+      alert("Failed to delete members");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSelectUser = (userId) => {
     setSelectedUsers((prev) => {
       if (prev.includes(userId)) {
@@ -409,6 +440,9 @@ const MemberManagementWithDepartments = () => {
       }
 
       // Status filter
+      if (member.status === "removed") {
+        return false;
+      }
       if (selectedStatus !== "all" && member.status !== selectedStatus) {
         return false;
       }
@@ -481,6 +515,7 @@ const MemberManagementWithDepartments = () => {
   };
 
   const filteredMembers = getFilteredMembers();
+  const removedMembers = members.filter((m) => m.status === "removed");
 
   if (loading && members.length === 0) {
     return (
@@ -496,7 +531,7 @@ const MemberManagementWithDepartments = () => {
   return (
     <div className="min-h-screen bg-gray-50/50 px-4 py-6 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mb-8 max-w-7xl mx-auto">
+      <div className="mb-8 w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-[#2D3E50]">
@@ -742,17 +777,6 @@ const MemberManagementWithDepartments = () => {
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="px-4 sm:px-6 py-4 text-left">
-                    <input
-                      type="checkbox"
-                      checked={
-                        filteredMembers.length > 0 &&
-                        selectedUsers.length === filteredMembers.length
-                      }
-                      onChange={handleSelectAll}
-                      className="w-4 h-4 text-[#1ABC9C] rounded-md focus:ring-[#1ABC9C]/20 border-gray-300"
-                    />
-                  </th>
                   <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Member
                   </th>
@@ -779,14 +803,6 @@ const MemberManagementWithDepartments = () => {
               <tbody>
                 {filteredMembers.map((member) => (
                   <tr key={member.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.includes(member.id)}
-                        onChange={() => handleSelectUser(member.id)}
-                        className="w-4 h-4 text-[#1ABC9C] rounded-md focus:ring-[#1ABC9C]/20 border-gray-300"
-                      />
-                    </td>
                     <td className="px-4 sm:px-6 py-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -1017,6 +1033,131 @@ const MemberManagementWithDepartments = () => {
             </div>
           )}
         </div>
+
+        {/* Removed Members Section */}
+        {removedMembers.length > 0 && (
+          <div className="mt-8">
+            <button
+              onClick={() => setShowRemovedSection((prev) => !prev)}
+              className="flex items-center gap-2 text-gray-500 hover:text-[#2D3E50] font-medium text-sm mb-4 transition-colors"
+            >
+              <div
+                className={`transform transition-transform ${
+                  showRemovedSection ? "rotate-90" : ""
+                }`}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+              Removed Members ({removedMembers.length})
+            </button>
+
+            {showRemovedSection && (
+              <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+                {selectedRemovedIds.length > 0 && (
+                  <div className="px-4 sm:px-6 py-3 bg-red-50 border-b border-red-100 flex items-center justify-between">
+                    <span className="text-sm font-medium text-red-700">
+                      {selectedRemovedIds.length} member(s) selected
+                    </span>
+                    <button
+                      onClick={handlePermanentDelete}
+                      className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors text-sm font-medium shadow-sm flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Permanently Delete
+                    </button>
+                  </div>
+                )}
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="bg-gray-50/50 border-b border-gray-100">
+                        <th className="px-4 sm:px-6 py-4 text-left border-r border-gray-100 w-12">
+                          <input
+                            type="checkbox"
+                            checked={
+                              selectedRemovedIds.length === removedMembers.length &&
+                              removedMembers.length > 0
+                            }
+                            onChange={(e) =>
+                              setSelectedRemovedIds(
+                                e.target.checked ? removedMembers.map((m) => m.id) : []
+                              )
+                            }
+                            className="w-4 h-4 text-red-600 rounded-md focus:ring-red-500/20 border-gray-300"
+                          />
+                        </th>
+                        <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Member
+                        </th>
+                        <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Role
+                        </th>
+                        <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Removed On
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {removedMembers.map((member) => (
+                        <tr
+                          key={member.id}
+                          className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors opacity-75"
+                        >
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap border-r border-gray-50">
+                            <input
+                              type="checkbox"
+                              checked={selectedRemovedIds.includes(member.id)}
+                              onChange={(e) =>
+                                setSelectedRemovedIds((prev) =>
+                                  e.target.checked
+                                    ? [...prev, member.id]
+                                    : prev.filter((id) => id !== member.id)
+                                )
+                              }
+                              className="w-4 h-4 text-red-600 rounded-md focus:ring-red-500/20 border-gray-300"
+                            />
+                          </td>
+                          <td className="px-4 sm:px-6 py-4">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <div className="h-10 w-10 rounded-xl bg-gray-200 flex items-center justify-center text-gray-500 font-semibold text-sm">
+                                  {member.displayName?.charAt(0).toUpperCase() || "?"}
+                                </div>
+                              </div>
+                              <div className="ml-3">
+                                <div className="text-sm font-semibold text-gray-700">
+                                  {member.displayName || "Unknown"}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {member.email}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            {getRoleBadge(member.role)}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {member.removedAt?.toDate
+                              ? member.removedAt.toDate().toLocaleDateString()
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tag Assignment Modal */}

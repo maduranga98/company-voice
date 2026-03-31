@@ -7,6 +7,7 @@ import {
   normalizeLog,
   exportToCSV,
   exportToPDF,
+  formatDetails,
 } from "../../services/auditExportService";
 
 // ---- constants ----
@@ -64,9 +65,9 @@ const DetailCell = ({ details }) => {
         {open ? "Collapse" : "Expand"}
       </button>
       {open && (
-        <pre className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] text-slate-600 overflow-x-auto max-w-xs whitespace-pre-wrap">
-          {JSON.stringify(details, null, 2)}
-        </pre>
+        <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] text-slate-600 overflow-x-auto max-w-xs whitespace-pre-wrap font-mono leading-relaxed">
+          {formatDetails(details)}
+        </div>
       )}
     </div>
   );
@@ -302,9 +303,6 @@ const AuditExportPage = () => {
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
                   Details
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                  IP
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -319,7 +317,7 @@ const AuditExportPage = () => {
               )}
               {!loading && hasQueried && pagedLogs.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center">
+                  <td colSpan={5} className="px-4 py-12 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-400">
                       <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5"
@@ -333,7 +331,7 @@ const AuditExportPage = () => {
               )}
               {!loading && !hasQueried && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-slate-400 text-sm">
+                  <td colSpan={5} className="px-4 py-12 text-center text-slate-400 text-sm">
                     Set your filters above and click <strong>Generate Report</strong> to load audit records.
                   </td>
                 </tr>
@@ -366,9 +364,6 @@ const AuditExportPage = () => {
                     </td>
                     <td className="px-4 py-3 max-w-[200px]">
                       <DetailCell details={log.details} />
-                    </td>
-                    <td className="px-4 py-3 text-xs text-slate-500 font-mono whitespace-nowrap">
-                      {log.ip || "—"}
                     </td>
                   </tr>
                 ))}
