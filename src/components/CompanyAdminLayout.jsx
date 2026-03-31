@@ -151,13 +151,19 @@ const CompanyAdminLayout = ({ children }) => {
       ],
     },
     {
+      id: "walls",
+      title: t("navigation.walls", "Walls"),
+      items: [
+        { label: t("navigation.creative", "Creative"), path: "/feed/creative", icon: Lightbulb },
+        { label: t("navigation.problems", "Problems"), path: "/feed/problems", icon: AlertTriangle },
+        { label: t("navigation.discussions", "Discussions"), path: "/feed/discussions", icon: MessageSquare },
+      ],
+    },
+    {
       id: "content",
       title: t("navigation.content", "Content"),
       items: [
         { label: t("navigation.hrInbox", "HR Inbox"), path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
-        { label: t("navigation.creative", "Creative"), path: "/feed/creative", icon: Lightbulb },
-        { label: t("navigation.problems", "Problems"), path: "/feed/problems", icon: AlertTriangle },
-        { label: t("navigation.discussions", "Discussions"), path: "/feed/discussions", icon: MessageSquare },
         { label: t("navigation.myPosts", "My Posts"), path: "/my-posts", icon: ClipboardList },
         { label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck },
         { label: t("navigation.conversations", "Conversations"), path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
@@ -230,25 +236,17 @@ const CompanyAdminLayout = ({ children }) => {
       );
     }
 
-    const isExpanded = expandedSections[section.id];
-    const hasActiveItem = section.items.some((item) => isActive(item.path));
-
     return (
-      <div key={section.id} className="mb-1">
-        <button
-          onClick={() => toggleSection(section.id)}
-          className={`w-full flex items-center gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider transition-colors ${
-            hasActiveItem ? "text-[#1ABC9C]" : "text-gray-500 hover:text-gray-300"
-          }`}
-        >
-          {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          <span>{section.title}</span>
-        </button>
-        {isExpanded && (
-          <div className="space-y-0.5 mt-0.5">
-            {section.items.map(renderNavItem)}
-          </div>
-        )}
+      <div key={section.id} className="mb-3">
+        <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            {section.title}
+          </span>
+          <div className="flex-1 h-px bg-white/[0.07]" />
+        </div>
+        <div className="space-y-0.5">
+          {section.items.map(renderNavItem)}
+        </div>
       </div>
     );
   };
@@ -400,7 +398,7 @@ const CompanyAdminLayout = ({ children }) => {
 
       {/* ── MAIN CONTENT ── */}
       <main className="lg:ml-60 pb-20 lg:pb-6 min-h-[calc(100vh-56px)]">
-        <div className="max-w-7xl mx-auto px-4 lg:px-6 py-4 lg:py-6">
+        <div className="w-full px-4 lg:px-6 py-4 lg:py-6">
           {children ?? <Outlet />}
         </div>
       </main>

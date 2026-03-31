@@ -590,9 +590,10 @@ service cloud.firestore {
             || isSuperAdmin()
             || (getUserRole() in ['hr', 'company_admin']
                 && getUserCompanyId() == resource.data.companyId)
-            || getUserId() == resource.data.reporterId
-            || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
-            || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.creatorId);
+            || getUserId() == resource.data.get('reporterId', null)
+            || (exists(/databases/$(database)/documents/posts/$(postId))
+                && (getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.get('authorId', null)
+                    || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.get('creatorId', null))));
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
@@ -601,9 +602,10 @@ service cloud.firestore {
         && (isSuperAdmin()
             || (getUserCompanyId() == resource.data.companyId
                 && (getUserRole() in ['hr', 'company_admin']
-                    || getUserId() == resource.data.reporterId
-                    || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.authorId
-                    || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.creatorId)));
+                    || getUserId() == resource.data.get('reporterId', null)
+                    || (exists(/databases/$(database)/documents/posts/$(postId))
+                        && (getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.get('authorId', null)
+                            || getUserId() == get(/databases/$(database)/documents/posts/$(postId)).data.get('creatorId', null))))));
 
       allow delete: if false;
     }
