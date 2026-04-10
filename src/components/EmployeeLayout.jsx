@@ -69,6 +69,7 @@ const EmployeeLayout = ({ children }) => {
     if (lang.startsWith("si")) return "SI";
     if (lang.startsWith("es")) return "ES";
     if (lang.startsWith("fr")) return "FR";
+    if (lang.startsWith("it")) return "IT";
     return "EN";
   };
 
@@ -160,6 +161,7 @@ const EmployeeLayout = ({ children }) => {
     { code: "si", badge: "SI", flag: "🇱🇰", name: "Sinhala", native: "සිංහල" },
     { code: "es", badge: "ES", flag: "🇪🇸", name: "Spanish", native: "Español" },
     { code: "fr", badge: "FR", flag: "🇫🇷", name: "French", native: "Français" },
+    { code: "it", badge: "IT", flag: "🇮🇹", name: "Italian", native: "Italiano" },
   ];
 
   const wallTabs = [
