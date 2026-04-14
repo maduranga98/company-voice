@@ -57,7 +57,7 @@ const PostTypeIcon = ({ type }) => {
   };
   const c = config[type] || config.problem_report;
   return (
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${c.bg}`}>
+    <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${c.bg}`}>
       {c.icon}
     </div>
   );
@@ -149,18 +149,19 @@ const HRInbox = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 bg-[#1ABC9C]/10 rounded-xl flex items-center justify-center">
-            <Inbox size={20} className="text-[#1ABC9C]" />
+        <div className="flex items-center gap-3 lg:gap-4 mb-1 lg:mb-2">
+          <div className="w-10 h-10 lg:w-14 lg:h-14 bg-[#1ABC9C]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Inbox size={20} className="text-[#1ABC9C] lg:hidden" />
+            <Inbox size={26} className="text-[#1ABC9C] hidden lg:block" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#2D3E50]">
+            <h1 className="text-xl lg:text-3xl font-bold text-[#2D3E50]">
               {t("navigation.hrInbox", "HR Inbox")}
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm lg:text-base text-gray-500">
               {t("hrInbox.subtitle", "Posts sent directly to HR")}
             </p>
           </div>
@@ -168,16 +169,16 @@ const HRInbox = () => {
       </div>
 
       {/* Stats Bar */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3 lg:gap-4">
         {[
           { label: t("hrInbox.total", "Total"), value: stats.total, color: "text-[#2D3E50]", bg: "bg-gray-50" },
           { label: t("hrInbox.open", "Open"), value: stats.open, color: "text-yellow-600", bg: "bg-yellow-50" },
           { label: t("hrInbox.inProgress", "In Progress"), value: stats.inProgress, color: "text-blue-600", bg: "bg-blue-50" },
           { label: t("hrInbox.resolved", "Resolved"), value: stats.resolved, color: "text-green-600", bg: "bg-green-50" },
         ].map((stat) => (
-          <div key={stat.label} className={`${stat.bg} rounded-xl p-3 text-center`}>
-            <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
+          <div key={stat.label} className={`${stat.bg} rounded-xl p-3 lg:p-5 text-center`}>
+            <p className={`text-lg lg:text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+            <p className="text-xs lg:text-sm text-gray-500 font-medium mt-0.5">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -188,7 +189,7 @@ const HRInbox = () => {
           <button
             key={tab.id}
             onClick={() => setActiveFilter(tab.id)}
-            className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+            className={`flex-1 px-3 py-2 lg:px-4 lg:py-2.5 rounded-lg text-xs lg:text-sm font-medium transition-all ${
               activeFilter === tab.id
                 ? "bg-white text-[#2D3E50] shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
@@ -196,7 +197,7 @@ const HRInbox = () => {
           >
             {tab.label}
             {tab.count > 0 && (
-              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
+              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs lg:text-sm ${
                 activeFilter === tab.id ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "bg-gray-200 text-gray-500"
               }`}>
                 {tab.count}
@@ -239,21 +240,21 @@ const HRInbox = () => {
                       : "border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200"
                   }`}
                 >
-                  <div className="p-4">
-                    <div className="flex items-start gap-3">
+                  <div className="p-4 lg:p-5">
+                    <div className="flex items-start gap-3 lg:gap-4">
                       <PostTypeIcon type={post.type} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
+                            <div className="flex items-center gap-2 mb-0.5 lg:mb-1">
                               {isUnread && (
                                 <span className="w-2 h-2 bg-[#FF6B6B] rounded-full flex-shrink-0" />
                               )}
-                              <h3 className="text-sm font-semibold text-[#2D3E50] truncate">
+                              <h3 className="text-sm lg:text-base font-semibold text-[#2D3E50] truncate">
                                 {post.title}
                               </h3>
                             </div>
-                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                            <p className="text-xs lg:text-sm text-gray-500 line-clamp-2 mb-2 lg:mb-3">
                               {post.description || post.content}
                             </p>
                           </div>
@@ -261,21 +262,21 @@ const HRInbox = () => {
 
                         {/* Meta row */}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs lg:text-sm font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}>
                             {statusConfig.label}
                           </span>
                           {priorityConfig && post.priority !== "medium" && (
-                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold ${priorityConfig.bgColor} ${priorityConfig.textColor}`}>
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs lg:text-sm font-semibold ${priorityConfig.bgColor} ${priorityConfig.textColor}`}>
                               {priorityConfig.icon} {priorityConfig.label}
                             </span>
                           )}
                           {post.isAnonymous && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs lg:text-sm font-medium bg-gray-100 text-gray-500">
                               <User size={10} />
                               Anonymous
                             </span>
                           )}
-                          <span className="text-xs text-gray-400 flex items-center gap-1 ml-auto">
+                          <span className="text-xs lg:text-sm text-gray-400 flex items-center gap-1 ml-auto">
                             <Clock size={10} />
                             {formatTimeAgo(post.createdAt)}
                           </span>
@@ -298,22 +299,22 @@ const HRInbox = () => {
           {/* Right: detail panel — desktop only */}
           {selectedPost && (
             <div className="hidden lg:flex lg:flex-col lg:flex-1 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 max-h-[calc(100vh-160px)] overflow-hidden">
-              <div className="p-4 border-b border-gray-100 flex items-start gap-3 flex-shrink-0">
+              <div className="p-5 border-b border-gray-100 flex items-start gap-4 flex-shrink-0">
                 <PostTypeIcon type={selectedPost.type} />
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-[#2D3E50]">{selectedPost.title}</h3>
+                  <h3 className="text-base font-semibold text-[#2D3E50]">{selectedPost.title}</h3>
                   {(selectedPost.description || selectedPost.content) && (
-                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{selectedPost.description || selectedPost.content}</p>
+                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{selectedPost.description || selectedPost.content}</p>
                   )}
                 </div>
                 <button
                   onClick={() => setSelectedPost(null)}
-                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
                 >
-                  <X size={14} />
+                  <X size={16} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 overflow-y-auto p-5">
                 <AdminActionPanel post={selectedPost} currentUser={userData} />
               </div>
             </div>
