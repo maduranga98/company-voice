@@ -26,12 +26,20 @@ const encryptMessage = (text) => {
 };
 
 const decryptMessage = (encryptedText) => {
+  if (!encryptedText || typeof encryptedText !== "string") return "";
   try {
     const bytes = CryptoJS.AES.decrypt(encryptedText, ANONYMOUS_SECRET);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    // bytes.toString can throw "Malformed UTF-8 data" in CryptoJS 4.x
+    // when the key doesn't match — wrap separately
+    try {
+      const text = bytes.toString(CryptoJS.enc.Utf8);
+      return text || "";
+    } catch {
+      return "";
+    }
   } catch (error) {
     console.error("Error decrypting message:", error);
-    return "[Decryption failed]";
+    return "";
   }
 };
 
@@ -223,16 +231,11 @@ export const subscribeToCompanyThreads = (companyId, onUpdate) => {
       let lastMessageSender = "";
       if (data.messages.length > 0) {
         const lastMsg = data.messages[data.messages.length - 1];
-        try {
-          const bytes = CryptoJS.AES.decrypt(lastMsg.encryptedContent, ANONYMOUS_SECRET);
-          const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-          lastMessagePreview = decrypted.length > 60
-            ? decrypted.substring(0, 60) + "..."
-            : decrypted;
-          lastMessageSender = lastMsg.sender; // 'reporter' or 'investigator'
-        } catch {
-          lastMessagePreview = "[Encrypted message]";
-        }
+        const decrypted = decryptMessage(lastMsg.encryptedContent);
+        lastMessagePreview = decrypted
+          ? (decrypted.length > 60 ? decrypted.substring(0, 60) + "..." : decrypted)
+          : "";
+        lastMessageSender = lastMsg.sender;
       }
 
       // Count unread messages from reporter (messages HR hasn't read yet)
