@@ -12,25 +12,64 @@ const useGuidanceContent = () => {
       name: t('guidance.roles.superAdmin.name'),
       description: t('guidance.roles.superAdmin.description'),
       responsibilities: t('guidance.roles.superAdmin.responsibilities', { returnObjects: true }),
-      icon: '👑'
+      icon: '👑',
+      features: [
+        { name: 'Multi-Company Management', description: 'Manage multiple organizations from one dashboard' },
+        { name: 'Billing & Subscriptions', description: 'Handle billing cycles and payment processing' },
+        { name: 'Company Configuration', description: 'Create and configure new company instances' },
+        { name: 'Audit & Compliance', description: 'Access system-wide audit logs and reports' },
+        { name: 'Legal Requests', description: 'Review and manage legal requests across all companies' },
+        { name: 'Super Admin Dashboard', description: 'Comprehensive platform overview and analytics' },
+      ]
     },
     company_admin: {
       name: t('guidance.roles.companyAdmin.name'),
       description: t('guidance.roles.companyAdmin.description'),
       responsibilities: t('guidance.roles.companyAdmin.responsibilities', { returnObjects: true }),
-      icon: '⚙️'
+      icon: '⚙️',
+      features: [
+        { name: 'Member Management', description: 'Add, edit, and manage company members and roles' },
+        { name: 'Department Organization', description: 'Create and manage company departments' },
+        { name: 'Post Moderation', description: 'Review and manage content across all post types' },
+        { name: 'Analytics Dashboard', description: 'View engagement metrics and company analytics' },
+        { name: 'User Tags System', description: 'Classify users for assignment and filtering' },
+        { name: 'Template Management', description: 'Create reusable post templates for consistency' },
+        { name: 'QR Code Generation', description: 'Generate employee invitation QR codes' },
+        { name: 'Billing Management', description: 'Manage company subscription and billing' },
+        { name: 'Audit Logs', description: 'Access company audit logs and compliance reports' },
+        { name: 'Policy Management', description: 'Create and manage company policies' },
+      ]
     },
     hr: {
       name: t('guidance.roles.hr.name'),
       description: t('guidance.roles.hr.description'),
       responsibilities: t('guidance.roles.hr.responsibilities', { returnObjects: true }),
-      icon: '👥'
+      icon: '👥',
+      features: [
+        { name: 'HR Conversations', description: 'Access private HR messaging and consultations' },
+        { name: 'Member Management', description: 'Manage employees and their profiles' },
+        { name: 'Post Moderation', description: 'Review HR-specific and sensitive content' },
+        { name: 'Employee Reports', description: 'Generate employee analytics and reports' },
+        { name: 'Vendor Risk Assessment', description: 'Evaluate and track vendor compliance' },
+        { name: 'Department Management', description: 'Organize employees by department' },
+        { name: 'Analytics Access', description: 'View HR-specific analytics and metrics' },
+      ]
     },
     employee: {
       name: t('guidance.roles.employee.name'),
       description: t('guidance.roles.employee.description'),
       responsibilities: t('guidance.roles.employee.responsibilities', { returnObjects: true }),
-      icon: '👤'
+      icon: '👤',
+      features: [
+        { name: 'Post Creation', description: 'Create problems, ideas, creative content, and discussions' },
+        { name: 'Anonymous Posting', description: 'Post anonymously to protect your identity' },
+        { name: 'Post Comments', description: 'Engage with posts through comments and reactions' },
+        { name: 'Assigned to Me', description: 'Track posts and tasks assigned to you' },
+        { name: 'Feed Navigation', description: 'Browse and filter company posts and discussions' },
+        { name: 'Profile Management', description: 'Manage your personal profile and preferences' },
+        { name: 'Policy Library', description: 'Access company policies and guidelines' },
+        { name: 'HR Messages', description: 'Send private messages to HR department' },
+      ]
     }
   };
 

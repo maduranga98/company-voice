@@ -38,6 +38,7 @@ import {
   ClipboardCheck,
   Shield,
   Inbox,
+  HelpCircle,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -198,6 +199,7 @@ const CompanyAdminLayout = ({ children }) => {
         ...(!isHR ? [{ label: t("navigation.billing", "Billing"), path: "/company/billing", icon: CreditCard }] : []),
         ...(!isHR ? [{ label: t("navigation.qrCode", "QR Code"), path: "/company/qr-code", icon: QrCode }] : []),
         { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
+        { label: t("navigation.help", "Help & Instructions"), path: "/help", icon: HelpCircle },
       ],
     },
   ];
@@ -251,18 +253,20 @@ const CompanyAdminLayout = ({ children }) => {
     );
   };
 
-  // Mobile bottom nav - HR sees Walls, Conversations, Moderation, Profile
+  // Mobile bottom nav - HR sees Walls, Conversations, Moderation, Help, More
   const mobileBottomTabs = isHR
     ? [
         { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
         { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
         { id: "moderation", label: "Moderation", path: "/moderation", icon: Shield },
+        { id: "help", label: "Help", path: "/help", icon: HelpCircle },
         { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
       ]
     : [
         { id: "dashboard", label: "Dashboard", path: "/company/dashboard", icon: LayoutDashboard },
         { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
         { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
+        { id: "help", label: "Help", path: "/help", icon: HelpCircle },
         { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
       ];
 
@@ -466,6 +470,7 @@ function getPageTitle(pathname, t) {
     "/company/billing": t("navigation.billing", "Billing"),
     "/company/qr-code": t("navigation.qrCode", "QR Code"),
     "/company/profile": t("navigation.profile", "Profile"),
+    "/help": t("navigation.help", "Help & Instructions"),
   };
   return titles[pathname] || "VoxWel Admin";
 }
