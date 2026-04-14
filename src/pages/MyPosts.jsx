@@ -236,7 +236,7 @@ const MyPosts = () => {
   ];
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
+    <div className="max-w-2xl mx-auto px-4 pb-24 pt-4">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">

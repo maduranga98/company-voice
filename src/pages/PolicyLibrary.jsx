@@ -142,7 +142,7 @@ const PolicyLibrary = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
+    <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 right-4 z-50 bg-[#2D3E50] text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
@@ -158,15 +158,15 @@ const PolicyLibrary = () => {
       <div className="grid grid-cols-3 gap-3 mb-5">
         <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
           <div className="text-2xl font-bold text-[#2D3E50]">{policies.length}</div>
-          <div className="text-[11px] text-gray-500 mt-1 font-medium">Total</div>
+          <div className="text-xs text-gray-500 mt-1 font-medium">Total</div>
         </div>
         <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
           <div className="text-2xl font-bold text-emerald-600">{acknowledgedCount}</div>
-          <div className="text-[11px] text-emerald-600 mt-1 font-medium">Acknowledged</div>
+          <div className="text-xs text-emerald-600 mt-1 font-medium">Acknowledged</div>
         </div>
         <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
           <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
-          <div className="text-[11px] text-amber-600 mt-1 font-medium">Pending</div>
+          <div className="text-xs text-amber-600 mt-1 font-medium">Pending</div>
         </div>
       </div>
 
@@ -231,11 +231,11 @@ const PolicyLibrary = () => {
               <div key={policy.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
                 {/* Top row: category + acknowledgement status */}
                 <div className="flex items-center gap-2 mb-3">
-                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold ${CATEGORY_BADGE[policy.category] || CATEGORY_BADGE.other}`}>
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${CATEGORY_BADGE[policy.category] || CATEGORY_BADGE.other}`}>
                     {CATEGORY_LABELS[policy.category] || policy.category}
                   </span>
                   {isAcknowledged ? (
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 ml-auto">
+                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 ml-auto">
                       <CheckCircle className="w-3 h-3" />
                       Acknowledged
                     </span>
@@ -248,7 +248,7 @@ const PolicyLibrary = () => {
                 <h3 className="text-sm font-bold text-[#2D3E50] mb-1">{policy.title}</h3>
 
                 {/* Effective date */}
-                <p className="text-[11px] text-gray-400 mb-2">
+                <p className="text-xs text-gray-400 mb-2">
                   Effective: {formatDate(policy.effectiveDate)}
                 </p>
 
@@ -337,7 +337,7 @@ const PolicyLibrary = () => {
                   { label: "Created by", value: selectedPolicy.createdByName || "\u2014" },
                 ].map((item) => (
                   <div key={item.label} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase mb-1">{item.label}</p>
+                    <p className="text-xs font-semibold text-gray-400 uppercase mb-1">{item.label}</p>
                     <p className="text-xs text-[#2D3E50] font-medium">{item.value}</p>
                   </div>
                 ))}
