@@ -299,13 +299,44 @@ const HRInbox = () => {
           {/* Right: detail panel — desktop only */}
           {selectedPost && (
             <div className="hidden lg:flex lg:flex-col lg:flex-1 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 max-h-[calc(100vh-160px)] overflow-hidden">
-              <div className="p-5 border-b border-gray-100 flex items-start gap-4 flex-shrink-0">
+              {/* Panel header — title + close */}
+              <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-start gap-4 flex-shrink-0">
                 <PostTypeIcon type={selectedPost.type} />
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-[#2D3E50]">{selectedPost.title}</h3>
-                  {(selectedPost.description || selectedPost.content) && (
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{selectedPost.description || selectedPost.content}</p>
-                  )}
+                  <h3 className="text-base font-semibold text-[#2D3E50] leading-snug">
+                    {selectedPost.title}
+                  </h3>
+                  {/* Metadata chips */}
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    {/* Post type label */}
+                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md capitalize">
+                      {(selectedPost.type || "").replace(/_/g, " ")}
+                    </span>
+                    {/* Anonymity */}
+                    {selectedPost.isAnonymous ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md">
+                        <Shield size={10} />
+                        Anonymous
+                      </span>
+                    ) : (
+                      selectedPost.authorName && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium bg-gray-50 text-gray-500 px-2 py-0.5 rounded-md">
+                          <User size={10} />
+                          {selectedPost.authorName}
+                        </span>
+                      )
+                    )}
+                    {/* Date */}
+                    <span className="inline-flex items-center gap-1 text-xs text-gray-400 ml-auto">
+                      <Clock size={10} />
+                      {selectedPost.createdAt
+                        ? (selectedPost.createdAt?.toDate
+                            ? selectedPost.createdAt.toDate()
+                            : new Date(selectedPost.createdAt)
+                          ).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+                        : ""}
+                    </span>
+                  </div>
                 </div>
                 <button
                   onClick={() => setSelectedPost(null)}
@@ -314,8 +345,28 @@ const HRInbox = () => {
                   <X size={16} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-5">
-                <AdminActionPanel post={selectedPost} currentUser={userData} />
+
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto">
+                {/* Full post content */}
+                {(selectedPost.description || selectedPost.content) && (
+                  <div className="px-6 py-4 border-b border-gray-100">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      Submission
+                    </p>
+                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                      {selectedPost.description || selectedPost.content}
+                    </p>
+                  </div>
+                )}
+
+                {/* Admin action panel */}
+                <div className="px-6 py-4">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                    HR Actions
+                  </p>
+                  <AdminActionPanel post={selectedPost} currentUser={userData} />
+                </div>
               </div>
             </div>
           )}

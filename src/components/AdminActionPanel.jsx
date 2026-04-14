@@ -8,7 +8,6 @@ import {
   PostPriority,
   PostPriorityConfig,
   AssignmentType,
-  UserRole,
 } from "../utils/constants";
 import {
   updatePostStatus,
@@ -442,7 +441,6 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
           companyId={post.companyId || currentUser.companyId}
           currentUserRole={currentUser.role}
           isAnonymousPost={post.isAnonymous}
-          defaultOpen={[UserRole.HR, UserRole.COMPANY_ADMIN, UserRole.SUPER_ADMIN].includes(currentUser.role)}
         />
       )}
     </div>
