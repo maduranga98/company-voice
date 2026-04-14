@@ -19,11 +19,19 @@ const TEAL = "#00BCD4";
 const CORAL = "#FF6B6B";
 
 const decryptMessage = (encryptedText) => {
+  if (!encryptedText || typeof encryptedText !== "string") return "";
   try {
     const bytes = CryptoJS.AES.decrypt(encryptedText, ANONYMOUS_SECRET);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    // bytes.toString can throw "Malformed UTF-8 data" in CryptoJS 4.x
+    // when the key doesn't match — wrap separately
+    try {
+      const text = bytes.toString(CryptoJS.enc.Utf8);
+      return text || "";
+    } catch {
+      return "";
+    }
   } catch {
-    return "[Decryption failed]";
+    return "";
   }
 };
 
@@ -259,12 +267,13 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
                         {senderName} · {formatTime(msg.timestamp)}
                       </span>
                       <div
-                        className="max-w-[75%] px-3 py-2 rounded-xl text-sm text-white break-words"
+                        className="max-w-[75%] px-3 py-2 rounded-xl text-sm break-words"
                         style={{
                           backgroundColor: isOwnMessage ? NAVY : TEAL,
+                          color: msg.content ? "#ffffff" : "rgba(255,255,255,0.5)",
                         }}
                       >
-                        {msg.content}
+                        {msg.content || <em className="text-xs">Unable to display message</em>}
                       </div>
                     </div>
                   );
