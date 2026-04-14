@@ -1,0 +1,1451 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "welcome": "Welcome back!",
+      "username": "Username",
+      "password": "Password",
+      "usernameOrEmail": "Username or Email",
+      "usernamePlaceholder": "Enter your username",
+      "passwordPlaceholder": "Enter your password",
+      "signIn": "Sign In",
+      "signingIn": "Signing in...",
+      "signInWithQR": "Sign In with QR Code",
+      "scanQRCode": "Scan QR Code",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "orContinueWith": "or continue with",
+      "newToVoxWel": "New to VoxWel?",
+      "contactHR": "Contact your HR",
+      "noAccount": "Don't have an account?",
+      "register": "Register here",
+      "invalidCredentials": "Invalid username or password. Please try again.",
+      "invalidQR": "Invalid QR code. Please scan a valid company registration QR code.",
+      "loginSuccess": "Login successful!",
+      "loginError": "Login failed. Please try again.",
+      "cameraAccessError": "Unable to access camera. Please check permissions.",
+      "qrScannerError": "Failed to start QR scanner. Please try manual login.",
+      "tagline": "Where Every Voice Matters",
+      "mainHeading": "Empower Your Workplace Voice",
+      "mainDescription": "A secure platform where every employee can share ideas, report concerns, and collaborate to build a better workplace together.",
+      "featureCreativeTitle": "Creative Ideas",
+      "featureCreativeText": "Share innovative solutions and creative concepts",
+      "featureSecureTitle": "Secure Reporting",
+      "featureSecureText": "Report workplace issues safely and anonymously",
+      "featureDiscussionsTitle": "Open Discussions",
+      "featureDiscussionsText": "Engage in meaningful team conversations",
+      "copyright": "© 2025 VoxWel. All rights reserved."
+    },
+    "register": {
+      "title": "Create Account",
+      "welcome": "Join us today!",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "companyName": "Company Name",
+      "createAccount": "Create Account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in here",
+      "usernameRequired": "Username is required",
+      "usernameLength": "Username must be at least 3 characters long",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordLength": "Password must be at least 6 characters long",
+      "passwordMismatch": "Passwords do not match",
+      "companyRequired": "Company name is required",
+      "registrationSuccess": "Registration successful!",
+      "registrationError": "Registration failed. Please try again.",
+      "joinCompany": "Join {{companyName}}",
+      "fullName": "Full Name",
+      "mobile": "Mobile Number",
+      "gender": "Gender",
+      "selectGender": "Select",
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "preferNotToSay": "Prefer not to say",
+      "usernameHint": "Only letters and numbers allowed (no spaces or special characters)",
+      "mobileHint": "10-digit number",
+      "passwordHint": "Minimum 6 characters",
+      "usernameAvailable": "Username is available",
+      "usernameTaken": "Username already taken",
+      "creatingAccount": "Creating Account...",
+      "backToLogin": "Back to Login",
+      "createEmployeeAccount": "Create your employee account",
+      "usernameAlreadyTaken": "Username already taken. Please choose another.",
+      "usernameAvailabilityFailed": "Failed to check username availability.",
+      "companyNotFound": "Company not found. Please contact your HR department.",
+      "companyLoadFailed": "Failed to load company information.",
+      "registrationPending": "Registration successful! Your account is pending approval from your company admin."
+    },
+    "logout": "Sign Out"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "feed": "Feed",
+    "creative": "Creative",
+    "problems": "Problems",
+    "discussions": "Discussions",
+    "myPosts": "My Posts",
+    "assignedToMe": "Assigned to Me",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "home": "Home",
+    "walls": "Walls",
+    "messages": "Messages",
+    "help": "Help",
+    "post": "Post",
+    "hrInbox": "HR Inbox",
+    "hrInboxBadge": "New HR posts",
+    "conversations": "Conversations",
+    "moderation": "Moderation",
+    "members": "Members",
+    "departments": "Departments",
+    "tags": "Tags",
+    "compliance": "Compliance",
+    "policies": "Policies",
+    "auditLog": "Audit Log",
+    "auditExport": "Audit Export",
+    "legalRequests": "Legal Requests",
+    "vendorRisk": "Vendor Risk",
+    "billing": "Billing",
+    "qrCode": "QR Code",
+    "analytics": "Analytics",
+    "content": "Content",
+    "management": "Management"
+  },
+  "language": {
+    "chooseLanguage": "Choose language"
+  },
+  "messages": {
+    "privacy": "Only you and HR can see these conversations. Your name is never revealed.",
+    "noMessages": "No private messages yet",
+    "noMessagesDesc": "When HR needs more information about your reports, they will send you a private message here.",
+    "goToProblems": "Go to Problems Wall",
+    "thread": "Conversation",
+    "identityProtected": "HR Team · Your identity is protected",
+    "nameNeverVisible": "Your name is never visible to HR"
+  },
+  "post": {
+    "create": "Create Post",
+    "whatToShare": "What do you want to share?",
+    "chooseType": "Choose a type to get started",
+    "postAnonymously": "Post anonymously",
+    "anonymousDefault": "ON by default · name encrypted",
+    "createNew": "Create New Post",
+    "title": "Title",
+    "description": "Description",
+    "content": "Content",
+    "category": "Category",
+    "tags": "Tags",
+    "assignTo": "Assign To",
+    "selectCategory": "Select Category",
+    "selectTags": "Select Tags",
+    "addTag": "Add Tag",
+    "postType": {
+      "creative": "Creative",
+      "problem": "Problem",
+      "discussion": "Discussion"
+    },
+    "publish": "Publish",
+    "draft": "Save as Draft",
+    "posted": "Posted",
+    "postedBy": "Posted by",
+    "editPost": "Edit Post",
+    "deletePost": "Delete Post",
+    "deleteConfirm": "Are you sure you want to delete this post?",
+    "postDeleted": "Post deleted successfully",
+    "postCreated": "Post created successfully",
+    "postUpdated": "Post updated successfully",
+    "noPostsYet": "No posts yet",
+    "noPosts": "No posts available"
+  },
+  "comments": {
+    "comments": "Comments",
+    "addComment": "Add a comment...",
+    "postComment": "Post Comment",
+    "reply": "Reply",
+    "editComment": "Edit Comment",
+    "deleteComment": "Delete Comment",
+    "noComments": "No comments yet. Be the first to comment!",
+    "commentAdded": "Comment added successfully",
+    "commentDeleted": "Comment deleted successfully",
+    "anonymous": "Comment anonymously",
+    "reportComment": "Report comment",
+    "viewMore": "View more comments",
+    "collapse": "Collapse comments",
+    "cancelEdit": "Cancel",
+    "saveEdit": "Save",
+    "addReply": "Add a reply...",
+    "posting": "Posting...",
+    "showReplies": "Show replies",
+    "hideReplies": "Hide replies"
+  },
+  "reactions": {
+    "like": "Like",
+    "love": "Love",
+    "celebrate": "Celebrate",
+    "support": "Support",
+    "insightful": "Insightful",
+    "reactions": "Reactions"
+  },
+  "feed": {
+    "unified": "All Posts",
+    "creative": "Creative Feed",
+    "creativeDescriptiom": "Share your creative ideas, designs, and innovations",
+    "problems": "Problems Feed",
+    "discussions": "Discussions Feed",
+    "filterBy": "Filter by",
+    "sortBy": "Sort by",
+    "latest": "Latest",
+    "popular": "Popular",
+    "trending": "Trending",
+    "mostLiked": "Most Liked",
+    "mostCommented": "Most Commented",
+    "allCategories": "All Categories",
+    "activeFilters": "Active filters:",
+    "pinnedPosts": "Pinned Posts",
+    "noPostsYet": "No posts yet",
+    "problemsDescription": "Report workplace issues and track their resolution",
+    "discussionsTitle": "Team Discussions",
+    "discussionsDescription": "Start conversations and collaborate with your team",
+    "creativeTitle": "Creative Wall",
+    "loadMore": "Load More",
+    "clearFilters": "Clear Filters",
+    "createFirst": "Be the first to post"
+  },
+  "company": {
+    "dashboard": "Company Dashboard",
+    "management": "Company Management",
+    "members": "Members",
+    "memberManagement": "Member Management",
+    "addMember": "Add Member",
+    "removeMember": "Remove Member",
+    "companyPosts": "Company Posts",
+    "companyName": "Company Name",
+    "companyInfo": "Company Information",
+    "creativeWall": "Creative Wall",
+    "qrCode": "QR Code",
+    "generateQR": "Generate QR Code",
+    "downloadQR": "Download QR Code",
+    "tags": "Tags",
+    "tagManagement": "Tag Management",
+    "createTag": "Create Tag",
+    "editTag": "Edit Tag",
+    "deleteTag": "Delete Tag",
+    "tagName": "Tag Name",
+    "tagColor": "Tag Color",
+    "dashboardTitle": "Company Dashboard",
+    "welcome": "Welcome back",
+    "totalMembers": "Total Members",
+    "totalPosts": "Total Posts",
+    "pendingApprovals": "Pending Approvals",
+    "activeDepartments": "Active Departments",
+    "viewAll": "View All",
+    "memberManagementTitle": "Member Management",
+    "searchMembers": "Search members...",
+    "inviteMember": "Invite Member",
+    "bulkActions": "Bulk Actions",
+    "selectAll": "Select All",
+    "memberRole": "Role",
+    "memberStatus": "Status",
+    "memberDepartment": "Department",
+    "memberJoined": "Joined",
+    "actions": "Actions",
+    "activate": "Activate",
+    "suspend": "Suspend",
+    "changeRole": "Change Role",
+    "assignDepartment": "Assign Department",
+    "noMembers": "No members found",
+    "departmentTitle": "Department Management",
+    "newDepartment": "New Department",
+    "departmentName": "Department Name",
+    "departmentDescription": "Description",
+    "membersCount": "Members",
+    "createDepartment": "Create Department",
+    "editDepartment": "Edit Department",
+    "deleteDepartment": "Delete Department",
+    "noDepartments": "No departments yet",
+    "confirmDeleteDept": "Are you sure you want to delete this department?",
+    "qrCodeTitle": "QR Code Invitation",
+    "qrCodeInstructions": "Share this QR code with employees to allow them to register.",
+    "scanToJoin": "Scan to Join",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link copied!",
+    "regenerate": "Regenerate",
+    "expires": "Expires",
+    "dashboardSubtitle": "Overview of all posts and action items requiring attention",
+    "employeeSingular": "employee",
+    "employeePlural": "employees",
+    "pendingApprovalAlert": "pending approval",
+    "reviewApproveRegistrations": "Review and approve new employee registrations",
+    "reviewNow": "Review Now",
+    "criticalIssues": "Critical Issues",
+    "openIssues": "Open Issues",
+    "inProgress": "In Progress",
+    "problemReports": "Problem Reports",
+    "clickToViewProblems": "Click to view all problems",
+    "creativeIdeas": "Creative Ideas",
+    "clickToViewCreative": "Click to view all creative posts",
+    "discussions": "Discussions",
+    "clickToViewDiscussions": "Click to view all discussions",
+    "recentPostsTitle": "Recent Posts Needing Attention",
+    "recentPostsSubtitle": "Latest 5 posts that are open, in progress, or being worked on",
+    "allCaughtUp": "All Caught Up!",
+    "noPostsAttention": "There are no posts requiring immediate attention.",
+    "assignedTo": "Assigned to",
+    "moderation": "Moderation",
+    "moderationDesc": "Review reported content and manage moderation activities",
+    "hrDashboard": "HR Dashboard",
+    "hrDashboardDesc": "Manage harassment, discrimination, and violence reports",
+    "archivedPosts": "Archived Posts",
+    "archivedPostsDesc": "View and reactivate archived posts from your company",
+    "analytics": "Analytics",
+    "analyticsDesc": "View detailed insights, trends, and engagement metrics",
+    "memberManagementDesc": "Manage team members, assign tags and departments",
+    "tagManagementDesc": "Create and manage tags for categorizing members",
+    "departmentsDesc": "Organize and manage your company departments",
+    "qrCodeDesc": "Share your company QR code with employees to join",
+    "auditLog": "Audit Log",
+    "auditLogDesc": "View comprehensive audit history and compliance logs",
+    "billing": "Billing & Subscription",
+    "billingDesc": "Manage subscription, invoices, and payment methods",
+    "legalRequests": "Legal Requests",
+    "legalRequestsDesc": "Submit and track court-ordered information disclosure requests",
+    "postTypeProblem": "Problem",
+    "postTypeCreative": "Creative",
+    "postTypeDiscussion": "Discussion",
+    "postTypeIdea": "Idea",
+    "postTypeDefault": "Post",
+    "failedToLoadData": "Failed to load data",
+    "tagAssigned": "Tag assigned successfully!",
+    "failedToAssignTag": "Failed to assign tag",
+    "departmentAssigned": "Department assigned successfully!",
+    "failedToAssignDepartment": "Failed to assign department",
+    "confirmApproveMember": "Are you sure you want to approve this member?",
+    "memberApproved": "Member approved successfully!",
+    "failedToApproveMember": "Failed to approve member",
+    "confirmRejectMember": "Are you sure you want to reject this member? This will permanently delete their account.",
+    "memberRejected": "Member rejected and removed successfully!",
+    "failedToRejectMember": "Failed to reject member",
+    "changeRole": "Role",
+    "changeRoleTitle": "Change Role",
+    "changeRoleFor": "Change role for this member",
+    "currentRole": "(Current)",
+    "adminRoleDesc": "Full access to manage company, members, departments, and settings",
+    "hrRoleDesc": "Access to HR-only posts, manage reports, and handle employee relations",
+    "employeeRoleDesc": "Standard access to submit posts and participate in discussions",
+    "roleChanged": "Role changed successfully!",
+    "failedToChangeRole": "Failed to change role",
+    "manageTags": "Manage Tags",
+    "manageDepartments": "Manage Departments",
+    "activeMembers": "Active Members",
+    "taggedMembers": "Tagged Members",
+    "inDepartments": "In Departments",
+    "searchByNameOrEmail": "Search by name or email...",
+    "role": "Role",
+    "allRoles": "All Roles",
+    "roleAdmin": "Admin",
+    "roleHR": "HR",
+    "roleEmployee": "Employee",
+    "tag": "Tag",
+    "allTags": "All Tags",
+    "untagged": "Untagged",
+    "department": "Department",
+    "allDepartments": "All Departments",
+    "unassigned": "Unassigned",
+    "status": "Status",
+    "allStatus": "All Status",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "showing": "Showing",
+    "of": "of",
+    "membersLower": "members",
+    "memberColumn": "Member",
+    "emailColumn": "Email",
+    "notTagged": "Not tagged",
+    "noDepartment": "No department",
+    "approve": "Approve",
+    "reject": "Reject",
+    "assignTag": "Assign Tag",
+    "dept": "Dept",
+    "assignDept": "Assign Dept",
+    "assignTagTo": "Assign Tag to",
+    "noTagsAvailable": "No tags available. Create tags first.",
+    "goToTagManagement": "Go to Tag Management",
+    "removeTag": "Remove Tag",
+    "priority": "Priority",
+    "assignDepartmentTo": "Assign Department to",
+    "noDepartmentsAvailable": "No departments available. Create departments first.",
+    "goToDepartmentManagement": "Go to Department Management",
+    "removeFromDepartment": "Remove from Department",
+    "failedToLoadDepartments": "Failed to load departments",
+    "confirmDeleteDepartment": "Are you sure you want to delete this department?",
+    "departmentHasMembers": "This department has members. Would you like to reassign them to another department?",
+    "cannotDeleteOnlyDepartment": "Cannot delete the only department with members.",
+    "departmentDeleted": "Department deleted successfully",
+    "failedToDeleteDepartment": "Failed to delete department",
+    "departmentUpdated": "Department updated successfully",
+    "departmentCreated": "Department created successfully",
+    "failedToSaveDepartment": "Failed to save department",
+    "loadingDepartments": "Loading departments...",
+    "backToDashboard": "Back to Dashboard",
+    "departmentSubtitle": "Manage your organization's departments and teams",
+    "addDepartment": "Add Department",
+    "totalDepartments": "Total Departments",
+    "avgTeamSize": "Avg. Team Size",
+    "searchDepartments": "Search departments...",
+    "showInactive": "Show inactive",
+    "noDepartmentsFound": "No departments found",
+    "adjustSearchCriteria": "Try adjusting your search criteria",
+    "createFirstDepartmentHint": "Create your first department to organize your teams",
+    "createFirstDepartment": "Create First Department",
+    "failedToLoadTags": "Failed to load tags",
+    "pleaseEnterTagName": "Please enter a tag name",
+    "tagUpdated": "Tag updated successfully!",
+    "tagCreated": "Tag created successfully!",
+    "failedToSaveTag": "Failed to save tag",
+    "confirmDeleteTag": "Are you sure you want to delete this tag? This action cannot be undone.",
+    "tagDeleted": "Tag deleted successfully!",
+    "failedToDeleteTag": "Failed to delete tag",
+    "tagManagementSubtitle": "Create and manage tags to categorize members by their roles and levels",
+    "noTagsCreated": "No Tags Created",
+    "createFirstTagHint": "Create your first tag to categorize members by their roles",
+    "createFirstTag": "Create First Tag",
+    "createNewTag": "Create New Tag",
+    "updateTag": "Update Tag",
+    "icon": "Icon",
+    "priorityLabel": "Priority (higher = shown first)",
+    "preview": "Preview",
+    "yourCompanyQRCode": "Your Company QR Code",
+    "qrCodeScanDesc": "Employees can scan this QR code to quickly register and join your company platform",
+    "companyDetails": "Company Details",
+    "companyId": "Company ID",
+    "industry": "Industry",
+    "notSpecified": "Not specified",
+    "employees": "Employees",
+    "shareInfoCopied": "Share information copied to clipboard!",
+    "unableToShare": "Unable to share. Please download and share manually.",
+    "companyIdCopied": "Company ID copied to clipboard!",
+    "print": "Print",
+    "share": "Share",
+    "distributionTips": "Distribution Tips",
+    "tipEmailEmployees": "Email to new employees",
+    "tipPrintWelcomePackets": "Print on welcome packets",
+    "tipDisplayCommonAreas": "Display in common areas",
+    "tipAddHandbook": "Add to employee handbook",
+    "bestPractices": "Best Practices",
+    "bestPracticeHighRes": "High resolution for printing",
+    "bestPracticeTestScan": "Test scan before distribution",
+    "bestPracticeKeepAccessible": "Keep QR code accessible",
+    "bestPracticeMonitor": "Monitor registration activity"
+  },
+  "employee": {
+    "dashboard": "Employee Dashboard",
+    "complaints": "Complaints",
+    "myComplaints": "My Complaints",
+    "fileComplaint": "File a Complaint",
+    "complaintDetails": "Complaint Details",
+    "status": "Status",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed"
+  },
+  "admin": {
+    "panel": "Admin Panel",
+    "companyManagement": "Company Management",
+    "userManagement": "User Management",
+    "systemSettings": "System Settings",
+    "approve": "Approve",
+    "reject": "Reject",
+    "pending": "Pending Approval",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "profile": {
+    "myProfile": "My Profile",
+    "editProfile": "Edit Profile",
+    "viewProfile": "View Profile",
+    "name": "Name",
+    "email": "Email",
+    "username": "Username",
+    "bio": "Bio",
+    "role": "Role",
+    "company": "Company",
+    "joinedDate": "Joined Date",
+    "updateProfile": "Update Profile",
+    "profileUpdated": "Profile updated successfully",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "title": "Profile",
+    "manageInfo": "Manage your personal information and account settings",
+    "displayName": "Display Name",
+    "companyId": "Company ID",
+    "lastLogin": "Last Login",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "accountInformation": "Account Information",
+    "accountStatus": "Account Status",
+    "accountCurrently": "Your account is currently",
+    "security": "Security",
+    "securityText": "To change your password, please contact your administrator.",
+    "never": "Never",
+    "profileUpdatedAlert": "Profile updated successfully! Changes are now active.",
+    "profileUpdateFailed": "Failed to update profile. Please try again.",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Failed to update profile. Please try again.",
+    "invalidDate": "Invalid date",
+    "status": "Status",
+    "myActivity": "My Activity",
+    "totalPosts": "Total Posts",
+    "problemsReported": "Problems Reported",
+    "ideasShared": "Ideas Shared",
+    "quickLinks": "Quick Links",
+    "policyLibrary": "Policy Library",
+    "viewPolicies": "Company guidelines",
+    "viewNotifications": "Recent alerts",
+    "viewAllPosts": "View all your posts",
+    "viewAssigned": "Tasks assigned to you"
+  },
+  "notifications": {
+    "notifications": "Notifications",
+    "noNotifications": "No notifications",
+    "markAsRead": "Mark as Read",
+    "markAllAsRead": "Mark All as Read",
+    "newComment": "New comment on your post",
+    "newReaction": "Someone reacted to your post",
+    "newAssignment": "You have been assigned to a post",
+    "newPost": "New post in your feed",
+    "stayUpdated": "Stay updated with your latest activities",
+    "all": "All",
+    "unread": "Unread",
+    "read": "Read",
+    "loading": "Loading notifications...",
+    "noNotificationsYet": "You don't have any notifications yet.",
+    "allCaughtUp": "You're all caught up!",
+    "markAsReadTitle": "Mark as read",
+    "justNow": "Just now"
+  },
+  "qr": {
+    "generator": "QR Code Generator",
+    "generate": "Generate QR Code",
+    "download": "Download",
+    "scan": "Scan QR Code",
+    "scanInstructions": "Point your camera at the QR code",
+    "scanSuccess": "QR code scanned successfully",
+    "scanError": "Failed to scan QR code",
+    "companyRegistration": "Company Registration QR Code",
+    "howToScan": "How to scan:",
+    "instruction1": "Get QR code from your HR department",
+    "instruction2": "Hold it steady within the frame",
+    "instruction3": "Ensure good lighting",
+    "instruction4": "Auto-redirect upon successful scan"
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailInvalid": "Please enter a valid email address",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match",
+    "usernameTooShort": "Username must be at least 3 characters",
+    "invalidFormat": "Invalid format"
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "networkError": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "notFound": "Resource not found.",
+    "serverError": "Server error. Please try again later.",
+    "sessionExpired": "Your session has expired. Please login again."
+  },
+  "success": {
+    "saved": "Saved successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully",
+    "created": "Created successfully",
+    "sent": "Sent successfully"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} minutes ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago",
+    "weeksAgo": "{{count}} weeks ago",
+    "monthsAgo": "{{count}} months ago",
+    "yearsAgo": "{{count}} years ago"
+  },
+  "dashboard": {
+    "loadingWorkspace": "Loading your workspace...",
+    "pleaseWait": "Please wait a moment"
+  },
+  "myPosts": {
+    "title": "My Posts",
+    "allPosts": "All Posts",
+    "problems": "Problems",
+    "creative": "Creative",
+    "discussions": "Discussions",
+    "unreadUpdates": "Unread Updates",
+    "loading": "Loading your posts...",
+    "noPosts": "No posts found",
+    "noPostsDescription": "You haven't created any posts yet.",
+    "failedToLoad": "Failed to load your posts. Please try again.",
+    "viewDetails": "View details"
+  },
+  "assignedToMe": {
+    "title": "Assigned to Me",
+    "noTagTitle": "No Tag Assigned",
+    "noTagMessage": "You need to have a user tag assigned to see posts assigned to you. Please contact your administrator.",
+    "allStatus": "All Status",
+    "allPriority": "All Priority",
+    "noPosts": "No posts assigned to you",
+    "noPostsDescription": "Posts assigned to you will appear here.",
+    "status": "Status",
+    "priority": "Priority"
+  },
+  "drafts": {
+    "title": "My Drafts",
+    "lastUpdated": "Last updated:",
+    "publish": "Publish",
+    "noDrafts": "No drafts yet",
+    "noDraftsDescription": "Start writing a post and save it as a draft.",
+    "confirmDelete": "Are you sure you want to delete this draft?"
+  },
+  "scheduled": {
+    "title": "Scheduled Posts",
+    "publishNow": "Publish Now",
+    "cancelSchedule": "Cancel Schedule",
+    "overdue": "Overdue",
+    "scheduledFor": "Scheduled for:",
+    "noScheduled": "No scheduled posts",
+    "noScheduledDescription": "Posts scheduled for future publication will appear here."
+  },
+  "templates": {
+    "title": "Post Templates",
+    "newTemplate": "New Template",
+    "templateName": "Template Name",
+    "noTemplates": "No templates yet",
+    "noTemplatesDescription": "Create templates to speed up post creation.",
+    "useTemplate": "Use Template",
+    "editTemplate": "Edit Template",
+    "deleteTemplate": "Delete Template",
+    "createTemplate": "Create Template",
+    "postType": "Post Type",
+    "templateContent": "Template Content",
+    "saveTemplate": "Save Template",
+    "problemReport": "Problem Report",
+    "ideaSuggestion": "Idea Suggestion",
+    "creativeContent": "Creative Content",
+    "teamDiscussion": "Team Discussion",
+    "confirmDelete": "Are you sure you want to delete this template?"
+  },
+  "hrInbox": {
+    "subtitle": "Posts sent directly to HR",
+    "all": "All",
+    "open": "Open",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "total": "Total",
+    "empty": "No HR posts yet",
+    "emptyDesc": "Posts sent to HR will appear here"
+  },
+  "createPost": {
+    "title": "Create Post",
+    "postTitle": "Title",
+    "postDescription": "Description",
+    "postCategory": "Category",
+    "postPrivacy": "Privacy",
+    "selectCategory": "Select Category",
+    "selectPrivacy": "Select Privacy",
+    "problemReport": "Problem Report",
+    "ideaSuggestion": "Idea Suggestion",
+    "creativeContent": "Creative Content",
+    "teamDiscussion": "Team Discussion",
+    "companyPublic": "Company Public",
+    "departmentOnly": "Department Only",
+    "hrOnly": "HR Only",
+    "sendToHR": "Send to HR only",
+    "sendToHRDesc": "Only HR and admins can see this",
+    "hrOnlyBanner": "This post will only be visible to your HR team and company admins. Your anonymity is still fully protected.",
+    "anonymous": "Post Anonymously",
+    "saveDraft": "Save as Draft",
+    "schedulePost": "Schedule Post",
+    "useTemplate": "Use Template",
+    "publishPost": "Publish Post",
+    "attachFiles": "Attach Files",
+    "addTags": "Add Tags",
+    "assignTo": "Assign To",
+    "dueDate": "Due Date",
+    "priority": "Priority",
+    "titlePlaceholder": "Enter post title...",
+    "contentPlaceholder": "Share your thoughts, ideas, or concerns...",
+    "cancel": "Cancel",
+    "selectPriority": "Select Priority",
+    "selectUser": "Select User",
+    "noAssignee": "No Assignee",
+    "scheduleDate": "Schedule Date",
+    "fileAttachments": "File Attachments",
+    "addFile": "Add File",
+    "removeFile": "Remove File",
+    "submitting": "Submitting...",
+    "savingDraft": "Saving Draft..."
+  },
+  "postActions": {
+    "readMore": "Read more",
+    "showLess": "Show less",
+    "pinnedPost": "Pinned Post",
+    "deletePost": "Delete Post",
+    "deleteConfirm": "This action cannot be undone. This will permanently delete the post.",
+    "editPost": "Edit Post",
+    "reportPost": "Report Post",
+    "pinPost": "Pin Post",
+    "unpinPost": "Unpin Post",
+    "archivePost": "Archive Post",
+    "dueDate": "Due:",
+    "assignedTo": "Assigned to:",
+    "priority": "Priority:",
+    "status": "Status:",
+    "confirmDelete": "Are you sure?",
+    "deleting": "Deleting..."
+  },
+  "adminPanel": {
+    "title": "Admin Controls",
+    "status": "Status",
+    "priority": "Priority",
+    "pinPost": "Pin Post",
+    "unpinPost": "Unpin Post",
+    "assignTo": "Assign To",
+    "dueDate": "Due Date",
+    "adminNote": "Admin Note",
+    "addNote": "Add Note",
+    "saveChanges": "Save Changes",
+    "deletePost": "Delete Post",
+    "archivePost": "Archive Post",
+    "selectStatus": "Select Status",
+    "selectPriority": "Select Priority",
+    "selectUser": "Select User",
+    "noAssignee": "No Assignee",
+    "confirmDelete": "Are you sure you want to delete this post?",
+    "confirmArchive": "Are you sure you want to archive this post?",
+    "saving": "Saving...",
+    "pinned": "Pinned",
+    "notPinned": "Not Pinned"
+  },
+  "guidance": {
+    "ui": {
+      "memberStatuses": "Member Statuses",
+      "templateExamples": "Template Examples",
+      "privacySettings": "Privacy Settings",
+      "moderationActions": "Moderation Actions",
+      "distributionMethods": "Distribution Methods",
+      "whatToExpect": "What to Expect",
+      "reportStatuses": "Report Statuses",
+      "bestPractices": "Best Practices",
+      "howToAssignTags": "How to Assign Tags",
+      "howToCreateDepts": "How to Create Departments",
+      "useCases": "Use Cases",
+      "howToManageMembers": "How to Manage Members",
+      "roleAssignmentGuidelines": "Role Assignment Guidelines",
+      "bulkOperations": "Bulk Operations",
+      "howToCreate": "How to Create",
+      "howToUse": "How to Use",
+      "howItWorks": "How It Works",
+      "howToGenerate": "How to Generate",
+      "howToManage": "How to Manage",
+      "reviewProcess": "Review Process",
+      "selectTopic": "Select a topic from the sidebar to view help content."
+    },
+    "roles": {
+      "superAdmin": {
+        "name": "Super Admin",
+        "description": "Platform-level administrator with access to all companies",
+        "responsibilities": [
+          "Manage multiple companies and their settings",
+          "Handle super admin billing and subscriptions",
+          "Oversee system-wide administration",
+          "Create and configure new companies"
+        ]
+      },
+      "companyAdmin": {
+        "name": "Company Admin",
+        "description": "Administrator for a specific company with full control",
+        "responsibilities": [
+          "Manage company members and departments",
+          "Handle post moderation and status updates",
+          "Access analytics and reporting",
+          "Manage tags and user classifications",
+          "Configure company billing and subscriptions",
+          "Create and manage post templates",
+          "Generate QR codes for employee invitations"
+        ]
+      },
+      "hr": {
+        "name": "HR",
+        "description": "Human Resources specialist with administrative privileges",
+        "responsibilities": [
+          "Manage HR-specific content and sensitive posts",
+          "Perform member management and moderation",
+          "Access company analytics and audit logs",
+          "Handle employee-related administrative tasks",
+          "Manage departments and tags"
+        ]
+      },
+      "employee": {
+        "name": "Employee",
+        "description": "Regular company employee with content creation privileges",
+        "responsibilities": [
+          "Create posts (Problems, Ideas, Creative content, Discussions)",
+          "Comment on and engage with posts",
+          "View company feeds and content",
+          "Manage own posts (edit/delete)",
+          "View posts assigned to them (if tagged)"
+        ]
+      }
+    },
+    "postStatus": {
+      "title": "Post Status Workflow",
+      "description": "Track and manage posts through their lifecycle using these status indicators.",
+      "statuses": {
+        "OPEN": {
+          "label": "Open",
+          "description": "Just created, awaiting admin review",
+          "whenToUse": "Default status for all new posts"
+        },
+        "ACKNOWLEDGED": {
+          "label": "Acknowledged",
+          "description": "Admin has seen and acknowledged the post",
+          "whenToUse": "When you've reviewed the post and want to signal awareness"
+        },
+        "IN_PROGRESS": {
+          "label": "In Progress",
+          "description": "Actively being worked on",
+          "whenToUse": "When work has started to address the post"
+        },
+        "UNDER_REVIEW": {
+          "label": "Under Review",
+          "description": "Being investigated or evaluated",
+          "whenToUse": "When the post requires investigation or analysis"
+        },
+        "WORKING_ON": {
+          "label": "Working On",
+          "description": "Forwarded to relevant departments, awaiting response",
+          "whenToUse": "When you've delegated to another team and waiting for updates"
+        },
+        "RESOLVED": {
+          "label": "Resolved",
+          "description": "Successfully fixed or completed",
+          "whenToUse": "When the issue is fully resolved or idea is implemented"
+        },
+        "CLOSED": {
+          "label": "Closed",
+          "description": "No action needed or taken",
+          "whenToUse": "When the post doesn't require any action"
+        },
+        "REJECTED": {
+          "label": "Rejected",
+          "description": "Not valid, duplicate, or out of scope",
+          "whenToUse": "When the post is invalid, duplicate, or doesn't align with company goals"
+        },
+        "NOT_A_PROBLEM": {
+          "label": "Not a Problem",
+          "description": "Not a real issue or will be resolved in future",
+          "whenToUse": "When the reported issue isn't actually a problem or will resolve itself"
+        }
+      },
+      "bestPractices": [
+        "Always add a comment when changing status to explain the reason",
+        "Update status promptly to keep employees informed",
+        "Use ACKNOWLEDGED quickly to show you've seen important posts",
+        "Move to RESOLVED only when action is complete",
+        "Provide closure by explaining REJECTED or NOT_A_PROBLEM decisions"
+      ]
+    },
+    "priority": {
+      "title": "Priority Levels",
+      "description": "Assign priority to posts to indicate urgency and importance.",
+      "levels": {
+        "CRITICAL": {
+          "label": "Critical",
+          "description": "Requires immediate attention",
+          "criteria": [
+            "System outages or major functionality broken",
+            "Safety or security concerns",
+            "Legal or compliance issues",
+            "Severe business impact"
+          ]
+        },
+        "HIGH": {
+          "label": "High",
+          "description": "Important and time-sensitive",
+          "criteria": [
+            "Significant impact on multiple teams",
+            "Blocking key processes or workflows",
+            "Customer-facing issues",
+            "Time-sensitive opportunities"
+          ]
+        },
+        "MEDIUM": {
+          "label": "Medium",
+          "description": "Normal priority, should be addressed",
+          "criteria": [
+            "Standard operational issues",
+            "Process improvements",
+            "Non-blocking problems",
+            "Regular feature requests"
+          ]
+        },
+        "LOW": {
+          "label": "Low",
+          "description": "Nice to have, address when possible",
+          "criteria": [
+            "Minor improvements",
+            "Optional enhancements",
+            "Low-impact suggestions",
+            "Long-term ideas"
+          ]
+        }
+      },
+      "bestPractices": [
+        "Set priority based on business impact, not just urgency",
+        "Review and adjust priorities regularly",
+        "Communicate priority changes to stakeholders",
+        "Use CRITICAL sparingly to maintain its significance"
+      ]
+    },
+    "tags": {
+      "title": "User Tag System",
+      "description": "Tags help classify users by role or seniority for assignment and filtering.",
+      "purpose": "Tags enable the 'Assigned to Me' feature - when users with tags are mentioned in posts, those posts appear in their assigned section.",
+      "items": {
+        "EXECUTIVE": {
+          "label": "Executive",
+          "description": "C-level executives and Vice Presidents",
+          "examples": [
+            "CEO",
+            "CTO",
+            "CFO",
+            "VP of Engineering"
+          ]
+        },
+        "SENIOR_MANAGER": {
+          "label": "Senior Manager",
+          "description": "Senior managers and directors",
+          "examples": [
+            "Director of HR",
+            "Senior Engineering Manager"
+          ]
+        },
+        "MANAGER": {
+          "label": "Manager",
+          "description": "Team leads and managers",
+          "examples": [
+            "Team Lead",
+            "Project Manager",
+            "Department Manager"
+          ]
+        },
+        "SPECIALIST": {
+          "label": "Specialist",
+          "description": "Senior specialists and subject matter experts",
+          "examples": [
+            "Senior Engineer",
+            "UX Specialist",
+            "Security Expert"
+          ]
+        },
+        "STAFF": {
+          "label": "Staff",
+          "description": "Regular employees and staff members",
+          "examples": [
+            "Engineer",
+            "Designer",
+            "Analyst"
+          ]
+        }
+      },
+      "howToAssign": [
+        "Tags are optional - not all users need a tag",
+        "Only assign tags to users who need to track assigned items",
+        "One user can have multiple tags if they hold multiple roles",
+        "Tags don't affect permissions - they're for organization only"
+      ],
+      "bestPractices": [
+        "Use tags consistently across your organization",
+        "Review and update tags during role changes",
+        "Don't over-tag - only tag users who need assignment tracking",
+        "Document your organization's tag assignment criteria"
+      ]
+    },
+    "departments": {
+      "title": "Department Management",
+      "description": "Organize your company structure with departments.",
+      "whatAreDepartments": "Departments help you organize members by team, function, or location. They're used for filtering posts, analytics, and access control.",
+      "howToCreate": [
+        "Click 'Create Department' button",
+        "Enter a descriptive department name",
+        "Optionally add a description",
+        "Assign members to the department"
+      ],
+      "bestPractices": [
+        "Create departments that match your organizational structure",
+        "Keep department names clear and consistent",
+        "Assign all members to at least one department",
+        "Use departments for targeted content with privacy settings",
+        "Review department analytics to track team engagement"
+      ],
+      "useCases": [
+        "Filter posts by department in feeds",
+        "Create department-specific content with privacy controls",
+        "Track department performance in analytics",
+        "Organize member management by team"
+      ]
+    },
+    "memberManagement": {
+      "title": "Member Management",
+      "description": "Manage users, assign roles, and control access.",
+      "statuses": {
+        "ACTIVE": {
+          "label": "Active",
+          "description": "Full access to the platform"
+        },
+        "PENDING": {
+          "label": "Pending",
+          "description": "Invitation sent, awaiting registration"
+        },
+        "SUSPENDED": {
+          "label": "Suspended",
+          "description": "Access temporarily revoked"
+        }
+      },
+      "howToManage": [
+        "Use filters to find specific members",
+        "Click on a member to view details",
+        "Change roles from the dropdown menu",
+        "Assign tags for organizational classification",
+        "Suspend members to temporarily revoke access"
+      ],
+      "roleAssignment": [
+        "Assign Company Admin carefully - they have full access",
+        "HR role is for human resources personnel",
+        "Most users should be Employees",
+        "Only Super Admins can create other Super Admins"
+      ],
+      "bulkOperations": [
+        "Select multiple members with checkboxes",
+        "Use bulk actions for efficiency",
+        "Available actions: Change role, Assign tag, Change status",
+        "Review selections before applying bulk changes"
+      ],
+      "bestPractices": [
+        "Regularly audit member roles and access",
+        "Suspend rather than delete when access should be temporary",
+        "Document role changes in admin notes",
+        "Use departments to organize large teams"
+      ]
+    },
+    "templates": {
+      "title": "Post Templates",
+      "description": "Create reusable templates for common post types.",
+      "whatAreTemplates": "Templates are pre-formatted post structures that help users create consistent, well-structured content quickly.",
+      "howToCreate": [
+        "Navigate to Templates page",
+        "Click 'Create Template'",
+        "Choose post type (Problem, Idea, Creative, Discussion)",
+        "Add title and content with placeholders",
+        "Save template for reuse"
+      ],
+      "howToUse": [
+        "When creating a post, look for 'Use Template' option",
+        "Select from available templates",
+        "Template content auto-fills the form",
+        "Customize as needed before posting"
+      ],
+      "bestPractices": [
+        "Create templates for frequently posted content types",
+        "Use clear, descriptive template names",
+        "Include helpful prompts and examples in templates",
+        "Keep templates concise and focused",
+        "Review and update templates based on usage"
+      ]
+    },
+    "analytics": {
+      "title": "Analytics & Reporting",
+      "description": "Understand engagement, trends, and performance metrics.",
+      "metrics": {
+        "postsByType": {
+          "label": "Posts by Type",
+          "description": "Distribution of Problem Reports, Ideas, Creative Content, and Discussions",
+          "useCase": "Identify what type of content employees create most"
+        },
+        "postsByStatus": {
+          "label": "Posts by Status",
+          "description": "Current status distribution (Open, In Progress, Resolved, etc.)",
+          "useCase": "Track workflow progress and identify bottlenecks"
+        },
+        "postsByPriority": {
+          "label": "Posts by Priority",
+          "description": "Distribution across Critical, High, Medium, Low priorities",
+          "useCase": "Understand urgency distribution and workload"
+        },
+        "engagementMetrics": {
+          "label": "User Engagement",
+          "description": "Comments, reactions, and active participation",
+          "useCase": "Measure platform adoption and user activity"
+        },
+        "responseTime": {
+          "label": "Response Time",
+          "description": "Average time to acknowledge and resolve posts",
+          "useCase": "Track admin responsiveness and efficiency"
+        },
+        "departmentPerformance": {
+          "label": "Department Performance",
+          "description": "Activity and metrics by department",
+          "useCase": "Compare team engagement and identify trends"
+        }
+      },
+      "howToUse": [
+        "Select time period (7, 30, or 90 days)",
+        "Review charts and trends",
+        "Click on data points for details",
+        "Export data for further analysis",
+        "Share insights with leadership"
+      ],
+      "bestPractices": [
+        "Review analytics weekly to identify trends",
+        "Compare periods to track improvement",
+        "Use insights to improve processes",
+        "Share positive trends to encourage engagement",
+        "Act on concerning patterns quickly"
+      ]
+    },
+    "moderation": {
+      "title": "Content Moderation",
+      "description": "Review reported content and maintain community standards.",
+      "reportStatuses": {
+        "PENDING": {
+          "label": "Pending",
+          "description": "New report awaiting review",
+          "action": "Review the content and take appropriate action"
+        },
+        "UNDER_REVIEW": {
+          "label": "Under Review",
+          "description": "Being investigated",
+          "action": "Continue investigation and gather context"
+        },
+        "RESOLVED": {
+          "label": "Resolved",
+          "description": "Action taken, issue resolved",
+          "action": "Ensure resolution is documented"
+        },
+        "DISMISSED": {
+          "label": "Dismissed",
+          "description": "No action needed",
+          "action": "Document reason for dismissal"
+        }
+      },
+      "actions": [
+        {
+          "action": "No Action",
+          "whenToUse": "Report is invalid or content is acceptable"
+        },
+        {
+          "action": "Warning",
+          "whenToUse": "Minor violation, user should be informed"
+        },
+        {
+          "action": "Remove Content",
+          "whenToUse": "Content violates policies and should be hidden"
+        },
+        {
+          "action": "Suspend User",
+          "whenToUse": "Serious or repeated violations"
+        }
+      ],
+      "reviewProcess": [
+        "Read the report and reported content carefully",
+        "Review context (previous posts, comments, user history)",
+        "Consult community guidelines and policies",
+        "Take appropriate action based on severity",
+        "Document your decision and reasoning",
+        "Communicate decision to reporter and reported user"
+      ],
+      "bestPractices": [
+        "Review reports promptly (within 24 hours)",
+        "Be consistent in applying standards",
+        "Always document your reasoning",
+        "Escalate serious issues to leadership",
+        "Provide clear communication to users",
+        "Learn from patterns in reports"
+      ]
+    },
+    "postCreation": {
+      "title": "Creating Posts",
+      "description": "Share problems, ideas, creative content, and discussions.",
+      "postTypes": {
+        "problem_report": {
+          "label": "Problem Report",
+          "description": "Report issues, bugs, or problems that need resolution",
+          "whenToUse": "When something is broken, not working, or causing issues",
+          "tips": [
+            "Be specific about the problem",
+            "Include steps to reproduce",
+            "Add screenshots or evidence",
+            "Describe impact and urgency"
+          ]
+        },
+        "idea_suggestion": {
+          "label": "Idea Suggestion",
+          "description": "Suggest improvements, features, or new ideas",
+          "whenToUse": "When you have ideas to improve products, processes, or the workplace",
+          "tips": [
+            "Explain the problem you're solving",
+            "Describe your proposed solution",
+            "Highlight expected benefits",
+            "Consider alternatives"
+          ]
+        },
+        "creative_content": {
+          "label": "Creative Content",
+          "description": "Share creative work, designs, or innovative concepts",
+          "whenToUse": "When sharing designs, creative projects, or artistic content",
+          "tips": [
+            "Use visuals to showcase your work",
+            "Explain your creative process",
+            "Request specific feedback",
+            "Share inspiration sources"
+          ]
+        },
+        "team_discussion": {
+          "label": "Team Discussion",
+          "description": "Start conversations and team discussions",
+          "whenToUse": "When you want to gather input, brainstorm, or discuss topics",
+          "tips": [
+            "Frame discussion with clear questions",
+            "Provide context and background",
+            "Encourage diverse perspectives",
+            "Summarize conclusions in comments"
+          ]
+        }
+      },
+      "privacySettings": {
+        "COMPANY_PUBLIC": {
+          "label": "Company Public",
+          "description": "Visible to all company members"
+        },
+        "DEPARTMENT_ONLY": {
+          "label": "Department Only",
+          "description": "Only visible to your department"
+        },
+        "HR_ONLY": {
+          "label": "HR Only",
+          "description": "Only visible to HR and admins"
+        }
+      },
+      "bestPractices": [
+        "Choose the right post type for your content",
+        "Write clear, descriptive titles",
+        "Provide sufficient context and details",
+        "Use appropriate privacy settings",
+        "Add relevant tags or mentions",
+        "Proofread before posting"
+      ]
+    },
+    "qrCode": {
+      "title": "QR Code for Employee Invitations",
+      "description": "Generate QR codes to simplify employee onboarding.",
+      "howItWorks": [
+        "Admin generates a company-specific QR code",
+        "QR code is printed or displayed digitally",
+        "New employees scan with their mobile device",
+        "They're directed to registration with company pre-filled",
+        "After registration, they gain instant access"
+      ],
+      "howToGenerate": [
+        "Navigate to QR Code page in admin panel",
+        "Click 'Generate QR Code'",
+        "Download QR code image or PDF with instructions",
+        "Share with new employees or display in office"
+      ],
+      "distributionMethods": [
+        "Print and post in common areas",
+        "Include in new hire welcome packets",
+        "Display during orientation sessions",
+        "Share digitally via email or messaging",
+        "Add to employee handbook"
+      ],
+      "bestPractices": [
+        "Include clear instructions with QR code",
+        "Test QR code before wide distribution",
+        "Regenerate periodically for security",
+        "Track successful registrations",
+        "Provide alternative registration methods"
+      ]
+    },
+    "assignedToMe": {
+      "title": "Assigned to Me",
+      "description": "Track posts and tasks assigned to you.",
+      "howItWorks": [
+        "Admins can assign posts to tagged users",
+        "When mentioned or assigned, posts appear in 'Assigned to Me'",
+        "Only users with tags see this section",
+        "Acts as your personal task list"
+      ],
+      "whatToExpect": [
+        "Posts requiring your attention or action",
+        "Items where you're mentioned or tagged",
+        "Tasks delegated to you by admins",
+        "Priority items for your role level"
+      ],
+      "howToManage": [
+        "Review assigned items regularly",
+        "Add comments with progress updates",
+        "Mark items complete when done",
+        "Escalate blockers to admins"
+      ],
+      "bestPractices": [
+        "Check assigned items daily",
+        "Prioritize by urgency and deadline",
+        "Communicate status proactively",
+        "Ask for clarification when needed"
+      ]
+    },
+    "tooltips": {
+      "pinPost": "Pin this post to keep it at the top of the feed",
+      "archivePost": "Archive this post to remove it from active feeds",
+      "deletePost": "Permanently delete this post and all its comments",
+      "editPost": "Edit post content, privacy, or settings",
+      "changePriority": "Update the priority level (Critical, High, Medium, Low)",
+      "changeStatus": "Update the workflow status",
+      "assignPost": "Assign this post to specific users for action",
+      "addDueDate": "Set a deadline for resolution or completion",
+      "adminComment": "Add a private admin note (visible to admins only)",
+      "reportContent": "Report this content for moderation review",
+      "saveAsDraft": "Save as draft to finish later",
+      "schedulePost": "Schedule this post to be published later",
+      "useTemplate": "Use a template to speed up post creation"
+    }
+  },
+  "help": {
+    "center": {
+      "title": "Help Center",
+      "subtitle": "Learn how to use VoxWel effectively",
+      "searchPlaceholder": "Search help topics...",
+      "viewRolesPermissions": "View Roles & Permissions",
+      "topics": "Topics",
+      "noResults": "No help topics match your search."
+    },
+    "sections": {
+      "gettingStarted": "Getting Started",
+      "workingWithPosts": "Working with Posts",
+      "adminFeatures": "Admin Features",
+      "theWalls": "The 3 walls",
+      "postingPrivacy": "Posting & privacy",
+      "messagesCompliance": "Messages & compliance",
+      "account": "Account"
+    },
+    "topics": {
+      "rolesPermissions": "Understanding Roles & Permissions",
+      "navigation": "Navigating the Platform",
+      "creatingPosts": "Creating Posts",
+      "postStatus": "Post Status Workflow",
+      "priorityLevels": "Priority Levels",
+      "assignedToMe": "Assigned to Me",
+      "memberManagement": "Member Management",
+      "departmentManagement": "Department Management",
+      "userTags": "User Tags",
+      "postTemplates": "Post Templates",
+      "contentModeration": "Content Moderation",
+      "analyticsReporting": "Analytics & Reporting",
+      "qrCodeInvitations": "QR Code Invitations",
+      "rolesPermissionsSub": "Who can do what",
+      "navigationSub": "Getting around the app",
+      "anonymityPrivacy": "Anonymity & privacy",
+      "anonymityPrivacySub": "How we protect your identity",
+      "creativeWall": "Creative Wall",
+      "creativeWallSub": "Share ideas and innovations",
+      "problemsWall": "Problems Wall",
+      "problemsWallSub": "Report workplace issues",
+      "discussionsWall": "Discussions Wall",
+      "discussionsWallSub": "Collaborate with your team",
+      "creatingPostsSub": "Step-by-step guide",
+      "anonymousPosting": "Anonymous posting",
+      "anonymousPostingSub": "Post without revealing identity",
+      "postStatusSub": "Track resolution progress",
+      "hrMessages": "Private HR messages",
+      "hrMessagesSub": "Secure anonymous conversations",
+      "policyLibrary": "Policy Library",
+      "policyLibrarySub": "Company guidelines",
+      "trainingModules": "Training modules",
+      "trainingModulesSub": "Learning resources",
+      "profileSettings": "Profile settings",
+      "profileSettingsSub": "Edit your account info",
+      "languagePrefs": "Language & preferences",
+      "languagePrefsSub": "Customize your experience",
+      "assignedToMeSub": "Managing assigned tasks",
+      "memberManagementSub": "Manage users and roles",
+      "departmentManagementSub": "Organize your company",
+      "analyticsReportingSub": "Usage reports and metrics"
+    },
+    "roles": {
+      "title": "Understanding Roles & Permissions",
+      "description": "VoxWel has different user roles, each with specific responsibilities and permissions.",
+      "superAdmin": {
+        "name": "Super Admin",
+        "description": "Platform-level administrator with access to all companies"
+      },
+      "companyAdmin": {
+        "name": "Company Admin",
+        "description": "Administrator for a specific company with full control"
+      },
+      "hr": {
+        "name": "HR",
+        "description": "Human Resources specialist with administrative privileges"
+      },
+      "employee": {
+        "name": "Employee",
+        "description": "Regular company employee with content creation privileges"
+      },
+      "viewFullMatrix": "For a complete permissions matrix showing what each role can do, visit the",
+      "roleDefinitionsPage": "Role Definitions page"
+    },
+    "common": {
+      "bestPractices": "Best Practices",
+      "howToUse": "How to Use",
+      "howItWorks": "How It Works",
+      "keyResponsibilities": "Key Responsibilities",
+      "whenToUse": "When to use",
+      "useCase": "Use case",
+      "action": "Action",
+      "criteria": "Criteria",
+      "examples": "Examples",
+      "tips": "Tips"
+    }
+  }
+}

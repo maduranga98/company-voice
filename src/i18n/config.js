@@ -6,6 +6,7 @@ import enTranslations from './locales/en.json';
 import siTranslations from './locales/si.json';
 import esTranslations from './locales/es.json';
 import frTranslations from './locales/fr.json';
+import itTranslations from './locales/it.json';
 
 i18n
   .use(LanguageDetector) // Detect user language
@@ -23,6 +24,9 @@ i18n
       },
       fr: {
         translation: frTranslations
+      },
+      it: {
+        translation: itTranslations
       }
     },
     fallbackLng: 'en', // Fallback language
