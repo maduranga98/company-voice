@@ -28,6 +28,7 @@ import {
   Shield,
   Filter,
   User,
+  X,
 } from "lucide-react";
 
 const formatTimeAgo = (timestamp) => {
@@ -176,7 +177,7 @@ const HRInbox = () => {
         ].map((stat) => (
           <div key={stat.label} className={`${stat.bg} rounded-xl p-3 text-center`}>
             <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-[11px] text-gray-500 font-medium">{stat.label}</p>
+            <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -195,7 +196,7 @@ const HRInbox = () => {
           >
             {tab.label}
             {tab.count > 0 && (
-              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
+              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs ${
                 activeFilter === tab.id ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "bg-gray-200 text-gray-500"
               }`}>
                 {tab.count}
@@ -205,7 +206,7 @@ const HRInbox = () => {
         ))}
       </div>
 
-      {/* Post List */}
+      {/* Post List + Detail panel */}
       {filteredPosts.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -219,83 +220,104 @@ const HRInbox = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filteredPosts.map((post) => {
-            const statusConfig = PostStatusConfig[post.status] || PostStatusConfig.open;
-            const priorityConfig = post.priority && PostPriorityConfig[post.priority];
-            const isUnread = (!post.status || post.status === PostStatus.OPEN) && !post.adminCommentCount;
+        <div className="lg:flex lg:gap-4 lg:items-start">
+          {/* Left: post list */}
+          <div className={`space-y-3 ${selectedPost ? "lg:w-2/5" : "w-full"}`}>
+            {filteredPosts.map((post) => {
+              const statusConfig = PostStatusConfig[post.status] || PostStatusConfig.open;
+              const priorityConfig = post.priority && PostPriorityConfig[post.priority];
+              const isUnread = (!post.status || post.status === PostStatus.OPEN) && !post.adminCommentCount;
+              const isSelected = selectedPost?.id === post.id;
 
-            return (
-              <div
-                key={post.id}
-                onClick={() => setSelectedPost(selectedPost?.id === post.id ? null : post)}
-                className={`bg-white rounded-2xl border transition-all cursor-pointer ${
-                  selectedPost?.id === post.id
-                    ? "border-[#1ABC9C] shadow-md"
-                    : "border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200"
-                }`}
-              >
-                <div className="p-4">
-                  <div className="flex items-start gap-3">
-                    <PostTypeIcon type={post.type} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            {isUnread && (
-                              <span className="w-2 h-2 bg-[#FF6B6B] rounded-full flex-shrink-0" />
-                            )}
-                            <h3 className="text-sm font-semibold text-[#2D3E50] truncate">
-                              {post.title}
-                            </h3>
+              return (
+                <div
+                  key={post.id}
+                  onClick={() => setSelectedPost(isSelected ? null : post)}
+                  className={`bg-white rounded-2xl border transition-all cursor-pointer ${
+                    isSelected
+                      ? "border-[#1ABC9C] shadow-md"
+                      : "border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200"
+                  }`}
+                >
+                  <div className="p-4">
+                    <div className="flex items-start gap-3">
+                      <PostTypeIcon type={post.type} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              {isUnread && (
+                                <span className="w-2 h-2 bg-[#FF6B6B] rounded-full flex-shrink-0" />
+                              )}
+                              <h3 className="text-sm font-semibold text-[#2D3E50] truncate">
+                                {post.title}
+                              </h3>
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                              {post.description || post.content}
+                            </p>
                           </div>
-                          <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-                            {post.description || post.content}
-                          </p>
                         </div>
-                      </div>
 
-                      {/* Meta row */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {/* Status badge */}
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}>
-                          {statusConfig.label}
-                        </span>
-
-                        {/* Priority badge */}
-                        {priorityConfig && post.priority !== "medium" && (
-                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold ${priorityConfig.bgColor} ${priorityConfig.textColor}`}>
-                            {priorityConfig.icon} {priorityConfig.label}
+                        {/* Meta row */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${statusConfig.bgColor} ${statusConfig.textColor}`}>
+                            {statusConfig.label}
                           </span>
-                        )}
-
-                        {/* Anonymous badge */}
-                        {post.isAnonymous && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-gray-100 text-gray-500">
-                            <User size={10} />
-                            Anonymous
+                          {priorityConfig && post.priority !== "medium" && (
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-semibold ${priorityConfig.bgColor} ${priorityConfig.textColor}`}>
+                              {priorityConfig.icon} {priorityConfig.label}
+                            </span>
+                          )}
+                          {post.isAnonymous && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500">
+                              <User size={10} />
+                              Anonymous
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-400 flex items-center gap-1 ml-auto">
+                            <Clock size={10} />
+                            {formatTimeAgo(post.createdAt)}
                           </span>
-                        )}
-
-                        {/* Time */}
-                        <span className="text-[10px] text-gray-400 flex items-center gap-1 ml-auto">
-                          <Clock size={10} />
-                          {formatTimeAgo(post.createdAt)}
-                        </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Expanded admin panel */}
-                {selectedPost?.id === post.id && (
-                  <div className="border-t border-gray-100 p-4" onClick={(e) => e.stopPropagation()}>
-                    <AdminActionPanel post={post} currentUser={userData} />
-                  </div>
-                )}
+                  {/* Mobile inline expansion */}
+                  {isSelected && (
+                    <div className="lg:hidden border-t border-gray-100 p-4" onClick={(e) => e.stopPropagation()}>
+                      <AdminActionPanel post={post} currentUser={userData} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right: detail panel — desktop only */}
+          {selectedPost && (
+            <div className="hidden lg:flex lg:flex-col lg:flex-1 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 max-h-[calc(100vh-160px)] overflow-hidden">
+              <div className="p-4 border-b border-gray-100 flex items-start gap-3 flex-shrink-0">
+                <PostTypeIcon type={selectedPost.type} />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-[#2D3E50]">{selectedPost.title}</h3>
+                  {(selectedPost.description || selectedPost.content) && (
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{selectedPost.description || selectedPost.content}</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setSelectedPost(null)}
+                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+                >
+                  <X size={14} />
+                </button>
               </div>
-            );
-          })}
+              <div className="flex-1 overflow-y-auto p-4">
+                <AdminActionPanel post={selectedPost} currentUser={userData} />
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
