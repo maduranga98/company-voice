@@ -53,27 +53,50 @@ const HelpCenter = () => {
           <div className="space-y-4">
             <p className="text-gray-600 text-sm">{t("help.roles.description")}</p>
             {filteredRoles.map(([roleKey, role]) => (
-              <div key={roleKey} className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
+              <div key={roleKey} className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="text-2xl">{role.icon}</span>
                   <div>
                     <h4 className="text-sm font-semibold text-gray-800">{role.name}</h4>
-                    <p className="text-xs text-gray-500">{role.description}</p>
+                    <p className="text-xs text-gray-600">{role.description}</p>
                   </div>
                 </div>
-                <ul className="space-y-1 mt-2">
-                  {role.responsibilities.map((resp, idx) => (
-                    <li key={idx} className="text-xs text-gray-600 flex items-start gap-2">
-                      <span className="text-blue-500 mt-0.5">•</span>
-                      <span>{resp}</span>
-                    </li>
-                  ))}
-                </ul>
+
+                <div className="space-y-3">
+                  <div>
+                    <h5 className="text-xs font-semibold text-gray-700 mb-1.5">Key Responsibilities:</h5>
+                    <ul className="space-y-1">
+                      {role.responsibilities.map((resp, idx) => (
+                        <li key={idx} className="text-xs text-gray-600 flex items-start gap-2">
+                          <span className="text-blue-500 mt-0.5">•</span>
+                          <span>{resp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {role.features && role.features.length > 0 && (
+                    <div>
+                      <h5 className="text-xs font-semibold text-gray-700 mb-1.5">Available Features:</h5>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {role.features.map((feature, idx) => (
+                          <div key={idx} className="bg-white rounded-lg p-2 border border-blue-100 flex items-start gap-2">
+                            <span className="text-blue-500 text-xs font-bold flex-shrink-0 mt-0.5">✓</span>
+                            <div>
+                              <div className="text-xs font-semibold text-gray-800">{feature.name}</div>
+                              <div className="text-[11px] text-gray-500">{feature.description}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
             <button
               onClick={() => navigate("/help/roles")}
-              className="w-full py-2.5 border border-blue-200 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-50 transition-colors"
+              className="w-full py-2.5 border-2 border-blue-300 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-50 hover:border-blue-400 active:bg-blue-100 transition-colors"
             >
               {t("help.roles.viewFullMatrix")}
             </button>
@@ -354,6 +377,24 @@ const HelpCenter = () => {
               </svg>
             ),
           },
+          ...(isAdminRole
+            ? [{
+                id: "role-features",
+                title: t("help.topics.roleFeatures", "Role-based features"),
+                sub: t("help.topics.roleFeaturesSub", "What your role can access"),
+                contentId: "role-definitions",
+                iconBg: "bg-purple-100",
+                iconStroke: "#7c3aed",
+                icon: (stroke) => (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                ),
+              }]
+            : []),
           {
             id: "anonymity",
             title: t("help.topics.anonymityPrivacy", "Anonymity & privacy"),
@@ -685,7 +726,7 @@ const HelpCenter = () => {
                 <div key={item.id}>
                   <button
                     onClick={() => toggleItem(item.id)}
-                    className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-blue-50 active:bg-blue-100 transition-colors border-l-4 border-transparent hover:border-blue-500 hover:shadow-sm"
                     style={{
                       borderBottom:
                         !isExpanded && i < section.items.length - 1

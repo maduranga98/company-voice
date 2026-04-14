@@ -17,9 +17,20 @@ export const ROLE_DEFINITIONS = {
       "Manage multiple companies and their settings",
       "Handle super admin billing and subscriptions",
       "Oversee system-wide administration",
-      "Create and configure new companies"
+      "Create and configure new companies",
+      "Access audit logs and compliance reports",
+      "Manage stripe billing and invoicing",
+      "View legal requests across all companies"
     ],
-    icon: "👑"
+    icon: "👑",
+    features: [
+      { name: "Multi-Company Management", description: "Manage multiple organizations from one dashboard" },
+      { name: "Billing & Subscriptions", description: "Handle billing cycles and payment processing" },
+      { name: "Company Configuration", description: "Create and configure new company instances" },
+      { name: "Audit & Compliance", description: "Access system-wide audit logs and reports" },
+      { name: "Legal Requests", description: "Review and manage legal requests across all companies" },
+      { name: "Super Admin Dashboard", description: "Comprehensive platform overview and analytics" }
+    ]
   },
   company_admin: {
     name: "Company Admin",
@@ -31,9 +42,23 @@ export const ROLE_DEFINITIONS = {
       "Manage tags and user classifications",
       "Configure company billing and subscriptions",
       "Create and manage post templates",
-      "Generate QR codes for employee invitations"
+      "Generate QR codes for employee invitations",
+      "Access company audit logs",
+      "Manage policies and compliance"
     ],
-    icon: "⚙️"
+    icon: "⚙️",
+    features: [
+      { name: "Member Management", description: "Add, edit, and manage company members and roles" },
+      { name: "Department Organization", description: "Create and manage company departments" },
+      { name: "Post Moderation", description: "Review and manage content across all post types" },
+      { name: "Analytics Dashboard", description: "View engagement metrics and company analytics" },
+      { name: "User Tags System", description: "Classify users for assignment and filtering" },
+      { name: "Template Management", description: "Create reusable post templates for consistency" },
+      { name: "QR Code Generation", description: "Generate employee invitation QR codes" },
+      { name: "Billing Management", description: "Manage company subscription and billing" },
+      { name: "Audit Logs", description: "Access company audit logs and compliance reports" },
+      { name: "Policy Management", description: "Create and manage company policies" }
+    ]
   },
   hr: {
     name: "HR",
@@ -43,9 +68,21 @@ export const ROLE_DEFINITIONS = {
       "Perform member management and moderation",
       "Access company analytics and audit logs",
       "Handle employee-related administrative tasks",
-      "Manage departments and tags"
+      "Manage departments and tags",
+      "View HR-only posts and conversations",
+      "Generate employee reports"
     ],
-    icon: "👥"
+    icon: "👥",
+    features: [
+      { name: "HR Conversations", description: "Access private HR messaging and consultations" },
+      { name: "Member Management", description: "Manage employees and their profiles" },
+      { name: "Post Moderation", description: "Review HR-specific and sensitive content" },
+      { name: "Employee Reports", description: "Generate employee analytics and reports" },
+      { name: "Vendor Risk Assessment", description: "Evaluate and track vendor compliance" },
+      { name: "Department Management", description: "Organize employees by department" },
+      { name: "User Tags", description: "Classify employees for tracking and assignment" },
+      { name: "Analytics Access", description: "View HR-specific analytics and metrics" }
+    ]
   },
   employee: {
     name: "Employee",
@@ -55,9 +92,21 @@ export const ROLE_DEFINITIONS = {
       "Comment on and engage with posts",
       "View company feeds and content",
       "Manage own posts (edit/delete)",
-      "View posts assigned to them (if tagged)"
+      "View posts assigned to them (if tagged)",
+      "Access policy library",
+      "Send private messages to HR"
     ],
-    icon: "👤"
+    icon: "👤",
+    features: [
+      { name: "Post Creation", description: "Create problems, ideas, creative content, and discussions" },
+      { name: "Anonymous Posting", description: "Post anonymously to protect your identity" },
+      { name: "Post Comments", description: "Engage with posts through comments and reactions" },
+      { name: "Assigned to Me", description: "Track posts and tasks assigned to you" },
+      { name: "Feed Navigation", description: "Browse and filter company posts and discussions" },
+      { name: "Profile Management", description: "Manage your personal profile and preferences" },
+      { name: "Policy Library", description: "Access company policies and guidelines" },
+      { name: "HR Messages", description: "Send private messages to HR department" }
+    ]
   }
 };
 
