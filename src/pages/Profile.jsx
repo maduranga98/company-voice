@@ -259,7 +259,7 @@ const Profile = () => {
   ];
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-24 pt-2">
+    <div className="max-w-2xl mx-auto px-4 pb-24 pt-2">
       {/* Profile header card */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
         {/* Gradient banner */}
@@ -325,14 +325,14 @@ const Profile = () => {
 
       {/* Activity stats */}
       <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
-        <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-4">
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
           {t("profile.myActivity", "My Activity")}
         </h3>
         <div className="grid grid-cols-3 gap-3">
           {statCards.map((stat) => (
             <div key={stat.label} className="bg-gray-50 rounded-xl p-4 text-center">
               <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-              <div className="text-[10px] font-medium text-gray-500 mt-1.5 leading-tight">{stat.label}</div>
+              <div className="text-xs font-medium text-gray-500 mt-1.5 leading-tight">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -340,7 +340,7 @@ const Profile = () => {
 
       {/* Account information */}
       <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
-        <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
           {t("profile.accountInformation", "Account Information")}
         </h3>
         <div className="divide-y divide-gray-50">
@@ -367,7 +367,7 @@ const Profile = () => {
       {/* Company Settings - only for company_admin */}
       {userData?.role === UserRole.COMPANY_ADMIN && companyData && (
         <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
             {t("profile.companySettings", "Company Settings")}
           </h3>
           <div className="space-y-4">
@@ -424,7 +424,7 @@ const Profile = () => {
 
       {/* Quick links */}
       <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
-        <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
           {t("profile.quickLinks", "Quick Links")}
         </h3>
         <div className="divide-y divide-gray-50">
@@ -441,7 +441,7 @@ const Profile = () => {
                 </div>
                 <div className="flex-1 text-left">
                   <div className="text-sm font-semibold text-gray-900">{link.label}</div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">{link.sub}</div>
+                  <div className="text-xs text-gray-400 mt-0.5">{link.sub}</div>
                 </div>
                 <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
               </button>

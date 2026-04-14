@@ -116,7 +116,7 @@ const AssignedToMe = () => {
 
   if (!userData?.userTagId) {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
+      <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
         <div className="bg-amber-50 border border-gray-100 rounded-2xl p-6 text-center shadow-sm">
           <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <AlertTriangle className="w-5 h-5 text-amber-600" />
@@ -149,7 +149,7 @@ const AssignedToMe = () => {
   ];
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-24 pt-6">
+    <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div

@@ -215,7 +215,7 @@ const VendorRiskReport = () => {
   // CHOICE SCREEN
   if (mode === "choice") {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24">
+      <div className="max-w-2xl mx-auto px-4 pb-24">
         {/* Header */}
         <div className="bg-[#2D3E50] text-white rounded-b-3xl px-6 py-10 -mx-4">
           <div className="flex justify-center mb-4">
@@ -269,7 +269,7 @@ const VendorRiskReport = () => {
   // NEW REPORT FORM
   if (mode === "new") {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
+      <div className="max-w-2xl mx-auto px-4 pb-24 pt-4">
         <button
           onClick={() => { resetNewForm(); setMode("choice"); }}
           className="text-sm text-gray-500 flex items-center gap-1.5 mb-5 hover:text-[#2D3E50] transition-colors"
@@ -377,7 +377,7 @@ const VendorRiskReport = () => {
   // SUCCESS - NEW REPORT
   if (mode === "success_new") {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-12 text-center">
+      <div className="max-w-2xl mx-auto px-4 pb-24 pt-12 text-center">
         <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
           <CheckCircle className="w-8 h-8 text-emerald-500" />
         </div>
@@ -429,7 +429,7 @@ const VendorRiskReport = () => {
   // CORROBORATE FORM
   if (mode === "corroborate") {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-4">
+      <div className="max-w-2xl mx-auto px-4 pb-24 pt-4">
         <button
           onClick={() => { resetCorrForm(); setMode("choice"); }}
           className="text-sm text-gray-500 flex items-center gap-1.5 mb-5 hover:text-[#2D3E50] transition-colors"
@@ -571,7 +571,7 @@ const VendorRiskReport = () => {
   // SUCCESS - CORROBORATION
   if (mode === "success_corr") {
     return (
-      <div className="max-w-lg mx-auto px-4 pb-24 pt-12 text-center">
+      <div className="max-w-2xl mx-auto px-4 pb-24 pt-12 text-center">
         <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
           <CheckCircle className="w-8 h-8 text-emerald-500" />
         </div>

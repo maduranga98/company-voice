@@ -84,7 +84,7 @@ const HelpCenter = () => {
                             <span className="text-blue-500 text-xs font-bold flex-shrink-0 mt-0.5">✓</span>
                             <div>
                               <div className="text-xs font-semibold text-gray-800">{feature.name}</div>
-                              <div className="text-[11px] text-gray-500">{feature.description}</div>
+                              <div className="text-xs text-gray-500">{feature.description}</div>
                             </div>
                           </div>
                         ))}
@@ -116,7 +116,7 @@ const HelpCenter = () => {
                     <h4 className="text-sm font-semibold text-gray-800">{status.label}</h4>
                   </div>
                   <p className="text-xs text-gray-600 mb-1">{status.description}</p>
-                  <p className="text-[11px] text-gray-400">
+                  <p className="text-xs text-gray-400">
                     <strong>{t("help.common.whenToUse")}:</strong> {status.whenToUse}
                   </p>
                 </div>
@@ -148,7 +148,7 @@ const HelpCenter = () => {
                 <p className="text-xs text-gray-600 mb-2">{level.description}</p>
                 <ul className="space-y-1">
                   {level.criteria.map((c, i) => (
-                    <li key={i} className="text-[11px] text-gray-500 flex items-start gap-1">
+                    <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
                       <span className="text-blue-400 mt-0.5">•</span>
                       <span>{c}</span>
                     </li>
@@ -170,12 +170,12 @@ const HelpCenter = () => {
                   <h4 className="text-sm font-semibold text-gray-800">{type.label}</h4>
                 </div>
                 <p className="text-xs text-gray-600 mb-1">{type.description}</p>
-                <p className="text-[11px] text-gray-400 mb-2">
+                <p className="text-xs text-gray-400 mb-2">
                   <strong>{t("help.common.whenToUse")}:</strong> {type.whenToUse}
                 </p>
                 <ul className="space-y-1">
                   {type.tips.map((tip, i) => (
-                    <li key={i} className="text-[11px] text-gray-500 flex items-start gap-1">
+                    <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
                       <span className="text-blue-400">•</span>
                       <span>{tip}</span>
                     </li>
@@ -191,7 +191,7 @@ const HelpCenter = () => {
                     <span className="text-lg">{privacy.icon}</span>
                     <div>
                       <div className="text-xs font-semibold text-gray-800">{privacy.label}</div>
-                      <div className="text-[11px] text-gray-500">{privacy.description}</div>
+                      <div className="text-xs text-gray-500">{privacy.description}</div>
                     </div>
                   </div>
                 ))}
@@ -269,7 +269,7 @@ const HelpCenter = () => {
                 <div key={key} className="bg-gray-50 border border-gray-200 rounded-xl p-3">
                   <div className="text-sm font-semibold text-gray-800 mb-1">{metric.label}</div>
                   <div className="text-xs text-gray-600 mb-1">{metric.description}</div>
-                  <div className="text-[11px] text-gray-400">
+                  <div className="text-xs text-gray-400">
                     <strong>{t("help.common.useCase")}:</strong> {metric.useCase}
                   </div>
                 </div>
@@ -697,7 +697,7 @@ const HelpCenter = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-24">
+    <div className="max-w-2xl mx-auto px-4 pb-24">
       {/* Search bar */}
       <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex gap-2 mt-4 mb-4">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" className="flex-shrink-0 mt-0.5">
@@ -716,7 +716,7 @@ const HelpCenter = () => {
       {/* Section groups */}
       {filteredSections.map((section) => (
         <div key={section.id} className="mb-6">
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">
             {section.label}
           </p>
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -738,8 +738,8 @@ const HelpCenter = () => {
                       {item.icon(item.iconStroke)}
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-[11px] font-semibold text-gray-900">{item.title}</div>
-                      <div className="text-[9px] text-gray-400 mt-0.5">{item.sub}</div>
+                      <div className="text-sm font-semibold text-gray-900">{item.title}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">{item.sub}</div>
                     </div>
                     <svg
                       width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"
