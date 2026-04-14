@@ -62,7 +62,6 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [viewMode, setViewMode] = useState("all"); // "all" | "sent" | "received"
   const messagesEndRef = useRef(null);
 
   const isInvestigator = isInvestigatorRole(currentUserRole);
@@ -237,57 +236,20 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
               End-to-end encrypted · Identities protected
             </div>
 
-            {/* View Mode Tabs */}
-            <div className="flex gap-1 px-3 py-2 bg-white border-b border-gray-100">
-              {[
-                { id: "all", label: "All Messages" },
-                { id: "sent", label: "Sent" },
-                { id: "received", label: "Received" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setViewMode(tab.id)}
-                  className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${
-                    viewMode === tab.id
-                      ? "text-white"
-                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                  }`}
-                  style={viewMode === tab.id ? { backgroundColor: NAVY } : {}}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
             {/* Messages */}
             <div className="max-h-80 overflow-y-auto p-4 space-y-3 bg-gray-50">
-              {(() => {
-                const filtered = messages.filter((msg) => {
-                  if (viewMode === "sent") return msg.sender === senderRole;
-                  if (viewMode === "received") return msg.sender !== senderRole;
-                  return true;
-                });
-
-                if (filtered.length === 0) {
-                  return (
-                    <p className="text-sm text-gray-500 text-center py-8">
-                      {viewMode === "sent"
-                        ? "No sent messages yet."
-                        : viewMode === "received"
-                        ? "No received messages yet."
-                        : "No messages yet. Start the conversation privately."}
-                    </p>
-                  );
-                }
-
-                return filtered.map((msg) => {
+              {messages.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-8">
+                  No messages yet. Start the conversation privately.
+                </p>
+              ) : (
+                messages.map((msg) => {
                   const isOwnMessage = msg.sender === senderRole;
                   const senderName = isOwnMessage
                     ? "You"
                     : isInvestigator
                     ? "Anonymous Reporter"
                     : "HR Team";
-
                   return (
                     <div
                       key={msg.id}
@@ -306,8 +268,8 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
                       </div>
                     </div>
                   );
-                });
-              })()}
+                })
+              )}
               <div ref={messagesEndRef} />
             </div>
 
