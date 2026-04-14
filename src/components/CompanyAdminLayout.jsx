@@ -126,13 +126,13 @@ const CompanyAdminLayout = ({ children }) => {
   const getRoleBadge = () => {
     if (userData?.role === "company_admin") {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#1ABC9C]/15 text-[#1ABC9C] uppercase tracking-wide">
+        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#1ABC9C]/15 text-[#1ABC9C] uppercase tracking-wide">
           Admin
         </span>
       );
     } else if (userData?.role === "hr") {
       return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 uppercase tracking-wide">
+        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 uppercase tracking-wide">
           HR
         </span>
       );
@@ -211,7 +211,7 @@ const CompanyAdminLayout = ({ children }) => {
       <button
         key={item.path}
         onClick={() => handleNavigate(item.path)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 group relative ${
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
           active
             ? "bg-[#1ABC9C]/10 text-[#1ABC9C]"
             : "text-gray-400 hover:text-white hover:bg-white/5"
@@ -241,7 +241,7 @@ const CompanyAdminLayout = ({ children }) => {
     return (
       <div key={section.id} className="mb-3">
         <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
+          <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
             {section.title}
           </span>
           <div className="flex-1 h-px bg-white/[0.07]" />
@@ -286,7 +286,7 @@ const CompanyAdminLayout = ({ children }) => {
           </div>
           <div>
             <span className="text-lg font-bold text-white group-hover:text-[#1ABC9C] transition-colors">VoxWel</span>
-            <p className="text-[10px] text-gray-500 font-medium">Admin Panel</p>
+            <p className="text-xs text-gray-500 font-medium">Admin Panel</p>
           </div>
         </div>
       </div>
@@ -314,7 +314,7 @@ const CompanyAdminLayout = ({ children }) => {
         <button
           onClick={handleLogout}
           disabled={loading}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
         >
           <LogOut size={18} />
           <span>{loading ? t("common.loading", "Logging out...") : t("auth.logout", "Logout")}</span>
@@ -434,7 +434,7 @@ const CompanyAdminLayout = ({ children }) => {
                     <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF6B6B] rounded-full border-2 border-white" />
                   )}
                 </div>
-                <span className={`text-[10px] font-medium ${active ? "text-[#1ABC9C]" : "text-gray-400"}`}>
+                <span className={`text-xs font-medium ${active ? "text-[#1ABC9C]" : "text-gray-400"}`}>
                   {tab.label}
                 </span>
               </button>
