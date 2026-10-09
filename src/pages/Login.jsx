@@ -82,21 +82,8 @@ const Login = () => {
       try {
         const qrData = JSON.parse(decodedText);
 
-        // Handle company registration QR codes
-        if (qrData.type === "company_registration" && qrData.companyId) {
-          if (html5QrCodeRef.current) {
-            await html5QrCodeRef.current.stop();
-          }
-          navigate("/register", {
-            state: {
-              companyId: qrData.companyId,
-              companyName: qrData.companyName,
-            },
-          });
-          handled = true;
-        }
         // Handle credential QR codes (username + password)
-        else if (qrData.username && qrData.password) {
+        if (qrData.username && qrData.password) {
           if (html5QrCodeRef.current) {
             await html5QrCodeRef.current.stop();
           }
@@ -114,19 +101,7 @@ const Login = () => {
           handled = true;
         }
       } catch {
-        // Not JSON — try parsing as URL
-        try {
-          const url = new URL(decodedText);
-          const companyId = url.searchParams.get('companyId');
-          const companyName = url.searchParams.get('companyName');
-          if (companyId) {
-            if (html5QrCodeRef.current) {
-              await html5QrCodeRef.current.stop();
-            }
-            navigate('/register', { state: { companyId, companyName } });
-            handled = true;
-          }
-        } catch {}
+        // Not a credential QR code
       }
 
       if (!handled) {

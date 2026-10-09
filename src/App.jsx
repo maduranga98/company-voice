@@ -33,7 +33,6 @@ import EmployeeMessageThread from "./pages/EmployeeMessageThread";
 
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
-import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
 import RoleBasedLayout from "./components/RoleBasedLayout";
@@ -98,7 +97,6 @@ function App() {
             {/* ── PUBLIC ROUTES ── */}
             <Route path="/login" element={<Login />} />
             <Route path="/qr-generator" element={<QRCodeGenerator />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/r/:slug" element={<ReportPage />} />
 
             {/* ── SUPER ADMIN ROUTES ── */}

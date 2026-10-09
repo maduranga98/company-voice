@@ -5,6 +5,7 @@ import { db, storage } from "../config/firebase";
 import { doc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useTranslation } from "react-i18next";
+import ChangePasswordForm from "../components/ChangePasswordForm";
 import { PostType, UserRole } from "../utils/constants";
 import {
   Shield,
@@ -448,6 +449,12 @@ const Profile = () => {
             );
           })}
         </div>
+      </div>
+
+      {/* Change password */}
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("staff.password.title")}</h2>
+        <ChangePasswordForm />
       </div>
 
       {/* Sign out */}

@@ -1,18 +1,19 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { onIdTokenChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
-import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
-import {
-  loginWithUsernamePassword,
-  getUserById,
-} from "../services/authService";
-
+import { loginWithUsernamePassword } from "../services/authService";
 import { isPublicReportRoute } from "../utils/publicRoute";
 
 const AuthContext = createContext();
 
 // The public report form needs no session, so it must not wait for auth restore.
 const publicReportRoute = isPublicReportRoute();
+
+const STAFF_ROLES = ["super_admin", "company_admin", "hr"];
+// ID tokens last an hour; forcing a refresh surfaces revoked sessions (suspension, password reset,
+// role change) within minutes instead of at the next hourly refresh.
+const REVALIDATE_MS = 5 * 60 * 1000;
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -22,173 +23,96 @@ export const useAuth = () => {
   return context;
 };
 
+/**
+ * Staff profile for a signed-in Firebase user. Identity comes from the verified token claims
+ * (role, companyId) and the users/{uid} document; returns null if either says the session is invalid.
+ */
+const loadStaffProfile = async (firebaseUser) => {
+  const token = await firebaseUser.getIdTokenResult();
+  const role = token.claims.role;
+  if (!STAFF_ROLES.includes(role)) return null;
+
+  const snap = await getDoc(doc(db, "users", firebaseUser.uid));
+  if (!snap.exists()) return null;
+
+  const profile = { id: snap.id, ...snap.data() };
+  const companyId = token.claims.companyId || null;
+  if (profile.status !== "active" || profile.role !== role || (profile.companyId || null) !== companyId) {
+    return null;
+  }
+  return profile;
+};
+
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const hydrating = useRef(Promise.resolve());
 
-  useEffect(() => {
-    // Listen to Firebase Auth state changes (for anonymous auth)
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      try {
-        if (firebaseUser) {
-          // User is authenticated with Firebase (anonymous auth)
-          // Check if we have custom user data in localStorage
-          const storedUser = localStorage.getItem("currentUser");
-          if (storedUser) {
-            const user = JSON.parse(storedUser);
-
-            // Ensure authSession exists for this Firebase Auth UID
-            // This handles cases where the anonymous auth UID changes
-            const authSessionRef = doc(db, "authSessions", firebaseUser.uid);
-            const authSessionDoc = await getDoc(authSessionRef);
-
-            // Verify user document in Firestore matches localStorage
-            const userDocRef = doc(db, "users", user.id);
-            const userDocSnap = await getDoc(userDocRef);
-
-            if (!userDocSnap.exists()) {
-              console.error("User document not found in Firestore:", user.id);
-              throw new Error("User document not found");
-            }
-
-            const firestoreUserData = userDocSnap.data();
-            const firestoreUser = { id: userDocSnap.id, ...firestoreUserData };
-
-            // Normalize companyId values (null/undefined) for comparison
-            const normalizeCompanyId = (id) => id || null;
-
-            // Check if Firestore data differs from localStorage
-            if (normalizeCompanyId(firestoreUser.companyId) !== normalizeCompanyId(user.companyId) ||
-                firestoreUser.role !== user.role ||
-                firestoreUser.username !== user.username) {
-              console.warn("User data mismatch - localStorage vs Firestore");
-
-              // Update localStorage with fresh Firestore data
-              localStorage.setItem("currentUser", JSON.stringify(firestoreUser));
-              user.companyId = firestoreUser.companyId;
-              user.role = firestoreUser.role;
-              user.username = firestoreUser.username;
-            }
-
-            if (!authSessionDoc.exists()) {
-              // Create authSession if it doesn't exist
-              await setDoc(authSessionRef, {
-                userId: user.id,
-                username: user.username,
-                companyId: normalizeCompanyId(user.companyId),
-                role: user.role,
-                createdAt: serverTimestamp(),
-              });
-            } else {
-              // Verify authSession data matches current user
-              const sessionData = authSessionDoc.data();
-
-              if (sessionData.userId !== user.id ||
-                  normalizeCompanyId(sessionData.companyId) !== normalizeCompanyId(user.companyId) ||
-                  sessionData.role !== user.role) {
-                console.warn("AuthSession data mismatch detected - updating authSession");
-                // Update authSession to match current user
-                await setDoc(authSessionRef, {
-                  userId: user.id,
-                  username: user.username,
-                  companyId: normalizeCompanyId(user.companyId),
-                  role: user.role,
-                  createdAt: serverTimestamp(),
-                }, { merge: true });
-              }
-            }
-
-            // Only set user state AFTER authSession is verified/created
-            setCurrentUser(user);
-            setUserData(user);
-          }
-        } else {
-          // User is signed out
-          setCurrentUser(null);
-          setUserData(null);
-          localStorage.removeItem("currentUser");
-        }
-      } catch (error) {
-        console.error("Error restoring user session:", error);
-        localStorage.removeItem("currentUser");
-        await signOut(auth);
-        setCurrentUser(null);
-        setUserData(null);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
+  const applyProfile = useCallback((profile) => {
+    setCurrentUser(profile);
+    setUserData(profile);
   }, []);
 
+  const hydrate = useCallback(
+    (firebaseUser) => {
+      hydrating.current = (async () => {
+        try {
+          const profile = firebaseUser ? await loadStaffProfile(firebaseUser) : null;
+          if (firebaseUser && !profile) {
+            // Role-less (leftover anonymous) or out-of-date session: force a fresh login.
+            await signOut(auth);
+          }
+          applyProfile(profile);
+          return profile;
+        } catch (error) {
+          console.error("Error restoring user session:", error);
+          await signOut(auth).catch(() => {});
+          applyProfile(null);
+          return null;
+        } finally {
+          setLoading(false);
+        }
+      })();
+      return hydrating.current;
+    },
+    [applyProfile]
+  );
+
+  useEffect(() => {
+    // Sessions from the pre-claims login kept the whole user in localStorage.
+    localStorage.removeItem("currentUser");
+    // Fires on sign-in, sign-out and every token refresh, so changed claims or a revoked
+    // session are noticed without a page reload.
+    return onIdTokenChanged(auth, hydrate);
+  }, [hydrate]);
+
+  useEffect(() => {
+    if (!currentUser) return undefined;
+    const timer = setInterval(() => {
+      auth.currentUser?.getIdToken(true).catch(() => signOut(auth));
+    }, REVALIDATE_MS);
+    return () => clearInterval(timer);
+  }, [currentUser]);
+
   const login = async (username, password) => {
-    try {
-      const user = await loginWithUsernamePassword(username, password);
-      setCurrentUser(user);
-      setUserData(user);
-
-      // Store in localStorage
-      localStorage.setItem("currentUser", JSON.stringify(user));
-
-      return user;
-    } catch (error) {
-      throw error;
-    }
+    await loginWithUsernamePassword(username, password);
+    const profile = await hydrate(auth.currentUser);
+    if (!profile) throw new Error("Could not start your session. Please try again.");
+    return profile;
   };
 
   const logout = async () => {
-    // Do NOT call signOut(auth) — that destroys the anonymous session
-    // and forces a new Firebase Auth user to be created on the next login.
-    // Instead, reset the authSession to pending to block Firestore rule access.
-    const firebaseUser = auth.currentUser;
-    if (firebaseUser) {
-      try {
-        await setDoc(doc(db, "authSessions", firebaseUser.uid), {
-          userId: "pending",
-          role: "pending",
-          companyId: null,
-          firebaseUid: firebaseUser.uid,
-          createdAt: serverTimestamp(),
-        });
-      } catch (err) {
-        console.error("Error clearing auth session on logout:", err);
-      }
-    }
-    setCurrentUser(null);
-    setUserData(null);
-    localStorage.removeItem("currentUser");
+    await signOut(auth);
+    applyProfile(null);
   };
 
   const refreshUserData = async () => {
-    try {
-      if (!userData?.id) {
-        throw new Error("No user logged in");
-      }
-
-      // Fetch fresh user data from Firestore
-      const userDocRef = doc(db, "users", userData.id);
-      const userDocSnap = await getDoc(userDocRef);
-
-      if (!userDocSnap.exists()) {
-        throw new Error("User document not found");
-      }
-
-      const freshUserData = { id: userDocSnap.id, ...userDocSnap.data() };
-
-      // Update state
-      setCurrentUser(freshUserData);
-      setUserData(freshUserData);
-
-      // Update localStorage
-      localStorage.setItem("currentUser", JSON.stringify(freshUserData));
-
-      return freshUserData;
-    } catch (error) {
-      console.error("Error refreshing user data:", error);
-      throw error;
-    }
+    if (!auth.currentUser) throw new Error("No user logged in");
+    const profile = await loadStaffProfile(auth.currentUser);
+    if (!profile) throw new Error("User document not found");
+    applyProfile(profile);
+    return profile;
   };
 
   const value = {

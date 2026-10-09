@@ -1273,5 +1273,41 @@
       "shareTitle": "Envía un informe confidencial a {{company}}",
       "shareText": "Escanea el código QR o abre el enlace para enviar un informe. Sin cuenta, anónimo por defecto."
     }
+  },
+  "staff": {
+    "addButton": "Añadir usuario de RR. HH.",
+    "addTitle": "Añadir un usuario de RR. HH.",
+    "username": "Usuario",
+    "displayName": "Nombre completo",
+    "email": "Correo electrónico",
+    "password": {
+      "title": "Cambia tu contraseña",
+      "required": "Debes elegir una contraseña nueva antes de continuar.",
+      "current": "Contraseña actual",
+      "new": "Contraseña nueva",
+      "confirm": "Repite la contraseña nueva",
+      "tooShort": "La contraseña nueva debe tener entre 8 y 128 caracteres.",
+      "mismatch": "Las contraseñas no coinciden.",
+      "wrongCurrent": "La contraseña actual es incorrecta.",
+      "signOutNote": "Se cerrará tu sesión y deberás iniciar sesión de nuevo con la contraseña nueva.",
+      "submit": "Cambiar contraseña"
+    },
+    "passwordHint": "Deja la contraseña vacía para generar una temporal.",
+    "create": "Crear usuario",
+    "creating": "Creando…",
+    "cancel": "Cancelar",
+    "tempTitle": "Contraseña temporal",
+    "tempBody": "Comparte esta contraseña con el usuario ahora. No se guarda y no se puede volver a mostrar. Se le pedirá que elija la suya al iniciar sesión por primera vez.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "close": "Cerrar",
+    "resetButton": "Restablecer contraseña",
+    "resetConfirm": "¿Restablecer la contraseña de {{name}}? Se cerrarán sus sesiones actuales.",
+    "errors": {
+      "usernameTaken": "Ese nombre de usuario ya está en uso.",
+      "invalid": "Revisa los datos e inténtalo de nuevo.",
+      "forbidden": "No tienes permiso para hacer eso.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
   }
 }

@@ -1594,5 +1594,41 @@
       "shareTitle": "Send a confidential report to {{company}}",
       "shareText": "Scan the QR code or open the link to send a report. No account needed, anonymous by default."
     }
+  },
+  "staff": {
+    "addButton": "Add HR user",
+    "addTitle": "Add an HR user",
+    "username": "Username",
+    "displayName": "Full name",
+    "email": "Email",
+    "password": {
+      "title": "Change your password",
+      "required": "You must choose a new password before you continue.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Repeat new password",
+      "tooShort": "The new password must be 8 to 128 characters.",
+      "mismatch": "The passwords do not match.",
+      "wrongCurrent": "The current password is incorrect.",
+      "signOutNote": "You will be signed out and must sign in again with the new password.",
+      "submit": "Change password"
+    },
+    "passwordHint": "Leave the password empty to generate a temporary one.",
+    "create": "Create user",
+    "creating": "Creating…",
+    "cancel": "Cancel",
+    "tempTitle": "Temporary password",
+    "tempBody": "Share this password with the user now. It is not stored and cannot be shown again. They will be asked to choose their own at first sign in.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "close": "Close",
+    "resetButton": "Reset password",
+    "resetConfirm": "Reset the password for {{name}}? Their current sessions will be signed out.",
+    "errors": {
+      "usernameTaken": "That username is already taken.",
+      "invalid": "Please check the details and try again.",
+      "forbidden": "You are not allowed to do that.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

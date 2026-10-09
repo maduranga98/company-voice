@@ -1573,5 +1573,41 @@
       "shareTitle": "Invia una segnalazione riservata a {{company}}",
       "shareText": "Inquadra il codice QR o apri il link per inviare una segnalazione. Senza account, anonimo per impostazione predefinita."
     }
+  },
+  "staff": {
+    "addButton": "Aggiungi utente RU",
+    "addTitle": "Aggiungi un utente RU",
+    "username": "Nome utente",
+    "displayName": "Nome completo",
+    "email": "Email",
+    "password": {
+      "title": "Cambia la tua password",
+      "required": "Devi scegliere una nuova password prima di continuare.",
+      "current": "Password attuale",
+      "new": "Nuova password",
+      "confirm": "Ripeti la nuova password",
+      "tooShort": "La nuova password deve avere da 8 a 128 caratteri.",
+      "mismatch": "Le password non coincidono.",
+      "wrongCurrent": "La password attuale non è corretta.",
+      "signOutNote": "Verrai disconnesso e dovrai accedere di nuovo con la nuova password.",
+      "submit": "Cambia password"
+    },
+    "passwordHint": "Lascia vuota la password per generarne una temporanea.",
+    "create": "Crea utente",
+    "creating": "Creazione…",
+    "cancel": "Annulla",
+    "tempTitle": "Password temporanea",
+    "tempBody": "Condividi ora questa password con l'utente. Non viene salvata e non potrà più essere mostrata. Gli verrà chiesto di sceglierne una propria al primo accesso.",
+    "copy": "Copia",
+    "copied": "Copiato",
+    "close": "Chiudi",
+    "resetButton": "Reimposta password",
+    "resetConfirm": "Reimpostare la password di {{name}}? Le sue sessioni attuali verranno chiuse.",
+    "errors": {
+      "usernameTaken": "Questo nome utente è già in uso.",
+      "invalid": "Controlla i dati e riprova.",
+      "forbidden": "Non hai il permesso di farlo.",
+      "generic": "Qualcosa è andato storto. Riprova."
+    }
   }
 }
