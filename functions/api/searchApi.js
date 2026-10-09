@@ -93,6 +93,12 @@ exports.advancedSearch = functions.https.onCall(async (data, context) => {
       });
     });
 
+    // Cases flagged involvesHR are for company_admin only; this runs with admin
+    // privileges, so the Firestore rule does not apply here.
+    if (String(userData.role || '').toLowerCase() === 'hr') {
+      posts = posts.filter(post => post.involvesHR !== true);
+    }
+
     // Client-side filtering for text search and date range
     if (query && query.trim() !== '') {
       const searchTerms = query.toLowerCase().split(' ').filter(t => t.length > 0);
