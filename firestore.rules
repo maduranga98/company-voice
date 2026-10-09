@@ -136,7 +136,7 @@ service cloud.firestore {
                   .hasOnly(['displayName', 'email', 'language', 'avatar', 'avatarUrl', 'photoURL', 'updatedAt']))
             || ((isSuperAdmin() || getUserCompanyId() == resource.data.companyId)
                 && request.resource.data.diff(resource.data).affectedKeys()
-                     .hasOnly(['userTagId', 'departmentId', 'previousDepartmentId', 'departmentChangedAt', 'updatedAt'])));
+                     .hasOnly(['userTagId', 'departmentId', 'previousDepartmentId', 'departmentChangedAt', 'isDepartmentHead', 'updatedAt'])));
 
       allow delete: if false;
     }

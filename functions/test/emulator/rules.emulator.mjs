@@ -80,7 +80,7 @@ for (const field of [["role", "company_admin"], ["status", "suspended"], ["compa
   await check(`company_admin cannot update ${field[0]} of a member`, assertFails(updateDoc(doc(fs("admin"), "users", "hr1"), { [field[0]]: field[1] })));
   await check(`super_admin cannot update ${field[0]} from the client either`, assertFails(updateDoc(doc(fs("root"), "users", "hr1"), { [field[0]]: field[1] })));
 }
-await check("company_admin may set department/tag of a same-company user", assertSucceeds(updateDoc(doc(fs("admin"), "users", "hr1"), { departmentId: "d1", userTagId: "t1", ...nowAllowed })));
+await check("company_admin may set department/tag of a same-company user", assertSucceeds(updateDoc(doc(fs("admin"), "users", "hr1"), { departmentId: "d1", userTagId: "t1", isDepartmentHead: true, ...nowAllowed })));
 await check("company_admin cannot touch another company's user", assertFails(updateDoc(doc(fs("admin"), "users", "hr2"), { departmentId: "d1" })));
 await check("hr cannot modify another user's displayName", assertFails(updateDoc(doc(fs("hr"), "users", "adm1"), { displayName: "pwned" })));
 await check("nobody deletes users from the client", assertFails(deleteDoc(doc(fs("root"), "users", "hr1"))));
