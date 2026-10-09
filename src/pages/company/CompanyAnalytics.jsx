@@ -10,6 +10,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { hrCaseScope } from "../../utils/caseVisibility";
 import {
   PostStatus,
   PostPriority,
@@ -82,7 +83,8 @@ const CompanyAnalytics = () => {
       const postsRef = collection(db, "posts");
       const postsQuery = query(
         postsRef,
-        where("companyId", "==", userData.companyId)
+        where("companyId", "==", userData.companyId),
+        ...hrCaseScope(userData.role)
       );
       const postsSnapshot = await getDocs(postsQuery);
       const posts = postsSnapshot.docs.map((doc) => ({

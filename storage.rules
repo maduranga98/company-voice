@@ -69,6 +69,34 @@ service firebase.storage {
     }
 
     // ============================================
+    // PUBLIC REPORT UPLOADS (no login)
+    // Path: public-reports/pending/{uploadId}/{fileName}
+    // Create only: no read, update or delete from clients. The submitPublicReport
+    // function moves validated files into the case folder; a scheduled job
+    // removes orphans. Enable App Check enforcement for Storage in the console.
+    // ============================================
+    match /public-reports/pending/{uploadId}/{fileName} {
+      allow create: if uploadId.matches('[A-Za-z0-9_-]{16,64}')
+                    && request.resource.size <= 10 * 1024 * 1024
+                    && request.resource.contentType in [
+                      'image/jpeg', 'image/png', 'image/webp',
+                      'application/pdf', 'audio/webm', 'audio/mp4'
+                    ];
+      allow read, update, delete: if false;
+    }
+
+    // ============================================
+    // PUBLIC REPORT CASE ATTACHMENTS
+    // Path: companies/{companyId}/cases/{postId}/{fileName}
+    // Written by Cloud Functions only. Read access follows the existing
+    // attachment pattern (any signed-in session); see STEP1_NOTES.md.
+    // ============================================
+    match /companies/{companyId}/cases/{postId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // ============================================
     // DISCUSSION ATTACHMENTS
     // Path: companies/{companyId}/discussions/{discussionId}/attachments/{fileName}
     // ============================================

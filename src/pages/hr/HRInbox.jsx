@@ -6,10 +6,10 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { hrCaseScope, sortByCreatedAtDesc } from "../../utils/caseVisibility";
 import {
   UserRole,
   PostStatusConfig,
@@ -89,7 +89,7 @@ const HRInbox = () => {
       collection(db, "posts"),
       where("companyId", "==", userData.companyId),
       where("privacyLevel", "==", "hr_only"),
-      orderBy("createdAt", "desc")
+      ...hrCaseScope(userData.role)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -97,7 +97,7 @@ const HRInbox = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      setPosts(hrPosts);
+      setPosts(sortByCreatedAtDesc(hrPosts));
       setLoading(false);
     }, (error) => {
       console.error("Error fetching HR inbox posts:", error);
@@ -105,7 +105,7 @@ const HRInbox = () => {
     });
 
     return () => unsubscribe();
-  }, [userData?.companyId]);
+  }, [userData?.companyId, userData?.role]);
 
   const filteredPosts = posts.filter((post) => {
     if (activeFilter === "all") return true;
