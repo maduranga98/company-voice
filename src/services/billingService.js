@@ -5,22 +5,21 @@
 
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../config/firebase';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js/pure';
 
-// Initialize Stripe (publishable key should be in environment variables)
+// Stripe is loaded on first use (publishable key should be in environment variables),
+// so pages that never take payments, such as the public report form, don't contact Stripe.
 let stripePromise = null;
-if (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
-  stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-}
 
 /**
  * Get Stripe instance
  * @returns {Promise<Stripe>}
  */
 export async function getStripe() {
-  if (!stripePromise) {
+  if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
     throw new Error('Stripe publishable key not configured');
   }
+  stripePromise ??= loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
   return await stripePromise;
 }
 

@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { isPublicReportRoute } from "../utils/publicRoute";
 
 /**
  * Initialize Sentry error tracking
@@ -7,6 +8,8 @@ import * as Sentry from "@sentry/react";
 export const initializeErrorTracking = () => {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   const environment = import.meta.env.VITE_ENVIRONMENT || "development";
+
+  if (isPublicReportRoute()) return;
 
   if (!dsn) {
     console.warn("Sentry DSN not configured. Error tracking disabled.");

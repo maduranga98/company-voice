@@ -1426,5 +1426,188 @@
       "examples": "Esempi",
       "tips": "Suggerimenti"
     }
+  },
+  "report": {
+    "trust": "Non chiediamo il tuo nome e non conserviamo il tuo indirizzo IP. Anonimo per impostazione predefinita.",
+    "languageLabel": "Lingua",
+    "loading": "Caricamento…",
+    "type": {
+      "heading": "Cosa vuoi fare?",
+      "concern": {
+        "title": "Segnala un problema",
+        "description": "Qualcosa che non va"
+      },
+      "idea": {
+        "title": "Condividi un'idea",
+        "description": "Un modo per migliorare le cose"
+      },
+      "question": {
+        "title": "Fai una domanda alle RU",
+        "description": "Ricevi una risposta in modo riservato"
+      }
+    },
+    "category": {
+      "label": "Categoria",
+      "placeholder": "Scegli una categoria",
+      "options": {
+        "harassment": "Molestie o bullismo",
+        "discrimination": "Discriminazione",
+        "safety": "Salute e sicurezza",
+        "fraud_ethics": "Frode o etica",
+        "management": "Condotta della dirigenza",
+        "workplace_conditions": "Condizioni di lavoro",
+        "pay_benefits": "Retribuzione e benefit",
+        "other": "Altro"
+      }
+    },
+    "description": {
+      "label": "Raccontaci cosa è successo",
+      "placeholder": "Descrivi la situazione: cosa, dove, quando e chi era coinvolto. Evita dettagli che potrebbero identificarti se vuoi restare anonimo.",
+      "counter": "{{count}} / {{max}}",
+      "minHint": "Scrivi almeno {{min}} caratteri."
+    },
+    "involvesHR": {
+      "label": "Riguarda le RU o la dirigenza",
+      "helper": "La tua segnalazione andrà solo all'amministratore dell'azienda"
+    },
+    "evidence": {
+      "heading": "Aggiungi prove",
+      "optional": "facoltativo",
+      "drop": "Trascina i file qui oppure",
+      "choose": "scegli i file",
+      "camera": "Scatta una foto",
+      "hint": "Fino a {{maxFiles}} file, {{maxMB}} MB ciascuno. Foto, PDF o audio.",
+      "remove": "Rimuovi file",
+      "uploading": "Caricamento…",
+      "ready": "Pronto",
+      "retry": "Riprova",
+      "tooMany": "Puoi aggiungere fino a {{max}} file.",
+      "tooLarge": "{{name}} supera i {{max}} MB.",
+      "badType": "{{name}} non è un tipo di file supportato.",
+      "uploadFailed": "Caricamento non riuscito. Controlla la connessione e riprova."
+    },
+    "contact": {
+      "toggle": "Vuoi che ti contattiamo? (facoltativo)",
+      "note": "Solo le persone che gestiscono la tua segnalazione possono vederlo. Lascia vuoto per restare completamente anonimo.",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefono"
+    },
+    "verification": {
+      "label": "Controllo di sicurezza"
+    },
+    "submit": {
+      "button": "Invia segnalazione",
+      "sending": "Invio in corso…",
+      "uploadsPending": "Attendi il termine del caricamento dei file.",
+      "offline": "Sembra che tu sia offline. Riconnettiti e riprova."
+    },
+    "errors": {
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "invalidInput": "Controlla il modulo e riprova.",
+      "verification": "Il controllo di sicurezza non è riuscito. Riprova.",
+      "rateLimited": "Troppe segnalazioni da questa connessione. Riprova più tardi.",
+      "duplicate": "Questa segnalazione è già stata ricevuta. Se non hai visto il codice del caso, inviala di nuovo.",
+      "network": "Impossibile raggiungere il server. Controlla la connessione e riprova.",
+      "attachmentsMissing": "Uno dei tuoi file non è stato trovato. Rimuovilo e aggiungilo di nuovo.",
+      "inactive": "Questo link di segnalazione non è più attivo."
+    },
+    "success": {
+      "title": "La tua segnalazione è stata inviata",
+      "intro": "Grazie per aver parlato. Ecco il codice del caso e la chiave segreta.",
+      "caseCode": "Codice del caso",
+      "secretKey": "Chiave segreta",
+      "copy": "Copia",
+      "copied": "Copiato",
+      "download": "Scarica .txt",
+      "print": "Stampa",
+      "warning": "Salvali adesso. Non possiamo recuperarli. Ti serviranno entrambi per controllare il tuo caso.",
+      "comingSoon": "Presto arriverà una pagina «Controlla il mio caso», dove potrai usarli per vedere gli aggiornamenti e rispondere.",
+      "confirmSaved": "Ho salvato il codice del caso e la chiave segreta",
+      "done": "Fatto",
+      "leaveWarning": "Non hai confermato di aver salvato il codice del caso e la chiave segreta.",
+      "fileHeading": "Segnalazione riservata VoxWel",
+      "fileNote": "Tieni questo file privato. Chiunque abbia entrambi i valori può aprire il tuo caso."
+    },
+    "inactive": {
+      "title": "Questo link di segnalazione non è attivo",
+      "body": "Controlla il link o chiedine uno nuovo alla tua organizzazione."
+    },
+    "link": {
+      "title": "Link di segnalazione e codice QR",
+      "instructions": "Condividi questo codice QR o link perché chiunque possa inviare una segnalazione riservata. Non serve alcun account.",
+      "scanDesc": "Chiunque può inquadrare questo codice QR per inviare una segnalazione, senza account e senza dare il proprio nome.",
+      "linkLabel": "Link di segnalazione",
+      "copyLink": "Copia link",
+      "linkCopied": "Link copiato!",
+      "preparing": "Preparazione del link di segnalazione…",
+      "loadError": "Impossibile caricare il link di segnalazione. Riprova.",
+      "saveError": "Impossibile aggiornare il link. Riprova.",
+      "regenerate": "Rigenera link",
+      "regenerateTitle": "Rigenerare il link di segnalazione?",
+      "regenerateBody": "Il link attuale e tutti i codici QR stampati smetteranno di funzionare subito. Dovrai condividere il nuovo link.",
+      "regenerateConfirm": "Rigenera",
+      "cancel": "Annulla",
+      "regenerated": "È stato creato un nuovo link di segnalazione.",
+      "reportingOn": "Le segnalazioni sono accettate",
+      "reportingOff": "Le segnalazioni sono disattivate",
+      "toggleHelp": "Quando è disattivato, il link mostra una pagina non attiva e non è possibile inviare segnalazioni.",
+      "scanToReport": "Inquadra per inviare una segnalazione",
+      "howTitle": "Come inviare una segnalazione",
+      "stepsTitle": "Passaggi",
+      "step1": "1. Apri la fotocamera del telefono, non serve nessuna app",
+      "step2": "2. Inquadra il codice QR qui sopra",
+      "step3": "3. Tocca il link che appare",
+      "step4": "4. Descrivi cosa è successo. Il nome non è necessario",
+      "step5": "5. Salva il codice del caso e la chiave segreta",
+      "whatTitle": "Cosa puoi fare",
+      "benefit1": "Segnalare un problema",
+      "benefit2": "Condividere un'idea",
+      "benefit3": "Fare una domanda alle RU",
+      "benefit4": "Anonimo per impostazione predefinita",
+      "tipEmail": "Invia il link via email a tutto il personale",
+      "tipNoticeBoards": "Stampa il codice QR per le bacheche",
+      "tipHandbook": "Aggiungilo al manuale del dipendente",
+      "tipOnboarding": "Inseriscilo nel materiale di inserimento",
+      "bestPracticeRotate": "Rigenera il link se viene diffuso",
+      "shareTitle": "Invia una segnalazione riservata a {{company}}",
+      "shareText": "Inquadra il codice QR o apri il link per inviare una segnalazione. Senza account, anonimo per impostazione predefinita."
+    }
+  },
+  "staff": {
+    "addButton": "Aggiungi utente RU",
+    "addTitle": "Aggiungi un utente RU",
+    "username": "Nome utente",
+    "displayName": "Nome completo",
+    "email": "Email",
+    "password": {
+      "title": "Cambia la tua password",
+      "required": "Devi scegliere una nuova password prima di continuare.",
+      "current": "Password attuale",
+      "new": "Nuova password",
+      "confirm": "Ripeti la nuova password",
+      "tooShort": "La nuova password deve avere da 8 a 128 caratteri.",
+      "mismatch": "Le password non coincidono.",
+      "wrongCurrent": "La password attuale non è corretta.",
+      "signOutNote": "Verrai disconnesso e dovrai accedere di nuovo con la nuova password.",
+      "submit": "Cambia password"
+    },
+    "passwordHint": "Lascia vuota la password per generarne una temporanea.",
+    "create": "Crea utente",
+    "creating": "Creazione…",
+    "cancel": "Annulla",
+    "tempTitle": "Password temporanea",
+    "tempBody": "Condividi ora questa password con l'utente. Non viene salvata e non potrà più essere mostrata. Gli verrà chiesto di sceglierne una propria al primo accesso.",
+    "copy": "Copia",
+    "copied": "Copiato",
+    "close": "Chiudi",
+    "resetButton": "Reimposta password",
+    "resetConfirm": "Reimpostare la password di {{name}}? Le sue sessioni attuali verranno chiuse.",
+    "errors": {
+      "usernameTaken": "Questo nome utente è già in uso.",
+      "invalid": "Controlla i dati e riprova.",
+      "forbidden": "Non hai il permesso di farlo.",
+      "generic": "Qualcosa è andato storto. Riprova."
+    }
   }
 }

@@ -8,7 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { auth, db } from '../../config/firebase';
 import { collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js/pure';
 import {
   getSubscription,
   createSubscription,
@@ -27,11 +27,17 @@ import {
   getPaymentStatusColor,
 } from '../../services/billingService';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+// Loaded on first render of the billing page, not at import time, so visitors to the
+// public report form never contact Stripe.
+let stripePromise = null;
+const getStripePromise = () => {
+  stripePromise ??= loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  return stripePromise;
+};
 
 function CompanyBilling() {
   return (
-    <Elements stripe={stripePromise}>
+    <Elements stripe={getStripePromise()}>
       <CompanyBillingContent />
     </Elements>
   );

@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
-import { getFunctions } from "firebase/functions";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
-// App Check commented out - requires domain setup
-// import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { isPublicReportRoute } from "../utils/publicRoute";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -22,33 +22,28 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // ============================================
-// FIREBASE APP CHECK - Security Layer (DISABLED - requires domain)
+// FIREBASE APP CHECK
 // ============================================
-// App Check helps protect your backend resources from abuse by preventing
-// unauthorized clients from accessing your backend resources.
-// It works with reCAPTCHA v3 for web apps.
-// COMMENTED OUT: Requires a domain to be set up
-/*
+// Required by the public report callables (enforceAppCheck) and, once enforcement is
+// switched on in the console, Firestore and Storage. Set VITE_APPCHECK_SITE_KEY to a
+// reCAPTCHA v3 site key. In development set VITE_APPCHECK_DEBUG_TOKEN to a debug token
+// registered in the console (or leave it empty to have the SDK print a new one).
 let appCheck = null;
 
-if (import.meta.env.VITE_FIREBASE_APP_CHECK_KEY) {
+const appCheckSiteKey = import.meta.env.VITE_APPCHECK_SITE_KEY;
+if (appCheckSiteKey) {
+  if (import.meta.env.DEV) {
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.VITE_APPCHECK_DEBUG_TOKEN || true;
+  }
   try {
     appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(import.meta.env.VITE_FIREBASE_APP_CHECK_KEY),
-      // Optional: Set to true for development/testing to use debug tokens
+      provider: new ReCaptchaV3Provider(appCheckSiteKey),
       isTokenAutoRefreshEnabled: true,
     });
   } catch (error) {
-    console.error('Error initializing Firebase App Check:', error);
+    console.error("Error initializing Firebase App Check:", error);
   }
 }
-
-// For development/debugging, you can use debug tokens
-// In development, enable debug mode by running:
-// self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-// in your browser console before the app loads
-*/
-let appCheck = null;
 
 // ============================================
 // CORE FIREBASE SERVICES
@@ -61,6 +56,14 @@ export const storage = getStorage(app);
 // us-central1 is the default region for Cloud Functions
 export const functions = getFunctions(app, 'us-central1');
 
+// Local development against the Firebase emulators (firebase emulators:start). Off by default.
+if (import.meta.env.VITE_USE_EMULATORS === "true") {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+  connectStorageEmulator(storage, "127.0.0.1", 9199);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+}
+
 // ============================================
 // FIREBASE ANALYTICS
 // ============================================
@@ -70,7 +73,7 @@ let analytics = null;
 
 // Check if analytics is supported (not available in some environments like Node.js)
 isAnalyticsSupported().then((supported) => {
-  if (supported && import.meta.env.VITE_FIREBASE_MEASUREMENT_ID) {
+  if (supported && import.meta.env.VITE_FIREBASE_MEASUREMENT_ID && !isPublicReportRoute()) {
     try {
       analytics = getAnalytics(app);
     } catch (error) {
@@ -88,11 +91,13 @@ isAnalyticsSupported().then((supported) => {
 // characteristics of your web app
 let performance = null;
 
-try {
-  // Performance monitoring is automatically enabled when you initialize it
-  performance = getPerformance(app);
-} catch (error) {
-  console.error('Error initializing Firebase Performance Monitoring:', error);
+if (!isPublicReportRoute()) {
+  try {
+    // Performance monitoring is automatically enabled when you initialize it
+    performance = getPerformance(app);
+  } catch (error) {
+    console.error('Error initializing Firebase Performance Monitoring:', error);
+  }
 }
 
 // Export the initialized services

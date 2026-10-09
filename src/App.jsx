@@ -33,7 +33,6 @@ import EmployeeMessageThread from "./pages/EmployeeMessageThread";
 
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
-import Register from "./pages/Register";
 import EmployeeLayout from "./components/EmployeeLayout";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
 import RoleBasedLayout from "./components/RoleBasedLayout";
@@ -67,6 +66,9 @@ import VendorRiskDashboard from "./pages/hr/VendorRiskDashboard";
 import HRConversations from "./pages/hr/HRConversations";
 import HRInbox from "./pages/hr/HRInbox";
 
+// Public (no-login) report form
+import ReportPage from "./pages/public/ReportPage";
+
 const CompanyDashboardGuard = () => {
   const { userData } = useAuth();
   if (!userData) return null;
@@ -95,7 +97,7 @@ function App() {
             {/* ── PUBLIC ROUTES ── */}
             <Route path="/login" element={<Login />} />
             <Route path="/qr-generator" element={<QRCodeGenerator />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/r/:slug" element={<ReportPage />} />
 
             {/* ── SUPER ADMIN ROUTES ── */}
             <Route

@@ -52,8 +52,30 @@ const {
 
 // Auth API
 const {
-  generateAuthToken,
+  login,
+  changeOwnPassword,
 } = require('./api/authApi');
+
+// User management API
+const {
+  createStaffUser,
+  createCompanyWithAdmin,
+  setUserStatus,
+  changeUserRole,
+  resetStaffPassword,
+  deleteRemovedUsers,
+  deleteCompany,
+} = require('./api/userManagementApi');
+
+// Public Report API (no-login report line)
+const {
+  getPublicReportConfig,
+  submitPublicReport,
+  ensureReportSlug,
+  setReportingEnabled,
+} = require('./api/publicReportApi');
+
+const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
 
 // Webhooks - COMMENTED OUT FOR NOW
 // const { handleStripeWebhook } = require('./webhooks/stripeWebhook');
@@ -124,4 +146,21 @@ exports.deleteNotifications = deleteNotifications;
 exports.getUnreadCount = getUnreadCount;
 
 // Export Auth Functions
-exports.generateAuthToken = generateAuthToken;
+exports.login = login;
+exports.changeOwnPassword = changeOwnPassword;
+
+// Export User Management Functions
+exports.createStaffUser = createStaffUser;
+exports.createCompanyWithAdmin = createCompanyWithAdmin;
+exports.setUserStatus = setUserStatus;
+exports.changeUserRole = changeUserRole;
+exports.resetStaffPassword = resetStaffPassword;
+exports.deleteRemovedUsers = deleteRemovedUsers;
+exports.deleteCompany = deleteCompany;
+
+// Export Public Report Functions
+exports.getPublicReportConfig = getPublicReportConfig;
+exports.submitPublicReport = submitPublicReport;
+exports.ensureReportSlug = ensureReportSlug;
+exports.setReportingEnabled = setReportingEnabled;
+exports.cleanupPublicReports = cleanupPublicReports;

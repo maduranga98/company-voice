@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import Post from "../components/Post";
@@ -61,7 +62,7 @@ const AssignedToMe = () => {
         postsRef,
         where("companyId", "==", userData.companyId),
         where("assignedTo.id", "==", userData.id),
-        orderBy("createdAt", "desc")
+        ...hrCaseScope(userData.role)
       );
       const snapshot = await getDocs(q);
       const postsData = [];
@@ -75,7 +76,7 @@ const AssignedToMe = () => {
           dueDate: data.dueDate?.toDate(),
         });
       });
-      setPosts(postsData);
+      setPosts(sortByCreatedAtDesc(postsData));
     } catch (error) {
       console.error("Error loading assigned posts:", error);
       if (error.code === "failed-precondition") {

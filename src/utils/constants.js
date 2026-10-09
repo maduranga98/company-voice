@@ -592,6 +592,7 @@ export const NotificationType = {
   ASSIGNED: "assigned",
   DUE_DATE_REMINDER: "due_date_reminder",
   ADMIN_COMMENT: "admin_comment",
+  NEW_CASE: "new_case",
   MODERATION: "moderation",
   CONTENT_REPORTED: "content_reported",
   STRIKE_RECEIVED: "strike_received",

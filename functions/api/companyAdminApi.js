@@ -4,7 +4,7 @@
  */
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { isCompanyAdmin, getUserIdFromAuthSession } = require('../utils/helpers');
+const { isCompanyAdmin } = require('../utils/helpers');
 const { createSubscription, cancelSubscription, reactivateSubscription } = require('../services/subscriptionService');
 const { getCompanyInvoices, getInvoiceById } = require('../services/invoiceService');
 const { addPaymentMethod, getPaymentMethods, removePaymentMethod, getPaymentHistory } = require('../services/paymentService');
@@ -33,13 +33,12 @@ const createCompanySubscription = onCall({
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
   }
 
-  // Get actual user ID from auth session
-  const userId = await getUserIdFromAuthSession(auth.uid);
+  const userId = auth.uid;
 
   try {
     const result = await createSubscription({
@@ -86,13 +85,12 @@ const cancelCompanySubscription = onCall({
     const subscriptionData = subscriptionDoc.data();
 
     // Verify user is company admin
-    const isAuthorized = await isCompanyAdmin(auth.uid, subscriptionData.companyId);
+    const isAuthorized = await isCompanyAdmin(auth, subscriptionData.companyId);
     if (!isAuthorized) {
       throw new HttpsError('permission-denied', 'User is not authorized to manage this subscription');
     }
 
-    // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(auth.uid);
+    const userId = auth.uid;
 
     await cancelSubscription({
       subscriptionId,
@@ -137,13 +135,12 @@ const reactivateCompanySubscription = onCall({
     const subscriptionData = subscriptionDoc.data();
 
     // Verify user is company admin
-    const isAuthorized = await isCompanyAdmin(auth.uid, subscriptionData.companyId);
+    const isAuthorized = await isCompanyAdmin(auth, subscriptionData.companyId);
     if (!isAuthorized) {
       throw new HttpsError('permission-denied', 'User is not authorized to manage this subscription');
     }
 
-    // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(auth.uid);
+    const userId = auth.uid;
 
     await reactivateSubscription({
       subscriptionId,
@@ -174,7 +171,7 @@ const getCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async (r
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to view this company');
   }
@@ -225,7 +222,7 @@ const getInvoices = onCall({
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to view this company');
   }
@@ -267,7 +264,7 @@ const getInvoice = onCall({
     }
 
     // Verify user is company admin
-    const isAuthorized = await isCompanyAdmin(auth.uid, invoice.companyId);
+    const isAuthorized = await isCompanyAdmin(auth, invoice.companyId);
     if (!isAuthorized) {
       throw new HttpsError('permission-denied', 'User is not authorized to view this invoice');
     }
@@ -300,13 +297,12 @@ const addCompanyPaymentMethod = onCall({
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
   }
 
-  // Get actual user ID from auth session
-  const userId = await getUserIdFromAuthSession(auth.uid);
+  const userId = auth.uid;
 
   try {
     const paymentMethodId = await addPaymentMethod({
@@ -344,7 +340,7 @@ const getCompanyPaymentMethods = onCall({
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to view this company');
   }
@@ -388,13 +384,12 @@ const removeCompanyPaymentMethod = onCall({
     const paymentMethodData = paymentMethodDoc.data();
 
     // Verify user is company admin
-    const isAuthorized = await isCompanyAdmin(auth.uid, paymentMethodData.companyId);
+    const isAuthorized = await isCompanyAdmin(auth, paymentMethodData.companyId);
     if (!isAuthorized) {
       throw new HttpsError('permission-denied', 'User is not authorized to manage this payment method');
     }
 
-    // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(auth.uid);
+    const userId = auth.uid;
 
     await removePaymentMethod({
       paymentMethodId,
@@ -429,7 +424,7 @@ const getCompanyPaymentHistory = onCall({
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to view this company');
   }
@@ -460,7 +455,7 @@ const getUsageSummary = onCall({ cors: true, memory: '128MiB' }, async (request)
   }
 
   // Verify user is company admin
-  const isAuthorized = await isCompanyAdmin(auth.uid, companyId);
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized to view this company');
   }

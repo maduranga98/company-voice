@@ -1,7 +1,9 @@
 rules_version = '2';
 
 // Firebase Storage Security Rules
-// Enforces authentication and role-based access control
+// Authorization comes from the custom claims minted by the login Cloud Function
+// (request.auth.token.role and request.auth.token.companyId). Storage rules cannot read
+// Firestore, so there is no session lookup. Staff only: admin/HR of the company, and super_admin.
 service firebase.storage {
   match /b/{bucket}/o {
 
@@ -9,9 +11,27 @@ service firebase.storage {
     // HELPER FUNCTIONS
     // ============================================
 
-    // Check if user is authenticated
+    // Signed-in staff member (role claim present; anonymous Firebase users have none)
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null
+        && request.auth.token.get('role', null) in ['super_admin', 'company_admin', 'hr'];
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'super_admin';
+    }
+
+    // Staff of this company (or super_admin)
+    function inCompany(companyId) {
+      return isSuperAdmin()
+        || (isAuthenticated() && request.auth.token.get('companyId', null) == companyId);
+    }
+
+    function isCompanyAdminOf(companyId) {
+      return isSuperAdmin()
+        || (isAuthenticated()
+            && request.auth.token.role == 'company_admin'
+            && request.auth.token.get('companyId', null) == companyId);
     }
 
     // Validate file size (in MB)
@@ -43,9 +63,9 @@ service firebase.storage {
     // Path: companies/{companyId}/users/{userId}/profile/{fileName}
     // ============================================
     match /companies/{companyId}/users/{userId}/profile/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidImageType() && isValidFileSize(5);
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && (request.auth.uid == userId || isCompanyAdminOf(companyId)) && isValidImageType() && isValidFileSize(5);
+      allow delete: if inCompany(companyId) && (request.auth.uid == userId || isCompanyAdminOf(companyId));
     }
 
     // ============================================
@@ -53,9 +73,9 @@ service firebase.storage {
     // Path: companies/{companyId}/logo/{fileName}
     // ============================================
     match /companies/{companyId}/logo/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidImageType() && isValidFileSize(5);
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if isCompanyAdminOf(companyId) && isValidImageType() && isValidFileSize(5);
+      allow delete: if isCompanyAdminOf(companyId);
     }
 
     // ============================================
@@ -63,9 +83,37 @@ service firebase.storage {
     // Path: companies/{companyId}/posts/{postId}/attachments/{fileName}
     // ============================================
     match /companies/{companyId}/posts/{postId}/attachments/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
+      allow delete: if inCompany(companyId);
+    }
+
+    // ============================================
+    // PUBLIC REPORT UPLOADS (no login)
+    // Path: public-reports/pending/{uploadId}/{fileName}
+    // Create only: no read, update or delete from clients. The submitPublicReport
+    // function moves validated files into the case folder; a scheduled job
+    // removes orphans. Enable App Check enforcement for Storage in the console.
+    // ============================================
+    match /public-reports/pending/{uploadId}/{fileName} {
+      allow create: if uploadId.matches('[A-Za-z0-9_-]{16,64}')
+                    && request.resource.size <= 10 * 1024 * 1024
+                    && request.resource.contentType in [
+                      'image/jpeg', 'image/png', 'image/webp',
+                      'application/pdf', 'audio/webm', 'audio/mp4'
+                    ];
+      allow read, update, delete: if false;
+    }
+
+    // ============================================
+    // PUBLIC REPORT CASE ATTACHMENTS
+    // Path: companies/{companyId}/cases/{postId}/{fileName}
+    // Written by Cloud Functions only. Read: staff of the company. HR can read the files of
+    // involvesHR cases only if it knows the path, which sits in a post it cannot read.
+    // ============================================
+    match /companies/{companyId}/cases/{postId}/{fileName} {
+      allow read: if inCompany(companyId);
+      allow write: if false;
     }
 
     // ============================================
@@ -73,9 +121,9 @@ service firebase.storage {
     // Path: companies/{companyId}/discussions/{discussionId}/attachments/{fileName}
     // ============================================
     match /companies/{companyId}/discussions/{discussionId}/attachments/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
+      allow delete: if inCompany(companyId);
     }
 
     // ============================================
@@ -83,9 +131,9 @@ service firebase.storage {
     // Path: companies/{companyId}/documents/{category}/{fileName}
     // ============================================
     match /companies/{companyId}/documents/{category}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidDocumentType() && isValidFileSize(50);
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && isValidDocumentType() && isValidFileSize(50);
+      allow delete: if inCompany(companyId);
     }
 
     // ============================================
@@ -93,9 +141,9 @@ service firebase.storage {
     // Path: temp/{userId}/{fileName}
     // ============================================
     match /temp/{userId}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
-      allow delete: if isAuthenticated();
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
     }
 
     // ============================================
@@ -103,9 +151,9 @@ service firebase.storage {
     // Path: admin/{category}/{fileName}
     // ============================================
     match /admin/{category}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
-      allow delete: if isAuthenticated();
+      allow read: if isSuperAdmin();
+      allow write: if isSuperAdmin() && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
+      allow delete: if isSuperAdmin();
     }
 
     // ============================================
@@ -113,9 +161,9 @@ service firebase.storage {
     // Path: companies/{companyId}/exports/{exportType}/{fileName}
     // ============================================
     match /companies/{companyId}/exports/{exportType}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId);
+      allow delete: if inCompany(companyId);
     }
 
     // ============================================
@@ -123,9 +171,9 @@ service firebase.storage {
     // Path: posts/{companyId}/{fileName}
     // ============================================
     match /posts/{companyId}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId) && (isValidImageType() || isValidDocumentType()) && isValidFileSize(50);
+      allow delete: if inCompany(companyId);
     }
 
     // ============================================
@@ -133,11 +181,11 @@ service firebase.storage {
     // Path: policies/{companyId}/{policyId}/{fileName}
     // ============================================
     match /policies/{companyId}/{policyId}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated()
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId)
                    && request.resource.contentType == 'application/pdf'
                    && request.resource.size <= 10 * 1024 * 1024;
-      allow delete: if isAuthenticated();
+      allow delete: if inCompany(companyId);
     }
 
     // ============================================
@@ -145,8 +193,8 @@ service firebase.storage {
     // Path: vendorEvidence/{companyId}/{reportId}/{fileName}
     // ============================================
     match /vendorEvidence/{companyId}/{reportId}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated()
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId)
                    && (request.resource.contentType.matches('image/.*') ||
                        request.resource.contentType == 'application/pdf')
                    && request.resource.size <= 10 * 1024 * 1024;
@@ -158,9 +206,9 @@ service firebase.storage {
     // Path: legal-evidence/{companyId}/{requestId}/{fileName}
     // ============================================
     match /legal-evidence/{companyId}/{requestId}/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      allow read: if inCompany(companyId);
+      allow write: if inCompany(companyId);
+      allow delete: if inCompany(companyId);
     }
 
     // ============================================

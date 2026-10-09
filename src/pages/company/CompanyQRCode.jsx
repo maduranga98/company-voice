@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../config/firebase";
+import { httpsCallable } from "firebase/functions";
+import { db, functions } from "../../config/firebase";
 import QRCode from "qrcode";
 import { toast } from "react-toastify";
 
@@ -14,6 +15,16 @@ const CompanyQRCode = () => {
   const [company, setCompany] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [loading, setLoading] = useState(true);
+  const [reportUrl, setReportUrl] = useState("");
+  const [reportingEnabled, setReportingEnabled] = useState(true);
+  const [linkBusy, setLinkBusy] = useState(false);
+  const [linkError, setLinkError] = useState("");
+  const [confirmRegenerate, setConfirmRegenerate] = useState(false);
+
+  const buildReportUrl = (slug) =>
+    `${(import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin).replace(/\/+$/, "")}/r/${slug}`;
+
+  const stepText = (key) => t(key).replace(/^\d+\.\s*/, "");
 
   useEffect(() => {
     if (userData?.role !== "company_admin") {
@@ -32,21 +43,65 @@ const CompanyQRCode = () => {
       if (companyDoc.exists()) {
         const companyData = { id: companyDoc.id, ...companyDoc.data() };
         setCompany(companyData);
+        setReportingEnabled(companyData.reportingEnabled !== false);
 
-        // Generate QR code
-        await generateQRCode(companyData);
+        let slug = companyData.reportSlug;
+        if (!slug) {
+          const created = await httpsCallable(functions, "ensureReportSlug")({ companyId: companyData.id });
+          slug = created.data.slug;
+        }
+        await applyReportSlug(slug);
       }
     } catch (error) {
-      console.error("Error loading company:", error);
+      console.error("Error loading report link:", error);
+      setLinkError(t("report.link.loadError"));
     } finally {
       setLoading(false);
     }
   };
 
-  const generateQRCode = async (companyData) => {
-    try {
-      const qrData = `https://portal.voxwel.com/register?companyId=${companyData.id}&companyName=${encodeURIComponent(companyData.name)}&source=qr`;
+  const applyReportSlug = async (slug) => {
+    const url = buildReportUrl(slug);
+    setReportUrl(url);
+    await generateQRCode(url);
+  };
 
+  const regenerateLink = async () => {
+    setConfirmRegenerate(false);
+    setLinkBusy(true);
+    setLinkError("");
+    try {
+      const rotated = await httpsCallable(functions, "ensureReportSlug")({
+        companyId: company.id,
+        rotate: true,
+      });
+      await applyReportSlug(rotated.data.slug);
+      toast.success(t("report.link.regenerated"));
+    } catch (error) {
+      console.error("Error regenerating report link:", error);
+      setLinkError(t("report.link.saveError"));
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
+  const toggleReporting = async () => {
+    const next = !reportingEnabled;
+    setLinkBusy(true);
+    setLinkError("");
+    try {
+      await httpsCallable(functions, "setReportingEnabled")({ companyId: company.id, enabled: next });
+      setReportingEnabled(next);
+    } catch (error) {
+      console.error("Error updating reporting status:", error);
+      setLinkError(t("report.link.saveError"));
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
+  const generateQRCode = async (qrData) => {
+    try {
       const url = await QRCode.toDataURL(qrData, {
         width: 400,
         margin: 2,
@@ -162,7 +217,7 @@ const CompanyQRCode = () => {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#111827';
       ctx.font = 'bold 36px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('How to Join ' + company.name, 400, yPosition);
+      ctx.fillText(t('report.link.howTitle'), 400, yPosition);
 
       yPosition += 70;
 
@@ -176,17 +231,16 @@ const CompanyQRCode = () => {
       ctx.textAlign = 'left';
       ctx.fillStyle = '#0369a1';
       ctx.font = 'bold 22px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('📋 Registration Steps', 90, yPosition + 45);
+      ctx.fillText('📋 ' + t('report.link.stepsTitle'), 90, yPosition + 45);
 
       ctx.fillStyle = '#1f2937';
       ctx.font = '18px Inter, system-ui, -apple-system, sans-serif';
       const instructions = [
-        '1. Open your phone camera — no app needed',
-        '2. Point your camera at the QR code above',
-        '3. Tap the notification that appears',
-        '4. Complete the registration form with your details',
-        '5. Wait for HR administrator approval',
-        '6. Start engaging with your team!'
+        t('report.link.step1'),
+        t('report.link.step2'),
+        t('report.link.step3'),
+        t('report.link.step4'),
+        t('report.link.step5')
       ];
 
       let instrY = yPosition + 90;
@@ -206,14 +260,15 @@ const CompanyQRCode = () => {
 
       ctx.fillStyle = '#92400e';
       ctx.font = 'bold 22px Inter, system-ui, -apple-system, sans-serif';
-      ctx.fillText('🌟 What You Will Get', 90, yPosition + 45);
+      ctx.fillText('🌟 ' + t('report.link.whatTitle'), 90, yPosition + 45);
 
       ctx.fillStyle = '#78350f';
       ctx.font = '17px Inter, system-ui, -apple-system, sans-serif';
       const benefits = [
-        '✓ Share ideas anonymously        ✓ Report workplace issues',
-        '✓ Engage with colleagues          ✓ Track your contributions',
-        '✓ Get recognized for input        ✓ Shape company culture'
+        '✓ ' + t('report.link.benefit1'),
+        '✓ ' + t('report.link.benefit2'),
+        '✓ ' + t('report.link.benefit3'),
+        '✓ ' + t('report.link.benefit4')
       ];
 
       let benefitY = yPosition + 90;
@@ -533,7 +588,7 @@ const CompanyQRCode = () => {
                 <p class="platform-name">VoxWel</p>
                 <p class="subtitle">Where Every Voice Matters</p>
                 <h1 class="company-name">${company.name}</h1>
-                <p class="subtitle" style="margin-top: 12px;">Scan to Join Our Team</p>
+                <p class="subtitle" style="margin-top: 12px;">${t('report.link.scanToReport')}</p>
                 <div class="divider"></div>
               </div>
 
@@ -558,7 +613,7 @@ const CompanyQRCode = () => {
             <div class="print-container">
               <div class="header">
                 <img src="${logoUrl}" alt="VoxWel Logo" class="logo" />
-                <h1 class="company-name">How to Join</h1>
+                <h1 class="company-name">${t('report.link.howTitle')}</h1>
                 <div class="divider"></div>
               </div>
 
@@ -569,27 +624,24 @@ const CompanyQRCode = () => {
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                   </svg>
                 </div>
-                <h3>How to Join ${company.name}</h3>
+                <h3>${t('report.link.howTitle')}</h3>
               </div>
               <ol>
-                <li>Open your phone camera — no app needed</li>
-                <li>Point your camera at this QR code above</li>
-                <li>Tap the notification that appears on your screen</li>
-                <li>Complete the registration form with your details</li>
-                <li>Wait for approval from your HR administrator</li>
-                <li>Start engaging with your team and sharing your voice!</li>
+                <li>${stepText('report.link.step1')}</li>
+                <li>${stepText('report.link.step2')}</li>
+                <li>${stepText('report.link.step3')}</li>
+                <li>${stepText('report.link.step4')}</li>
+                <li>${stepText('report.link.step5')}</li>
               </ol>
             </div>
             
               <div class="benefits">
-                <h4>🌟 What You'll Get:</h4>
+                <h4>🌟 ${t('report.link.whatTitle')}</h4>
                 <ul>
-                  <li>Share ideas anonymously</li>
-                  <li>Report workplace issues</li>
-                  <li>Engage with colleagues</li>
-                  <li>Track your contributions</li>
-                  <li>Get recognized for input</li>
-                  <li>Shape company culture</li>
+                  <li>${t('report.link.benefit1')}</li>
+                  <li>${t('report.link.benefit2')}</li>
+                  <li>${t('report.link.benefit3')}</li>
+                  <li>${t('report.link.benefit4')}</li>
                 </ul>
               </div>
 
@@ -688,7 +740,7 @@ const CompanyQRCode = () => {
         // Scan instruction
         ctx.fillStyle = '#374151';
         ctx.font = '600 20px Inter, system-ui, -apple-system, sans-serif';
-        ctx.fillText('📱 Scan to Join Our Team', 400, yPosition);
+        ctx.fillText('📱 ' + t('report.link.scanToReport'), 400, yPosition);
 
         // Convert canvas to blob
         canvas.toBlob(async (blob) => {
@@ -696,25 +748,18 @@ const CompanyQRCode = () => {
             type: "image/png",
           });
 
-          const shareText = `Join ${company.name} on VoxWel!\n\n` +
-            `📱 Scan the QR code to register:\n` +
-            `1. Open your phone camera\n` +
-            `2. Point at the QR code\n` +
-            `3. Tap the notification\n` +
-            `4. Complete registration\n` +
-            `5. Wait for HR approval\n` +
-            `6. Start engaging with your team!\n\n` +
+          const shareText = `${t('report.link.shareTitle', { company: company.name })}\n\n` +
+            `📱 ${t('report.link.shareText')}\n\n` +
             `VoxWel - Where Every Voice Matters`;
 
           if (navigator.share && navigator.canShare({ files: [file] })) {
             await navigator.share({
-              title: `Join ${company.name} on VoxWel`,
+              title: t('report.link.shareTitle', { company: company.name }),
               text: shareText,
               files: [file],
             });
           } else {
-            const shareUrl = `${window.location.origin}/join/${company.id}`;
-            const fullShareText = `${shareText}\n\nOr visit: ${shareUrl}`;
+            const fullShareText = `${shareText}\n\n${reportUrl}`;
             await navigator.clipboard.writeText(fullShareText);
             alert(t('company.shareInfoCopied'));
           }
@@ -733,13 +778,12 @@ const CompanyQRCode = () => {
     alert(t('company.companyIdCopied'));
   };
 
-  const copyRegistrationLink = () => {
-    if (!company) return;
-    const registrationUrl = `https://portal.voxwel.com/register?companyId=${company.id}&companyName=${encodeURIComponent(company.name)}&source=link`;
-    navigator.clipboard.writeText(registrationUrl).then(() => {
-      toast.success("Registration link copied!");
+  const copyReportLink = () => {
+    if (!reportUrl) return;
+    navigator.clipboard.writeText(reportUrl).then(() => {
+      toast.success(t('report.link.linkCopied'));
     }).catch(() => {
-      alert("Link: " + registrationUrl);
+      alert(reportUrl);
     });
   };
 
@@ -803,7 +847,7 @@ const CompanyQRCode = () => {
                 </svg>
               </button>
               <h1 className="text-2xl font-bold text-gray-900">
-                {t('company.qrCodeTitle')}
+                {t('report.link.title')}
               </h1>
             </div>
             <div className="flex items-center space-x-4">
@@ -831,7 +875,7 @@ const CompanyQRCode = () => {
             {t('company.yourCompanyQRCode')}
           </h2>
           <p className="text-gray-600">
-            {t('company.qrCodeInstructions')}
+            {t('report.link.instructions')}
           </p>
         </div>
 
@@ -933,8 +977,48 @@ const CompanyQRCode = () => {
                   )}
                 </div>
                 <p className="text-center text-gray-600 max-w-md mb-6">
-                  {t('company.qrCodeScanDesc')}
+                  {t('report.link.scanDesc')}
                 </p>
+
+                {/* Report link controls */}
+                <div className="w-full max-w-2xl mb-6 space-y-3">
+                  {linkError && (
+                    <p role="alert" className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                      {linkError}
+                    </p>
+                  )}
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                    <p className="text-xs font-medium text-gray-500 mb-1">{t('report.link.linkLabel')}</p>
+                    <p className="break-all font-mono text-sm text-gray-900">
+                      {reportUrl || t('report.link.preparing')}
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        role="switch"
+                        checked={reportingEnabled}
+                        disabled={linkBusy || !company}
+                        onChange={toggleReporting}
+                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600"
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-gray-900">
+                          {reportingEnabled ? t('report.link.reportingOn') : t('report.link.reportingOff')}
+                        </span>
+                        <span className="block text-xs text-gray-500">{t('report.link.toggleHelp')}</span>
+                      </span>
+                    </label>
+                    <button
+                      onClick={() => setConfirmRegenerate(true)}
+                      disabled={linkBusy || !reportUrl}
+                      className="px-4 py-2 text-sm font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
+                    >
+                      {t('report.link.regenerate')}
+                    </button>
+                  </div>
+                </div>
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl">
@@ -999,7 +1083,7 @@ const CompanyQRCode = () => {
                   </button>
 
                   <button
-                    onClick={copyRegistrationLink}
+                    onClick={copyReportLink}
                     className="flex items-center justify-center px-6 py-4 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
                   >
                     <svg
@@ -1015,7 +1099,7 @@ const CompanyQRCode = () => {
                         d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                       />
                     </svg>
-                    <span className="text-base">Copy Link</span>
+                    <span className="text-base">{t('report.link.copyLink')}</span>
                   </button>
                 </div>
               </div>
@@ -1042,10 +1126,10 @@ const CompanyQRCode = () => {
                         {t('company.distributionTips')}
                       </h4>
                       <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• {t('company.tipEmailEmployees')}</li>
-                        <li>• {t('company.tipPrintWelcomePackets')}</li>
-                        <li>• {t('company.tipDisplayCommonAreas')}</li>
-                        <li>• {t('company.tipAddHandbook')}</li>
+                        <li>• {t('report.link.tipEmail')}</li>
+                        <li>• {t('report.link.tipNoticeBoards')}</li>
+                        <li>• {t('report.link.tipHandbook')}</li>
+                        <li>• {t('report.link.tipOnboarding')}</li>
                       </ul>
                     </div>
                   </div>
@@ -1074,7 +1158,7 @@ const CompanyQRCode = () => {
                         <li>• {t('company.bestPracticeHighRes')}</li>
                         <li>• {t('company.bestPracticeTestScan')}</li>
                         <li>• {t('company.bestPracticeKeepAccessible')}</li>
-                        <li>• {t('company.bestPracticeMonitor')}</li>
+                        <li>• {t('report.link.bestPracticeRotate')}</li>
                       </ul>
                     </div>
                   </div>
@@ -1084,6 +1168,36 @@ const CompanyQRCode = () => {
           </div>
         </div>
       </main>
+
+      {confirmRegenerate && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="regenerate-title"
+        >
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h3 id="regenerate-title" className="text-lg font-semibold text-gray-900">
+              {t('report.link.regenerateTitle')}
+            </h3>
+            <p className="mt-2 text-sm text-gray-600">{t('report.link.regenerateBody')}</p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmRegenerate(false)}
+                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              >
+                {t('report.link.cancel')}
+              </button>
+              <button
+                onClick={regenerateLink}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                {t('report.link.regenerateConfirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

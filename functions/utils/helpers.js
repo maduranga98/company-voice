@@ -166,106 +166,26 @@ async function logBillingEvent({
 }
 
 /**
- * Validate user has required role
- * @param {string} userId - User ID
- * @param {string[]} allowedRoles - Array of allowed roles
- * @returns {Promise<boolean>} True if user has required role
+ * Check if the caller is super admin (from the custom claims on the verified ID token)
+ * @param {object} auth - request.auth / context.auth
+ * @returns {boolean}
  */
-async function validateUserRole(userId, allowedRoles) {
-  const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
-
-  if (!userDoc.exists) {
-    return false;
-  }
-
-  const userData = userDoc.data();
-
-  // Normalize role to uppercase for comparison (handle both uppercase and lowercase in DB)
-  const normalizedRole = userData.role ? userData.role.toUpperCase() : '';
-  const normalizedAllowedRoles = allowedRoles.map(role => role.toUpperCase());
-
-  return normalizedAllowedRoles.includes(normalizedRole);
+function isSuperAdmin(auth) {
+  return !!auth && !!auth.token && String(auth.token.role || '').toLowerCase() === 'super_admin';
 }
 
 /**
- * Check if user is super admin
- * @param {string} firebaseAuthUid - Firebase Auth UID (can be anonymous auth UID)
- * @returns {Promise<boolean>} True if user is super admin
- */
-async function isSuperAdmin(firebaseAuthUid) {
-  // Get actual user ID from auth session
-  const userId = await getUserIdFromAuthSession(firebaseAuthUid);
-
-  if (!userId) {
-    return false;
-  }
-
-  return validateUserRole(userId, ['SUPER_ADMIN']);
-}
-
-/**
- * Get actual user ID from Firebase Auth UID
- * Maps anonymous Firebase Auth UID to custom user ID via authSessions collection
- * @param {string} firebaseAuthUid - Firebase Auth UID (anonymous)
- * @returns {Promise<string|null>} Custom user ID or null if not found
- */
-async function getUserIdFromAuthSession(firebaseAuthUid) {
-  try {
-    const sessionDoc = await db.collection('authSessions').doc(firebaseAuthUid).get();
-
-    if (!sessionDoc.exists) {
-      console.warn('Auth session not found for Firebase Auth UID:', firebaseAuthUid);
-      return null;
-    }
-
-    const userId = sessionDoc.data().userId;
-    console.log('Found auth session - Firebase UID:', firebaseAuthUid, '-> User ID:', userId);
-    return userId;
-  } catch (error) {
-    console.error('Error getting user ID from auth session:', error);
-    return null;
-  }
-}
-
-/**
- * Check if user is company admin
- * @param {string} firebaseAuthUid - Firebase Auth UID (can be anonymous auth UID)
+ * Check if the caller is a company admin of this company (claims-based)
+ * @param {object} auth - request.auth / context.auth
  * @param {string} companyId - Company ID
- * @returns {Promise<boolean>} True if user is company admin for this company
+ * @returns {boolean}
  */
-async function isCompanyAdmin(firebaseAuthUid, companyId) {
-  // Get actual user ID from auth session
-  const userId = await getUserIdFromAuthSession(firebaseAuthUid);
-
-  if (!userId) {
-    console.warn('isCompanyAdmin: No user ID found for Firebase Auth UID:', firebaseAuthUid);
+function isCompanyAdmin(auth, companyId) {
+  if (!auth || !auth.token || !companyId) {
     return false;
   }
-
-  const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
-
-  if (!userDoc.exists) {
-    console.warn('isCompanyAdmin: User document not found for user ID:', userId);
-    return false;
-  }
-
-  const userData = userDoc.data();
-
-  // Normalize role to uppercase for comparison (handle both uppercase and lowercase in DB)
-  const normalizedRole = userData.role ? userData.role.toUpperCase() : '';
-
-  const isAuthorized = (
-    userData.companyId === companyId &&
-    (normalizedRole === 'COMPANY_ADMIN' || normalizedRole === 'SUPER_ADMIN')
-  );
-
-  if (!isAuthorized) {
-    console.warn('isCompanyAdmin: Authorization failed - User:', userId,
-                 'UserCompany:', userData.companyId, 'RequestedCompany:', companyId,
-                 'Role:', userData.role, 'NormalizedRole:', normalizedRole);
-  }
-
-  return isAuthorized;
+  const role = String(auth.token.role || '').toLowerCase();
+  return auth.token.companyId === companyId && (role === 'company_admin' || role === 'super_admin');
 }
 
 /**
@@ -323,10 +243,8 @@ module.exports = {
   stripeCentsToDollars,
   dollarsToStripeCents,
   logBillingEvent,
-  validateUserRole,
   isSuperAdmin,
   isCompanyAdmin,
   getCompany,
   retryWithBackoff,
-  getUserIdFromAuthSession,
 };

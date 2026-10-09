@@ -26,8 +26,9 @@ import {
 import { uploadCourtOrder } from "../../services/legalEvidenceService";
 import BackButton from "../../components/BackButton";
 import DisclosureModal from "../../components/DisclosureModal";
-import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { hrCaseScope, sortByCreatedAtDesc } from "../../utils/caseVisibility";
 
 const LegalRequestsPage = () => {
   const { userData } = useAuth();
@@ -114,11 +115,10 @@ const LegalRequestsPage = () => {
         collection(db, 'posts'),
         where('companyId', '==', userData.companyId),
         where('isAnonymous', '==', true),
-        orderBy('createdAt', 'desc'),
-        limit(20)
+        ...hrCaseScope(userData.role)
       );
       const snapshot = await getDocs(postsQuery);
-      let posts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      let posts = sortByCreatedAtDesc(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))).slice(0, 20);
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         posts = posts.filter(

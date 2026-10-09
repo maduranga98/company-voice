@@ -16,6 +16,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import CryptoJS from "crypto-js";
 import {
   PostStatus,
@@ -838,16 +839,18 @@ export const getPostsWithPrivacyFilter = async (companyId, feedType, user) => {
       postsRef,
       where("companyId", "==", companyId),
       where("type", "==", feedType),
-      orderBy("createdAt", "desc")
+      ...hrCaseScope(user.role)
     );
 
     const snapshot = await getDocs(q);
-    const allPosts = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate(),
-      updatedAt: doc.data().updatedAt?.toDate(),
-    }));
+    const allPosts = sortByCreatedAtDesc(
+      snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+      }))
+    );
 
     // Apply privacy filtering based on user role
     const userId = user.id || user.uid;

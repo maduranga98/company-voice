@@ -5,7 +5,7 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const { getUserIdFromAuthSession } = require('../utils/helpers');
+const { getCaller } = require('../utils/authz');
 
 // Initialize admin if not already done
 if (!admin.apps.length) {
@@ -36,11 +36,7 @@ exports.advancedSearch = functions.https.onCall(async (data, context) => {
     } = data;
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
 
     const userDoc = await db.collection('users').doc(userId).get();
 
@@ -92,6 +88,12 @@ exports.advancedSearch = functions.https.onCall(async (data, context) => {
         ...doc.data(),
       });
     });
+
+    // Cases flagged involvesHR are for company_admin only; this runs with admin
+    // privileges, so the Firestore rule does not apply here.
+    if (String(userData.role || '').toLowerCase() === 'hr') {
+      posts = posts.filter(post => post.involvesHR !== true);
+    }
 
     // Client-side filtering for text search and date range
     if (query && query.trim() !== '') {
@@ -212,11 +214,7 @@ exports.saveSearch = functions.https.onCall(async (data, context) => {
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
 
     const userDoc = await db.collection('users').doc(userId).get();
 
@@ -270,11 +268,7 @@ exports.getSavedSearches = functions.https.onCall(async (data, context) => {
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
 
     const userDoc = await db.collection('users').doc(userId).get();
 
@@ -328,11 +322,7 @@ exports.deleteSavedSearch = functions.https.onCall(async (data, context) => {
     const { searchId } = data;
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
 
     const searchDoc = await db.collection('savedSearches').doc(searchId).get();
 
@@ -394,11 +384,7 @@ exports.getSearchAnalytics = functions.https.onCall(async (data, context) => {
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
 
     const userDoc = await db.collection('users').doc(userId).get();
 

@@ -14,6 +14,8 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { setUserStatus, changeUserRole, deleteRemovedUsers } from "../../services/userAdminService";
+import { AddStaffButton, ResetPasswordButton } from "../../components/StaffAccounts";
 import { UserRole } from "../../utils/constants";
 import {
   getDepartments,
@@ -170,11 +172,7 @@ const MemberManagement = () => {
 
     try {
       setLoading(true);
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "active",
-        updatedAt: serverTimestamp(),
-      });
+      await setUserStatus(memberId, "active");
 
       showSuccess(t('company.memberApproved'));
       // Reset filter so approved members are visible in "all" view
@@ -197,11 +195,7 @@ const MemberManagement = () => {
 
     try {
       setLoading(true);
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "rejected",
-        updatedAt: serverTimestamp(),
-      });
+      await setUserStatus(memberId, "rejected");
 
       showSuccess(t('company.memberRejected'));
       loadData();
@@ -258,15 +252,10 @@ const MemberManagement = () => {
 
       const hadPosts = namedPostsSnapshot.size > 0 || anonPostsSnapshot.size > 0;
 
-      // Mark the user as removed
-      batch.update(doc(db, "users", member.id), {
-        status: "removed",
-        hadPosts,
-        removedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
       await batch.commit();
+
+      // Mark the user as removed (server-side: also ends their sessions)
+      await setUserStatus(member.id, "removed", { hadPosts });
 
       showSuccess(t('company.memberRemoved', 'Member removed successfully'));
       loadData();
@@ -286,11 +275,7 @@ const MemberManagement = () => {
 
     try {
       setLoading(true);
-      const batch = writeBatch(db);
-      selectedRemovedIds.forEach((id) => {
-        batch.delete(doc(db, "users", id));
-      });
-      await batch.commit();
+      await deleteRemovedUsers(selectedRemovedIds);
       setSelectedRemovedIds([]);
       showSuccess(t('company.permanentDeleteSuccess', 'Members permanently deleted'));
       loadData();
@@ -312,16 +297,11 @@ const MemberManagement = () => {
 
     try {
       setLoading(true);
-      const memberRef = doc(db, "users", selectedMember.id);
-      await updateDoc(memberRef, {
-        role: newRole,
-        updatedAt: serverTimestamp(),
-      });
+      await changeUserRole(selectedMember.id, newRole);
 
       const roleLabelMap = {
         [UserRole.COMPANY_ADMIN]: t('company.roleAdmin'),
         [UserRole.HR]: t('company.roleHR'),
-        [UserRole.EMPLOYEE]: t('company.roleEmployee'),
       };
       const roleLabel = roleLabelMap[newRole] || newRole;
       showSuccess(t('company.roleChanged', `Role changed to ${roleLabel}`));
@@ -493,6 +473,7 @@ const MemberManagement = () => {
               <span className="hidden sm:inline">{t('company.manageTags')}</span>
               <span className="sm:hidden">{t('company.tag')}</span>
             </button>
+            <AddStaffButton onCreated={loadData} />
             <button
               onClick={() => navigate("/company/departments")}
               className="px-3 lg:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm"
@@ -834,6 +815,11 @@ const MemberManagement = () => {
                           >
                             {t('company.changeRole', 'Role')}
                           </button>
+                          <span className="text-gray-300">|</span>
+                          <ResetPasswordButton
+                            member={member}
+                            className="text-amber-600 hover:text-amber-800 font-medium"
+                          />
                           <span className="text-gray-300">|</span>
                           <button
                             onClick={() => handleRemoveMember(member)}
@@ -1195,34 +1181,6 @@ const MemberManagement = () => {
                     </div>
                     <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => handleChangeRole(UserRole.EMPLOYEE)}
-                  className={`w-full p-4 text-left border-2 rounded-lg hover:border-gray-400 transition ${
-                    selectedMember.role === UserRole.EMPLOYEE
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                          {t('company.roleEmployee')}
-                        </span>
-                        {selectedMember.role === UserRole.EMPLOYEE && (
-                          <span className="text-xs text-blue-600 font-medium">{t('company.currentRole', '(Current)')}</span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {t('company.employeeRoleDesc', 'Standard access to submit posts and participate in discussions')}
-                      </p>
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                 </button>

@@ -10,9 +10,10 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
-  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { setUserStatus, changeUserRole, deleteRemovedUsers } from "../../services/userAdminService";
+import { AddStaffButton, ResetPasswordButton } from "../../components/StaffAccounts";
 import { UserRole } from "../../utils/constants";
 import { getDepartments, removeUserFromDepartment } from "../../services/departmentservice";
 import DepartmentAssignment from "../../components/DepartmentAssignment";
@@ -43,6 +44,8 @@ import {
   ShieldCheck,
   Tag,
 } from "lucide-react";
+
+const SUSPENSION_DAYS = 30;
 
 const MemberManagementWithDepartments = () => {
   const { userData } = useAuth();
@@ -164,11 +167,7 @@ const MemberManagementWithDepartments = () => {
     }
 
     try {
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "active",
-        updatedAt: serverTimestamp(),
-      });
+      await setUserStatus(memberId, "active");
 
       alert("Member approved successfully!");
       loadData();
@@ -188,11 +187,7 @@ const MemberManagementWithDepartments = () => {
     }
 
     try {
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "rejected",
-        updatedAt: serverTimestamp(),
-      });
+      await setUserStatus(memberId, "rejected");
 
       alert("Member rejected successfully!");
       loadData();
@@ -208,10 +203,9 @@ const MemberManagementWithDepartments = () => {
     }
 
     try {
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "suspended",
-        updatedAt: serverTimestamp(),
+      await setUserStatus(memberId, "suspended", {
+        reason: "Suspended by administrator",
+        suspendedUntil: new Date(Date.now() + SUSPENSION_DAYS * 24 * 60 * 60 * 1000).toISOString(),
       });
 
       alert("Member suspended successfully!");
@@ -224,11 +218,7 @@ const MemberManagementWithDepartments = () => {
 
   const handleReactivateMember = async (memberId) => {
     try {
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "active",
-        updatedAt: serverTimestamp(),
-      });
+      await setUserStatus(memberId, "active");
 
       alert("Member reactivated successfully!");
       loadData();
@@ -257,12 +247,7 @@ const MemberManagementWithDepartments = () => {
     }
 
     try {
-      const memberRef = doc(db, "users", memberId);
-      await updateDoc(memberRef, {
-        status: "removed",
-        removedAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      await setUserStatus(memberId, "removed");
 
       alert("Member removed successfully!");
       loadData();
@@ -345,12 +330,8 @@ const MemberManagementWithDepartments = () => {
 
   const handleChangeRole = async (newRole, member) => {
     try {
-      const memberRef = doc(db, "users", member.id);
-      await updateDoc(memberRef, {
-        role: newRole,
-        updatedAt: serverTimestamp(),
-      });
-      alert(`Role updated to ${newRole === UserRole.COMPANY_ADMIN ? "Admin" : newRole === UserRole.HR ? "HR" : "Employee"} successfully!`);
+      await changeUserRole(member.id, newRole);
+      alert(`Role updated to ${newRole === UserRole.COMPANY_ADMIN ? "Admin" : "HR"} successfully!`);
       setShowRoleModal(false);
       setRoleChangingMember(null);
       loadData();
@@ -372,11 +353,7 @@ const MemberManagementWithDepartments = () => {
 
     try {
       setLoading(true);
-      const batch = writeBatch(db);
-      selectedRemovedIds.forEach((id) => {
-        batch.delete(doc(db, "users", id));
-      });
-      await batch.commit();
+      await deleteRemovedUsers(selectedRemovedIds);
       setSelectedRemovedIds([]);
       alert("Members permanently deleted");
       loadData();
@@ -558,6 +535,7 @@ const MemberManagementWithDepartments = () => {
               <Tag className="w-4 h-4" />
               Manage Tags
             </button>
+            <AddStaffButton onCreated={loadData} />
             <button
               onClick={() => navigate("/company/departments")}
               className="px-4 py-2.5 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#16a085] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
@@ -964,6 +942,10 @@ const MemberManagementWithDepartments = () => {
                           >
                             <Building2 className="w-4.5 h-4.5" />
                           </button>
+                          <ResetPasswordButton
+                            member={member}
+                            className="px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                          />
                           <button
                             onClick={() => handleSuspendMember(member.id)}
                             className="p-1.5 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors"

@@ -3,20 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   collection,
-  addDoc,
   getDocs,
   serverTimestamp,
   query,
   orderBy,
   doc,
   updateDoc,
-  deleteDoc,
   getDoc,
-  where,
-  writeBatch,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import { hashPassword, checkUsernameExists } from "../../services/authService";
+import { createCompanyWithAdmin, deleteCompany } from "../../services/userAdminService";
 import SuperAdminNav from "../../components/SuperAdminNav";
 
 const CompanyManagement = () => {
@@ -86,36 +82,13 @@ const CompanyManagement = () => {
     setLoading(true);
 
     try {
-      // Validate username
-      const usernameExists = await checkUsernameExists(formData.username);
-      if (usernameExists) {
-        setError("Username already exists. Please choose another.");
-        setLoading(false);
-        return;
-      }
-
-      // Create company
-      const companyRef = await addDoc(collection(db, "companies"), {
-        name: formData.companyName,
+      await createCompanyWithAdmin({
+        companyName: formData.companyName,
         industry: formData.industry,
-        isActive: true,
-        subscriptionStatus: "trial",
-        employeeCount: 1,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
-      // Create company admin user
-      await addDoc(collection(db, "users"), {
-        username: formData.username.toLowerCase(),
-        password: hashPassword(formData.password),
-        displayName: formData.adminName,
-        email: formData.adminEmail,
-        companyId: companyRef.id,
-        role: "company_admin",
-        status: "active",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        username: formData.username,
+        password: formData.password,
+        adminName: formData.adminName,
+        adminEmail: formData.adminEmail,
       });
 
       // Store credentials to display to user
@@ -141,7 +114,11 @@ const CompanyManagement = () => {
       loadCompanies();
     } catch (error) {
       console.error("Error creating company:", error);
-      setError("Failed to create company. Please try again.");
+      setError(
+        error.code === "functions/already-exists"
+          ? "Username already exists. Please choose another."
+          : "Failed to create company. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -198,40 +175,10 @@ const CompanyManagement = () => {
     try {
       setLoading(true);
 
-      // Delete all users associated with this company
-      const usersQuery = query(
-        collection(db, "users"),
-        where("companyId", "==", companyToDelete.id)
-      );
-      const usersSnapshot = await getDocs(usersQuery);
-
-      // Use batch to delete all users and their auth sessions
-      const batch = writeBatch(db);
-
-      usersSnapshot.forEach((userDoc) => {
-        // Delete user document
-        batch.delete(doc(db, "users", userDoc.id));
-      });
-
-      // Delete auth sessions for these users
-      const authSessionsQuery = query(
-        collection(db, "authSessions"),
-        where("companyId", "==", companyToDelete.id)
-      );
-      const authSessionsSnapshot = await getDocs(authSessionsQuery);
-
-      authSessionsSnapshot.forEach((sessionDoc) => {
-        batch.delete(doc(db, "authSessions", sessionDoc.id));
-      });
-
-      // Delete company document
-      batch.delete(doc(db, "companies", companyToDelete.id));
-
-      // Commit all deletions
-      await batch.commit();
+      const { deletedUsers } = await deleteCompany(companyToDelete.id);
 
       setSuccess(
-        `Company "${companyToDelete.name}" and ${usersSnapshot.size} associated user(s) deleted successfully!`
+        `Company "${companyToDelete.name}" and ${deletedUsers} associated user(s) deleted successfully!`
       );
       setShowDeleteModal(false);
       setCompanyToDelete(null);

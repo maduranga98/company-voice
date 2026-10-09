@@ -1126,5 +1126,188 @@
       "examples": "Ejemplos",
       "tips": "Consejos"
     }
+  },
+  "report": {
+    "trust": "No pedimos tu nombre y no guardamos tu dirección IP. Anónimo por defecto.",
+    "languageLabel": "Idioma",
+    "loading": "Cargando…",
+    "type": {
+      "heading": "¿Qué te gustaría hacer?",
+      "concern": {
+        "title": "Informar de un problema",
+        "description": "Algo que no está bien"
+      },
+      "idea": {
+        "title": "Compartir una idea",
+        "description": "Una forma de mejorar las cosas"
+      },
+      "question": {
+        "title": "Preguntar a RR. HH.",
+        "description": "Obtén una respuesta con confidencialidad"
+      }
+    },
+    "category": {
+      "label": "Categoría",
+      "placeholder": "Elige una categoría",
+      "options": {
+        "harassment": "Acoso o intimidación",
+        "discrimination": "Discriminación",
+        "safety": "Salud y seguridad",
+        "fraud_ethics": "Fraude o ética",
+        "management": "Conducta de la dirección",
+        "workplace_conditions": "Condiciones de trabajo",
+        "pay_benefits": "Salario y beneficios",
+        "other": "Otro asunto"
+      }
+    },
+    "description": {
+      "label": "Cuéntanos qué ocurrió",
+      "placeholder": "Describe la situación: qué, dónde, cuándo y quién estuvo implicado. Evita datos que puedan identificarte si quieres seguir siendo anónimo.",
+      "counter": "{{count}} / {{max}}",
+      "minHint": "Escribe al menos {{min}} caracteres."
+    },
+    "involvesHR": {
+      "label": "Esto involucra a RR. HH. o a la dirección",
+      "helper": "Tu informe irá únicamente al administrador de la empresa"
+    },
+    "evidence": {
+      "heading": "Añadir pruebas",
+      "optional": "opcional",
+      "drop": "Arrastra los archivos aquí o",
+      "choose": "elige archivos",
+      "camera": "Hacer una foto",
+      "hint": "Hasta {{maxFiles}} archivos de {{maxMB}} MB cada uno. Fotos, PDF o audio.",
+      "remove": "Quitar archivo",
+      "uploading": "Subiendo…",
+      "ready": "Listo",
+      "retry": "Reintentar",
+      "tooMany": "Puedes añadir hasta {{max}} archivos.",
+      "tooLarge": "{{name}} supera los {{max}} MB.",
+      "badType": "{{name}} no es un tipo de archivo compatible.",
+      "uploadFailed": "Error al subir. Revisa tu conexión y reintenta."
+    },
+    "contact": {
+      "toggle": "¿Quieres que te contactemos? (opcional)",
+      "note": "Solo lo verán las personas que gestionan tu informe. Déjalo vacío para seguir siendo totalmente anónimo.",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "phone": "Teléfono"
+    },
+    "verification": {
+      "label": "Comprobación de seguridad"
+    },
+    "submit": {
+      "button": "Enviar informe",
+      "sending": "Enviando…",
+      "uploadsPending": "Espera a que terminen de subirse tus archivos.",
+      "offline": "Parece que no tienes conexión. Vuelve a conectarte e inténtalo de nuevo."
+    },
+    "errors": {
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "invalidInput": "Revisa el formulario e inténtalo de nuevo.",
+      "verification": "La comprobación de seguridad falló. Inténtalo de nuevo.",
+      "rateLimited": "Demasiados informes desde esta conexión. Inténtalo más tarde.",
+      "duplicate": "Este informe ya se recibió. Si no viste tu código de caso, envíalo de nuevo.",
+      "network": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+      "attachmentsMissing": "No se encontró uno de tus archivos. Quítalo y vuelve a añadirlo.",
+      "inactive": "Este enlace de denuncias ya no está activo."
+    },
+    "success": {
+      "title": "Tu informe ha sido enviado",
+      "intro": "Gracias por hablar. Aquí tienes tu código de caso y tu clave secreta.",
+      "caseCode": "Código de caso",
+      "secretKey": "Clave secreta",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "download": "Descargar .txt",
+      "print": "Imprimir",
+      "warning": "Guárdalos ahora. No podemos recuperarlos. Necesitarás ambos para consultar tu caso.",
+      "comingSoon": "Pronto habrá una página «Consultar mi caso», donde podrás usarlos para ver novedades y responder.",
+      "confirmSaved": "He guardado mi código de caso y mi clave secreta",
+      "done": "Listo",
+      "leaveWarning": "No has confirmado que guardaste tu código de caso y tu clave secreta.",
+      "fileHeading": "Informe confidencial de VoxWel",
+      "fileNote": "Mantén este archivo en privado. Quien tenga ambos valores puede abrir tu caso."
+    },
+    "inactive": {
+      "title": "Este enlace de denuncias no está activo",
+      "body": "Comprueba el enlace o pide uno nuevo a tu organización."
+    },
+    "link": {
+      "title": "Enlace de denuncias y código QR",
+      "instructions": "Comparte este código QR o enlace para que cualquiera pueda enviar un informe confidencial. No se necesita cuenta.",
+      "scanDesc": "Cualquiera puede escanear este código QR para enviar un informe, sin cuenta y sin dar su nombre.",
+      "linkLabel": "Enlace de denuncias",
+      "copyLink": "Copiar enlace",
+      "linkCopied": "¡Enlace copiado!",
+      "preparing": "Preparando tu enlace de denuncias…",
+      "loadError": "No pudimos cargar tu enlace de denuncias. Inténtalo de nuevo.",
+      "saveError": "No pudimos actualizar el enlace. Inténtalo de nuevo.",
+      "regenerate": "Regenerar enlace",
+      "regenerateTitle": "¿Regenerar el enlace de denuncias?",
+      "regenerateBody": "El enlace actual y todos los códigos QR impresos dejarán de funcionar de inmediato. Tendrás que compartir el nuevo enlace.",
+      "regenerateConfirm": "Regenerar",
+      "cancel": "Cancelar",
+      "regenerated": "Se ha creado un nuevo enlace de denuncias.",
+      "reportingOn": "Se aceptan informes",
+      "reportingOff": "Los informes están desactivados",
+      "toggleHelp": "Si está desactivado, el enlace muestra una página inactiva y no se pueden enviar informes.",
+      "scanToReport": "Escanea para enviar un informe",
+      "howTitle": "Cómo enviar un informe",
+      "stepsTitle": "Pasos",
+      "step1": "1. Abre la cámara del móvil, no hace falta ninguna app",
+      "step2": "2. Apunta al código QR de arriba",
+      "step3": "3. Toca el enlace que aparece",
+      "step4": "4. Describe lo ocurrido. No hace falta tu nombre",
+      "step5": "5. Guarda tu código de caso y tu clave secreta",
+      "whatTitle": "Qué puedes hacer",
+      "benefit1": "Informar de un problema",
+      "benefit2": "Compartir una idea",
+      "benefit3": "Preguntar a RR. HH.",
+      "benefit4": "Anonimato por defecto",
+      "tipEmail": "Envía el enlace por correo a toda la plantilla",
+      "tipNoticeBoards": "Imprime el código QR para los tablones",
+      "tipHandbook": "Añádelo al manual del empleado",
+      "tipOnboarding": "Inclúyelo en el material de incorporación",
+      "bestPracticeRotate": "Regenera el enlace si se filtra",
+      "shareTitle": "Envía un informe confidencial a {{company}}",
+      "shareText": "Escanea el código QR o abre el enlace para enviar un informe. Sin cuenta, anónimo por defecto."
+    }
+  },
+  "staff": {
+    "addButton": "Añadir usuario de RR. HH.",
+    "addTitle": "Añadir un usuario de RR. HH.",
+    "username": "Usuario",
+    "displayName": "Nombre completo",
+    "email": "Correo electrónico",
+    "password": {
+      "title": "Cambia tu contraseña",
+      "required": "Debes elegir una contraseña nueva antes de continuar.",
+      "current": "Contraseña actual",
+      "new": "Contraseña nueva",
+      "confirm": "Repite la contraseña nueva",
+      "tooShort": "La contraseña nueva debe tener entre 8 y 128 caracteres.",
+      "mismatch": "Las contraseñas no coinciden.",
+      "wrongCurrent": "La contraseña actual es incorrecta.",
+      "signOutNote": "Se cerrará tu sesión y deberás iniciar sesión de nuevo con la contraseña nueva.",
+      "submit": "Cambiar contraseña"
+    },
+    "passwordHint": "Deja la contraseña vacía para generar una temporal.",
+    "create": "Crear usuario",
+    "creating": "Creando…",
+    "cancel": "Cancelar",
+    "tempTitle": "Contraseña temporal",
+    "tempBody": "Comparte esta contraseña con el usuario ahora. No se guarda y no se puede volver a mostrar. Se le pedirá que elija la suya al iniciar sesión por primera vez.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "close": "Cerrar",
+    "resetButton": "Restablecer contraseña",
+    "resetConfirm": "¿Restablecer la contraseña de {{name}}? Se cerrarán sus sesiones actuales.",
+    "errors": {
+      "usernameTaken": "Ese nombre de usuario ya está en uso.",
+      "invalid": "Revisa los datos e inténtalo de nuevo.",
+      "forbidden": "No tienes permiso para hacer eso.",
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
   }
 }

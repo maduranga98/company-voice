@@ -7,10 +7,10 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { hrCaseScope } from "../utils/caseVisibility";
 import {
   LayoutDashboard,
   Lightbulb,
@@ -86,7 +86,7 @@ const CompanyAdminLayout = ({ children }) => {
       where("companyId", "==", userData.companyId),
       where("privacyLevel", "==", "hr_only"),
       where("status", "==", "open"),
-      orderBy("createdAt", "desc")
+      ...hrCaseScope(userData.role)
     );
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setHasUnreadHRPosts(snapshot.size > 0);

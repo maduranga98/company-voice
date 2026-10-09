@@ -6,36 +6,33 @@ service cloud.firestore {
     // HELPER FUNCTIONS
     // ============================================
 
-    // Check if the request is from an authenticated user
+    // Identity comes from custom claims minted by the login Cloud Function:
+    //   request.auth.uid               = users/{id} document id
+    //   request.auth.token.role        = super_admin | company_admin | hr
+    //   request.auth.token.companyId   = company id (null for super_admin)
+    // Clients cannot set claims, so nothing a client writes can grant a role.
+
+    // A signed-in staff member (anonymous or role-less Firebase users are not authenticated here)
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null
+        && request.auth.token.get('role', null) in ['super_admin', 'company_admin', 'hr'];
     }
 
-    // Get the auth session document for the current user
-    function getSession() {
-      return get(/databases/$(database)/documents/authSessions/$(request.auth.uid)).data;
-    }
-
-    // Get the role from the auth session
     function getUserRole() {
-      return getSession().role;
+      return request.auth.token.role;
     }
 
-    // Get the companyId from the auth session
     function getUserCompanyId() {
-      return getSession().companyId;
+      return request.auth.token.get('companyId', null);
     }
 
-    // Get the userId from the auth session
     function getUserId() {
-      return getSession().userId;
+      return request.auth.uid;
     }
 
     // Role checks
     function isSuperAdmin() {
-      return isAuthenticated() &&
-             exists(/databases/$(database)/documents/authSessions/$(request.auth.uid)) &&
-             getUserRole() == 'super_admin';
+      return isAuthenticated() && getUserRole() == 'super_admin';
     }
 
     function isCompanyAdmin() {
@@ -47,11 +44,11 @@ service cloud.firestore {
     }
 
     function isAdminOrHR() {
-      return isAuthenticated() && getUserRole() in ['super_admin', 'company_admin', 'hr'];
+      return isAuthenticated();
     }
 
     function isCompanyStaff() {
-      return isAuthenticated() && getUserRole() in ['super_admin', 'company_admin', 'hr', 'employee'];
+      return isAuthenticated();
     }
 
     // Company membership check
@@ -64,13 +61,21 @@ service cloud.firestore {
       return isSuperAdmin() || belongsToCompany(companyId);
     }
 
-    // Check if the user is in the login flow (temporary pending session).
-    // During login, a temporary authSession with role "pending" is created
-    // before the user queries run. This allows the login queries to proceed.
-    function isLoginPending() {
-      return isAuthenticated()
-        && exists(/databases/$(database)/documents/authSessions/$(request.auth.uid))
-        && getSession().role == 'pending';
+    // Public-report cases flagged involvesHR are visible to company_admin and
+    // super_admin only. HR queries must therefore filter involvesHR == false.
+    // The direct comparison (not .get() with a default) is what lets Firestore
+    // prove the rule against query constraints; posts without the field are
+    // unreadable by HR until scripts/backfillInvolvesHR.js has been run.
+    function isHRVisibleCase(data) {
+      return data.involvesHR == false;
+    }
+
+    // Check if the user may read a post document (admins and HR only; no employee access)
+    function canReadPost(data) {
+      return isSuperAdmin()
+        || (getUserRole() in ['company_admin', 'hr']
+            && getUserCompanyId() == data.companyId
+            && (getUserRole() == 'company_admin' || isHRVisibleCase(data)));
     }
 
     // Check if user is admin/HR in the given company
@@ -79,78 +84,94 @@ service cloud.firestore {
     }
 
     // ============================================
-    // AUTH SESSIONS COLLECTION
+    // PUBLIC REPORT INTERNALS (Admin SDK only)
     // ============================================
-    // Stores the mapping between Firebase Auth UID and custom user data.
-    // Each user can only read/write their own session.
+    // caseAccess: case code -> post + HMAC of the reporter's secret key
+    // reportSlugs: public link slug -> company
+    // rateLimits: hashed counters and idempotency tokens (TTL on expiresAt)
+    match /caseAccess/{caseCode} {
+      allow read, write: if false;
+    }
+
+    match /reportSlugs/{slug} {
+      allow read, write: if false;
+    }
+
+    match /rateLimits/{hashedKey} {
+      allow read, write: if false;
+    }
+
+    // ============================================
+    // AUTH SESSIONS / USER CREDENTIALS (retired / server-only)
+    // ============================================
+    // authSessions was the old client-writable role mapping; scripts/deleteAuthSessions.js
+    // removes the leftover documents. userCredentials holds password hashes (Admin SDK only).
     match /authSessions/{sessionId} {
-      allow read: if isAuthenticated() && request.auth.uid == sessionId;
-      allow create: if isAuthenticated() && request.auth.uid == sessionId;
-      allow update: if isAuthenticated() && request.auth.uid == sessionId;
-      allow delete: if isAuthenticated() && request.auth.uid == sessionId;
+      allow read, write: if false;
+    }
+
+    match /userCredentials/{userId} {
+      allow read, write: if false;
     }
 
     // ============================================
     // USERS COLLECTION
     // ============================================
-    // - Users can read their own profile
-    // - Admin/HR can read users in their company
-    // - Super admins can read all users
-    // - Only admin/HR/super_admin can create/update users
-    // - Users can update their own non-role fields
+    // - Read: own document, admin/HR of the same company, super_admin
+    // - Never created or deleted from the client (createStaffUser, deleteRemovedUsers, deleteCompany)
+    // - Update from the client is limited to non-privileged fields: a user's own profile fields, and
+    //   organisation fields (tag, department) set by admin/HR of the same company. role, status,
+    //   companyId, username, suspension and credential fields only change through Cloud Functions.
     match /users/{userId} {
-  allow read: if isAuthenticated()
-    && (isSuperAdmin()
-        || getUserId() == userId
-        || getUserCompanyId() == resource.data.companyId
-        || isLoginPending()
-        || request.auth.token.firebase.sign_in_provider == 'anonymous');
+      allow read: if isAuthenticated()
+        && (isSuperAdmin()
+            || getUserId() == userId
+            || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId));
 
-  allow create: if isAdminOrHR()
-    || isSuperAdmin()
-    || request.auth.token.firebase.sign_in_provider == 'anonymous';
+      allow create: if false;
 
-  allow update: if isAuthenticated()
-    && (isSuperAdmin()
-        || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId)
-        || (getUserId() == userId
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'companyId'])));
+      allow update: if isAuthenticated()
+        && ((getUserId() == userId
+             && request.resource.data.diff(resource.data).affectedKeys()
+                  .hasOnly(['displayName', 'email', 'language', 'avatar', 'avatarUrl', 'photoURL', 'updatedAt']))
+            || ((isSuperAdmin() || getUserCompanyId() == resource.data.companyId)
+                && request.resource.data.diff(resource.data).affectedKeys()
+                     .hasOnly(['userTagId', 'departmentId', 'previousDepartmentId', 'departmentChangedAt', 'isDepartmentHead', 'updatedAt'])));
 
-  allow delete: if isSuperAdmin();
-}
+      allow delete: if false;
+    }
 
     // ============================================
     // COMPANIES COLLECTION
     // ============================================
-    // - Users can read their own company
-    // - Super admins can read/write all companies
-    // - Company admins can update their own company (non-critical fields)
+    // - Members read their own company; super_admin reads all
+    // - Created and deleted by Cloud Functions (createCompanyWithAdmin, deleteCompany)
+    // - Company admins can update their own company except activation and report link fields
     match /companies/{companyId} {
-  // Allow unauthenticated reads for QR registration flow
-  allow read: if true;
+      allow read: if isSuperAdmin() || (isAuthenticated() && belongsToCompany(companyId));
 
-  // Keep all writes locked down
-  allow create: if isSuperAdmin();
-  allow update: if isSuperAdmin()
-    || (isCompanyAdmin() && belongsToCompany(companyId)
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive']));
-  allow delete: if isSuperAdmin();
-}
+      allow create: if false;
+      allow update: if isSuperAdmin()
+        || (isCompanyAdmin() && belongsToCompany(companyId)
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive', 'reportSlug', 'reportingEnabled']));
+      allow delete: if false;
+    }
 
     // ============================================
     // POSTS COLLECTION
     // ============================================
-    // - Users in the same company can read posts (company-level isolation)
+    // - Only admin/HR of the same company (and super_admin) can read posts
+    // - Posts with involvesHR == true are readable by company_admin and
+    //   super_admin only; HR queries must add where("involvesHR", "==", false)
     // - Privacy filtering (department_only, hr_only) is enforced client-side
     //   in getPostsWithPrivacyFilter() to avoid Firestore query validation
     //   failures with complex OR rules and get() calls
+    // - Public-report posts are written by Cloud Functions (Admin SDK)
     // - Authenticated users can create posts for their company
     // - Post authors, admin/HR can update posts
     // - Post authors, admin/HR can delete posts; super_admin can delete any
     match /posts/{postId} {
-      allow read: if isAuthenticated()
-        && (isSuperAdmin()
-            || getUserCompanyId() == resource.data.companyId);
+      allow read: if isAuthenticated() && canReadPost(resource.data);
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
@@ -158,6 +179,7 @@ service cloud.firestore {
       allow update: if isAuthenticated()
         && (isSuperAdmin()
             || (getUserCompanyId() == resource.data.companyId
+                && (getUserRole() != 'hr' || isHRVisibleCase(resource.data))
                 && (getUserId() == resource.data.authorId
                     || request.auth.uid == resource.data.authorId
                     || getUserRole() in ['hr', 'company_admin']
@@ -173,6 +195,7 @@ service cloud.firestore {
       allow delete: if isAuthenticated()
         && (isSuperAdmin()
             || (getUserCompanyId() == resource.data.companyId
+                && (getUserRole() != 'hr' || isHRVisibleCase(resource.data))
                 && (getUserId() == resource.data.authorId
                     || request.auth.uid == resource.data.authorId
                     || getUserRole() in ['hr', 'company_admin'])));

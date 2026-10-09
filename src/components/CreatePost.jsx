@@ -238,6 +238,7 @@ const CreatePost = ({ type = "creative", onClose, onSuccess }) => {
         status: "open",
         priority: "medium",
         privacyLevel: formData.privacyLevel,
+        involvesHR: false,
         departmentId: formData.privacyLevel === "department_only" ? formData.departmentId : null,
         attachments: uploadedAttachments,
         poll: pollData,

@@ -1447,5 +1447,188 @@
       "examples": "Examples",
       "tips": "Tips"
     }
+  },
+  "report": {
+    "trust": "We don't ask for your name and we don't store your IP address. Anonymous by default.",
+    "languageLabel": "Language",
+    "loading": "Loading…",
+    "type": {
+      "heading": "What would you like to do?",
+      "concern": {
+        "title": "Report a concern",
+        "description": "Something that isn't right"
+      },
+      "idea": {
+        "title": "Share an idea",
+        "description": "A way to make things better"
+      },
+      "question": {
+        "title": "Ask HR a question",
+        "description": "Get an answer in confidence"
+      }
+    },
+    "category": {
+      "label": "Category",
+      "placeholder": "Choose a category",
+      "options": {
+        "harassment": "Harassment or bullying",
+        "discrimination": "Discrimination",
+        "safety": "Health and safety",
+        "fraud_ethics": "Fraud or ethics",
+        "management": "Management conduct",
+        "workplace_conditions": "Workplace conditions",
+        "pay_benefits": "Pay and benefits",
+        "other": "Something else"
+      }
+    },
+    "description": {
+      "label": "Tell us what happened",
+      "placeholder": "Describe the situation: what, where, when and who was involved. Avoid details that could identify you if you want to stay anonymous.",
+      "counter": "{{count}} / {{max}}",
+      "minHint": "Please write at least {{min}} characters."
+    },
+    "involvesHR": {
+      "label": "This involves HR or management",
+      "helper": "Your report will go to the company admin only"
+    },
+    "evidence": {
+      "heading": "Add evidence",
+      "optional": "optional",
+      "drop": "Drag files here or",
+      "choose": "choose files",
+      "camera": "Take a photo",
+      "hint": "Up to {{maxFiles}} files, {{maxMB}} MB each. Photos, PDF or audio.",
+      "remove": "Remove file",
+      "uploading": "Uploading…",
+      "ready": "Ready",
+      "retry": "Retry",
+      "tooMany": "You can add up to {{max}} files.",
+      "tooLarge": "{{name}} is larger than {{max}} MB.",
+      "badType": "{{name}} is not a supported file type.",
+      "uploadFailed": "Upload failed. Check your connection and retry."
+    },
+    "contact": {
+      "toggle": "Want us to contact you? (optional)",
+      "note": "Only the people handling your report can see this. Leave it empty to stay fully anonymous.",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone"
+    },
+    "verification": {
+      "label": "Security check"
+    },
+    "submit": {
+      "button": "Submit report",
+      "sending": "Submitting…",
+      "uploadsPending": "Please wait for your files to finish uploading.",
+      "offline": "You appear to be offline. Reconnect and try again."
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "invalidInput": "Please check the form and try again.",
+      "verification": "The security check failed. Please try again.",
+      "rateLimited": "Too many reports from this connection. Please try again later.",
+      "duplicate": "This report was already received. If you did not see your case code, please submit again.",
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "attachmentsMissing": "One of your files was not found. Please remove it and add it again.",
+      "inactive": "This reporting link is no longer active."
+    },
+    "success": {
+      "title": "Your report has been sent",
+      "intro": "Thank you for speaking up. Here are your case code and secret key.",
+      "caseCode": "Case code",
+      "secretKey": "Secret key",
+      "copy": "Copy",
+      "copied": "Copied",
+      "download": "Download .txt",
+      "print": "Print",
+      "warning": "Save these now. We cannot recover them. You will need both to check your case.",
+      "comingSoon": "A \"Check my case\" page is coming soon, where you will use these to see updates and reply.",
+      "confirmSaved": "I have saved my case code and secret key",
+      "done": "Done",
+      "leaveWarning": "You have not confirmed that you saved your case code and secret key.",
+      "fileHeading": "VoxWel confidential report",
+      "fileNote": "Keep this file private. Anyone with both values can open your case."
+    },
+    "inactive": {
+      "title": "This reporting link is not active",
+      "body": "Please check the link, or ask your organisation for a new one."
+    },
+    "link": {
+      "title": "Report Link & QR Code",
+      "instructions": "Share this QR code or link so anyone can send a confidential report. No account is needed.",
+      "scanDesc": "Anyone can scan this QR code to send a report, with no account and no name required.",
+      "linkLabel": "Report link",
+      "copyLink": "Copy Link",
+      "linkCopied": "Report link copied!",
+      "preparing": "Preparing your report link…",
+      "loadError": "We couldn't load your report link. Please try again.",
+      "saveError": "We couldn't update the report link. Please try again.",
+      "regenerate": "Regenerate link",
+      "regenerateTitle": "Regenerate the report link?",
+      "regenerateBody": "The current link and every printed QR code will stop working immediately. You will need to share the new link.",
+      "regenerateConfirm": "Regenerate",
+      "cancel": "Cancel",
+      "regenerated": "A new report link has been created.",
+      "reportingOn": "Accepting reports",
+      "reportingOff": "Reporting is turned off",
+      "toggleHelp": "When off, the link shows an inactive page and no reports can be sent.",
+      "scanToReport": "Scan to Send a Report",
+      "howTitle": "How to Send a Report",
+      "stepsTitle": "Steps",
+      "step1": "1. Open your phone camera, no app needed",
+      "step2": "2. Point it at the QR code above",
+      "step3": "3. Tap the link that appears",
+      "step4": "4. Describe what happened. No name is needed",
+      "step5": "5. Save your case code and secret key",
+      "whatTitle": "What You Can Do",
+      "benefit1": "Report a concern",
+      "benefit2": "Share an idea",
+      "benefit3": "Ask HR a question",
+      "benefit4": "Stay anonymous by default",
+      "tipEmail": "Email the link to all staff",
+      "tipNoticeBoards": "Print the QR code for notice boards",
+      "tipHandbook": "Add it to the employee handbook",
+      "tipOnboarding": "Include it in onboarding material",
+      "bestPracticeRotate": "Regenerate the link if it is leaked",
+      "shareTitle": "Send a confidential report to {{company}}",
+      "shareText": "Scan the QR code or open the link to send a report. No account needed, anonymous by default."
+    }
+  },
+  "staff": {
+    "addButton": "Add HR user",
+    "addTitle": "Add an HR user",
+    "username": "Username",
+    "displayName": "Full name",
+    "email": "Email",
+    "password": {
+      "title": "Change your password",
+      "required": "You must choose a new password before you continue.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Repeat new password",
+      "tooShort": "The new password must be 8 to 128 characters.",
+      "mismatch": "The passwords do not match.",
+      "wrongCurrent": "The current password is incorrect.",
+      "signOutNote": "You will be signed out and must sign in again with the new password.",
+      "submit": "Change password"
+    },
+    "passwordHint": "Leave the password empty to generate a temporary one.",
+    "create": "Create user",
+    "creating": "Creating…",
+    "cancel": "Cancel",
+    "tempTitle": "Temporary password",
+    "tempBody": "Share this password with the user now. It is not stored and cannot be shown again. They will be asked to choose their own at first sign in.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "close": "Close",
+    "resetButton": "Reset password",
+    "resetConfirm": "Reset the password for {{name}}? Their current sessions will be signed out.",
+    "errors": {
+      "usernameTaken": "That username is already taken.",
+      "invalid": "Please check the details and try again.",
+      "forbidden": "You are not allowed to do that.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

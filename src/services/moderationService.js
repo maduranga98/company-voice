@@ -11,9 +11,9 @@ import {
   limit as firestoreLimit,
   serverTimestamp,
   increment,
-  Timestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { setUserStatus } from "./userAdminService";
 import { decryptAuthorId } from "./postManagementService";
 import {
   ReportStatus,
@@ -572,13 +572,9 @@ const removeAndSuspend = async (report, moderatorId, notes, strikeInfo) => {
     const suspensionEnd = new Date();
     suspensionEnd.setDate(suspensionEnd.getDate() + 30); // 30-day suspension
 
-    await updateDoc(doc(db, "users", contentAuthorId), {
-      status: UserStatus.SUSPENDED,
-      suspendedAt: serverTimestamp(),
-      suspendedUntil: Timestamp.fromDate(suspensionEnd),
-      suspensionReason: strikeInfo.violationType || "Severe content violation",
-      suspendedBy: moderatorId,
-      updatedAt: serverTimestamp(),
+    await setUserStatus(contentAuthorId, UserStatus.SUSPENDED, {
+      reason: strikeInfo.violationType || "Severe content violation",
+      suspendedUntil: suspensionEnd.toISOString(),
     });
 
     // Issue third strike automatically
@@ -782,12 +778,9 @@ const applyStrikeRestrictions = async (userId, strikeLevel, companyId) => {
     const suspensionEnd = new Date();
     suspensionEnd.setDate(suspensionEnd.getDate() + 30);
 
-    await updateDoc(doc(db, "users", userId), {
-      status: UserStatus.SUSPENDED,
-      suspendedAt: serverTimestamp(),
-      suspendedUntil: Timestamp.fromDate(suspensionEnd),
-      suspensionReason: "Strike 3 - Account suspension",
-      updatedAt: serverTimestamp(),
+    await setUserStatus(userId, UserStatus.SUSPENDED, {
+      reason: "Strike 3 - Account suspension",
+      suspendedUntil: suspensionEnd.toISOString(),
     });
 
     await createNotification({
