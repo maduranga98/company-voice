@@ -7,7 +7,12 @@ import {
   getUserById,
 } from "../services/authService";
 
+import { isPublicReportRoute } from "../utils/publicRoute";
+
 const AuthContext = createContext();
+
+// The public report form needs no session, so it must not wait for auth restore.
+const publicReportRoute = isPublicReportRoute();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -197,7 +202,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {(!loading || publicReportRoute) && children}
     </AuthContext.Provider>
   );
 };

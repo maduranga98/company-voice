@@ -18,6 +18,7 @@ import {
   PostStatus,
 } from "../../utils/constants";
 import AdminActionPanel from "../../components/AdminActionPanel";
+import CaseAttachments from "../../components/CaseAttachments";
 import {
   Inbox,
   AlertTriangle,
@@ -359,6 +360,8 @@ const HRInbox = () => {
                     </p>
                   </div>
                 )}
+
+                <CaseAttachments attachments={selectedPost.attachments} />
 
                 {/* Admin action panel */}
                 <div className="px-6 py-4">

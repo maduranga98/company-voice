@@ -1126,5 +1126,152 @@
       "examples": "Exemples",
       "tips": "Conseils"
     }
+  },
+  "report": {
+    "trust": "Nous ne demandons pas votre nom et nous ne conservons pas votre adresse IP. Anonyme par défaut.",
+    "languageLabel": "Langue",
+    "loading": "Chargement…",
+    "type": {
+      "heading": "Que souhaitez-vous faire ?",
+      "concern": {
+        "title": "Signaler un problème",
+        "description": "Quelque chose qui ne va pas"
+      },
+      "idea": {
+        "title": "Partager une idée",
+        "description": "Une façon d'améliorer les choses"
+      },
+      "question": {
+        "title": "Poser une question aux RH",
+        "description": "Obtenir une réponse en toute confidentialité"
+      }
+    },
+    "category": {
+      "label": "Catégorie",
+      "placeholder": "Choisissez une catégorie",
+      "options": {
+        "harassment": "Harcèlement ou intimidation",
+        "discrimination": "Discrimination",
+        "safety": "Santé et sécurité",
+        "fraud_ethics": "Fraude ou éthique",
+        "management": "Comportement de la direction",
+        "workplace_conditions": "Conditions de travail",
+        "pay_benefits": "Salaire et avantages",
+        "other": "Autre sujet"
+      }
+    },
+    "description": {
+      "label": "Dites-nous ce qui s'est passé",
+      "placeholder": "Décrivez la situation : quoi, où, quand et qui était impliqué. Évitez les détails qui pourraient vous identifier si vous souhaitez rester anonyme.",
+      "counter": "{{count}} / {{max}}",
+      "minHint": "Veuillez écrire au moins {{min}} caractères."
+    },
+    "involvesHR": {
+      "label": "Cela concerne les RH ou la direction",
+      "helper": "Votre signalement ira uniquement à l'administrateur de l'entreprise"
+    },
+    "evidence": {
+      "heading": "Ajouter des preuves",
+      "optional": "facultatif",
+      "drop": "Glissez les fichiers ici ou",
+      "choose": "choisissez des fichiers",
+      "camera": "Prendre une photo",
+      "hint": "Jusqu'à {{maxFiles}} fichiers de {{maxMB}} Mo chacun. Photos, PDF ou audio.",
+      "remove": "Retirer le fichier",
+      "uploading": "Envoi en cours…",
+      "ready": "Prêt",
+      "retry": "Réessayer",
+      "tooMany": "Vous pouvez ajouter jusqu'à {{max}} fichiers.",
+      "tooLarge": "{{name}} dépasse {{max}} Mo.",
+      "badType": "{{name}} n'est pas un type de fichier pris en charge.",
+      "uploadFailed": "Échec de l'envoi. Vérifiez votre connexion et réessayez."
+    },
+    "contact": {
+      "toggle": "Souhaitez-vous que nous vous contactions ? (facultatif)",
+      "note": "Seules les personnes qui traitent votre signalement peuvent le voir. Laissez vide pour rester totalement anonyme.",
+      "name": "Nom",
+      "email": "E-mail",
+      "phone": "Téléphone"
+    },
+    "verification": {
+      "label": "Contrôle de sécurité"
+    },
+    "submit": {
+      "button": "Envoyer le signalement",
+      "sending": "Envoi en cours…",
+      "uploadsPending": "Veuillez attendre la fin de l'envoi de vos fichiers.",
+      "offline": "Vous semblez hors ligne. Reconnectez-vous et réessayez."
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "invalidInput": "Veuillez vérifier le formulaire et réessayer.",
+      "verification": "Le contrôle de sécurité a échoué. Veuillez réessayer.",
+      "rateLimited": "Trop de signalements depuis cette connexion. Réessayez plus tard.",
+      "duplicate": "Ce signalement a déjà été reçu. Si vous n'avez pas vu votre code de dossier, envoyez-le à nouveau.",
+      "network": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+      "attachmentsMissing": "L'un de vos fichiers est introuvable. Retirez-le et ajoutez-le à nouveau.",
+      "inactive": "Ce lien de signalement n'est plus actif."
+    },
+    "success": {
+      "title": "Votre signalement a été envoyé",
+      "intro": "Merci d'avoir parlé. Voici votre code de dossier et votre clé secrète.",
+      "caseCode": "Code de dossier",
+      "secretKey": "Clé secrète",
+      "copy": "Copier",
+      "copied": "Copié",
+      "download": "Télécharger .txt",
+      "print": "Imprimer",
+      "warning": "Enregistrez-les maintenant. Nous ne pouvons pas les récupérer. Vous aurez besoin des deux pour consulter votre dossier.",
+      "comingSoon": "Une page « Suivre mon dossier » arrive bientôt ; vous pourrez y utiliser ces éléments pour voir les mises à jour et répondre.",
+      "confirmSaved": "J'ai enregistré mon code de dossier et ma clé secrète",
+      "done": "Terminé",
+      "leaveWarning": "Vous n'avez pas confirmé avoir enregistré votre code de dossier et votre clé secrète.",
+      "fileHeading": "Signalement confidentiel VoxWel",
+      "fileNote": "Gardez ce fichier privé. Toute personne possédant les deux valeurs peut ouvrir votre dossier."
+    },
+    "inactive": {
+      "title": "Ce lien de signalement n'est pas actif",
+      "body": "Vérifiez le lien ou demandez-en un nouveau à votre organisation."
+    },
+    "link": {
+      "title": "Lien de signalement et code QR",
+      "instructions": "Partagez ce code QR ou ce lien pour que chacun puisse envoyer un signalement confidentiel. Aucun compte n'est nécessaire.",
+      "scanDesc": "Chacun peut scanner ce code QR pour envoyer un signalement, sans compte et sans donner son nom.",
+      "linkLabel": "Lien de signalement",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié !",
+      "preparing": "Préparation de votre lien de signalement…",
+      "loadError": "Impossible de charger votre lien de signalement. Veuillez réessayer.",
+      "saveError": "Impossible de mettre à jour le lien. Veuillez réessayer.",
+      "regenerate": "Régénérer le lien",
+      "regenerateTitle": "Régénérer le lien de signalement ?",
+      "regenerateBody": "Le lien actuel et tous les codes QR imprimés cesseront de fonctionner immédiatement. Vous devrez partager le nouveau lien.",
+      "regenerateConfirm": "Régénérer",
+      "cancel": "Annuler",
+      "regenerated": "Un nouveau lien de signalement a été créé.",
+      "reportingOn": "Les signalements sont acceptés",
+      "reportingOff": "Les signalements sont désactivés",
+      "toggleHelp": "Lorsque c'est désactivé, le lien affiche une page inactive et aucun signalement ne peut être envoyé.",
+      "scanToReport": "Scannez pour envoyer un signalement",
+      "howTitle": "Comment envoyer un signalement",
+      "stepsTitle": "Étapes",
+      "step1": "1. Ouvrez l'appareil photo de votre téléphone, aucune appli n'est nécessaire",
+      "step2": "2. Visez le code QR ci-dessus",
+      "step3": "3. Appuyez sur le lien qui s'affiche",
+      "step4": "4. Décrivez ce qui s'est passé. Aucun nom n'est requis",
+      "step5": "5. Enregistrez votre code de dossier et votre clé secrète",
+      "whatTitle": "Ce que vous pouvez faire",
+      "benefit1": "Signaler un problème",
+      "benefit2": "Partager une idée",
+      "benefit3": "Poser une question aux RH",
+      "benefit4": "Anonyme par défaut",
+      "tipEmail": "Envoyez le lien par e-mail à tout le personnel",
+      "tipNoticeBoards": "Imprimez le code QR pour les panneaux d'affichage",
+      "tipHandbook": "Ajoutez-le au guide de l'employé",
+      "tipOnboarding": "Intégrez-le aux documents d'accueil",
+      "bestPracticeRotate": "Régénérez le lien s'il est divulgué",
+      "shareTitle": "Envoyer un signalement confidentiel à {{company}}",
+      "shareText": "Scannez le code QR ou ouvrez le lien pour envoyer un signalement. Sans compte, anonyme par défaut."
+    }
   }
 }
