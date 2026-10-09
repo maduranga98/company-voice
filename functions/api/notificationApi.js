@@ -5,7 +5,7 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const { getUserIdFromAuthSession } = require('../utils/helpers');
+const { getCaller } = require('../utils/authz');
 
 // Initialize admin if not already done
 if (!admin.apps.length) {
@@ -24,11 +24,7 @@ exports.getNotificationPreferences = functions.https.onCall(async (data, context
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
     const prefsDoc = await db.collection('notificationPreferences').doc(userId).get();
 
     if (prefsDoc.exists) {
@@ -93,11 +89,7 @@ exports.updateNotificationPreferences = functions.https.onCall(async (data, cont
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
     const { preferences } = data;
 
     if (!preferences) {
@@ -130,11 +122,7 @@ exports.getNotifications = functions.https.onCall(async (data, context) => {
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
     const {
       limit = 20,
       startAfter = null,
@@ -204,11 +192,7 @@ exports.markNotificationsAsRead = functions.https.onCall(async (data, context) =
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
     const { notificationIds, markAll = false } = data;
 
     if (markAll) {
@@ -275,11 +259,7 @@ exports.markNotificationsAsUnread = functions.https.onCall(async (data, context)
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
     const { notificationIds } = data;
 
     if (!notificationIds || !Array.isArray(notificationIds)) {
@@ -322,11 +302,7 @@ exports.deleteNotifications = functions.https.onCall(async (data, context) => {
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
     const { notificationIds, deleteAll = false } = data;
 
     if (deleteAll) {
@@ -386,11 +362,7 @@ exports.getUnreadCount = functions.https.onCall(async (data, context) => {
     }
 
     // Get actual user ID from auth session
-    const userId = await getUserIdFromAuthSession(context.auth.uid);
-
-    if (!userId) {
-      throw new functions.https.HttpsError('unauthenticated', 'User session not found');
-    }
+    const { uid: userId } = getCaller(context);
 
     const snapshot = await db.collection('notifications')
       .where('userId', '==', userId)

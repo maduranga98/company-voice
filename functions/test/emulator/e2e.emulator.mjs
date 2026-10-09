@@ -10,6 +10,7 @@
  * Needs functions/.secret.local with the four secrets (gitignored) and REPO_ROOT set.
  */
 
+import crypto from "node:crypto";
 import http from "node:http";
 import { createRequire } from "node:module";
 import { initializeApp } from "firebase/app";
@@ -185,15 +186,18 @@ const dump = JSON.stringify([
 check("no raw IP or secret key in server-only collections", !dump.includes("127.0.0.1") && !dump.includes("::1") && !dump.includes(secretKey) && !dump.includes(secretKey.replace(/-/g, "")));
 
 // ---- C. ensureReportSlug / setReportingEnabled (authenticated)
-async function signIn() {
-  const r = await fetch("http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signUp?key=x", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
-  const j = await r.json();
-  return { token: j.idToken, uid: j.localId };
+// Staff sign in through the login callable (claims-based identity).
+const sha = (p) => crypto.createHash("sha256").update(p, "utf8").digest("hex");
+async function signIn(username, password) {
+  const login = await call("login", { username, password });
+  const session = await (await fetch("http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=x", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: login.result.customToken, returnSecureToken: true }) })).json();
+  return { token: session.idToken };
 }
-const adminAuth = await signIn();
-await db.doc(`authSessions/${adminAuth.uid}`).set({ userId: "admin1", companyId: "c1", role: "company_admin" });
-const hrAuth = await signIn();
-await db.doc(`authSessions/${hrAuth.uid}`).set({ userId: "hr1", companyId: "c1", role: "hr" });
+await db.doc("users/admin1").update({ username: "admin1", password: sha("AdminPass123!") });
+await db.doc("users/hr1").update({ username: "hr1", password: sha("HrPass12345!") });
+await db.doc("companies/c1").update({ isActive: true });
+const adminAuth = await signIn("admin1", "AdminPass123!");
+const hrAuth = await signIn("hr1", "HrPass12345!");
 
 check("ensureReportSlug needs sign-in", (await call("ensureReportSlug", { companyId: "c1" })).error?.status === "UNAUTHENTICATED");
 check("HR cannot rotate", (await call("ensureReportSlug", { companyId: "c1", rotate: true }, hrAuth.token)).error?.status === "PERMISSION_DENIED");

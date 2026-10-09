@@ -19,7 +19,7 @@ const getAllSubscriptions = onCall({ cors: true, memory: '128MiB' }, async (requ
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }
@@ -72,7 +72,7 @@ const getSuperAdminInvoices = onCall({ cors: true, memory: '128MiB' }, async (re
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }
@@ -105,7 +105,7 @@ const getRevenueReport = onCall({ cors: true, memory: '128MiB' }, async (request
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }
@@ -244,7 +244,7 @@ const getBillingDisputes = onCall({ cors: true, memory: '128MiB' }, async (reque
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }
@@ -297,7 +297,7 @@ const resolveBillingDispute = onCall({ cors: true, memory: '128MiB' }, async (re
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }
@@ -337,7 +337,7 @@ const getAllBillingHistory = onCall({ cors: true, memory: '128MiB' }, async (req
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }
@@ -384,7 +384,7 @@ const updatePricingTier = onCall({ cors: true, memory: '128MiB' }, async (reques
   }
 
   // Verify user is super admin
-  const isAuthorized = await isSuperAdmin(auth.uid);
+  const isAuthorized = await isSuperAdmin(auth);
   if (!isAuthorized) {
     throw new HttpsError('permission-denied', 'User is not authorized');
   }

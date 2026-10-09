@@ -8,7 +8,6 @@
  */
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const CryptoJS = require('crypto-js');
 const { admin, db, serverTimestamp } = require('../config/firebase');
@@ -35,25 +34,10 @@ const {
 const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../utils/rateLimit');
 const { SLUG_PATTERN, issueReportSlug } = require('../utils/reportSlugs');
 const { verifyTurnstile } = require('../utils/turnstile');
-const { isSuperAdmin, isCompanyAdmin } = require('../utils/helpers');
+const { assertRole, assertCompany } = require('../utils/authz');
+const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
 
-const ANONYMOUS_SECRET = defineSecret('ANONYMOUS_SECRET');
-const TURNSTILE_SECRET = defineSecret('TURNSTILE_SECRET');
-const CASE_KEY_PEPPER = defineSecret('CASE_KEY_PEPPER');
-const IP_HASH_SALT = defineSecret('IP_HASH_SALT');
-
-const PORTAL_ORIGINS = [
-  'https://portal.voxwel.com',
-  'https://voxwel.com',
-  ...(process.env.GCLOUD_PROJECT
-    ? [`https://${process.env.GCLOUD_PROJECT}.web.app`, `https://${process.env.GCLOUD_PROJECT}.firebaseapp.com`]
-    : []),
-];
-
-const BASE_OPTIONS = {
-  cors: process.env.FUNCTIONS_EMULATOR === 'true' ? true : PORTAL_ORIGINS,
-  enforceAppCheck: true,
-};
+const { ANONYMOUS_SECRET, TURNSTILE_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
 
 const MAX_CASE_CODE_ATTEMPTS = 5;
 const COLLISION = Symbol('case-code-collision');
@@ -78,12 +62,6 @@ async function resolveActiveCompany(slug) {
   if (company.reportingEnabled === false || company.reportSlug !== slug) return null;
 
   return { companyId, company };
-}
-
-function clientIp(request) {
-  const raw = request.rawRequest;
-  if (!raw) return 'unknown';
-  return raw.ip || (raw.headers && String(raw.headers['x-forwarded-for'] || '').split(',')[0].trim()) || 'unknown';
 }
 
 // ============================================
@@ -357,19 +335,14 @@ const submitPublicReport = onCall(
 // C. ensureReportSlug / setReportingEnabled
 // ============================================
 
-async function requireCompanyAdmin(request, companyId) {
-  if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in required.');
-  if (typeof companyId !== 'string' || !companyId) {
-    throw new HttpsError('invalid-argument', 'companyId is required.');
-  }
-  const allowed =
-    (await isSuperAdmin(request.auth.uid)) || (await isCompanyAdmin(request.auth.uid, companyId));
-  if (!allowed) throw new HttpsError('permission-denied', 'Not allowed.');
+function requireCompanyAdmin(request, companyId) {
+  assertRole(request, ['company_admin', 'super_admin']);
+  assertCompany(request, typeof companyId === 'string' ? companyId : null);
 }
 
 const ensureReportSlug = onCall(BASE_OPTIONS, async (request) => {
   const { companyId, rotate } = request.data || {};
-  await requireCompanyAdmin(request, companyId);
+  requireCompanyAdmin(request, companyId);
 
   try {
     const { slug } = await issueReportSlug(db, serverTimestamp, { companyId, rotate: rotate === true });
@@ -383,7 +356,7 @@ const ensureReportSlug = onCall(BASE_OPTIONS, async (request) => {
 
 const setReportingEnabled = onCall(BASE_OPTIONS, async (request) => {
   const { companyId, enabled } = request.data || {};
-  await requireCompanyAdmin(request, companyId);
+  requireCompanyAdmin(request, companyId);
   if (typeof enabled !== 'boolean') {
     throw new HttpsError('invalid-argument', 'enabled must be a boolean.');
   }

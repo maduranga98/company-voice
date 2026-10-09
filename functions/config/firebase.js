@@ -83,6 +83,7 @@ function increment(value) {
 module.exports = {
   admin,
   db,
+  FieldValue,
   COLLECTIONS,
   ROLES,
   getCollection,
