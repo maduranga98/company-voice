@@ -4,6 +4,7 @@
  */
 
 const admin = require('firebase-admin');
+const { FieldValue } = require('firebase-admin/firestore');
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -67,7 +68,7 @@ function getDocument(collectionName, docId) {
  * @returns {FirebaseFirestore.FieldValue}
  */
 function serverTimestamp() {
-  return admin.firestore.FieldValue.serverTimestamp();
+  return FieldValue.serverTimestamp();
 }
 
 /**
@@ -76,7 +77,7 @@ function serverTimestamp() {
  * @returns {FirebaseFirestore.FieldValue}
  */
 function increment(value) {
-  return admin.firestore.FieldValue.increment(value);
+  return FieldValue.increment(value);
 }
 
 module.exports = {

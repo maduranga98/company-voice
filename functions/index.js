@@ -55,6 +55,16 @@ const {
   generateAuthToken,
 } = require('./api/authApi');
 
+// Public Report API (no-login report line)
+const {
+  getPublicReportConfig,
+  submitPublicReport,
+  ensureReportSlug,
+  setReportingEnabled,
+} = require('./api/publicReportApi');
+
+const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
+
 // Webhooks - COMMENTED OUT FOR NOW
 // const { handleStripeWebhook } = require('./webhooks/stripeWebhook');
 
@@ -125,3 +135,10 @@ exports.getUnreadCount = getUnreadCount;
 
 // Export Auth Functions
 exports.generateAuthToken = generateAuthToken;
+
+// Export Public Report Functions
+exports.getPublicReportConfig = getPublicReportConfig;
+exports.submitPublicReport = submitPublicReport;
+exports.ensureReportSlug = ensureReportSlug;
+exports.setReportingEnabled = setReportingEnabled;
+exports.cleanupPublicReports = cleanupPublicReports;
