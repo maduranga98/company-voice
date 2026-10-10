@@ -71,11 +71,11 @@ Branch: `rework/public-report-form` (local), pushed to `claude/kind-hypatia-onwd
 - `postActivities`: `{postId, companyId, type:"created", actor:"public_reporter", metadata:{source, actor}, createdAt}`.
 
 ### Cloud functions (`functions/api/publicReportApi.js`, all v2 `onCall`, `enforceAppCheck: true`, CORS for the portal domain; any origin only inside the emulator)
-- `getPublicReportConfig({slug})`: identical `not-found` for malformed, unknown, inactive slug, disabled company or slug mismatch. Returns `companyName, defaultLanguage, categories, limits, turnstileRequired`; never `companyId`.
-- `submitPublicReport(...)`: also takes `uploadId` and `idempotencyToken` (client generated). Order: validate → Turnstile (fail closed) → resolve slug → verify pending files (exist, ≤10 MB, MIME allowlist **and magic bytes match**) → claim idempotency token → per-IP (5/h) and per-company (50/day) limits → move files to `companies/{companyId}/cases/{postId}/` with generic names → one transaction creating post + `caseAccess` + activity with case-code collision retry → notifications (company_admin, plus hr unless `involvesHR`). Returns only `{caseCode, secretKey}`. Failures release the idempotency token so the reporter can retry; moved files are deleted if the transaction fails.
+- `getPublicReportConfig({slug})`: identical `not-found` for malformed, unknown, inactive slug, disabled company or slug mismatch. Returns `companyName, defaultLanguage, categories, limits`; never `companyId`.
+- `submitPublicReport(...)`: also takes `uploadId` and `idempotencyToken` (client generated). Order: validate (including the honeypot and minimum-fill-time checks) → resolve slug → verify pending files (exist, ≤10 MB, MIME allowlist **and magic bytes match**) → claim idempotency token → per-IP (5/h) and per-company (50/day) limits → move files to `companies/{companyId}/cases/{postId}/` with generic names → one transaction creating post + `caseAccess` + activity with case-code collision retry → notifications (company_admin, plus hr unless `involvesHR`). Returns only `{caseCode, secretKey}`. Failures release the idempotency token so the reporter can retry; moved files are deleted if the transaction fails.
 - `ensureReportSlug({companyId, rotate?})`, `setReportingEnabled({companyId, enabled})`: company_admin of that company or super_admin.
 - `cleanupPublicReports` (`functions/scheduled/publicReportJobs.js`, every 6 h): deletes pending files older than 24 h and expired `rateLimits`.
-- Helpers: `utils/caseKeys.js`, `utils/rateLimit.js`, `utils/reportSlugs.js`, `utils/publicReportValidation.js`, `utils/turnstile.js`, `config/publicReports.js`.
+- Helpers: `utils/caseKeys.js`, `utils/rateLimit.js`, `utils/reportSlugs.js`, `utils/publicReportValidation.js`, `config/publicReports.js`.
 - `functions/config/firebase.js`: `serverTimestamp()`/`increment()` now use `FieldValue` from `firebase-admin/firestore` (the `admin.firestore.FieldValue` form was `undefined` in the Functions emulator).
 
 ### Scripts (not run)
@@ -94,15 +94,15 @@ Branch: `rework/public-report-form` (local), pushed to `claude/kind-hypatia-onwd
 ## 3. Verification done
 
 Run against the Firebase emulators (nothing deployed):
-- `functions/test/emulator/e2e.emulator.mjs` (functions + firestore + storage + auth): 33/33 checks pass: end-to-end submit, pending file moved and original deleted, `caseAccess` holds only a hash, case matches the post shape, contact stored encrypted only, activity actor, notifications (admin+hr; admin only for `involvesHR`), duplicate token rejected, **6th submission from the same hashed IP rejected** (`resource-exhausted`), Turnstile failure rejected, file with mismatching bytes rejected, missing pending file rejected, path outside the upload folder rejected, **bad slug / disabled company / inactive slug / malformed slug return identical errors** (also on submit), no raw IP or key in server-only collections, rotate/enable/disable and authorization of the slug callables.
+- `functions/test/emulator/e2e.emulator.mjs` (functions + firestore + storage + auth): 33/33 checks pass: end-to-end submit, pending file moved and original deleted, `caseAccess` holds only a hash, case matches the post shape, contact stored encrypted only, activity actor, notifications (admin+hr; admin only for `involvesHR`), duplicate token rejected, **6th submission from the same hashed IP rejected** (`resource-exhausted`), filled honeypot and too-fast submission rejected, file with mismatching bytes rejected, missing pending file rejected, path outside the upload folder rejected, **bad slug / disabled company / inactive slug / malformed slug return identical errors** (also on submit), no raw IP or key in server-only collections, rotate/enable/disable and authorization of the slug callables.
 - `functions/test/emulator/rules.emulator.mjs`: hr cannot read or update an `involvesHR` post; company_admin can; hr unfiltered company query is rejected and the `involvesHR==false` query works; employees and other companies cannot read posts; unauthenticated cannot read `caseAccess`, `reportSlugs`, `rateLimits` or `posts`; company_admin cannot write `reportSlug`; storage: pending upload accepts allowed type, rejects bad MIME, oversize and short `uploadId`; no read of pending or case files. One check **fails on the emulator only**: re-uploading to an existing pending path succeeds because the Storage emulator doesn't treat it as an update; verify against the real bucket.
-- Browser run (Playwright, mocked callables and Turnstile): neutral inactive page, no redirect to `/login`, validation, client-side file type/size rejection, double click submits once, success screen, copy and download, state cleared after Done, language switching (en/fr/si), no uncaught errors, no third-party requests other than Turnstile.
+- Browser run (Playwright, mocked callables): neutral inactive page, no redirect to `/login`, validation, client-side file type/size rejection, double click submits once, success screen, copy and download, state cleared after Done, language switching (en/fr/si), no uncaught errors, no third-party requests at all.
 - Unit tests: `cd functions && npm test` (20 tests: case keys, rate limit transaction logic, slugs, validation, magic bytes).
 - `npm run build` passes; `npm run lint` 140 problems vs 273 baseline, none in new files.
 
 ### Not verified
 - **`CompanyQRCode.jsx` was not exercised in a browser** (needs an authenticated company_admin session). Build and lint pass; test checklist below.
-- Real Turnstile, real App Check and reCAPTCHA, real Cloud Storage and a deployed Functions runtime were not available.
+- Real App Check and reCAPTCHA, real Cloud Storage and a deployed Functions runtime were not available.
 - Evidence upload progress against the real Storage backend (the browser run mocked the callables only; files were exercised through the emulator by the e2e script).
 
 ### Manual checklist
@@ -121,7 +121,7 @@ Run against the Firebase emulators (nothing deployed):
 ## 5. Known limitations of this implementation
 - A lost submit response cannot be recovered: a retry with the same idempotency token returns `already-exists` and the key is never shown again (by design; the alternative would mean storing a recoverable key). The UI tells the reporter to submit again.
 - IPs are hashed with a static salt; IPv4 is small enough to brute-force if both the salt secret and a `rateLimits` doc leak. Docs live ≤1 day (company counter ≤24 h).
-- The per-company 50/day cap can be used to exhaust a company's quota by anyone who passes Turnstile.
+- The per-company 50/day cap can be used to exhaust a company's quota by anyone who gets past App Check; there is no CAPTCHA, so App Check, the per-IP limit and the honeypot are the only barriers.
 - EXIF and other file metadata in uploaded photos is not stripped (file names are replaced).
 - `x-forwarded-for` is taken from the platform (`rawRequest.ip`); fine behind Google's front end, not behind an arbitrary proxy.
 - iPhone HEIC photos aren't accepted (the camera button asks for JPEG/PNG/WebP, which iOS converts).
@@ -131,7 +131,6 @@ Run against the Firebase emulators (nothing deployed):
 Secrets (Functions v2 secrets; for the emulator put the same names in `functions/.secret.local`, which is git-ignored):
 ```
 firebase functions:secrets:set ANONYMOUS_SECRET   # must equal the VITE_ANONYMOUS_SECRET baked into the client build
-firebase functions:secrets:set TURNSTILE_SECRET   # Cloudflare Turnstile secret key
 firebase functions:secrets:set CASE_KEY_PEPPER    # e.g. node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 firebase functions:secrets:set IP_HASH_SALT       # same generator; keep it stable or rate-limit history resets
 ```
@@ -140,8 +139,18 @@ Console and deploy order:
 1. Run `scripts/backfillInvolvesHR.js` (dry run, then `--apply`) and `scripts/backfillReportSlugs.js`.
 2. Deploy functions (`getPublicReportConfig`, `submitPublicReport`, `ensureReportSlug`, `setReportingEnabled`, `cleanupPublicReports`), then `firestore.rules` and `storage.rules`, then hosting.
 3. App Check: register the web app with reCAPTCHA v3, set `VITE_APPCHECK_SITE_KEY`, add the debug token for dev. **Enforce App Check for Cloud Functions, Firestore and Cloud Storage in the console.** Storage enforcement matters for the public upload path (the rules allow unauthenticated creates). Enforcing Firestore/Storage affects the rest of the app, so make sure every client has App Check initialised first.
-4. Turnstile: create a widget, set `VITE_TURNSTILE_SITE_KEY`, add the portal domain (and the Firebase hosting domains) to its allowed domains.
-5. Set `VITE_PUBLIC_APP_URL` (production: `https://portal.voxwel.com`).
-6. TTL: enable a Firestore TTL policy on `rateLimits.expiresAt`: `gcloud firestore fields ttls update expiresAt --collection-group=rateLimits --enable-ttl`. The scheduled job is the fallback. Optionally add a Cloud Storage lifecycle rule (delete objects older than 1 day with prefix `public-reports/pending/`).
+4. Set `VITE_PUBLIC_APP_URL` (production: `https://portal.voxwel.com`).
+5. TTL: enable a Firestore TTL policy on `rateLimits.expiresAt`: `gcloud firestore fields ttls update expiresAt --collection-group=rateLimits --enable-ttl`. The scheduled job is the fallback. Optionally add a Cloud Storage lifecycle rule (delete objects older than 1 day with prefix `public-reports/pending/`).
 7. Add the new CORS origins if the portal domain differs from `portal.voxwel.com`/`voxwel.com`/`<project>.web.app` (edit `PORTAL_ORIGINS` in `publicReportApi.js`).
 8. `firebase.json`: I added the Auth emulator port so the e2e script can sign in; no deploy impact.
+
+## 7. Anti-spam without a CAPTCHA (Turnstile removed)
+
+Cloudflare Turnstile is no longer used: no widget, no `VITE_TURNSTILE_SITE_KEY`, no `TURNSTILE_SECRET`, and the form loads no third-party script. Remaining defences, in order of strength:
+
+1. **App Check (reCAPTCHA v3)** on every public callable. This is the main bot filter.
+2. **Rate limits**: 5 submissions per hashed IP per hour, 50 per company per day, single-use idempotency token.
+3. **Honeypot field** (`website`) and a **3 second minimum time on the form** (`elapsedMs`), both checked server-side. A script can forge these, so they only stop casual bots.
+4. Server-side validation, MIME sniffing and a 10 MB, 5-file limit.
+
+Known gap: a determined attacker with valid App Check tokens can use up a company's 50/day quota and block real reports. If that happens, raise the quota, rotate the report link from the QR page, or add a proof-of-work challenge (self-hosted, no third party).

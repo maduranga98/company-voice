@@ -3,15 +3,13 @@
  * (functions, firestore, storage, auth). Nothing is deployed.
  *
  * From a scratch dir that has `firebase` and `firebase-tools` installed:
- *   TURNSTILE_VERIFY_URL=http://127.0.0.1:9998 \
  *   npx firebase emulators:exec --only functions,firestore,storage,auth --project demo-voxwel \
  *     --config <repo>/firebase.json "node e2e.emulator.mjs"
  *
- * Needs functions/.secret.local with the four secrets (gitignored) and REPO_ROOT set.
+ * Needs functions/.secret.local with the three secrets (gitignored) and REPO_ROOT set.
  */
 
 import crypto from "node:crypto";
-import http from "node:http";
 import { createRequire } from "node:module";
 import { initializeApp } from "firebase/app";
 import { getStorage, connectStorageEmulator, ref, uploadBytes } from "firebase/storage";
@@ -25,18 +23,6 @@ const BUCKET = `${PROJECT}.appspot.com`;
 const FN = `http://127.0.0.1:5001/${PROJECT}/us-central1`;
 process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
 process.env.FIREBASE_STORAGE_EMULATOR_HOST = "127.0.0.1:9199";
-
-// Stand-in for Cloudflare: only the token "ok-token" passes.
-const turnstile = http.createServer((req, res) => {
-  let body = "";
-  req.on("data", (c) => (body += c));
-  req.on("end", () => {
-    const ok = new URLSearchParams(body).get("response") === "ok-token";
-    res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify({ success: ok }));
-  });
-});
-await new Promise((r) => turnstile.listen(9998, "127.0.0.1", r));
 
 admin.initializeApp({ projectId: PROJECT, storageBucket: BUCKET });
 const db = admin.firestore();
@@ -85,7 +71,8 @@ const base = (extra = {}) => ({
   description: "The loading dock has no guard rail and someone will fall off it.",
   involvesHR: false,
   idempotencyToken: rid(24),
-  turnstileToken: "ok-token",
+  website: "",
+  elapsedMs: 30000,
   clientLang: "en",
   ...extra,
 });
@@ -117,8 +104,10 @@ const badSubmit = await call("submitPublicReport", base({ slug: "off-inc-aaaa" }
 check("submit to a disabled company returns the same not-found error", JSON.stringify(badSubmit.error) === JSON.stringify(bad.error), JSON.stringify(badSubmit));
 
 // ---- B. submit: rejections (these must not consume the 5/hour budget)
-const ts = await call("submitPublicReport", base({ turnstileToken: "bad-token" }));
-check("turnstile failure rejected", ts.error?.status === "FAILED_PRECONDITION", JSON.stringify(ts));
+const trap = await call("submitPublicReport", base({ website: "http://spam.example" }));
+check("filled honeypot rejected", trap.error?.status === "INVALID_ARGUMENT", JSON.stringify(trap));
+const fast = await call("submitPublicReport", base({ elapsedMs: 400 }));
+check("form submitted too fast rejected", fast.error?.status === "INVALID_ARGUMENT", JSON.stringify(fast));
 const short = await call("submitPublicReport", base({ description: "too short" }));
 check("short description rejected", short.error?.status === "INVALID_ARGUMENT");
 
@@ -215,6 +204,5 @@ check("new link works", !!(await call("getPublicReportConfig", { slug: rotated.r
 const toggled = await call("setReportingEnabled", { companyId: "c1", enabled: false }, adminAuth.token);
 check("disable reporting", toggled.result?.enabled === false && (await call("getPublicReportConfig", { slug: rotated.result.slug })).error?.status === "NOT_FOUND");
 
-turnstile.close();
 console.log(failures ? `${failures} FAILED` : "ALL PASSED");
 process.exit(failures ? 1 : 0);

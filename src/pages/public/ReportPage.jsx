@@ -6,7 +6,6 @@ import ReportHeader from "../../components/public/ReportHeader";
 import TypeSelector from "../../components/public/TypeSelector";
 import EvidenceUploader from "../../components/public/EvidenceUploader";
 import ContactSection from "../../components/public/ContactSection";
-import TurnstileWidget from "../../components/public/TurnstileWidget";
 import SuccessScreen from "../../components/public/SuccessScreen";
 import InactiveLink from "../../components/public/InactiveLink";
 import { REPORT_LANGUAGES } from "../../utils/reportLanguages";
@@ -66,6 +65,7 @@ const ReportPage = () => {
   const [status, setStatus] = useState("loading"); // loading | ready | inactive
   const [uploadId, setUploadId] = useState(createReportToken);
   const idempotencyToken = useRef(createReportToken());
+  const openedAt = useRef(Date.now());
   const submitting = useRef(false);
 
   const [type, setType] = useState("");
@@ -73,9 +73,7 @@ const ReportPage = () => {
   const [description, setDescription] = useState("");
   const [involvesHR, setInvolvesHR] = useState(false);
   const [contact, setContact] = useState(EMPTY_CONTACT);
-  const [turnstileToken, setTurnstileToken] = useState("");
-  const [turnstileReset, setTurnstileReset] = useState(0);
-  const [turnstileFailed, setTurnstileFailed] = useState(false);
+  const [website, setWebsite] = useState(""); // honeypot: real people never see or fill this
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [credentials, setCredentials] = useState(null);
@@ -103,23 +101,17 @@ const ReportPage = () => {
     };
   }, [slug, i18n]);
 
-  const handleToken = useCallback((token) => {
-    setTurnstileToken(token);
-    setTurnstileFailed(false);
-  }, []);
-  const handleTurnstileError = useCallback(() => setTurnstileFailed(true), []);
-
   const clearForm = useCallback(() => {
     setType("");
     setCategory("");
     setDescription("");
     setInvolvesHR(false);
     setContact(EMPTY_CONTACT);
-    setTurnstileToken("");
-    setTurnstileReset((n) => n + 1);
+    setWebsite("");
     resetUploads();
     setUploadId(createReportToken());
     idempotencyToken.current = createReportToken();
+    openedAt.current = Date.now();
   }, [resetUploads]);
 
   const handleDone = () => {
@@ -135,7 +127,6 @@ const ReportPage = () => {
     !!category &&
     trimmedLength >= MIN_DESCRIPTION &&
     trimmedLength <= MAX_DESCRIPTION &&
-    !!turnstileToken &&
     !uploads.uploading &&
     !uploads.failed &&
     !busy;
@@ -164,7 +155,8 @@ const ReportPage = () => {
         attachments: paths,
         ...(paths.length > 0 ? { uploadId } : {}),
         idempotencyToken: idempotencyToken.current,
-        turnstileToken,
+        website,
+        elapsedMs: Date.now() - openedAt.current,
         clientLang: (i18n.resolvedLanguage || i18n.language || "en").slice(0, 2),
       });
       setCredentials({ caseCode: result.caseCode, secretKey: result.secretKey });
@@ -175,9 +167,6 @@ const ReportPage = () => {
       if (key === "report.errors.inactive") setStatus("inactive");
       setError(key);
     } finally {
-      // Turnstile tokens are single use.
-      setTurnstileToken("");
-      setTurnstileReset((n) => n + 1);
       setBusy(false);
       submitting.current = false;
     }
@@ -276,19 +265,18 @@ const ReportPage = () => {
 
             <ContactSection value={contact} onChange={setContact} />
 
-            <div>
-              <p className="mb-1.5 text-xs font-medium text-gray-500">{t("report.verification.label")}</p>
-              <TurnstileWidget
-                onToken={handleToken}
-                onError={handleTurnstileError}
-                resetKey={turnstileReset}
-                language={(i18n.resolvedLanguage || "en").slice(0, 2)}
+            {/* Honeypot: hidden from people and assistive tech, so only bots fill it. */}
+            <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+              <label htmlFor="report-website">Website</label>
+              <input
+                id="report-website"
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
               />
-              {turnstileFailed && (
-                <p role="alert" className="mt-1 text-sm text-[#FF6B6B]">
-                  {t("report.errors.verification")}
-                </p>
-              )}
             </div>
 
             {error && (

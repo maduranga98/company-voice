@@ -1493,9 +1493,6 @@
       "email": "Email",
       "phone": "Telefono"
     },
-    "verification": {
-      "label": "Controllo di sicurezza"
-    },
     "submit": {
       "button": "Invia segnalazione",
       "sending": "Invio in corso…",

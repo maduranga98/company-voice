@@ -13,6 +13,9 @@ const {
 } = require('../config/publicReports');
 const { SLUG_PATTERN } = require('./reportSlugs');
 
+// Minimum time a person needs on the form before submitting.
+const MIN_FILL_MS = 3000;
+
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HTML_TAG = /<\/?[a-zA-Z!][^>]*>/g;
@@ -106,8 +109,16 @@ function validateSubmission(data) {
   if (typeof data.idempotencyToken !== 'string' || !TOKEN_PATTERN.test(data.idempotencyToken)) {
     throw new ValidationError('idempotencyToken');
   }
-  if (typeof data.turnstileToken !== 'string' || !data.turnstileToken || data.turnstileToken.length > 4096) {
-    throw new ValidationError('turnstileToken');
+  // Bot traps, checked together with App Check and rate limits. The honeypot field must be
+  // empty and a human needs a few seconds on the form. Scripts can forge both, so these only
+  // cut casual spam and are not a security boundary.
+  if (data.website !== undefined && data.website !== '') throw new ValidationError('honeypot');
+  if (
+    typeof data.elapsedMs !== 'number' ||
+    !Number.isFinite(data.elapsedMs) ||
+    data.elapsedMs < MIN_FILL_MS
+  ) {
+    throw new ValidationError('elapsedMs');
   }
 
   return {
@@ -120,7 +131,6 @@ function validateSubmission(data) {
     attachmentPaths: validateAttachments(data.attachments, data.uploadId),
     uploadId: data.uploadId,
     idempotencyToken: data.idempotencyToken,
-    turnstileToken: data.turnstileToken,
     clientLang: LANGUAGES.includes(data.clientLang) ? data.clientLang : 'en',
   };
 }

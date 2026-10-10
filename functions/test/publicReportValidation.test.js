@@ -16,7 +16,8 @@ const valid = () => ({
   description: 'The loading dock has no guard rail and someone will fall.',
   involvesHR: false,
   idempotencyToken: 'tok_abcdefghijklmnop',
-  turnstileToken: 'cf-token',
+  website: '',
+  elapsedMs: 45000,
   clientLang: 'fr',
 });
 
@@ -32,6 +33,15 @@ test('accepts a valid submission and normalizes it', () => {
   assert.strictEqual(out.clientLang, 'fr');
   assert.deepStrictEqual(out.attachmentPaths, []);
   assert.strictEqual(out.contact, null);
+});
+
+test('rejects a filled honeypot and a form submitted too fast', () => {
+  rejects({ website: 'http://spam.example' }, 'honeypot');
+  rejects({ elapsedMs: 500 }, 'elapsedMs');
+  rejects({ elapsedMs: undefined }, 'elapsedMs');
+  rejects({ elapsedMs: '45000' }, 'elapsedMs');
+  rejects({ elapsedMs: NaN }, 'elapsedMs');
+  assert.doesNotThrow(() => validateSubmission({ ...valid(), website: undefined }));
 });
 
 test('rejects bad enums, short and long descriptions', () => {
