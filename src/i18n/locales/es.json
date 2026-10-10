@@ -103,7 +103,12 @@
       "companyLoadFailed": "No se pudo cargar la información de la empresa.",
       "registrationPending": "¡Registro exitoso! Tu cuenta está pendiente de aprobación por el administrador de la empresa."
     },
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "accountInactive": {
+      "title": "Esta cuenta ya no está activa",
+      "message": "Esta cuenta ya no está activa. Contacte con el administrador de su empresa si cree que se trata de un error.",
+      "backToSignIn": "Volver a iniciar sesión"
+    }
   },
   "navigation": {
     "dashboard": "Panel de Control",

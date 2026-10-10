@@ -12,6 +12,7 @@ const DepartmentDetails = () => {
 
   useEffect(() => {
     loadDepartmentDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadDepartmentDetails = async () => {
@@ -319,7 +320,7 @@ const DepartmentDetails = () => {
                             : "bg-gray-100 text-gray-700"
                         }`}
                       >
-                        {member.role === "company_admin" ? "Admin" : "Employee"}
+                        {member.role === "company_admin" ? "Admin" : member.role === "hr" ? "HR" : member.role}
                       </span>
                     </div>
                   </div>

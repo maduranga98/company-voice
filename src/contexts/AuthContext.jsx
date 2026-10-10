@@ -11,10 +11,14 @@ const AuthContext = createContext();
 const publicReportRoute = isPublicReportRoute();
 
 const STAFF_ROLES = ["super_admin", "company_admin", "hr"];
+
+/** A signed-in user whose role is not a staff role (for example a retired account type). */
+class InactiveAccountError extends Error {}
 // ID tokens last an hour; forcing a refresh surfaces revoked sessions (suspension, password reset,
 // role change) within minutes instead of at the next hourly refresh.
 const REVALIDATE_MS = 5 * 60 * 1000;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -30,6 +34,7 @@ export const useAuth = () => {
 const loadStaffProfile = async (firebaseUser) => {
   const token = await firebaseUser.getIdTokenResult();
   const role = token.claims.role;
+  if (role && !STAFF_ROLES.includes(role)) throw new InactiveAccountError();
   if (!STAFF_ROLES.includes(role)) return null;
 
   const snap = await getDoc(doc(db, "users", firebaseUser.uid));
@@ -47,6 +52,7 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [inactiveAccount, setInactiveAccount] = useState(false);
   const hydrating = useRef(Promise.resolve());
 
   const applyProfile = useCallback((profile) => {
@@ -66,7 +72,8 @@ export const AuthProvider = ({ children }) => {
           applyProfile(profile);
           return profile;
         } catch (error) {
-          console.error("Error restoring user session:", error);
+          if (error instanceof InactiveAccountError) setInactiveAccount(true);
+          else console.error("Error restoring user session:", error);
           await signOut(auth).catch(() => {});
           applyProfile(null);
           return null;
@@ -97,6 +104,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     await loginWithUsernamePassword(username, password);
+    setInactiveAccount(false);
     const profile = await hydrate(auth.currentUser);
     if (!profile) throw new Error("Could not start your session. Please try again.");
     return profile;
@@ -119,6 +127,8 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     userData,
     loading,
+    inactiveAccount,
+    dismissInactiveAccount: () => setInactiveAccount(false),
     login,
     logout,
     refreshUserData,

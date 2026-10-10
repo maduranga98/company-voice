@@ -103,7 +103,12 @@
       "companyLoadFailed": "Impossible de charger les informations de l'entreprise.",
       "registrationPending": "Inscription réussie ! Votre compte est en attente d'approbation de l'administrateur de votre entreprise."
     },
-    "logout": "Se Déconnecter"
+    "logout": "Se Déconnecter",
+    "accountInactive": {
+      "title": "Ce compte n'est plus actif",
+      "message": "Ce compte n'est plus actif. Contactez l'administrateur de votre entreprise si vous pensez qu'il s'agit d'une erreur.",
+      "backToSignIn": "Retour à la connexion"
+    }
   },
   "navigation": {
     "dashboard": "Tableau de Bord",

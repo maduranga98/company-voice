@@ -70,7 +70,7 @@ service cloud.firestore {
       return data.involvesHR == false;
     }
 
-    // Check if the user may read a post document (admins and HR only; no employee access)
+    // Check if the user may read a post document (staff only: super_admin, company_admin, hr)
     function canReadPost(data) {
       return isSuperAdmin()
         || (getUserRole() in ['company_admin', 'hr']

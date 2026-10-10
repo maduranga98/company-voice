@@ -17,7 +17,6 @@ export const UserRole = {
   SUPER_ADMIN: "super_admin",
   COMPANY_ADMIN: "company_admin",
   HR: "hr",
-  EMPLOYEE: "employee",
 };
 
 // User status
@@ -598,16 +597,6 @@ export const NotificationType = {
   STRIKE_RECEIVED: "strike_received",
   ACCOUNT_RESTRICTED: "account_restricted",
   ACCOUNT_SUSPENDED: "account_suspended",
-};
-
-// Reaction types
-export const ReactionType = {
-  LIKE: "like",
-  LOVE: "love",
-  CELEBRATE: "celebrate",
-  SUPPORT: "support",
-  INSIGHTFUL: "insightful",
-  CONCERNED: "concerned",
 };
 
 // ============================================

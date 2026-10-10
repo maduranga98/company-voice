@@ -103,7 +103,12 @@
       "companyLoadFailed": "Failed to load company information.",
       "registrationPending": "Registration successful! Your account is pending approval from your company admin."
     },
-    "logout": "Sign Out"
+    "logout": "Sign Out",
+    "accountInactive": {
+      "title": "This account is no longer active",
+      "message": "This account is no longer active. Contact your company administrator if you think this is a mistake.",
+      "backToSignIn": "Back to sign in"
+    }
   },
   "navigation": {
     "dashboard": "Dashboard",

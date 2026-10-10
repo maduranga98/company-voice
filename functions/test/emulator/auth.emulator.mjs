@@ -150,7 +150,7 @@ const stateCases = [
   ["dana", "DanaPass12!", /deactivated/, "deactivated"],
   ["ivy", "IvyPass123!", /pending activation/, "invited"],
   ["oscar", "OscarPass1!", /company account is deactivated/, "inactive company"],
-  ["eddie", "EddiePass1!", /deactivated/, "employee role"],
+  ["eddie", "EddiePass1!", /no longer active/, "employee role"],
 ];
 for (const [name, pw, re, label] of stateCases) {
   const good = await call("login", { username: name, password: pw });

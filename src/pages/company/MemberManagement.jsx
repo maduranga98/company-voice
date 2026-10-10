@@ -8,7 +8,6 @@ import {
   where,
   getDocs,
   updateDoc,
-  deleteDoc,
   doc,
   serverTimestamp,
   writeBatch,
@@ -21,7 +20,7 @@ import {
   getDepartments,
   assignUserToDepartment,
 } from "../../services/departmentservice";
-import { showSuccess, showError, showWarning } from "../../services/toastService";
+import { showSuccess, showError } from "../../services/toastService";
 
 const MemberManagement = () => {
   const { t } = useTranslation();
@@ -43,17 +42,9 @@ const MemberManagement = () => {
   const [showRemovedSection, setShowRemovedSection] = useState(false);
   const [selectedRemovedIds, setSelectedRemovedIds] = useState([]);
 
-  // Check URL params for filter
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const filterParam = params.get("filter");
-    if (filterParam === "pending") {
-      setSelectedStatus("pending");
-    }
-  }, []);
-
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
   const loadData = async () => {
@@ -79,7 +70,6 @@ const MemberManagement = () => {
         const roleOrder = {
           [UserRole.COMPANY_ADMIN]: 1,
           [UserRole.HR]: 2,
-          [UserRole.EMPLOYEE]: 3,
         };
         if (roleOrder[a.role] !== roleOrder[b.role]) {
           return (roleOrder[a.role] || 99) - (roleOrder[b.role] || 99);
@@ -160,48 +150,6 @@ const MemberManagement = () => {
     } catch (error) {
       console.error("Error assigning department:", error);
       showError(t('company.failedToAssignDepartment'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleApproveMember = async (memberId) => {
-    if (!confirm(t('company.confirmApproveMember'))) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await setUserStatus(memberId, "active");
-
-      showSuccess(t('company.memberApproved'));
-      // Reset filter so approved members are visible in "all" view
-      setSelectedStatus("all");
-      loadData();
-    } catch (error) {
-      console.error("Error approving member:", error);
-      showError(t('company.failedToApproveMember'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRejectMember = async (memberId) => {
-    if (
-      !confirm(t('company.confirmRejectMember'))
-    ) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await setUserStatus(memberId, "rejected");
-
-      showSuccess(t('company.memberRejected'));
-      loadData();
-    } catch (error) {
-      console.error("Error rejecting member:", error);
-      showError(t('company.failedToRejectMember'));
     } finally {
       setLoading(false);
     }
@@ -394,12 +342,8 @@ const MemberManagement = () => {
         classes: "bg-blue-100 text-blue-800",
       },
       [UserRole.HR]: { label: "HR", classes: "bg-green-100 text-green-800" },
-      [UserRole.EMPLOYEE]: {
-        label: "Employee",
-        classes: "bg-gray-100 text-gray-800",
-      },
     };
-    const config = roleConfig[role] || roleConfig[UserRole.EMPLOYEE];
+    const config = roleConfig[role] || { label: role || "-", classes: "bg-gray-100 text-gray-800" };
     return (
       <span
         className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${config.classes}`}
@@ -498,7 +442,7 @@ const MemberManagement = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.totalMembers')}</p>
             <p className="text-2xl font-bold text-gray-900">{members.length}</p>
@@ -507,12 +451,6 @@ const MemberManagement = () => {
             <p className="text-sm text-gray-600">{t('company.activeMembers')}</p>
             <p className="text-2xl font-bold text-green-600">
               {members.filter((m) => m.status === "active").length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-yellow-200">
-            <p className="text-sm text-gray-600">{t('company.pendingApprovals')}</p>
-            <p className="text-2xl font-bold text-yellow-600">
-              {members.filter((m) => m.status === "pending").length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
@@ -566,7 +504,6 @@ const MemberManagement = () => {
               <option value="all">{t('company.allRoles')}</option>
               <option value={UserRole.COMPANY_ADMIN}>{t('company.roleAdmin')}</option>
               <option value={UserRole.HR}>{t('company.roleHR')}</option>
-              <option value={UserRole.EMPLOYEE}>{t('company.roleEmployee')}</option>
             </select>
           </div>
 
@@ -622,7 +559,6 @@ const MemberManagement = () => {
             >
               <option value="all">{t('company.allStatus')}</option>
               <option value="active">{t('company.statusActive')}</option>
-              <option value="pending">{t('company.pendingApprovals')}</option>
             </select>
           </div>
         </div>
@@ -674,11 +610,7 @@ const MemberManagement = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div
-                          className={`w-10 h-10 ${
-                            member.status === "pending"
-                              ? "bg-yellow-500"
-                              : "bg-blue-600"
-                          } rounded-full flex items-center justify-center text-white font-medium flex-shrink-0`}
+                          className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0"
                         >
                           {member.displayName?.charAt(0).toUpperCase() || "?"}
                         </div>
@@ -687,16 +619,8 @@ const MemberManagement = () => {
                             {member.displayName || "Unnamed"}
                           </div>
                           <div className="text-xs">
-                            <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                member.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-green-100 text-green-800"
-                              }`}
-                            >
-                              {member.status === "pending"
-                                ? t('company.pendingApprovals')
-                                : t('company.statusActive')}
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                              {t('company.statusActive')}
                             </span>
                           </div>
                         </div>
@@ -769,66 +693,49 @@ const MemberManagement = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {member.status === "pending" ? (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleApproveMember(member.id)}
-                            className="text-green-600 hover:text-green-800 font-medium px-3 py-1 border border-green-300 rounded-lg hover:bg-green-50"
-                          >
-                            {t('company.approve')}
-                          </button>
-                          <button
-                            onClick={() => handleRejectMember(member.id)}
-                            className="text-red-600 hover:text-red-800 font-medium px-3 py-1 border border-red-300 rounded-lg hover:bg-red-50"
-                          >
-                            {t('company.reject')}
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              setSelectedMember(member);
-                              setShowTagModal(true);
-                            }}
-                            className="text-indigo-600 hover:text-indigo-800 font-medium"
-                          >
-                            {memberTag ? t('company.tag') : t('company.assignTag')}
-                          </button>
-                          <span className="text-gray-300">|</span>
-                          <button
-                            onClick={() => {
-                              setSelectedMember(member);
-                              setShowDepartmentModal(true);
-                            }}
-                            className="text-blue-600 hover:text-blue-800 font-medium"
-                          >
-                            {memberDepartment ? t('company.dept') : t('company.assignDept')}
-                          </button>
-                          <span className="text-gray-300">|</span>
-                          <button
-                            onClick={() => {
-                              setSelectedMember(member);
-                              setShowRoleModal(true);
-                            }}
-                            className="text-purple-600 hover:text-purple-800 font-medium"
-                          >
-                            {t('company.changeRole', 'Role')}
-                          </button>
-                          <span className="text-gray-300">|</span>
-                          <ResetPasswordButton
-                            member={member}
-                            className="text-amber-600 hover:text-amber-800 font-medium"
-                          />
-                          <span className="text-gray-300">|</span>
-                          <button
-                            onClick={() => handleRemoveMember(member)}
-                            className="text-red-600 hover:text-red-800 font-medium"
-                          >
-                            {t('company.removeMember', 'Remove')}
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedMember(member);
+                            setShowTagModal(true);
+                          }}
+                          className="text-indigo-600 hover:text-indigo-800 font-medium"
+                        >
+                          {memberTag ? t('company.tag') : t('company.assignTag')}
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <button
+                          onClick={() => {
+                            setSelectedMember(member);
+                            setShowDepartmentModal(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          {memberDepartment ? t('company.dept') : t('company.assignDept')}
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <button
+                          onClick={() => {
+                            setSelectedMember(member);
+                            setShowRoleModal(true);
+                          }}
+                          className="text-purple-600 hover:text-purple-800 font-medium"
+                        >
+                          {t('company.changeRole', 'Role')}
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <ResetPasswordButton
+                          member={member}
+                          className="text-amber-600 hover:text-amber-800 font-medium"
+                        />
+                        <span className="text-gray-300">|</span>
+                        <button
+                          onClick={() => handleRemoveMember(member)}
+                          className="text-red-600 hover:text-red-800 font-medium"
+                        >
+                          {t('company.removeMember', 'Remove')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

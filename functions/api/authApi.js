@@ -51,6 +51,9 @@ async function loadCredential(userDoc) {
 
 /** Account-state checks. Only called after the password verified, so state is never leaked to guessers. */
 async function accountStateError(user) {
+  // Retired account types (such as the former employee role) cannot sign in whatever their status.
+  if (!STAFF_ROLES.includes(user.role)) return 'This account is no longer active.';
+
   if (user.status === 'suspended') {
     const until = toMillis(user.suspendedUntil);
     if (until > Date.now()) {
@@ -62,10 +65,6 @@ async function accountStateError(user) {
   } else if (user.status === 'invited') {
     return 'Your account is pending activation. Please check your email for the invitation link.';
   } else if (user.status !== 'active') {
-    return 'Your account has been deactivated. Please contact your company administrator or support.';
-  }
-
-  if (!STAFF_ROLES.includes(user.role)) {
     return 'Your account has been deactivated. Please contact your company administrator or support.';
   }
 

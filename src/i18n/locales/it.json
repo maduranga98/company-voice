@@ -103,7 +103,12 @@
       "companyLoadFailed": "Impossibile caricare le informazioni dell'azienda.",
       "registrationPending": "Registrazione avvenuta con successo! Il tuo account è in attesa di approvazione dal tuo amministratore aziendale."
     },
-    "logout": "Esci"
+    "logout": "Esci",
+    "accountInactive": {
+      "title": "Questo account non è più attivo",
+      "message": "Questo account non è più attivo. Contatta l'amministratore della tua azienda se ritieni che si tratti di un errore.",
+      "backToSignIn": "Torna all'accesso"
+    }
   },
   "navigation": {
     "dashboard": "Pannello di Controllo",
