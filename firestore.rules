@@ -78,6 +78,12 @@ service cloud.firestore {
             && (getUserRole() == 'company_admin' || isHRVisibleCase(data)));
     }
 
+    // True when the parent post exists and is visible to HR (involvesHR == false)
+    function hrCanSeePost(postId) {
+      return exists(/databases/$(database)/documents/posts/$(postId))
+        && get(/databases/$(database)/documents/posts/$(postId)).data.involvesHR == false;
+    }
+
     // Check if user is admin/HR in the given company
     function isAdminOrHRInCompany(companyId) {
       return isAdminOrHR() && (isSuperAdmin() || getUserCompanyId() == companyId);
@@ -254,11 +260,14 @@ service cloud.firestore {
     // - Users in the same company as the post can read/create comments
     // - Comment authors can update their own comments
     // - Admin/HR can update/delete any comment in their company
+    // - Staff notes on a post with involvesHR == true are readable by company_admin and
+    //   super_admin only; HR needs a parent post that is visible to HR (involvesHR == false)
     match /comments/{commentId} {
       allow read: if isAuthenticated()
         && (isSuperAdmin()
-            || getUserCompanyId() == resource.data.companyId
-            || (resource.data.isAdminComment == true && !('companyId' in resource.data)));
+            || ((getUserCompanyId() == resource.data.companyId
+                 || (resource.data.isAdminComment == true && !('companyId' in resource.data)))
+                && (!isHR() || hrCanSeePost(resource.data.postId))));
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);

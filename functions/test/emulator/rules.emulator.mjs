@@ -31,6 +31,8 @@ await env.withSecurityRulesDisabled(async (ctx) => {
   await setDoc(doc(db, "posts", "pPublicHR"), { companyId: "c1", involvesHR: true, privacyLevel: "hr_only" });
   await setDoc(doc(db, "posts", "pPublicOK"), { companyId: "c1", involvesHR: false, privacyLevel: "hr_only" });
   await setDoc(doc(db, "posts", "pLegacy"), { companyId: "c1", privacyLevel: "hr_only" });
+  await setDoc(doc(db, "comments", "nHR"), { postId: "pPublicHR", companyId: "c1", isAdminComment: true, text: "private note" });
+  await setDoc(doc(db, "comments", "nOK"), { postId: "pPublicOK", companyId: "c1", isAdminComment: true, text: "note" });
   await setDoc(doc(db, "posts", "pOtherCo"), { companyId: "c2", involvesHR: false });
   await setDoc(doc(db, "caseAccess", "VW-AAAA-BBBB"), { postId: "x", keyHash: "h" });
   await setDoc(doc(db, "reportSlugs", "acme-1234"), { companyId: "c1" });
@@ -43,6 +45,7 @@ const ctx = {
   hr: env.authenticatedContext("hr1", { role: "hr", companyId: "c1" }),
   admin: env.authenticatedContext("adm1", { role: "company_admin", companyId: "c1" }),
   hr2: env.authenticatedContext("hr2", { role: "hr", companyId: "c2" }),
+  admin2: env.authenticatedContext("adm2", { role: "company_admin", companyId: "c2" }),
   root: env.authenticatedContext("root1", { role: "super_admin", companyId: null }),
   anon: env.authenticatedContext("anon-attacker", { firebase: { sign_in_provider: "anonymous" } }),
   nobody: env.unauthenticatedContext(),
@@ -92,6 +95,17 @@ await check("company_admin cannot set reportSlug / isActive", assertFails(update
 await check("company_admin can update profile fields of own company", assertSucceeds(updateDoc(doc(fs("admin"), "companies", "c1"), { industry: "Retail" })));
 await check("super_admin can toggle isActive", assertSucceeds(updateDoc(doc(fs("root"), "companies", "c1"), { isActive: true })));
 await check("nobody creates or deletes companies from the client", assertFails(setDoc(doc(fs("root"), "companies", "cNew"), { name: "x" })) && assertFails(deleteDoc(doc(fs("root"), "companies", "c2"))));
+
+// ---- internal notes (comments): HR cannot read notes on involvesHR cases
+await check("hr cannot read a note on an involvesHR post", assertFails(getDoc(doc(fs("hr"), "comments", "nHR"))));
+await check("hr query for notes of an involvesHR post is rejected", assertFails(getDocs(query(collection(fs("hr"), "comments"), where("companyId", "==", "c1"), where("postId", "==", "pPublicHR")))));
+await check("hr reads a note on a normal post", assertSucceeds(getDoc(doc(fs("hr"), "comments", "nOK"))));
+await check("hr notes query for a normal post works", assertSucceeds(getDocs(query(collection(fs("hr"), "comments"), where("companyId", "==", "c1"), where("postId", "==", "pPublicOK")))));
+await check("company_admin reads a note on an involvesHR post", assertSucceeds(getDoc(doc(fs("admin"), "comments", "nHR"))));
+await check("company_admin notes query for an involvesHR post works", assertSucceeds(getDocs(query(collection(fs("admin"), "comments"), where("companyId", "==", "c1"), where("postId", "==", "pPublicHR")))));
+await check("super_admin reads a note on an involvesHR post", assertSucceeds(getDoc(doc(fs("root"), "comments", "nHR"))));
+await check("another company's admin cannot read the note", assertFails(getDoc(doc(fs("admin2"), "comments", "nHR"))));
+await check("unauthenticated cannot read notes", assertFails(getDoc(doc(fs("nobody"), "comments", "nOK"))));
 
 // ---- posts: company isolation and the involvesHR restriction are unchanged
 await check("hr cannot read involvesHR post", assertFails(getDoc(doc(fs("hr"), "posts", "pPublicHR"))));

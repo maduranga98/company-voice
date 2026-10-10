@@ -52,7 +52,7 @@ Pruning `postManagementService.js`: its only post-wall exports are `getPostsWith
 | `src/pages/QRCodeGenerator.jsx` (`/qr-generator`) | `App.jsx` only. It makes the credential QR images for QR login. |
 | `src/components/EmployeeLayout.jsx` | `App.jsx`, `RoleBasedLayout`. |
 | `src/pages/EmployeeMessages.jsx`, `EmployeeMessageThread.jsx` | `App.jsx` only. |
-| `src/components/RoleBasedLayout.jsx` | **Kept and simplified.** It also wraps shared routes (`/help`, `/policies`, `/vendor-risk`, `/templates`, `/notifications`). See the super_admin note below. |
+| `src/components/RoleBasedLayout.jsx` | Deleted. Shared staff routes now use `CompanyAdminLayout` directly (decision 5, section 12). |
 
 `Profile.jsx` and `Notifications.jsx` are shared with `/company/*` routes. They are not deleted. Only the `/employee/*` routes go.
 
@@ -170,9 +170,17 @@ Done as planned unless listed here.
 - The `firestore.rules` change is one comment. The rules were already staff-only, so there was nothing to tighten (section 0).
 
 ## 11. Not done, or needs the owner
-- `comments` rule lets HR read internal notes on involvesHR cases (section 4). Fix with a rule that checks the parent post, in the moderation/rules follow-up.
+- ~~`comments` rule lets HR read internal notes on involvesHR cases~~ Fixed in section 12 (decision 2).
 - `likes`, `comments`, `reactions` subcollection rules, the `discussions` and `bookmarks` rules, and the `posts` update clauses for `reactions`, `comments` and `reportCount` are left in place. They are unused by the app now.
 - `CompanyAnalytics` comment and engagement widgets, and `searchApi` `searchInComments`, still work but describe a feature that no longer exists.
 - Unmatched URLs (old `/feed/*`, `/register`, `/messages` bookmarks) render a blank page; there is no catch-all route. Adding one is a one-line follow-up.
 - `ModerationDashboard` and `ReportDetailView` still carry their old lint problems (2 each); only a `TODO(next-review)` comment was added.
 - Manual cleanup: legacy `employee` user documents (and their `userCredentials`), old anonymous Auth users, stale `authSessions` documents (`scripts/deleteAuthSessions.js`), and stored `isPinned`/`isArchived`/`reactions` fields on posts.
+
+## 12. Owner decisions applied
+1. **Lint gate.** `eslint.config.js` on main already lints `functions/` as CommonJS/Node, so no config commit was needed. Baseline on main is 133 problems; the branch is at 63. The only touched files with leftovers are `ModerationDashboard` and `ReportDetailView` (comment-only edits, unrelated lint left alone).
+2. **Internal notes.** `AdminActionPanel` lists the case's `isAdminComment` notes (query filtered by `companyId` and `postId`, sorted client-side) beside the add-note box. `addAdminComment` no longer notifies the author or bumps `posts.comments`, and the activity row no longer carries the note text. The dead `adminCommentCount` check is removed from the HR inbox. New `comments` read rule: company staff read as before, but HR also needs a parent post with `involvesHR == false` (`hrCanSeePost`), so notes on involvesHR cases are readable by company_admin and super_admin only. Emulator checks: HR denied (document and query) on an involvesHR case, HR allowed on a normal case, company_admin and super_admin allowed, other company and unauthenticated denied.
+3. **Finding 3.** `CaseRow` and `CaseDetailPanel` were extracted from the HR inbox into `src/components/CaseRow.jsx` and used by both `HRInbox` and `AssignedToMe` (row shows title, status, priority, category, due date).
+4. **Finding 4.** One line added to `STEP1_NOTES.md`; no placeholder UI.
+5. **Decision 5.** `/help`, `/policies`, `/notifications`, `/vendor-risk` (and the other shared staff routes) are wrapped in `CompanyAdminLayout` for all three staff roles. Without a `companyId` the layout shows only Companies, Profile and Help. `RoleBasedLayout` and `EmployeeLayout` are deleted.
+6. **Decisions 3 and 4 (recommended options).** Archive toggle removed from `AdminActionPanel` (existing `isArchived` data untouched). `/moderation*` routes stay registered, unlinked from navigation.

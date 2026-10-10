@@ -28,7 +28,6 @@ import HelpCenter from "./pages/HelpCenter";
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
-import RoleBasedLayout from "./components/RoleBasedLayout";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
@@ -128,14 +127,14 @@ function App() {
               }
             />
 
-            {/* ── SHARED ROUTES (role-based layout) ── */}
+            {/* ── SHARED STAFF ROUTES (staff layout) ── */}
             <Route
               path="/assigned-to-me"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <AssignedToMe />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -143,9 +142,9 @@ function App() {
               path="/moderation"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <ModerationDashboard />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -153,9 +152,9 @@ function App() {
               path="/moderation/report/:reportId"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <ReportDetailView />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -167,9 +166,9 @@ function App() {
               path="/templates"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <TemplatesPage />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -177,9 +176,9 @@ function App() {
               path="/help"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <HelpCenter />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -195,9 +194,9 @@ function App() {
               path="/notifications"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <Notifications />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -205,9 +204,9 @@ function App() {
               path="/policies"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <PolicyLibrary />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />
@@ -215,9 +214,9 @@ function App() {
               path="/vendor-risk"
               element={
                 <PrivateRoute>
-                  <RoleBasedLayout>
+                  <CompanyAdminLayout>
                     <VendorRiskReport />
-                  </RoleBasedLayout>
+                  </CompanyAdminLayout>
                 </PrivateRoute>
               }
             />

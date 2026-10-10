@@ -10,7 +10,6 @@ import {
   orderBy,
   limit,
   getDoc,
-  increment,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 import CryptoJS from "crypto-js";
@@ -370,19 +369,10 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
 
     await addDoc(collection(db, "comments"), commentData);
 
-    // Increment comment count
-    await updateDoc(postRef, {
-      comments: increment(1),
-      updatedAt: serverTimestamp(),
-      lastUpdatedBy: adminUser.displayName,
-      lastUpdatedById: adminUser.id,
-    });
-
     // Log activity
     await logPostActivity(postId, PostActivityType.ADMIN_COMMENT, {
       adminId: adminUser.id,
       adminName: adminUser.displayName,
-      comment: commentText,
       companyId: postData.companyId,
     });
 

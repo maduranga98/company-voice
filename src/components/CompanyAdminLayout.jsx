@@ -122,9 +122,12 @@ const CompanyAdminLayout = ({ children }) => {
   };
 
   const isHR = userData?.role === "hr";
+  // super_admin has no company: company-scoped menu items are hidden for them.
+  const hasCompany = Boolean(userData?.companyId);
+  const homePath = hasCompany ? "/company/dashboard" : "/admin/companies";
 
   // Navigation sections for the sidebar
-  const navSections = [
+  const companyNavSections = [
     {
       id: "main",
       items: [
@@ -173,6 +176,19 @@ const CompanyAdminLayout = ({ children }) => {
       ],
     },
   ];
+
+  const navSections = hasCompany
+    ? companyNavSections
+    : [
+        {
+          id: "main",
+          items: [
+            { label: t("navigation.companies", "Companies"), path: "/admin/companies", icon: Building2 },
+            { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
+            { label: t("navigation.help", "Help & Instructions"), path: "/help", icon: HelpCircle },
+          ],
+        },
+      ];
 
   const renderNavItem = (item) => {
     const Icon = item.icon;
@@ -224,7 +240,13 @@ const CompanyAdminLayout = ({ children }) => {
   };
 
   // Mobile bottom nav
-  const mobileBottomTabs = isHR
+  const mobileBottomTabs = !hasCompany
+    ? [
+        { id: "companies", label: "Companies", path: "/admin/companies", icon: Building2 },
+        { id: "help", label: "Help", path: "/help", icon: HelpCircle },
+        { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
+      ]
+    : isHR
     ? [
         { id: "inbox", label: "Inbox", path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
         { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
@@ -245,7 +267,7 @@ const CompanyAdminLayout = ({ children }) => {
       <div className="h-16 flex items-center gap-3 px-5 border-b border-white/[0.06] flex-shrink-0">
         <div
           className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => handleNavigate("/company/dashboard")}
+          onClick={() => handleNavigate(homePath)}
         >
           <div className="relative">
             <div className="absolute inset-0 bg-[#1ABC9C] rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
@@ -332,7 +354,7 @@ const CompanyAdminLayout = ({ children }) => {
             </button>
             <div
               className="lg:hidden flex items-center gap-2 cursor-pointer"
-              onClick={() => handleNavigate("/company/dashboard")}
+              onClick={() => handleNavigate(homePath)}
             >
               <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
               <span className="text-base font-bold text-[#2D3E50]">VoxWel</span>

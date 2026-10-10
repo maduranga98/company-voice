@@ -117,6 +117,7 @@ Run against the Firebase emulators (nothing deployed):
 - Check-my-case page and reply callables (use `caseAccess`, `verifySecretKey`, `failedAttempts`, `lockedUntil`), voice recording UI (`audio/webm`, `audio/mp4` already allowed end to end), policy acknowledgement link, Stripe/signup changes, landing page, email alerts.
 - HR gaps: decrypting and showing `reporterContactEncrypted` (decrypt with the same AES helper and secret as `decryptAuthorId`); a visible "involves HR" or "public report" badge and category in the inbox; the inbox detail panel is desktop-only (existing); `AdminActionPanel` can message the "reporter" but public reporters cannot read replies until Step 2; `postActivities` and `anonymousThreads` stay company-readable by hr for `involvesHR` posts (activities hold no content).
 - The `Register` flow, `/qr-generator`, employee layouts and the feeds were left for the removal phase, which is now done.
+- Step 2 ("Check my case") must read and write `anonymousThreads` through `caseAccess`, because public cases have no `reporterId`; the old employee-side thread pages were removed in the removal phase and nothing replaces them until then.
 
 ## 5. Known limitations of this implementation
 - A lost submit response cannot be recovered: a retry with the same idempotency token returns `already-exists` and the key is never shown again (by design; the alternative would mean storing a recoverable key). The UI tells the reporter to submit again.

@@ -4,7 +4,7 @@ import { db } from "../config/firebase";
 import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import AdminActionPanel from "../components/AdminActionPanel";
+import { CaseRow, CaseDetailPanel } from "../components/CaseRow";
 import {
   PostStatusConfig,
   PostPriorityConfig,
@@ -12,20 +12,8 @@ import {
 import {
   ClipboardCheck,
   AlertTriangle,
-  ChevronUp,
-  Calendar,
   Inbox,
 } from "lucide-react";
-
-const getTimeAgo = (date) => {
-  if (!date) return "";
-  let d = date instanceof Date ? date : new Date(date);
-  const seconds = Math.floor((new Date() - d) / 1000);
-  if (seconds < 60) return "Just now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
-};
 
 const AssignedToMe = () => {
   const { userData } = useAuth();
@@ -35,7 +23,7 @@ const AssignedToMe = () => {
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedPriority, setSelectedPriority] = useState("all");
-  const [expandedPost, setExpandedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     if (userData?.id && userData?.companyId) {
@@ -49,13 +37,13 @@ const AssignedToMe = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts, selectedStatus, selectedPriority]);
 
-  const loadAssignedPosts = async () => {
+  const loadAssignedPosts = async ({ silent = false } = {}) => {
     if (!userData?.id || !userData?.companyId) {
       setLoading(false);
       return;
     }
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const postsRef = collection(db, "posts");
       const q = query(
         postsRef,
@@ -76,6 +64,7 @@ const AssignedToMe = () => {
         });
       });
       setPosts(sortByCreatedAtDesc(postsData));
+      setSelectedPost((prev) => (prev ? postsData.find((x) => x.id === prev.id) || null : null));
     } catch (error) {
       console.error("Error loading assigned posts:", error);
       if (error.code === "failed-precondition") {
@@ -100,7 +89,7 @@ const AssignedToMe = () => {
     setFilteredPosts(filtered);
   };
 
-  const handlePostUpdate = () => loadAssignedPosts();
+  const handlePostUpdate = () => loadAssignedPosts({ silent: true });
 
   if (loading) {
     return (
@@ -149,7 +138,7 @@ const AssignedToMe = () => {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
+    <div className="max-w-2xl lg:max-w-none mx-auto px-4 pb-24 pt-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div
@@ -221,109 +210,27 @@ const AssignedToMe = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filteredPosts.map((post) => {
-            const isExpanded = expandedPost === post.id;
-            return (
-              <div
+        <div className="lg:flex lg:gap-4 lg:items-start">
+          <div className={`space-y-3 ${selectedPost ? "lg:w-2/5" : "w-full"}`}>
+            {filteredPosts.map((post) => (
+              <CaseRow
                 key={post.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
-              >
-                {!isExpanded ? (
-                  <div className="p-4">
-                    {/* Top row: type + time */}
-                    <div className="flex items-center gap-2 mb-2.5">
-                      {post.status && PostStatusConfig[post.status] && (
-                        <span
-                          className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
-                        >
-                          {PostStatusConfig[post.status].label}
-                        </span>
-                      )}
-                      {post.priority && PostPriorityConfig[post.priority] && (
-                        <span
-                          className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
-                        >
-                          {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
-                        </span>
-                      )}
-                      <span className="text-[10px] text-gray-400 ml-auto">
-                        {getTimeAgo(post.createdAt)}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-sm font-semibold mb-1.5" style={{ color: "#2D3E50" }}>
-                      {post.title}
-                    </h3>
-
-                    {/* Due date if present */}
-                    {post.dueDate && (
-                      <p className="text-[11px] text-amber-600 mb-2.5 inline-flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg">
-                        <Calendar className="w-3 h-3" />
-                        Due: {post.dueDate.toLocaleDateString()}
-                      </p>
-                    )}
-
-                    {/* Expand button */}
-                    <button
-                      onClick={() => setExpandedPost(post.id)}
-                      className="text-xs font-medium rounded-xl px-3 py-1.5 transition-all hover:bg-[#1ABC9C]/10"
-                      style={{ color: "#1ABC9C" }}
-                    >
-                      View details ›
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    {/* Collapse header */}
-                    <div className="px-4 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {post.status && PostStatusConfig[post.status] && (
-                          <span
-                            className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
-                          >
-                            {PostStatusConfig[post.status].label}
-                          </span>
-                        )}
-                        {post.priority && PostPriorityConfig[post.priority] && (
-                          <span
-                            className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
-                          >
-                            {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => setExpandedPost(null)}
-                        className="p-1.5 rounded-xl hover:bg-gray-200 transition-colors"
-                      >
-                        <ChevronUp className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </div>
-
-                    <div className="p-4 pb-0">
-                      <AdminActionPanel
-                        post={post}
-                        currentUser={userData}
-                        onUpdate={handlePostUpdate}
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#2D3E50" }}>
-                        {post.title}
-                      </h3>
-                      {(post.description || post.content) && (
-                        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                          {post.description || post.content}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                post={post}
+                isSelected={selectedPost?.id === post.id}
+                onToggle={() => setSelectedPost(selectedPost?.id === post.id ? null : post)}
+                currentUser={userData}
+                onUpdate={handlePostUpdate}
+              />
+            ))}
+          </div>
+          {selectedPost && (
+            <CaseDetailPanel
+              post={selectedPost}
+              currentUser={userData}
+              onClose={() => setSelectedPost(null)}
+              onUpdate={handlePostUpdate}
+            />
+          )}
         </div>
       )}
     </div>
