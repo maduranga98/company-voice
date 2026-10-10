@@ -11,12 +11,8 @@ import {
   limit,
   getDoc,
   increment,
-  deleteDoc,
-  setDoc,
-  writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import CryptoJS from "crypto-js";
 import {
   PostStatus,
@@ -60,56 +56,6 @@ export const decryptAuthorId = (encryptedId) => {
   } catch (error) {
     console.error("Error decrypting author ID:", error);
     return null;
-  }
-};
-
-// ============================================
-// RATE LIMITING
-// ============================================
-
-/**
- * Check if user has exceeded post creation rate limit
- * @param {string} userId - User ID
- * @param {string} companyId - Company ID
- * @returns {Promise<{allowed: boolean, remaining: number, resetTime: Date}>}
- */
-export const checkRateLimit = async (userId, companyId) => {
-  try {
-    const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-
-    // Query posts created by user in the last hour
-    const postsRef = collection(db, "posts");
-    const q = query(
-      postsRef,
-      where("authorId", "==", userId),
-      where("companyId", "==", companyId),
-      where("createdAt", ">=", oneHourAgo),
-      orderBy("createdAt", "desc")
-    );
-
-    const snapshot = await getDocs(q);
-    const postCount = snapshot.size;
-
-    // Rate limit: 10 posts per hour
-    const RATE_LIMIT = 10;
-    const allowed = postCount < RATE_LIMIT;
-    const remaining = Math.max(0, RATE_LIMIT - postCount);
-
-    // Calculate reset time (1 hour from now)
-    const resetTime = new Date(now.getTime() + 60 * 60 * 1000);
-
-    return {
-      allowed,
-      remaining,
-      resetTime,
-      currentCount: postCount,
-      limit: RATE_LIMIT,
-    };
-  } catch (error) {
-    console.error("Error checking rate limit:", error);
-    // Allow post creation if rate limit check fails (fail open)
-    return { allowed: true, remaining: 10, resetTime: new Date() };
   }
 };
 
@@ -388,7 +334,7 @@ export const setDueDate = async (postId, dueDate, adminUser) => {
 // ============================================
 
 /**
- * Add admin comment to post (public, visible to all)
+ * Add an internal note to a post (staff only; stored as an admin comment)
  * @param {string} postId - Post ID
  * @param {string} commentText - Comment text
  * @param {object} adminUser - Admin user adding the comment
@@ -438,12 +384,6 @@ export const addAdminComment = async (postId, commentText, adminUser) => {
       adminName: adminUser.displayName,
       comment: commentText,
       companyId: postData.companyId,
-    });
-
-    // Notify post author
-    await notifyAuthor(postId, postData, NotificationType.ADMIN_COMMENT, {
-      adminName: adminUser.displayName,
-      comment: commentText,
     });
 
     return { success: true };
@@ -533,84 +473,6 @@ export const getPostActivityTimeline = async (postId, companyId = null, limitCou
 };
 
 // ============================================
-// MY POSTS - UNREAD UPDATES TRACKING
-// ============================================
-
-/**
- * Mark post as viewed by author
- * @param {string} postId - Post ID
- * @param {string} authorId - Author user ID
- * @returns {Promise<void>}
- */
-export const markPostAsViewed = async (postId, authorId, companyId) => {
-  try {
-    const viewRef = doc(db, "postViews", `${postId}_${authorId}`);
-
-    await updateDoc(viewRef, {
-      lastViewedAt: serverTimestamp(),
-    }).catch(async () => {
-      // Document doesn't exist, create it
-      const postRef = doc(db, "posts", postId);
-      const postSnap = await getDoc(postRef);
-
-      if (postSnap.exists()) {
-        const postCompanyId = companyId || postSnap.data().companyId;
-        await setDoc(viewRef, {
-          postId,
-          authorId,
-          companyId: postCompanyId,
-          lastViewedAt: serverTimestamp(),
-        });
-      }
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error marking post as viewed:", error);
-    return { success: false };
-  }
-};
-
-/**
- * Check if post has unread updates for author
- * @param {object} post - Post object
- * @param {string} authorId - Author user ID
- * @returns {Promise<boolean>}
- */
-export const hasUnreadUpdates = async (post, authorId) => {
-  try {
-    const viewRef = collection(db, "postViews");
-    const q = query(
-      viewRef,
-      where("postId", "==", post.id),
-      where("authorId", "==", authorId),
-      where("companyId", "==", post.companyId),
-      limit(1)
-    );
-
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      // Never viewed, check if there are any updates
-      return post.updatedAt && post.updatedAt > post.createdAt;
-    }
-
-    const viewData = snapshot.docs[0].data();
-    const lastViewedAt = viewData.lastViewedAt?.toDate();
-    const updatedAt = post.updatedAt?.toDate();
-
-    if (!lastViewedAt || !updatedAt) {
-      return false;
-    }
-
-    return updatedAt > lastViewedAt;
-  } catch (error) {
-    console.error("Error checking unread updates:", error);
-    return false;
-  }
-};
-
-// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
@@ -674,10 +536,6 @@ const notifyAuthor = async (postId, postData, notificationType, metadata) => {
         title = "Post priority updated";
         message = `Your post priority changed to: ${metadata.priority}`;
         break;
-      case NotificationType.ADMIN_COMMENT:
-        title = "Admin commented on your post";
-        message = `${metadata.adminName}: ${metadata.comment}`;
-        break;
       default:
         title = "Post updated";
         message = "Your post has been updated";
@@ -693,66 +551,6 @@ const notifyAuthor = async (postId, postData, notificationType, metadata) => {
     });
   } catch (error) {
     console.error("Error notifying author:", error);
-  }
-};
-
-/**
- * Get user's own posts (both anonymous and named)
- * @param {string} userId - User ID
- * @param {string} companyId - Company ID
- * @param {string} postType - Optional post type filter
- * @returns {Promise<Array>}
- */
-export const getUserPosts = async (userId, companyId, postType = null) => {
-  try {
-    const postsRef = collection(db, "posts");
-    const buildConstraints = (authorId) => {
-      const cs = [where("authorId", "==", authorId), where("companyId", "==", companyId)];
-      if (postType) cs.push(where("type", "==", postType));
-      cs.push(orderBy("createdAt", "desc"), limit(100));
-      return cs;
-    };
-
-    // Fetch by plain authorId (non-anonymous posts)
-    const snapshot = await getDocs(query(postsRef, ...buildConstraints(userId)));
-    // Also fetch by creatorId to catch anonymous posts (which have encrypted authorId).
-    // No orderBy here to avoid requiring a composite index — results are sorted client-side below.
-    let creatorDocs = [];
-    try {
-      const creatorSnap = await getDocs(
-        query(postsRef, where("creatorId", "==", userId), where("companyId", "==", companyId), limit(100))
-      );
-      creatorDocs = creatorSnap.docs;
-    } catch {
-      // creatorId index not yet available — fall back to authorId results only
-    }
-
-    // Merge, deduplicating by post ID
-    const seenIds = new Set();
-    const allDocs = [...snapshot.docs, ...creatorDocs].filter(d => {
-      if (seenIds.has(d.id)) return false;
-      seenIds.add(d.id);
-      return true;
-    });
-
-    const posts = [];
-    for (const docSnap of allDocs) {
-      const postData = { id: docSnap.id, ...docSnap.data() };
-      postData.hasUnreadUpdates = await hasUnreadUpdates(postData, userId);
-      posts.push(postData);
-    }
-
-    // Sort by createdAt desc
-    posts.sort((a, b) => {
-      const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-      const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-      return bTime - aTime;
-    });
-
-    return posts;
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-    return [];
   }
 };
 
@@ -810,263 +608,6 @@ export const createDefaultDepartments = async (companyId, departments) => {
     return { success: true };
   } catch (error) {
     console.error("Error creating default departments:", error);
-    throw error;
-  }
-};
-
-// ============================================
-// PRIVACY FILTERING
-// ============================================
-
-/**
- * Get posts with privacy filtering based on user role and department
- * @param {string} companyId - Company ID
- * @param {string} feedType - Type of feed (problem_report, idea_suggestion, etc.)
- * @param {object} user - Current user object with role, departmentId
- * @returns {Promise<Array>} Filtered posts array
- */
-export const getPostsWithPrivacyFilter = async (companyId, feedType, user) => {
-  try {
-    if (!companyId || !user) {
-      return [];
-    }
-
-    // Fetch all posts for the company and feed type.
-    // Firestore rules enforce company-level isolation; privacy filtering
-    // (department_only, hr_only) is applied client-side below.
-    const postsRef = collection(db, "posts");
-    const q = query(
-      postsRef,
-      where("companyId", "==", companyId),
-      where("type", "==", feedType),
-      ...hrCaseScope(user.role)
-    );
-
-    const snapshot = await getDocs(q);
-    const allPosts = sortByCreatedAtDesc(
-      snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate(),
-      }))
-    );
-
-    // Apply privacy filtering based on user role
-    const userId = user.id || user.uid;
-    const filteredPosts = allPosts.filter((post) => {
-      if (post.isArchived) return false;
-      if (post.isDraft) return false;
-
-      // Super admin and company admin can see all posts
-      if (user.role === UserRole.SUPER_ADMIN || user.role === UserRole.COMPANY_ADMIN) {
-        return true;
-      }
-
-      // Authors can always see their own posts
-      if (userId && post.authorId === userId) return true;
-
-      // Users can see posts assigned to them
-      if (userId && post.assignedTo?.id === userId) return true;
-
-      const privacyLevel = post.privacyLevel || "company_public";
-
-      if (privacyLevel === "company_public") return true;
-
-      // HR-only posts
-      if (privacyLevel === "hr_only") {
-        return user.role === UserRole.HR;
-      }
-
-      // Department-only posts
-      if (privacyLevel === "department_only") {
-        if (user.role === UserRole.HR) return true;
-        if (user.departmentId && post.departmentId) {
-          return user.departmentId === post.departmentId;
-        }
-        return false;
-      }
-
-      return true;
-    });
-
-    return filteredPosts;
-  } catch (error) {
-    console.error("Error getting posts with privacy filter:", error);
-    return [];
-  }
-};
-
-// ============================================
-// DELETE POST WITH CASCADE CLEANUP
-// ============================================
-
-/**
- * Delete a post with proper cascade cleanup
- * Removes: post document, comments, likes, edit history, activities, views, and reactions
- * @param {string} postId - Post ID to delete
- * @param {object} user - User performing the deletion
- * @returns {Promise<{success: boolean}>}
- */
-export const deletePost = async (postId, user) => {
-  try {
-    if (!postId || !user) {
-      throw new Error("Post ID and user are required");
-    }
-
-    // Get post document to verify ownership/permissions
-    const postRef = doc(db, "posts", postId);
-    const postSnap = await getDoc(postRef);
-
-    if (!postSnap.exists()) {
-      throw new Error("Post not found");
-    }
-
-    const postData = postSnap.data();
-
-    // Check authorization: author or admin
-    const isAuthor = postData.authorId === user.id || postData.authorId === user.uid;
-    const isAdmin = [UserRole.SUPER_ADMIN, UserRole.COMPANY_ADMIN, UserRole.HR].includes(user.role);
-
-    if (!isAuthor && !isAdmin) {
-      throw new Error("Unauthorized: You can only delete your own posts");
-    }
-
-    // Check company isolation (non-super admins only)
-    if (user.role !== UserRole.SUPER_ADMIN && postData.companyId !== user.companyId) {
-      throw new Error("Unauthorized: Post belongs to a different company");
-    }
-
-    // SOFT DELETE: Move post to deletedPosts collection instead of deleting
-    const deletedPostRef = doc(db, "deletedPosts", postId);
-
-    // Create deleted post document with metadata
-    const deletedPostData = {
-      ...postData,
-      originalPostId: postId,
-      deletedBy: {
-        id: user.id || user.uid,
-        name: user.displayName || user.username,
-        role: user.role,
-      },
-      deletedAt: serverTimestamp(),
-    };
-
-    // 1. Create deletedPosts parent document FIRST so subcollection rules can
-    //    reference it via get() for company isolation checks
-    await setDoc(deletedPostRef, deletedPostData);
-
-    // Use batch for subcollection deletions from original post
-    const deleteBatch = writeBatch(db);
-
-    // 2. Copy all comments to deletedPosts subcollection
-    const commentsQuery = query(collection(db, `posts/${postId}/comments`));
-    const commentsSnap = await getDocs(commentsQuery);
-    const commentsCopyBatch = writeBatch(db);
-    commentsSnap.forEach((commentDoc) => {
-      const commentData = commentDoc.data();
-      const deletedCommentRef = doc(db, `deletedPosts/${postId}/comments`, commentDoc.id);
-      commentsCopyBatch.set(deletedCommentRef, { ...commentData, companyId: postData.companyId });
-      deleteBatch.delete(doc(db, `posts/${postId}/comments`, commentDoc.id));
-    });
-    await commentsCopyBatch.commit();
-
-    // 3. Copy all likes and delete originals
-    const likesQuery = query(collection(db, `posts/${postId}/likes`));
-    const likesSnap = await getDocs(likesQuery);
-    const likesCopyBatch = writeBatch(db);
-    likesSnap.forEach((likeDoc) => {
-      const likeData = likeDoc.data();
-      const deletedLikeRef = doc(db, `deletedPosts/${postId}/likes`, likeDoc.id);
-      likesCopyBatch.set(deletedLikeRef, { ...likeData, companyId: postData.companyId });
-      deleteBatch.delete(doc(db, `posts/${postId}/likes`, likeDoc.id));
-    });
-    await likesCopyBatch.commit();
-
-    // 4. Copy all reactions and delete originals
-    const reactionsQuery = query(collection(db, `posts/${postId}/reactions`));
-    const reactionsSnap = await getDocs(reactionsQuery);
-    const reactionsCopyBatch = writeBatch(db);
-    reactionsSnap.forEach((reactionDoc) => {
-      const reactionData = reactionDoc.data();
-      const deletedReactionRef = doc(db, `deletedPosts/${postId}/reactions`, reactionDoc.id);
-      reactionsCopyBatch.set(deletedReactionRef, { ...reactionData, companyId: postData.companyId });
-      deleteBatch.delete(doc(db, `posts/${postId}/reactions`, reactionDoc.id));
-    });
-    await reactionsCopyBatch.commit();
-
-    // Commit subcollection deletions from original post
-    await deleteBatch.commit();
-
-    // 5. Move edit history
-    const editHistoryQuery = query(
-      collection(db, "postEditHistory"),
-      where("postId", "==", postId),
-      where("companyId", "==", postData.companyId)
-    );
-    const editHistorySnap = await getDocs(editHistoryQuery);
-    if (!editHistorySnap.empty) {
-      const historyMoveBatch = writeBatch(db);
-      const historyBatch = writeBatch(db);
-      editHistorySnap.forEach((historyDoc) => {
-        const historyData = historyDoc.data();
-        const deletedHistoryRef = doc(db, "deletedPostEditHistory", historyDoc.id);
-        historyMoveBatch.set(deletedHistoryRef, historyData);
-        historyBatch.delete(doc(db, "postEditHistory", historyDoc.id));
-      });
-      await historyMoveBatch.commit();
-      await historyBatch.commit();
-    }
-
-    // 6. Move post activities
-    const activitiesQuery = query(
-      collection(db, "postActivities"),
-      where("postId", "==", postId),
-      where("companyId", "==", postData.companyId)
-    );
-    const activitiesSnap = await getDocs(activitiesQuery);
-    if (!activitiesSnap.empty) {
-      const activitiesMoveBatch = writeBatch(db);
-      const activitiesBatch = writeBatch(db);
-      activitiesSnap.forEach((activityDoc) => {
-        const activityData = activityDoc.data();
-        const deletedActivityRef = doc(db, "deletedPostActivities", activityDoc.id);
-        activitiesMoveBatch.set(deletedActivityRef, activityData);
-        activitiesBatch.delete(doc(db, "postActivities", activityDoc.id));
-      });
-      await activitiesMoveBatch.commit();
-      await activitiesBatch.commit();
-    }
-
-    // 7. Move post views
-    const viewsQuery = query(
-      collection(db, "postViews"),
-      where("postId", "==", postId),
-      where("companyId", "==", postData.companyId)
-    );
-    const viewsSnap = await getDocs(viewsQuery);
-    if (!viewsSnap.empty) {
-      const viewsMoveBatch = writeBatch(db);
-      const viewsBatch = writeBatch(db);
-      viewsSnap.forEach((viewDoc) => {
-        const viewData = viewDoc.data();
-        const deletedViewRef = doc(db, "deletedPostViews", viewDoc.id);
-        viewsMoveBatch.set(deletedViewRef, viewData);
-        viewsBatch.delete(doc(db, "postViews", viewDoc.id));
-      });
-      await viewsMoveBatch.commit();
-      await viewsBatch.commit();
-    }
-
-    // 8. Finally, delete the original post document
-    await deleteDoc(postRef);
-
-    return {
-      success: true,
-      message: "Post and all related data deleted successfully"
-    };
-  } catch (error) {
-    console.error("Error deleting post:", error);
     throw error;
   }
 };

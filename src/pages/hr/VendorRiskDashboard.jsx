@@ -127,10 +127,11 @@ const VendorRiskDashboard = () => {
   useEffect(() => {
     if (!userData) return;
     if (!["hr", "company_admin"].includes(userData.role)) {
-      navigate("/feed/creative");
+      navigate("/");
       return;
     }
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
   const loadData = async () => {

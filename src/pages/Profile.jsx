@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db, storage } from "../config/firebase";
-import { doc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useTranslation } from "react-i18next";
 import ChangePasswordForm from "../components/ChangePasswordForm";
-import { PostType, UserRole } from "../utils/constants";
+import { UserRole } from "../utils/constants";
 import {
-  Shield,
-  ClipboardList,
   BookOpen,
   ShieldAlert,
   Bell,
@@ -17,12 +15,11 @@ import {
   ChevronRight,
   LogOut,
   Edit3,
-  MessageSquare,
 } from "lucide-react";
 
 const Profile = () => {
   const { t } = useTranslation();
-  const { userData, currentUser, logout, refreshUserData } = useAuth();
+  const { userData, logout, refreshUserData } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -36,7 +33,6 @@ const Profile = () => {
     username: "",
   });
   const [editData, setEditData] = useState({ displayName: "", email: "" });
-  const [stats, setStats] = useState({ total: 0, problems: 0, ideas: 0 });
   const [companyData, setCompanyData] = useState(null);
   const [companyEditData, setCompanyEditData] = useState({ name: "", logoUrl: "" });
   const [logoFile, setLogoFile] = useState(null);
@@ -58,7 +54,6 @@ const Profile = () => {
         displayName: userData.displayName || "",
         email: userData.email || "",
       });
-      loadStats();
       if (userData.role === UserRole.COMPANY_ADMIN && userData.companyId) {
         loadCompanyData(userData.companyId);
       }
@@ -75,28 +70,6 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error loading company data:", error);
-    }
-  };
-
-  const loadStats = async () => {
-    if (!userData?.id || !userData?.companyId) return;
-    try {
-      const q = query(
-        collection(db, "posts"),
-        where("authorId", "==", userData.id),
-        where("companyId", "==", userData.companyId)
-      );
-      const snap = await getDocs(q);
-      let problems = 0;
-      let ideas = 0;
-      snap.forEach((doc) => {
-        const d = doc.data();
-        if (d.type === PostType.PROBLEM_REPORT) problems++;
-        else if (d.type === PostType.IDEA_SUGGESTION) ideas++;
-      });
-      setStats({ total: snap.size, problems, ideas });
-    } catch {
-      // ignore stats errors
     }
   };
 
@@ -203,7 +176,6 @@ const Profile = () => {
       case "super_admin": return "bg-red-50 text-red-700 border-red-200";
       case "company_admin": return "bg-blue-50 text-blue-700 border-blue-200";
       case "hr": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "employee": return "bg-purple-50 text-purple-700 border-purple-200";
       default: return "bg-gray-50 text-gray-700 border-gray-200";
     }
   };
@@ -226,8 +198,6 @@ const Profile = () => {
   const initial = profileData.displayName?.charAt(0)?.toUpperCase() || "U";
 
   const quickLinks = [
-    { label: "Private Messages", sub: "Anonymous conversations with HR", path: "/messages", icon: MessageSquare, iconColor: "text-teal-600", bg: "bg-teal-50" },
-    { label: t("navigation.myPosts", "My Posts"), sub: t("profile.viewAllPosts", "View all your posts"), path: "/my-posts", icon: ClipboardList, iconColor: "text-purple-600", bg: "bg-purple-50" },
     { label: t("profile.policyLibrary", "Policy Library"), sub: t("profile.viewPolicies", "Company guidelines"), path: "/policies", icon: BookOpen, iconColor: "text-cyan-600", bg: "bg-cyan-50" },
     { label: "Report Vendor Risk", sub: "Flag a supplier or third-party issue", path: "/vendor-risk", icon: ShieldAlert, iconColor: "text-orange-600", bg: "bg-orange-50" },
     { label: t("navigation.notifications", "Notifications"), sub: t("profile.viewNotifications", "Recent alerts"), path: "/notifications", icon: Bell, iconColor: "text-amber-600", bg: "bg-amber-50" },
@@ -251,12 +221,6 @@ const Profile = () => {
     { label: t("profile.companyId", "Company ID"), value: profileData.companyId, mono: true },
     { label: t("profile.status", "Status"), value: profileData.status ? profileData.status.charAt(0).toUpperCase() + profileData.status.slice(1) : "" },
     { label: t("profile.lastLogin", "Last Login"), value: formatDate(profileData.lastLogin) },
-  ];
-
-  const statCards = [
-    { label: t("profile.totalPosts", "Total Posts"), value: stats.total, color: "text-[#1ABC9C]" },
-    { label: t("profile.problemsReported", "Problems"), value: stats.problems, color: "text-red-500" },
-    { label: t("profile.ideasShared", "Ideas"), value: stats.ideas, color: "text-purple-500" },
   ];
 
   return (
@@ -321,21 +285,6 @@ const Profile = () => {
               </button>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Activity stats */}
-      <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-          {t("profile.myActivity", "My Activity")}
-        </h3>
-        <div className="grid grid-cols-3 gap-3">
-          {statCards.map((stat) => (
-            <div key={stat.label} className="bg-gray-50 rounded-xl p-4 text-center">
-              <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-              <div className="text-xs font-medium text-gray-500 mt-1.5 leading-tight">{stat.label}</div>
-            </div>
-          ))}
         </div>
       </div>
 

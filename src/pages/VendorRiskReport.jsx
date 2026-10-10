@@ -416,10 +416,10 @@ const VendorRiskReport = () => {
             Report Another Concern
           </button>
           <button
-            onClick={() => navigate("/feed/problems")}
+            onClick={() => navigate("/")}
             className="w-full bg-[#1ABC9C] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#17a589] transition"
           >
-            Go to Problems Wall
+            Back to Home
           </button>
         </div>
       </div>
@@ -589,7 +589,7 @@ const VendorRiskReport = () => {
         </div>
 
         <button
-          onClick={() => navigate("/feed/problems")}
+          onClick={() => navigate("/")}
           className="mt-6 w-full bg-[#2D3E50] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#24333f] transition"
         >
           Done

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Pin, Archive, ChevronDown, ChevronUp, UserCheck, Calendar, MessageSquare, Send } from "lucide-react";
+import { ChevronDown, ChevronUp, UserCheck, Calendar, Send } from "lucide-react";
 import AnonymousThread from "./AnonymousThread";
 import {
   PostStatus,
@@ -16,14 +16,7 @@ import {
   unassignPost,
   setDueDate,
   addAdminComment,
-  getCompanyDepartments,
 } from "../services/postManagementService";
-import {
-  pinPost,
-  unpinPost,
-  archivePost,
-  unarchivePost,
-} from "../services/postEnhancedFeaturesService";
 import { showSuccess, showError } from "../services/toastService";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -35,9 +28,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
-  const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
-  const [tags, setTags] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [selectedDueDate, setSelectedDueDate] = useState(() => {
     if (!post.dueDate) return "";
@@ -48,24 +39,24 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
   });
   const [showAssignDropdown, setShowAssignDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [notes, setNotes] = useState([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadAssignmentOptions(); }, [currentUser.companyId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadNotes(); }, [post.id]);
   useEffect(() => { setSelectedAssignee(post.assignedTo || null); }, [post.assignedTo]);
   useEffect(() => { setStatus(post.status || PostStatus.OPEN); }, [post.status]);
   useEffect(() => { setPriority(post.priority || PostPriority.MEDIUM); }, [post.priority]);
 
   const loadAssignmentOptions = async () => {
     try {
-      const depts = await getCompanyDepartments(currentUser.companyId);
-      setDepartments(depts);
-
       const tagsRef = collection(db, "userTags");
       const tagsQuery = query(tagsRef, where("companyId", "==", currentUser.companyId));
       const tagsSnapshot = await getDocs(tagsQuery);
       const tagsList = [];
       tagsSnapshot.forEach((doc) => { tagsList.push({ id: doc.id, ...doc.data() }); });
       tagsList.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-      setTags(tagsList);
 
       const tagMap = {};
       tagsList.forEach((tag) => { tagMap[tag.id] = tag; });
@@ -89,6 +80,23 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       setUsers(usersList);
     } catch (error) {
       console.error("Error loading assignment options:", error);
+    }
+  };
+
+  // Internal notes are staff-only comments (isAdminComment) stored in the comments collection.
+  const loadNotes = async () => {
+    try {
+      const companyId = post.companyId || currentUser.companyId;
+      const snapshot = await getDocs(
+        query(collection(db, "comments"), where("companyId", "==", companyId), where("postId", "==", post.id))
+      );
+      const list = snapshot.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((n) => n.isAdminComment === true)
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+      setNotes(list);
+    } catch (error) {
+      console.error("Error loading internal notes:", error);
     }
   };
 
@@ -164,41 +172,8 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
       await addAdminComment(post.id, comment, currentUser);
       setComment("");
       showSuccess("Note added");
+      await loadNotes();
       if (onUpdate) onUpdate();
-    } catch (error) {
-      showError(`Failed: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePinToggle = async () => {
-    try {
-      setLoading(true);
-      if (post.isPinned) {
-        await unpinPost(post.id, currentUser.id, currentUser.displayName);
-      } else {
-        await pinPost(post.id, currentUser.id, currentUser.displayName, currentUser.companyId);
-      }
-      if (onUpdate) onUpdate();
-      showSuccess(post.isPinned ? "Unpinned" : "Pinned");
-    } catch (error) {
-      showError(`Failed: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleArchiveToggle = async () => {
-    try {
-      setLoading(true);
-      if (post.isArchived) {
-        await unarchivePost(post.id, currentUser.id, currentUser.displayName);
-      } else {
-        await archivePost(post.id, currentUser.id, currentUser.displayName, "Archived by admin");
-      }
-      if (onUpdate) onUpdate();
-      showSuccess(post.isArchived ? "Unarchived" : "Archived");
     } catch (error) {
       showError(`Failed: ${error.message}`);
     } finally {
@@ -253,22 +228,6 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
 
         {/* Quick Actions */}
         <div className="flex items-center gap-1 ml-auto">
-          <button
-            onClick={handlePinToggle}
-            disabled={loading}
-            className={`p-1.5 rounded-lg transition text-xs ${post.isPinned ? 'bg-amber-100 text-amber-700' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'} disabled:opacity-50`}
-            title={post.isPinned ? "Unpin" : "Pin"}
-          >
-            <Pin className={`w-3.5 h-3.5 ${post.isPinned ? 'fill-current' : ''}`} />
-          </button>
-          <button
-            onClick={handleArchiveToggle}
-            disabled={loading}
-            className={`p-1.5 rounded-lg transition text-xs ${post.isArchived ? 'bg-slate-200 text-slate-700' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'} disabled:opacity-50`}
-            title={post.isArchived ? "Unarchive" : "Archive"}
-          >
-            <Archive className="w-3.5 h-3.5" />
-          </button>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1.5 text-indigo-500 hover:bg-indigo-100 rounded-lg transition"
@@ -418,7 +377,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 disabled={loading}
-                placeholder="Add a note..."
+                placeholder="Add an internal note (staff only)..."
                 className="flex-1 px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-400"
                 onKeyDown={(e) => { if (e.key === "Enter") handleAddComment(); }}
               />
@@ -430,6 +389,19 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
                 <Send className="w-3.5 h-3.5" />
               </button>
             </div>
+            {notes.length > 0 && (
+              <ul className="mt-2 space-y-1.5">
+                {notes.map((note) => (
+                  <li key={note.id} className="px-3 py-2 bg-white border border-gray-100 rounded-lg text-xs text-gray-700">
+                    <p className="whitespace-pre-wrap">{note.text}</p>
+                    <p className="mt-1 text-[10px] text-gray-400">
+                      {note.authorName || "Staff"}
+                      {note.createdAt?.seconds ? ` · ${new Date(note.createdAt.seconds * 1000).toLocaleString()}` : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       )}

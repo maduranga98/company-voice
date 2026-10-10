@@ -7,7 +7,6 @@ import {
 import { AuthProvider } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import QRCodeGenerator from "./pages/QRCodeGenerator";
 import CompanyManagement from "./pages/admin/CompanyManagement";
 import BillingDashboard from "./pages/admin/BillingDashboard";
 import DeletedPosts from "./pages/admin/DeletedPosts";
@@ -23,28 +22,17 @@ import MemberManagementWithDepartments from "./pages/company/MemberManagementWit
 import AuditLog from "./pages/admin/AuditLog";
 import AuditExportPage from "./pages/company/AuditExportPage";
 import TemplatesPage from "./pages/TemplatesPage";
-import DraftsPage from "./pages/DraftsPage";
-import ArchivedPosts from "./pages/ArchivedPosts";
-import ScheduledPostsPage from "./pages/ScheduledPostsPage";
 import RoleDefinitions from "./pages/RoleDefinitions";
 import HelpCenter from "./pages/HelpCenter";
-import EmployeeMessages from "./pages/EmployeeMessages";
-import EmployeeMessageThread from "./pages/EmployeeMessageThread";
 
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuth } from "./contexts/AuthContext";
-import EmployeeLayout from "./components/EmployeeLayout";
 import CompanyAdminLayout from "./components/CompanyAdminLayout";
 import RoleBasedLayout from "./components/RoleBasedLayout";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import ScrollToTop from "./components/ScrollToTop";
 
-// New Unified Feed Pages
-import CreativeFeed from "./pages/feed/CreativeFeed";
-import ProblemsFeed from "./pages/feed/ProblemsFeed";
-import DiscussionsFeed from "./pages/feed/DiscussionsFeed";
-import MyPosts from "./pages/MyPosts";
 import AssignedToMe from "./pages/AssignedToMe";
 
 // Moderation Pages
@@ -96,7 +84,6 @@ function App() {
           <Routes>
             {/* ── PUBLIC ROUTES ── */}
             <Route path="/login" element={<Login />} />
-            <Route path="/qr-generator" element={<QRCodeGenerator />} />
             <Route path="/r/:slug" element={<ReportPage />} />
 
             {/* ── SUPER ADMIN ROUTES ── */}
@@ -141,49 +128,7 @@ function App() {
               }
             />
 
-            {/* ── SHARED FEED ROUTES (role-based layout auto-selects) ── */}
-            <Route
-              path="/feed/creative"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <CreativeFeed />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/feed/problems"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <ProblemsFeed />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/feed/discussions"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <DiscussionsFeed />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
-            />
-
             {/* ── SHARED ROUTES (role-based layout) ── */}
-            <Route
-              path="/my-posts"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <MyPosts />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
-            />
             <Route
               path="/assigned-to-me"
               element={
@@ -217,36 +162,6 @@ function App() {
             <Route
               path="/hr/harassment-dashboard"
               element={<Navigate to="/moderation" replace />}
-            />
-            <Route
-              path="/drafts"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <DraftsPage />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/archived"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <ArchivedPosts />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/scheduled"
-              element={
-                <PrivateRoute>
-                  <RoleBasedLayout>
-                    <ScheduledPostsPage />
-                  </RoleBasedLayout>
-                </PrivateRoute>
-              }
             />
             <Route
               path="/templates"
@@ -491,50 +406,6 @@ function App() {
               }
             />
 
-            {/* ── EMPLOYEE MESSAGE ROUTES ── */}
-            <Route
-              path="/messages"
-              element={
-                <PrivateRoute>
-                  <EmployeeLayout>
-                    <EmployeeMessages />
-                  </EmployeeLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/messages/:postId"
-              element={
-                <PrivateRoute>
-                  <EmployeeLayout>
-                    <EmployeeMessageThread />
-                  </EmployeeLayout>
-                </PrivateRoute>
-              }
-            />
-
-            {/* ── EMPLOYEE PROFILE ROUTES ── */}
-            <Route
-              path="/employee/profile"
-              element={
-                <PrivateRoute>
-                  <EmployeeLayout>
-                    <Profile />
-                  </EmployeeLayout>
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/employee/notifications"
-              element={
-                <PrivateRoute>
-                  <EmployeeLayout>
-                    <Notifications />
-                  </EmployeeLayout>
-                </PrivateRoute>
-              }
-            />
-
             {/* ── GENERAL ROUTES ── */}
             <Route
               path="/dashboard"
@@ -548,7 +419,11 @@ function App() {
             {/* Default route */}
             <Route
               path="/"
-              element={<Navigate to="/feed/creative" replace />}
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
             />
           </Routes>
         </div>

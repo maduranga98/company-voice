@@ -13,9 +13,6 @@ import { db } from "../config/firebase";
 import { hrCaseScope } from "../utils/caseVisibility";
 import {
   LayoutDashboard,
-  Lightbulb,
-  AlertTriangle,
-  MessageSquare,
   MessagesSquare,
   Users,
   Building2,
@@ -30,13 +27,10 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronDown,
-  ChevronRight,
   Bell,
   BarChart3,
   FileDown,
   ClipboardCheck,
-  Shield,
   Inbox,
   HelpCircle,
 } from "lucide-react";
@@ -51,14 +45,6 @@ const CompanyAdminLayout = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [hasUnreadThreads, setHasUnreadThreads] = useState(false);
   const [hasUnreadHRPosts, setHasUnreadHRPosts] = useState(false);
-
-  // Collapsible section state
-  const [expandedSections, setExpandedSections] = useState({
-    content: true,
-    management: true,
-    compliance: false,
-    settings: false,
-  });
 
   useEffect(() => {
     if (
@@ -116,12 +102,7 @@ const CompanyAdminLayout = ({ children }) => {
     navigate(path);
   };
 
-  const toggleSection = (section) => {
-    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
   const isActive = (path) => location.pathname === path;
-  const isActiveGroup = (paths) => paths.some((p) => location.pathname.startsWith(p));
 
   const getRoleBadge = () => {
     if (userData?.role === "company_admin") {
@@ -152,23 +133,12 @@ const CompanyAdminLayout = ({ children }) => {
       ],
     },
     {
-      id: "walls",
-      title: t("navigation.walls", "Walls"),
-      items: [
-        { label: t("navigation.creative", "Creative"), path: "/feed/creative", icon: Lightbulb },
-        { label: t("navigation.problems", "Problems"), path: "/feed/problems", icon: AlertTriangle },
-        { label: t("navigation.discussions", "Discussions"), path: "/feed/discussions", icon: MessageSquare },
-      ],
-    },
-    {
       id: "content",
       title: t("navigation.content", "Content"),
       items: [
         { label: t("navigation.hrInbox", "HR Inbox"), path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
-        { label: t("navigation.myPosts", "My Posts"), path: "/my-posts", icon: ClipboardList },
         { label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck },
         { label: t("navigation.conversations", "Conversations"), path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
-        { label: t("navigation.moderation", "Moderation"), path: "/moderation", icon: Shield },
       ],
     },
     // Management section - hidden for HR role
@@ -253,18 +223,17 @@ const CompanyAdminLayout = ({ children }) => {
     );
   };
 
-  // Mobile bottom nav - HR sees Walls, Conversations, Moderation, Help, More
+  // Mobile bottom nav
   const mobileBottomTabs = isHR
     ? [
-        { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
+        { id: "inbox", label: "Inbox", path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
         { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
-        { id: "moderation", label: "Moderation", path: "/moderation", icon: Shield },
         { id: "help", label: "Help", path: "/help", icon: HelpCircle },
         { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
       ]
     : [
         { id: "dashboard", label: "Dashboard", path: "/company/dashboard", icon: LayoutDashboard },
-        { id: "content", label: "Walls", path: "/feed/creative", icon: MessageSquare, matchPaths: ["/feed/"] },
+        { id: "inbox", label: "Inbox", path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
         { id: "conversations", label: "Chats", path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
         { id: "help", label: "Help", path: "/help", icon: HelpCircle },
         { id: "more", label: "More", path: null, icon: Menu, action: () => setSidebarOpen(true) },
@@ -415,9 +384,7 @@ const CompanyAdminLayout = ({ children }) => {
         <div className="flex h-16">
           {mobileBottomTabs.map((tab) => {
             const Icon = tab.icon;
-            const active = tab.matchPaths
-              ? tab.matchPaths.some((p) => location.pathname.startsWith(p))
-              : tab.path && location.pathname === tab.path;
+            const active = tab.path && location.pathname === tab.path;
 
             return (
               <button
@@ -451,14 +418,9 @@ function getPageTitle(pathname, t) {
   const titles = {
     "/company/dashboard": t("navigation.dashboard", "Dashboard"),
     "/company/analytics": t("navigation.analytics", "Analytics"),
-    "/feed/creative": t("navigation.creative", "Creative Wall"),
-    "/feed/problems": t("navigation.problems", "Problems"),
-    "/feed/discussions": t("navigation.discussions", "Discussions"),
-    "/my-posts": t("navigation.myPosts", "My Posts"),
     "/assigned-to-me": t("navigation.assignedToMe", "Assigned to Me"),
     "/hr/inbox": t("navigation.hrInbox", "HR Inbox"),
     "/hr/conversations": t("navigation.conversations", "Conversations"),
-    "/moderation": t("navigation.moderation", "Moderation"),
     "/company/members": t("navigation.members", "Members"),
     "/company/departments": t("navigation.departments", "Departments"),
     "/company/tag-management": t("navigation.tags", "Tag Management"),
