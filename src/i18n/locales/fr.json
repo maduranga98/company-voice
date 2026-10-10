@@ -33,75 +33,17 @@
       "passwordPlaceholder": "Entrez votre mot de passe",
       "signIn": "Se Connecter",
       "signingIn": "Connexion en cours...",
-      "signInWithQR": "Se Connecter avec un Code QR",
-      "scanQRCode": "Scanner le Code QR",
       "rememberMe": "Se souvenir de moi",
       "forgotPassword": "Mot de passe oublié ?",
-      "orContinueWith": "ou continuer avec",
-      "newToVoxWel": "Nouveau sur VoxWel ?",
-      "contactHR": "Contactez votre service RH",
-      "noAccount": "Vous n'avez pas de compte ?",
-      "register": "Inscrivez-vous ici",
       "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide. Veuillez réessayer.",
-      "invalidQR": "Code QR invalide. Veuillez scanner un code QR d'enregistrement d'entreprise valide.",
       "loginSuccess": "Connexion réussie !",
       "loginError": "Échec de la connexion. Veuillez réessayer.",
-      "cameraAccessError": "Impossible d'accéder à la caméra. Veuillez vérifier les autorisations.",
-      "qrScannerError": "Échec du démarrage du scanner QR. Veuillez essayer la connexion manuelle.",
       "tagline": "Où Chaque Voix Compte",
       "mainHeading": "Donnez du Pouvoir à la Voix de Votre Lieu de Travail",
       "mainDescription": "Une plateforme sécurisée où chaque employé peut partager des idées, signaler des préoccupations et collaborer pour construire ensemble un meilleur lieu de travail.",
-      "featureCreativeTitle": "Idées Créatives",
-      "featureCreativeText": "Partagez des solutions innovantes et des concepts créatifs",
       "featureSecureTitle": "Signalement Sécurisé",
       "featureSecureText": "Signalez les problèmes au travail de manière sûre et anonyme",
-      "featureDiscussionsTitle": "Discussions Ouvertes",
-      "featureDiscussionsText": "Participez à des conversations d'équipe significatives",
       "copyright": "© 2025 VoxWel. Tous droits réservés."
-    },
-    "register": {
-      "title": "Créer un Compte",
-      "welcome": "Rejoignez-nous aujourd'hui !",
-      "username": "Nom d'utilisateur",
-      "email": "E-mail",
-      "password": "Mot de passe",
-      "confirmPassword": "Confirmer le Mot de passe",
-      "companyName": "Nom de l'Entreprise",
-      "createAccount": "Créer un Compte",
-      "haveAccount": "Vous avez déjà un compte ?",
-      "signIn": "Connectez-vous ici",
-      "usernameRequired": "Le nom d'utilisateur est requis",
-      "usernameLength": "Le nom d'utilisateur doit comporter au moins 3 caractères",
-      "emailRequired": "L'e-mail est requis",
-      "emailInvalid": "Veuillez entrer une adresse e-mail valide",
-      "passwordRequired": "Le mot de passe est requis",
-      "passwordLength": "Le mot de passe doit comporter au moins 6 caractères",
-      "passwordMismatch": "Les mots de passe ne correspondent pas",
-      "companyRequired": "Le nom de l'entreprise est requis",
-      "registrationSuccess": "Inscription réussie !",
-      "registrationError": "Échec de l'inscription. Veuillez réessayer.",
-      "joinCompany": "Rejoindre {{companyName}}",
-      "fullName": "Nom complet",
-      "mobile": "Numéro de téléphone",
-      "gender": "Genre",
-      "selectGender": "Sélectionner",
-      "male": "Masculin",
-      "female": "Féminin",
-      "other": "Autre",
-      "preferNotToSay": "Préfère ne pas dire",
-      "usernameHint": "Uniquement des lettres et des chiffres (pas d'espaces ni de caractères spéciaux)",
-      "mobileHint": "Numéro à 10 chiffres",
-      "passwordHint": "Minimum 6 caractères",
-      "usernameAvailable": "Le nom d'utilisateur est disponible",
-      "usernameTaken": "Le nom d'utilisateur est déjà pris",
-      "creatingAccount": "Création du compte...",
-      "backToLogin": "Retour à la connexion",
-      "createEmployeeAccount": "Créez votre compte employé",
-      "usernameAlreadyTaken": "Le nom d'utilisateur est déjà pris. Veuillez en choisir un autre.",
-      "usernameAvailabilityFailed": "Impossible de vérifier la disponibilité du nom d'utilisateur.",
-      "companyNotFound": "Entreprise introuvable. Veuillez contacter votre service RH.",
-      "companyLoadFailed": "Impossible de charger les informations de l'entreprise.",
-      "registrationPending": "Inscription réussie ! Votre compte est en attente d'approbation de l'administrateur de votre entreprise."
     },
     "logout": "Se Déconnecter",
     "accountInactive": {
@@ -112,100 +54,11 @@
   },
   "navigation": {
     "dashboard": "Tableau de Bord",
-    "feed": "Fil d'Actualité",
-    "creative": "Créativité",
-    "problems": "Problèmes",
-    "discussions": "Discussions",
-    "myPosts": "Mes Publications",
     "assignedToMe": "Assigné à Moi",
     "profile": "Profil",
     "notifications": "Notifications",
     "settings": "Paramètres",
     "home": "Accueil"
-  },
-  "post": {
-    "create": "Créer une Publication",
-    "createNew": "Créer une Nouvelle Publication",
-    "title": "Titre",
-    "description": "Description",
-    "content": "Contenu",
-    "category": "Catégorie",
-    "tags": "Étiquettes",
-    "assignTo": "Assigner à",
-    "selectCategory": "Sélectionner une Catégorie",
-    "selectTags": "Sélectionner des Étiquettes",
-    "addTag": "Ajouter une Étiquette",
-    "postType": {
-      "creative": "Créatif",
-      "problem": "Problème",
-      "discussion": "Discussion"
-    },
-    "publish": "Publier",
-    "draft": "Enregistrer comme Brouillon",
-    "posted": "Publié",
-    "postedBy": "Publié par",
-    "editPost": "Modifier la Publication",
-    "deletePost": "Supprimer la Publication",
-    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette publication ?",
-    "postDeleted": "Publication supprimée avec succès",
-    "postCreated": "Publication créée avec succès",
-    "postUpdated": "Publication mise à jour avec succès",
-    "noPostsYet": "Pas encore de publications",
-    "noPosts": "Aucune publication disponible"
-  },
-  "comments": {
-    "comments": "Commentaires",
-    "addComment": "Ajouter un commentaire...",
-    "postComment": "Publier le Commentaire",
-    "reply": "Répondre",
-    "editComment": "Modifier le Commentaire",
-    "deleteComment": "Supprimer le Commentaire",
-    "noComments": "Pas encore de commentaires. Soyez le premier à commenter !",
-    "commentAdded": "Commentaire ajouté avec succès",
-    "commentDeleted": "Commentaire supprimé avec succès",
-    "anonymous": "Commenter anonymement",
-    "reportComment": "Signaler le commentaire",
-    "viewMore": "Voir plus de commentaires",
-    "collapse": "Réduire les commentaires",
-    "cancelEdit": "Annuler",
-    "saveEdit": "Enregistrer",
-    "addReply": "Ajouter une réponse...",
-    "posting": "Publication en cours...",
-    "showReplies": "Afficher les réponses",
-    "hideReplies": "Masquer les réponses"
-  },
-  "reactions": {
-    "like": "J'aime",
-    "love": "J'adore",
-    "celebrate": "Célébrer",
-    "support": "Soutenir",
-    "insightful": "Perspicace",
-    "reactions": "Réactions"
-  },
-  "feed": {
-    "unified": "Toutes les Publications",
-    "creative": "Fil Créatif",
-    "creativeDescriptiom": "Partagez vos idées créatives, designs et innovations",
-    "problems": "Fil des Problèmes",
-    "discussions": "Fil des Discussions",
-    "filterBy": "Filtrer par",
-    "sortBy": "Trier par",
-    "latest": "Plus Récents",
-    "popular": "Populaires",
-    "trending": "Tendances",
-    "mostLiked": "Plus Aimés",
-    "mostCommented": "Plus Commentés",
-    "allCategories": "Toutes les catégories",
-    "activeFilters": "Filtres actifs :",
-    "pinnedPosts": "Publications épinglées",
-    "noPostsYet": "Pas encore de publications",
-    "problemsDescription": "Signalez les problèmes au travail et suivez leur résolution",
-    "discussionsTitle": "Discussions d'équipe",
-    "discussionsDescription": "Lancez des conversations et collaborez avec votre équipe",
-    "creativeTitle": "Mur créatif",
-    "loadMore": "Charger plus",
-    "clearFilters": "Effacer les filtres",
-    "createFirst": "Soyez le premier à publier"
   },
   "company": {
     "dashboard": "Tableau de Bord Entreprise",
@@ -217,7 +70,6 @@
     "companyPosts": "Publications de l'Entreprise",
     "companyName": "Nom de l'Entreprise",
     "companyInfo": "Informations sur l'Entreprise",
-    "creativeWall": "Mur Créatif",
     "qrCode": "Code QR",
     "generateQR": "Générer un Code QR",
     "downloadQR": "Télécharger le Code QR",
@@ -232,7 +84,6 @@
     "welcome": "Bon retour",
     "totalMembers": "Total des membres",
     "totalPosts": "Total des publications",
-    "pendingApprovals": "Approbations en attente",
     "activeDepartments": "Départements actifs",
     "viewAll": "Voir tout",
     "memberManagementTitle": "Gestion des membres",
@@ -261,38 +112,21 @@
     "noDepartments": "Pas encore de départements",
     "confirmDeleteDept": "Êtes-vous sûr de vouloir supprimer ce département ?",
     "qrCodeTitle": "Invitation par code QR",
-    "qrCodeInstructions": "Partagez ce code QR avec les employés pour leur permettre de s'inscrire.",
-    "scanToJoin": "Scanner pour rejoindre",
     "copyLink": "Copier le lien",
     "linkCopied": "Lien copié !",
     "regenerate": "Régénérer",
     "expires": "Expire",
     "dashboardSubtitle": "Vue d'ensemble de toutes les publications et des éléments nécessitant attention",
-    "employeeSingular": "employé",
-    "employeePlural": "employés",
-    "pendingApprovalAlert": "en attente d'approbation",
-    "reviewApproveRegistrations": "Examiner et approuver les nouvelles inscriptions d'employés",
-    "reviewNow": "Examiner maintenant",
     "criticalIssues": "Problèmes critiques",
     "openIssues": "Problèmes ouverts",
     "inProgress": "En cours",
-    "problemReports": "Rapports de problèmes",
-    "clickToViewProblems": "Cliquer pour voir tous les problèmes",
-    "creativeIdeas": "Idées créatives",
-    "clickToViewCreative": "Cliquer pour voir toutes les publications créatives",
-    "discussions": "Discussions",
-    "clickToViewDiscussions": "Cliquer pour voir toutes les discussions",
     "recentPostsTitle": "Publications récentes nécessitant attention",
     "recentPostsSubtitle": "Les 5 dernières publications ouvertes, en cours ou en traitement",
     "allCaughtUp": "Tout est à jour !",
     "noPostsAttention": "Il n'y a pas de publications nécessitant une attention immédiate.",
     "assignedTo": "Assigné à",
-    "moderation": "Modération",
-    "moderationDesc": "Examiner le contenu signalé et gérer les activités de modération",
     "hrDashboard": "Tableau de bord RH",
     "hrDashboardDesc": "Gérer les rapports de harcèlement, discrimination et violence",
-    "archivedPosts": "Publications archivées",
-    "archivedPostsDesc": "Voir et réactiver les publications archivées de votre entreprise",
     "analytics": "Analytique",
     "analyticsDesc": "Voir les informations détaillées, tendances et métriques d'engagement",
     "memberManagementDesc": "Gérer les membres de l'équipe, attribuer des étiquettes et des départements",
@@ -315,19 +149,12 @@
     "failedToAssignTag": "Échec de l'attribution de l'étiquette",
     "departmentAssigned": "Département assigné avec succès !",
     "failedToAssignDepartment": "Échec de l'attribution du département",
-    "confirmApproveMember": "Êtes-vous sûr de vouloir approuver ce membre ?",
-    "memberApproved": "Membre approuvé avec succès !",
-    "failedToApproveMember": "Échec de l'approbation du membre",
-    "confirmRejectMember": "Êtes-vous sûr de vouloir rejeter ce membre ? Cela supprimera définitivement son compte.",
-    "memberRejected": "Membre rejeté et supprimé avec succès !",
-    "failedToRejectMember": "Échec du rejet du membre",
     "changeRole": "Rôle",
     "changeRoleTitle": "Changer le rôle",
     "changeRoleFor": "Changer le rôle de ce membre",
     "currentRole": "(Actuel)",
     "adminRoleDesc": "Accès complet pour gérer l'entreprise, les membres, les départements et les paramètres",
     "hrRoleDesc": "Accès aux publications RH uniquement, gérer les rapports et les relations avec les employés",
-    "employeeRoleDesc": "Accès standard pour soumettre des publications et participer aux discussions",
     "roleChanged": "Rôle changé avec succès !",
     "failedToChangeRole": "Échec du changement de rôle",
     "manageTags": "Gérer les étiquettes",
@@ -340,7 +167,6 @@
     "allRoles": "Tous les rôles",
     "roleAdmin": "Administrateur",
     "roleHR": "RH",
-    "roleEmployee": "Employé",
     "tag": "Étiquette",
     "allTags": "Toutes les étiquettes",
     "untagged": "Sans étiquette",
@@ -358,8 +184,6 @@
     "emailColumn": "E-mail",
     "notTagged": "Sans étiquette",
     "noDepartment": "Sans département",
-    "approve": "Approuver",
-    "reject": "Rejeter",
     "assignTag": "Attribuer une étiquette",
     "dept": "Dépt.",
     "assignDept": "Attribuer dépt.",
@@ -411,7 +235,6 @@
     "priorityLabel": "Priorité (plus élevé = affiché en premier)",
     "preview": "Aperçu",
     "yourCompanyQRCode": "Code QR de votre entreprise",
-    "qrCodeScanDesc": "Les employés peuvent scanner ce code QR pour s'inscrire rapidement et rejoindre la plateforme de votre entreprise",
     "companyDetails": "Détails de l'entreprise",
     "companyId": "ID de l'entreprise",
     "industry": "Secteur",
@@ -423,38 +246,16 @@
     "print": "Imprimer",
     "share": "Partager",
     "distributionTips": "Conseils de distribution",
-    "tipEmailEmployees": "Envoyer par e-mail aux nouveaux employés",
-    "tipPrintWelcomePackets": "Imprimer dans les paquets de bienvenue",
-    "tipDisplayCommonAreas": "Afficher dans les espaces communs",
-    "tipAddHandbook": "Ajouter au manuel de l'employé",
     "bestPractices": "Meilleures pratiques",
     "bestPracticeHighRes": "Haute résolution pour l'impression",
     "bestPracticeTestScan": "Tester le scan avant distribution",
-    "bestPracticeKeepAccessible": "Garder le code QR accessible",
-    "bestPracticeMonitor": "Surveiller l'activité d'inscription"
-  },
-  "employee": {
-    "dashboard": "Tableau de Bord Employé",
-    "complaints": "Réclamations",
-    "myComplaints": "Mes Réclamations",
-    "fileComplaint": "Déposer une Réclamation",
-    "complaintDetails": "Détails de la Réclamation",
-    "status": "Statut",
-    "pending": "En Attente",
-    "inProgress": "En Cours",
-    "resolved": "Résolu",
-    "closed": "Fermé"
+    "bestPracticeKeepAccessible": "Garder le code QR accessible"
   },
   "admin": {
     "panel": "Panneau d'Administration",
     "companyManagement": "Gestion des Entreprises",
     "userManagement": "Gestion des Utilisateurs",
-    "systemSettings": "Paramètres Système",
-    "approve": "Approuver",
-    "reject": "Rejeter",
-    "pending": "En Attente d'Approbation",
-    "approved": "Approuvé",
-    "rejected": "Rejeté"
+    "systemSettings": "Paramètres Système"
   },
   "profile": {
     "myProfile": "Mon Profil",
@@ -494,8 +295,6 @@
     "noNotifications": "Aucune notification",
     "markAsRead": "Marquer comme Lu",
     "markAllAsRead": "Tout Marquer comme Lu",
-    "newComment": "Nouveau commentaire sur votre publication",
-    "newReaction": "Quelqu'un a réagi à votre publication",
     "newAssignment": "Une publication vous a été assignée",
     "newPost": "Nouvelle publication dans votre fil",
     "stayUpdated": "Restez informé de vos dernières activités",
@@ -507,21 +306,6 @@
     "allCaughtUp": "Vous êtes à jour !",
     "markAsReadTitle": "Marquer comme lu",
     "justNow": "À l'instant"
-  },
-  "qr": {
-    "generator": "Générateur de Code QR",
-    "generate": "Générer un Code QR",
-    "download": "Télécharger",
-    "scan": "Scanner le Code QR",
-    "scanInstructions": "Pointez votre caméra vers le code QR",
-    "scanSuccess": "Code QR scanné avec succès",
-    "scanError": "Échec du scan du code QR",
-    "companyRegistration": "Code QR d'Enregistrement d'Entreprise",
-    "howToScan": "Comment scanner :",
-    "instruction1": "Obtenez le code QR auprès de votre service RH",
-    "instruction2": "Maintenez-le stable dans le cadre",
-    "instruction3": "Assurez-vous d'un bon éclairage",
-    "instruction4": "Redirection automatique après un scan réussi"
   },
   "validation": {
     "required": "Ce champ est requis",
@@ -546,30 +330,9 @@
     "created": "Créé avec succès",
     "sent": "Envoyé avec succès"
   },
-  "time": {
-    "justNow": "À l'instant",
-    "minutesAgo": "Il y a {{count}} minutes",
-    "hoursAgo": "Il y a {{count}} heures",
-    "daysAgo": "Il y a {{count}} jours",
-    "weeksAgo": "Il y a {{count}} semaines",
-    "monthsAgo": "Il y a {{count}} mois",
-    "yearsAgo": "Il y a {{count}} ans"
-  },
   "dashboard": {
     "loadingWorkspace": "Chargement de votre espace de travail...",
     "pleaseWait": "Veuillez patienter un moment"
-  },
-  "myPosts": {
-    "title": "Mes publications",
-    "allPosts": "Toutes les publications",
-    "problems": "Problèmes",
-    "creative": "Créatif",
-    "discussions": "Discussions",
-    "unreadUpdates": "Mises à jour non lues",
-    "loading": "Chargement de vos publications...",
-    "noPosts": "Aucune publication trouvée",
-    "noPostsDescription": "Vous n'avez pas encore créé de publications.",
-    "failedToLoad": "Impossible de charger vos publications. Veuillez réessayer."
   },
   "assignedToMe": {
     "title": "Assigné à moi",
@@ -581,23 +344,6 @@
     "noPostsDescription": "Les publications qui vous sont assignées apparaîtront ici.",
     "status": "Statut",
     "priority": "Priorité"
-  },
-  "drafts": {
-    "title": "Mes brouillons",
-    "lastUpdated": "Dernière mise à jour :",
-    "publish": "Publier",
-    "noDrafts": "Pas encore de brouillons",
-    "noDraftsDescription": "Commencez à rédiger une publication et enregistrez-la comme brouillon.",
-    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce brouillon ?"
-  },
-  "scheduled": {
-    "title": "Publications programmées",
-    "publishNow": "Publier maintenant",
-    "cancelSchedule": "Annuler la programmation",
-    "overdue": "En retard",
-    "scheduledFor": "Programmé pour :",
-    "noScheduled": "Aucune publication programmée",
-    "noScheduledDescription": "Les publications programmées pour une publication future apparaîtront ici."
   },
   "templates": {
     "title": "Modèles de publication",
@@ -618,90 +364,27 @@
     "teamDiscussion": "Discussion d'équipe",
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce modèle ?"
   },
-  "createPost": {
-    "title": "Créer une publication",
-    "postTitle": "Titre",
-    "postDescription": "Description",
-    "postCategory": "Catégorie",
-    "postPrivacy": "Confidentialité",
-    "selectCategory": "Sélectionner une catégorie",
-    "selectPrivacy": "Sélectionner la confidentialité",
-    "problemReport": "Signalement de problème",
-    "ideaSuggestion": "Suggestion d'idée",
-    "creativeContent": "Contenu créatif",
-    "teamDiscussion": "Discussion d'équipe",
-    "companyPublic": "Public entreprise",
-    "departmentOnly": "Département uniquement",
-    "hrOnly": "RH uniquement",
-    "anonymous": "Publier anonymement",
-    "saveDraft": "Enregistrer comme brouillon",
-    "schedulePost": "Programmer la publication",
-    "useTemplate": "Utiliser un modèle",
-    "publishPost": "Publier",
-    "attachFiles": "Joindre des fichiers",
-    "addTags": "Ajouter des étiquettes",
-    "assignTo": "Assigner à",
-    "dueDate": "Date d'échéance",
-    "priority": "Priorité",
-    "titlePlaceholder": "Entrez le titre de la publication...",
-    "contentPlaceholder": "Partagez vos pensées, idées ou préoccupations...",
-    "cancel": "Annuler",
-    "selectPriority": "Sélectionner la priorité",
-    "selectUser": "Sélectionner un utilisateur",
-    "noAssignee": "Aucun assigné",
-    "scheduleDate": "Date de programmation",
-    "fileAttachments": "Pièces jointes",
-    "addFile": "Ajouter un fichier",
-    "removeFile": "Supprimer le fichier",
-    "submitting": "Envoi en cours...",
-    "savingDraft": "Enregistrement du brouillon..."
-  },
-  "postActions": {
-    "readMore": "Lire la suite",
-    "showLess": "Afficher moins",
-    "pinnedPost": "Publication épinglée",
-    "deletePost": "Supprimer la publication",
-    "deleteConfirm": "Cette action est irréversible. Cela supprimera définitivement la publication.",
-    "editPost": "Modifier la publication",
-    "reportPost": "Signaler la publication",
-    "pinPost": "Épingler la publication",
-    "unpinPost": "Désépingler la publication",
-    "archivePost": "Archiver la publication",
-    "dueDate": "Échéance :",
-    "assignedTo": "Assigné à :",
-    "priority": "Priorité :",
-    "status": "Statut :",
-    "confirmDelete": "Êtes-vous sûr ?",
-    "deleting": "Suppression..."
-  },
   "adminPanel": {
     "title": "Contrôles administrateur",
     "status": "Statut",
     "priority": "Priorité",
-    "pinPost": "Épingler la publication",
-    "unpinPost": "Désépingler la publication",
     "assignTo": "Assigner à",
     "dueDate": "Date d'échéance",
     "adminNote": "Note d'administrateur",
     "addNote": "Ajouter une note",
     "saveChanges": "Enregistrer les modifications",
     "deletePost": "Supprimer la publication",
-    "archivePost": "Archiver la publication",
     "selectStatus": "Sélectionner le statut",
     "selectPriority": "Sélectionner la priorité",
     "selectUser": "Sélectionner un utilisateur",
     "noAssignee": "Aucun assigné",
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette publication ?",
-    "confirmArchive": "Êtes-vous sûr de vouloir archiver cette publication ?",
-    "saving": "Enregistrement...",
-    "pinned": "Épinglée",
-    "notPinned": "Non épinglée"
+    "saving": "Enregistrement..."
   },
   "guidance": {
     "ui": {
       "memberStatuses": "Statuts des Membres",
       "templateExamples": "Exemples de Modèles",
-      "privacySettings": "Paramètres de Confidentialité",
       "moderationActions": "Actions de Modération",
       "distributionMethods": "Méthodes de Distribution",
       "whatToExpect": "À Quoi S'attendre",
@@ -741,8 +424,7 @@
           "Accéder aux analyses et aux rapports",
           "Gérer les étiquettes et les classifications d'utilisateurs",
           "Configurer la facturation et les abonnements de l'entreprise",
-          "Créer et gérer des modèles de publications",
-          "Générer des codes QR pour les invitations des employés"
+          "Créer et gérer des modèles de publications"
         ]
       },
       "hr": {
@@ -754,17 +436,6 @@
           "Accéder aux analyses de l'entreprise et aux journaux d'audit",
           "Gérer les tâches administratives liées aux employés",
           "Gérer les départements et les étiquettes"
-        ]
-      },
-      "employee": {
-        "name": "Employé",
-        "description": "Employé régulier de l'entreprise avec des privilèges de création de contenu",
-        "responsibilities": [
-          "Créer des publications (Problèmes, Idées, Contenu Créatif, Discussions)",
-          "Commenter et interagir avec les publications",
-          "Consulter les fils et le contenu de l'entreprise",
-          "Gérer ses propres publications (modifier/supprimer)",
-          "Consulter les publications qui leur sont assignées (si étiquetés)"
         ]
       }
     },
@@ -859,7 +530,6 @@
       "description": "Gérez les utilisateurs, attribuez des rôles et contrôlez l'accès.",
       "statuses": {
         "ACTIVE": { "label": "Actif", "description": "Accès complet à la plateforme" },
-        "PENDING": { "label": "En Attente", "description": "Invitation envoyée, en attente d'inscription" },
         "SUSPENDED": { "label": "Suspendu", "description": "Accès temporairement révoqué" }
       },
       "howToManage": [
@@ -872,7 +542,6 @@
       "roleAssignment": [
         "Attribuez le rôle d'Administrateur d'Entreprise avec soin - ils ont un accès complet",
         "Le rôle RH est destiné au personnel des ressources humaines",
-        "La plupart des utilisateurs devraient être des Employés",
         "Seuls les Super Administrateurs peuvent créer d'autres Super Administrateurs"
       ],
       "bulkOperations": [
@@ -917,7 +586,6 @@
       "title": "Analyses et Rapports",
       "description": "Comprenez l'engagement, les tendances et les indicateurs de performance.",
       "metrics": {
-        "postsByType": { "label": "Publications par Type", "description": "Distribution des Signalements de Problèmes, Idées, Contenu Créatif et Discussions", "useCase": "Identifier quel type de contenu les employés créent le plus" },
         "postsByStatus": { "label": "Publications par Statut", "description": "Distribution actuelle des statuts (Ouvert, En Cours, Résolu, etc.)", "useCase": "Suivre la progression du flux de travail et identifier les goulots d'étranglement" },
         "postsByPriority": { "label": "Publications par Priorité", "description": "Distribution entre les priorités Critique, Élevé, Moyen, Faible", "useCase": "Comprendre la distribution d'urgence et la charge de travail" },
         "engagementMetrics": { "label": "Engagement des Utilisateurs", "description": "Commentaires, réactions et participation active", "useCase": "Mesurer l'adoption de la plateforme et l'activité des utilisateurs" },
@@ -971,60 +639,6 @@
         "Apprenez des schémas dans les signalements"
       ]
     },
-    "postCreation": {
-      "title": "Créer des Publications",
-      "description": "Partagez des problèmes, des idées, du contenu créatif et des discussions.",
-      "postTypes": {
-        "problem_report": { "label": "Signalement de Problème", "description": "Signalez des problèmes, des bugs ou des dysfonctionnements qui nécessitent une résolution", "whenToUse": "Lorsque quelque chose est cassé, ne fonctionne pas ou cause des problèmes", "tips": ["Soyez précis sur le problème", "Incluez les étapes pour le reproduire", "Ajoutez des captures d'écran ou des preuves", "Décrivez l'impact et l'urgence"] },
-        "idea_suggestion": { "label": "Suggestion d'Idée", "description": "Suggérez des améliorations, des fonctionnalités ou de nouvelles idées", "whenToUse": "Lorsque vous avez des idées pour améliorer les produits, les processus ou le lieu de travail", "tips": ["Expliquez le problème que vous résolvez", "Décrivez votre solution proposée", "Mettez en évidence les bénéfices attendus", "Considérez les alternatives"] },
-        "creative_content": { "label": "Contenu Créatif", "description": "Partagez des travaux créatifs, des designs ou des concepts innovants", "whenToUse": "Lors du partage de designs, projets créatifs ou contenu artistique", "tips": ["Utilisez des visuels pour montrer votre travail", "Expliquez votre processus créatif", "Demandez des retours spécifiques", "Partagez vos sources d'inspiration"] },
-        "team_discussion": { "label": "Discussion d'Équipe", "description": "Lancez des conversations et des discussions d'équipe", "whenToUse": "Lorsque vous souhaitez recueillir des avis, brainstormer ou discuter de sujets", "tips": ["Formulez la discussion avec des questions claires", "Fournissez le contexte et le contexte", "Encouragez les perspectives diverses", "Résumez les conclusions dans les commentaires"] }
-      },
-      "privacySettings": {
-        "COMPANY_PUBLIC": { "label": "Public Entreprise", "description": "Visible pour tous les membres de l'entreprise" },
-        "DEPARTMENT_ONLY": { "label": "Département Uniquement", "description": "Visible uniquement par votre département" },
-        "HR_ONLY": { "label": "RH Uniquement", "description": "Visible uniquement par les RH et les administrateurs" }
-      },
-      "bestPractices": [
-        "Choisissez le bon type de publication pour votre contenu",
-        "Rédigez des titres clairs et descriptifs",
-        "Fournissez suffisamment de contexte et de détails",
-        "Utilisez les paramètres de confidentialité appropriés",
-        "Ajoutez des étiquettes ou des mentions pertinentes",
-        "Relisez avant de publier"
-      ]
-    },
-    "qrCode": {
-      "title": "Code QR pour les Invitations des Employés",
-      "description": "Générez des codes QR pour simplifier l'intégration des employés.",
-      "howItWorks": [
-        "L'administrateur génère un code QR spécifique à l'entreprise",
-        "Le code QR est imprimé ou affiché numériquement",
-        "Les nouveaux employés le scannent avec leur appareil mobile",
-        "Ils sont dirigés vers l'inscription avec l'entreprise pré-remplie",
-        "Après l'inscription, ils obtiennent un accès immédiat"
-      ],
-      "howToGenerate": [
-        "Naviguez vers la page Code QR dans le panneau d'administration",
-        "Cliquez sur 'Générer un Code QR'",
-        "Téléchargez l'image du code QR ou le PDF avec les instructions",
-        "Partagez avec les nouveaux employés ou affichez au bureau"
-      ],
-      "distributionMethods": [
-        "Imprimez et affichez dans les espaces communs",
-        "Incluez dans les paquets de bienvenue pour les nouveaux employés",
-        "Affichez lors des sessions d'orientation",
-        "Partagez numériquement par e-mail ou messagerie",
-        "Ajoutez au manuel de l'employé"
-      ],
-      "bestPractices": [
-        "Incluez des instructions claires avec le code QR",
-        "Testez le code QR avant une distribution large",
-        "Régénérez périodiquement pour la sécurité",
-        "Suivez les inscriptions réussies",
-        "Fournissez des méthodes d'inscription alternatives"
-      ]
-    },
     "assignedToMe": {
       "title": "Assigné à Moi",
       "description": "Suivez les publications et tâches qui vous sont assignées.",
@@ -1054,8 +668,6 @@
       ]
     },
     "tooltips": {
-      "pinPost": "Épinglez cette publication pour la garder en haut du fil",
-      "archivePost": "Archivez cette publication pour la retirer des fils actifs",
       "deletePost": "Supprimez définitivement cette publication et tous ses commentaires",
       "editPost": "Modifiez le contenu, la confidentialité ou les paramètres de la publication",
       "changePriority": "Mettez à jour le niveau de priorité (Critique, Élevé, Moyen, Faible)",
@@ -1063,9 +675,6 @@
       "assignPost": "Assignez cette publication à des utilisateurs spécifiques pour action",
       "addDueDate": "Définissez une date limite pour la résolution ou l'achèvement",
       "adminComment": "Ajoutez une note privée d'administrateur (visible uniquement par les administrateurs)",
-      "reportContent": "Signalez ce contenu pour révision de modération",
-      "saveAsDraft": "Enregistrez comme brouillon pour terminer plus tard",
-      "schedulePost": "Planifiez la publication de cette publication ultérieurement",
       "useTemplate": "Utilisez un modèle pour accélérer la création de publications"
     }
   },
@@ -1085,7 +694,6 @@
     "topics": {
       "rolesPermissions": "Comprendre les Rôles et Permissions",
       "navigation": "Naviguer sur la Plateforme",
-      "creatingPosts": "Créer des Publications",
       "postStatus": "Flux de Statut des Publications",
       "priorityLevels": "Niveaux de Priorité",
       "assignedToMe": "Assigné à Moi",
@@ -1094,8 +702,7 @@
       "userTags": "Étiquettes Utilisateur",
       "postTemplates": "Modèles de Publications",
       "contentModeration": "Modération du Contenu",
-      "analyticsReporting": "Analyses et Rapports",
-      "qrCodeInvitations": "Invitations par Code QR"
+      "analyticsReporting": "Analyses et Rapports"
     },
     "roles": {
       "title": "Comprendre les Rôles et Permissions",
@@ -1111,10 +718,6 @@
       "hr": {
         "name": "RH",
         "description": "Spécialiste des Ressources Humaines avec des privilèges administratifs"
-      },
-      "employee": {
-        "name": "Employé",
-        "description": "Employé régulier de l'entreprise avec des privilèges de création de contenu"
       },
       "viewFullMatrix": "Pour une matrice complète des permissions montrant ce que chaque rôle peut faire, visitez la",
       "roleDefinitionsPage": "page des Définitions de Rôles"

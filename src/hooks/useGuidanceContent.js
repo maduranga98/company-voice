@@ -34,7 +34,7 @@ const useGuidanceContent = () => {
         { name: 'Analytics Dashboard', description: 'View engagement metrics and company analytics' },
         { name: 'User Tags System', description: 'Classify users for assignment and filtering' },
         { name: 'Template Management', description: 'Create reusable post templates for consistency' },
-        { name: 'QR Code Generation', description: 'Generate employee invitation QR codes' },
+        { name: 'Report Link QR Code', description: 'Share the public report link as a QR code' },
         { name: 'Billing Management', description: 'Manage company subscription and billing' },
         { name: 'Audit Logs', description: 'Access company audit logs and compliance reports' },
         { name: 'Policy Management', description: 'Create and manage company policies' },
@@ -47,28 +47,11 @@ const useGuidanceContent = () => {
       icon: '👥',
       features: [
         { name: 'HR Conversations', description: 'Access private HR messaging and consultations' },
-        { name: 'Member Management', description: 'Manage employees and their profiles' },
+        { name: 'Member Management', description: 'Manage staff accounts and their profiles' },
         { name: 'Post Moderation', description: 'Review HR-specific and sensitive content' },
-        { name: 'Employee Reports', description: 'Generate employee analytics and reports' },
-        { name: 'Vendor Risk Assessment', description: 'Evaluate and track vendor compliance' },
-        { name: 'Department Management', description: 'Organize employees by department' },
+                { name: 'Vendor Risk Assessment', description: 'Evaluate and track vendor compliance' },
+        { name: 'Department Management', description: 'Organize staff by department' },
         { name: 'Analytics Access', description: 'View HR-specific analytics and metrics' },
-      ]
-    },
-    employee: {
-      name: t('guidance.roles.employee.name'),
-      description: t('guidance.roles.employee.description'),
-      responsibilities: t('guidance.roles.employee.responsibilities', { returnObjects: true }),
-      icon: '👤',
-      features: [
-        { name: 'Post Creation', description: 'Create problems, ideas, creative content, and discussions' },
-        { name: 'Anonymous Posting', description: 'Post anonymously to protect your identity' },
-        { name: 'Post Comments', description: 'Engage with posts through comments and reactions' },
-        { name: 'Assigned to Me', description: 'Track posts and tasks assigned to you' },
-        { name: 'Feed Navigation', description: 'Browse and filter company posts and discussions' },
-        { name: 'Profile Management', description: 'Manage your personal profile and preferences' },
-        { name: 'Policy Library', description: 'Access company policies and guidelines' },
-        { name: 'HR Messages', description: 'Send private messages to HR department' },
       ]
     }
   };
@@ -131,7 +114,6 @@ const useGuidanceContent = () => {
     description: t('guidance.memberManagement.description'),
     memberStatuses: {
       ACTIVE: { label: t('guidance.memberManagement.statuses.ACTIVE.label'), description: t('guidance.memberManagement.statuses.ACTIVE.description'), icon: '✅' },
-      PENDING: { label: t('guidance.memberManagement.statuses.PENDING.label'), description: t('guidance.memberManagement.statuses.PENDING.description'), icon: '⏳' },
       SUSPENDED: { label: t('guidance.memberManagement.statuses.SUSPENDED.label'), description: t('guidance.memberManagement.statuses.SUSPENDED.description'), icon: '⛔' }
     },
     howToManage: t('guidance.memberManagement.howToManage', { returnObjects: true }),
@@ -170,7 +152,6 @@ const useGuidanceContent = () => {
     title: t('guidance.analytics.title'),
     description: t('guidance.analytics.description'),
     keyMetrics: {
-      postsByType: { label: t('guidance.analytics.metrics.postsByType.label'), description: t('guidance.analytics.metrics.postsByType.description'), useCase: t('guidance.analytics.metrics.postsByType.useCase') },
       postsByStatus: { label: t('guidance.analytics.metrics.postsByStatus.label'), description: t('guidance.analytics.metrics.postsByStatus.description'), useCase: t('guidance.analytics.metrics.postsByStatus.useCase') },
       postsByPriority: { label: t('guidance.analytics.metrics.postsByPriority.label'), description: t('guidance.analytics.metrics.postsByPriority.description'), useCase: t('guidance.analytics.metrics.postsByPriority.useCase') },
       engagementMetrics: { label: t('guidance.analytics.metrics.engagementMetrics.label'), description: t('guidance.analytics.metrics.engagementMetrics.description'), useCase: t('guidance.analytics.metrics.engagementMetrics.useCase') },
@@ -198,32 +179,6 @@ const useGuidanceContent = () => {
     bestPractices: t('guidance.moderation.bestPractices', { returnObjects: true })
   };
 
-  const POST_CREATION_GUIDANCE = {
-    title: t('guidance.postCreation.title'),
-    description: t('guidance.postCreation.description'),
-    postTypes: {
-      problem_report: { label: t('guidance.postCreation.postTypes.problem_report.label'), description: t('guidance.postCreation.postTypes.problem_report.description'), whenToUse: t('guidance.postCreation.postTypes.problem_report.whenToUse'), tips: t('guidance.postCreation.postTypes.problem_report.tips', { returnObjects: true }), icon: '🐛' },
-      idea_suggestion: { label: t('guidance.postCreation.postTypes.idea_suggestion.label'), description: t('guidance.postCreation.postTypes.idea_suggestion.description'), whenToUse: t('guidance.postCreation.postTypes.idea_suggestion.whenToUse'), tips: t('guidance.postCreation.postTypes.idea_suggestion.tips', { returnObjects: true }), icon: '💡' },
-      creative_content: { label: t('guidance.postCreation.postTypes.creative_content.label'), description: t('guidance.postCreation.postTypes.creative_content.description'), whenToUse: t('guidance.postCreation.postTypes.creative_content.whenToUse'), tips: t('guidance.postCreation.postTypes.creative_content.tips', { returnObjects: true }), icon: '🎨' },
-      team_discussion: { label: t('guidance.postCreation.postTypes.team_discussion.label'), description: t('guidance.postCreation.postTypes.team_discussion.description'), whenToUse: t('guidance.postCreation.postTypes.team_discussion.whenToUse'), tips: t('guidance.postCreation.postTypes.team_discussion.tips', { returnObjects: true }), icon: '💬' }
-    },
-    privacySettings: {
-      COMPANY_PUBLIC: { label: t('guidance.postCreation.privacySettings.COMPANY_PUBLIC.label'), description: t('guidance.postCreation.privacySettings.COMPANY_PUBLIC.description'), icon: '🌐' },
-      DEPARTMENT_ONLY: { label: t('guidance.postCreation.privacySettings.DEPARTMENT_ONLY.label'), description: t('guidance.postCreation.privacySettings.DEPARTMENT_ONLY.description'), icon: '👥' },
-      HR_ONLY: { label: t('guidance.postCreation.privacySettings.HR_ONLY.label'), description: t('guidance.postCreation.privacySettings.HR_ONLY.description'), icon: '🔒' }
-    },
-    bestPractices: t('guidance.postCreation.bestPractices', { returnObjects: true })
-  };
-
-  const QR_CODE_GUIDANCE = {
-    title: t('guidance.qrCode.title'),
-    description: t('guidance.qrCode.description'),
-    howItWorks: t('guidance.qrCode.howItWorks', { returnObjects: true }),
-    howToGenerate: t('guidance.qrCode.howToGenerate', { returnObjects: true }),
-    distributionMethods: t('guidance.qrCode.distributionMethods', { returnObjects: true }),
-    bestPractices: t('guidance.qrCode.bestPractices', { returnObjects: true })
-  };
-
   const ASSIGNED_TO_ME_GUIDANCE = {
     title: t('guidance.assignedToMe.title'),
     description: t('guidance.assignedToMe.description'),
@@ -243,8 +198,6 @@ const useGuidanceContent = () => {
     TEMPLATE_GUIDANCE,
     ANALYTICS_GUIDANCE,
     MODERATION_GUIDANCE,
-    POST_CREATION_GUIDANCE,
-    QR_CODE_GUIDANCE,
     ASSIGNED_TO_ME_GUIDANCE
   };
 };

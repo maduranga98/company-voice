@@ -4,10 +4,10 @@ Branch `rework/auth-hardening`, cut from `rework/public-report-form`. Audit of t
 
 ## 0. Discrepancy with the task description
 
-The removal phase is still not in the repo: `Register.jsx` (employee self-registration), `QRCodeGenerator.jsx`, the QR-credential login in `Login.jsx`, `EmployeeLayout`, the feeds and the employee role are all present. Consequences handled in this change:
+When this audit was written the removal phase was not yet in the repo (`Register.jsx`, `QRCodeGenerator.jsx`, the QR-credential login, `EmployeeLayout`, the feeds and the employee role). It has since been done on `rework/remove-walls`. Consequences handled in the auth change:
 
 - `Register.jsx` writes `users` documents from the browser with a client-side hash. It cannot survive the new rules, so the page, its route and the Login hand-off to it are removed. Nothing in the spec needs it.
-- The credential-QR login in `Login.jsx` just calls `login(username, password)`, so it keeps working through the new callable. It is not touched beyond the removed `/register` hand-offs.
+- The credential-QR login in `Login.jsx` called `login(username, password)`; it has since been removed together with `QRCodeGenerator.jsx`.
 - The `employee` role cannot log in any more (login callable and rules only know super_admin, company_admin, hr).
 
 ## 1. How login works today
@@ -71,5 +71,5 @@ Only `AuthContext.jsx` reads/writes it (`rememberedUsername` in `Login.jsx` is a
 4. `generateAuthToken`: same hash, `cors: true`, no App Check, returns more fields than needed, error messages echo `error.message`.
 5. Account state checks (suspended, invited, deactivated, company inactive) run in the browser against data any anonymous user can read, so state is not protected from guessers either.
 6. Signing out never signs out of Firebase; the anonymous uid persists.
-7. `Login` QR flow places credentials in a QR image (out of scope; noted).
+7. `Login` QR flow placed credentials in a QR image (removed since).
 8. Out of scope but still present: the AES secret for anonymous author/thread encryption is bundled into the client (`VITE_ANONYMOUS_SECRET`).
