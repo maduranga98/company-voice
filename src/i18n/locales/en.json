@@ -1514,9 +1514,6 @@
       "email": "Email",
       "phone": "Phone"
     },
-    "verification": {
-      "label": "Security check"
-    },
     "submit": {
       "button": "Submit report",
       "sending": "Submitting…",

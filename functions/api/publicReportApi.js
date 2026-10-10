@@ -33,11 +33,10 @@ const {
 } = require('../utils/caseKeys');
 const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../utils/rateLimit');
 const { SLUG_PATTERN, issueReportSlug } = require('../utils/reportSlugs');
-const { verifyTurnstile } = require('../utils/turnstile');
 const { assertRole, assertCompany } = require('../utils/authz');
 const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
 
-const { ANONYMOUS_SECRET, TURNSTILE_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
+const { ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
 
 const MAX_CASE_CODE_ATTEMPTS = 5;
 const COLLISION = Symbol('case-code-collision');
@@ -84,7 +83,6 @@ const getPublicReportConfig = onCall(BASE_OPTIONS, async (request) => {
       maxFileMB: LIMITS.maxFileMB,
       allowedMimeTypes: Object.keys(MIME_EXTENSIONS),
     },
-    turnstileRequired: true,
   };
 });
 
@@ -201,7 +199,7 @@ async function notifyStaff(companyId, postId, involvesHR) {
 const submitPublicReport = onCall(
   {
     ...BASE_OPTIONS,
-    secrets: [ANONYMOUS_SECRET, TURNSTILE_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT],
+    secrets: [ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT],
     memory: '512MiB',
     timeoutSeconds: 90,
   },
@@ -215,10 +213,6 @@ const submitPublicReport = onCall(
         throw new HttpsError('invalid-argument', 'Invalid submission.');
       }
       throw error;
-    }
-
-    if (!(await verifyTurnstile(input.turnstileToken, TURNSTILE_SECRET.value()))) {
-      throw new HttpsError('failed-precondition', 'Verification failed.');
     }
 
     const resolved = await resolveActiveCompany(input.slug);
