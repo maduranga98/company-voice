@@ -151,3 +151,28 @@ After each phase run `npm run lint`, `npm run build`, and `cd functions && npm t
 - `searchInComments` in `searchApi.js`.
 - Leftover rules for `likes`/`comments`/`reactions` subcollections, `discussions`, `bookmarks`.
 - Manual cleanup: legacy `employee` user docs, old anonymous Auth users (`scripts/deleteAuthSessions.js` exists), stale `authSessions` documents.
+
+## 10. Outcome and deviations from this plan
+
+Done as planned unless listed here.
+- Phase order followed. Where one file needed several phases (`App.jsx`, `CompanyAdminLayout`), the edit landed in the first phase that touched it. The moderation nav links went in Phase 1.
+- `Profile.jsx`: the "My Activity" card (counts of the user's own wall posts) went with My Posts.
+- `CompanyDashboard`: a recent-case row now opens `/hr/inbox` (it used to open the matching wall). The pending-approval alert, member-count badge, Moderation and Archived quick actions are gone.
+- Mobile bottom nav: "Walls" is replaced by "Inbox" (an existing page). The HR "Moderation" tab is gone.
+- `CompanyAnalytics`: the posts-by-type widget and the "Pending Users" card (the approval step) are removed. The comment-based widgets (Total Comments, engagement, top contributors) remain, per the "per-wall widgets only" scope. See section 11.
+- `login` callable: non-staff roles now return `This account is no longer active.` after the password verifies, checked before status so a legacy employee always gets it. A wrong password still gets the generic error.
+- `changeUserRole` no longer accepts a legacy employee as a target. Create a new `hr` or `company_admin` account instead.
+- Client: `AuthContext` raises an `inactiveAccount` flag when a signed-in user's role claim is not a staff role, signs them out, and `PrivateRoute` shows the plain screen. Role-less leftover anonymous sessions keep the old behaviour (silent sign-out, then `/login`).
+- Indexes removed: `posts(companyId,type,createdAt)`, `posts(companyId,authorId,createdAt)`, `comments(postId,companyId,createdAt)`. Their only queries were in deleted files. The remaining `type`, `authorId` and `postId` queries (searchApi, MemberManagement, the internal notes list) are equality-only and need no composite index.
+- Docs deleted as obsolete: `IMPLEMENTATION_SUMMARY.md`, `POST_MANAGEMENT_ENHANCEMENTS_README.md`, `POST_MANAGEMENT_ENHANCEMENT_GUIDE.md` (index pages updated). `AUTH_AUDIT.md` and `STEP1_NOTES.md`: false statements corrected.
+- Dependencies: `html5-qrcode` and `dompurify` removed (the latter was only used by the deleted `Post.jsx`; it stays in the lockfile as a transitive dependency of `jspdf`).
+- i18n: 374 leaf keys removed per locale where present, listed by a script that checks zero references. Key parity with the pre-change state is unchanged. New keys: `auth.accountInactive.*`. Copy changed: `company.qrCodeTitle/qrCodeDesc`, `auth.login.mainDescription`.
+- The `firestore.rules` change is one comment. The rules were already staff-only, so there was nothing to tighten (section 0).
+
+## 11. Not done, or needs the owner
+- `comments` rule lets HR read internal notes on involvesHR cases (section 4). Fix with a rule that checks the parent post, in the moderation/rules follow-up.
+- `likes`, `comments`, `reactions` subcollection rules, the `discussions` and `bookmarks` rules, and the `posts` update clauses for `reactions`, `comments` and `reportCount` are left in place. They are unused by the app now.
+- `CompanyAnalytics` comment and engagement widgets, and `searchApi` `searchInComments`, still work but describe a feature that no longer exists.
+- Unmatched URLs (old `/feed/*`, `/register`, `/messages` bookmarks) render a blank page; there is no catch-all route. Adding one is a one-line follow-up.
+- `ModerationDashboard` and `ReportDetailView` still carry their old lint problems (2 each); only a `TODO(next-review)` comment was added.
+- Manual cleanup: legacy `employee` user documents (and their `userCredentials`), old anonymous Auth users, stale `authSessions` documents (`scripts/deleteAuthSessions.js`), and stored `isPinned`/`isArchived`/`reactions` fields on posts.
