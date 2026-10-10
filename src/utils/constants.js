@@ -582,15 +582,11 @@ export const DefaultDepartments = [
 
 // Notification types
 export const NotificationType = {
-  COMMENT: "comment",
-  REACTION: "reaction",
-  MENTION: "mention",
   POST_UPDATE: "post_update",
   STATUS_CHANGED: "status_changed",
   PRIORITY_CHANGED: "priority_changed",
   ASSIGNED: "assigned",
   DUE_DATE_REMINDER: "due_date_reminder",
-  ADMIN_COMMENT: "admin_comment",
   NEW_CASE: "new_case",
   MODERATION: "moderation",
   CONTENT_REPORTED: "content_reported",

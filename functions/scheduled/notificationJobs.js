@@ -20,7 +20,7 @@ const db = admin.firestore();
 exports.dailyEmailDigestJob = functions.pubsub
   .schedule('0 * * * *') // Run every hour
   .timeZone('UTC')
-  .onRun(async (context) => {
+  .onRun(async () => {
     try {
       console.log('Running daily email digest job...');
 
@@ -61,7 +61,7 @@ exports.dailyEmailDigestJob = functions.pubsub
 exports.weeklyEmailDigestJob = functions.pubsub
   .schedule('0 9 * * *') // Run daily at 9 AM UTC
   .timeZone('UTC')
-  .onRun(async (context) => {
+  .onRun(async () => {
     try {
       console.log('Running weekly email digest job...');
 
@@ -237,14 +237,8 @@ async function getWeeklyStats(companyId, since) {
       .where('createdAt', '>=', since)
       .get();
 
-    const commentsSnapshot = await db.collection('comments')
-      .where('companyId', '==', companyId)
-      .where('createdAt', '>=', since)
-      .get();
-
     const stats = {
       totalPosts: postsSnapshot.size,
-      totalComments: commentsSnapshot.size,
       postsByType: {},
       postsByStatus: {},
     };
@@ -315,10 +309,6 @@ function createDigestEmail(userData, groupedNotifications, digestType, weeklySta
         <div class="stat-value">${weeklyStats.totalPosts || 0}</div>
         <div class="stat-label">New Posts</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value">${weeklyStats.totalComments || 0}</div>
-        <div class="stat-label">Comments</div>
-      </div>
     </div>
     `;
   }
@@ -371,9 +361,6 @@ function createDigestEmail(userData, groupedNotifications, digestType, weeklySta
  */
 function formatNotificationType(type) {
   const typeMap = {
-    comment: 'Comments',
-    reaction: 'Reactions',
-    mention: 'Mentions',
     status_change: 'Status Changes',
     priority_change: 'Priority Changes',
     new_post: 'New Posts',
@@ -399,7 +386,7 @@ function formatDate(timestamp) {
       hour: '2-digit',
       minute: '2-digit',
     });
-  } catch (error) {
+  } catch {
     return 'Unknown date';
   }
 }

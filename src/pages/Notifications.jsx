@@ -14,8 +14,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   Bell,
-  MessageCircle,
-  Heart,
   FileText,
   Info,
   CheckCheck,
@@ -85,8 +83,6 @@ const Notifications = () => {
 
   const getNotificationIcon = (type) => {
     const iconMap = {
-      comment: { bg: "bg-blue-50", icon: <MessageCircle className="w-5 h-5 text-blue-500" /> },
-      like: { bg: "bg-rose-50", icon: <Heart className="w-5 h-5 text-rose-500" fill="currentColor" /> },
       post: { bg: "bg-emerald-50", icon: <FileText className="w-5 h-5 text-emerald-500" /> },
       system: { bg: "bg-violet-50", icon: <Info className="w-5 h-5 text-violet-500" /> },
     };
@@ -113,7 +109,7 @@ const Notifications = () => {
       if (diffHours < 24) return `${diffHours}h ago`;
       if (diffDays < 7) return `${diffDays}d ago`;
       return date.toLocaleDateString();
-    } catch (error) {
+    } catch {
       return "Recently";
     }
   };

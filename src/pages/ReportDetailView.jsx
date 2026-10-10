@@ -1,3 +1,4 @@
+// TODO(next-review): unlinked from navigation; review or remove in the moderation rework.
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
