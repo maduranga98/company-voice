@@ -19,15 +19,13 @@ const HelpCenter = () => {
     TEMPLATE_GUIDANCE,
     ANALYTICS_GUIDANCE,
     MODERATION_GUIDANCE,
-    POST_CREATION_GUIDANCE,
-    QR_CODE_GUIDANCE,
     ASSIGNED_TO_ME_GUIDANCE,
   } = useGuidanceContent();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedItemId, setExpandedItemId] = useState(null);
 
-  const userRole = userData?.role || "employee";
+  const userRole = userData?.role;
 
   const isAdminRole = ["super_admin", "company_admin", "hr"].includes(userRole);
 
@@ -35,12 +33,11 @@ const HelpCenter = () => {
   const renderContent = (contentId) => {
     const getVisibleRoles = () => {
       const roleHierarchy = {
-        super_admin: ["super_admin", "company_admin", "hr", "employee"],
-        company_admin: ["company_admin", "hr", "employee"],
-        hr: ["hr", "employee"],
-        employee: ["employee"],
+        super_admin: ["super_admin", "company_admin", "hr"],
+        company_admin: ["company_admin", "hr"],
+        hr: ["hr"],
       };
-      return roleHierarchy[userRole] || ["employee"];
+      return roleHierarchy[userRole] || [];
     };
 
     switch (contentId) {
@@ -159,47 +156,6 @@ const HelpCenter = () => {
           </div>
         );
 
-      case "post-creation":
-        return (
-          <div className="space-y-4">
-            <p className="text-gray-600 text-sm">{POST_CREATION_GUIDANCE.description}</p>
-            {Object.entries(POST_CREATION_GUIDANCE.postTypes).map(([key, type]) => (
-              <div key={key} className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl">{type.icon}</span>
-                  <h4 className="text-sm font-semibold text-gray-800">{type.label}</h4>
-                </div>
-                <p className="text-xs text-gray-600 mb-1">{type.description}</p>
-                <p className="text-xs text-gray-400 mb-2">
-                  <strong>{t("help.common.whenToUse")}:</strong> {type.whenToUse}
-                </p>
-                <ul className="space-y-1">
-                  {type.tips.map((tip, i) => (
-                    <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
-                      <span className="text-blue-400">•</span>
-                      <span>{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <div>
-              <h4 className="text-xs font-semibold text-gray-700 mb-2">{t("guidance.ui.privacySettings")}</h4>
-              <div className="grid grid-cols-1 gap-2">
-                {Object.entries(POST_CREATION_GUIDANCE.privacySettings).map(([key, privacy]) => (
-                  <div key={key} className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-start gap-2">
-                    <span className="text-lg">{privacy.icon}</span>
-                    <div>
-                      <div className="text-xs font-semibold text-gray-800">{privacy.label}</div>
-                      <div className="text-xs text-gray-500">{privacy.description}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
       case "assigned-to-me":
         return (
           <div className="space-y-4">
@@ -296,23 +252,6 @@ const HelpCenter = () => {
           </div>
         );
 
-      case "qr-code":
-        return (
-          <div className="space-y-4">
-            <p className="text-gray-600 text-sm">{QR_CODE_GUIDANCE.description}</p>
-            <HelpPanel title={t("guidance.ui.howItWorks")} variant="info" defaultExpanded={true}>
-              <ol className="space-y-2">
-                {QR_CODE_GUIDANCE.howItWorks.map((step, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-xs text-gray-700">
-                    <span className="font-semibold text-blue-500 flex-shrink-0">{idx + 1}.</span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </HelpPanel>
-          </div>
-        );
-
       case "departments":
         return (
           <div className="space-y-4">
@@ -396,19 +335,6 @@ const HelpCenter = () => {
               }]
             : []),
           {
-            id: "anonymity",
-            title: t("help.topics.anonymityPrivacy", "Anonymity & privacy"),
-            sub: t("help.topics.anonymityPrivacySub", "How we protect your identity"),
-            contentId: "post-creation",
-            iconBg: "bg-green-100",
-            iconStroke: "#16a34a",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            ),
-          },
-          {
             id: "navigate",
             title: t("help.topics.navigation", "How to navigate"),
             sub: t("help.topics.navigationSub", "Getting around the app"),
@@ -427,85 +353,9 @@ const HelpCenter = () => {
         ],
       },
       {
-        id: "walls",
-        label: t("help.sections.theWalls", "The 3 walls"),
-        items: [
-          {
-            id: "creative-wall",
-            title: t("help.topics.creativeWall", "Creative Wall"),
-            sub: t("help.topics.creativeWallSub", "Share ideas and innovations"),
-            contentId: "post-creation",
-            iconBg: "bg-purple-100",
-            iconStroke: "#7c3aed",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-              </svg>
-            ),
-          },
-          {
-            id: "problems-wall",
-            title: t("help.topics.problemsWall", "Problems Wall"),
-            sub: t("help.topics.problemsWallSub", "Report workplace issues"),
-            contentId: isAdminRole ? "post-status" : "post-creation",
-            iconBg: "bg-red-100",
-            iconStroke: "#dc2626",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            ),
-          },
-          {
-            id: "discussions-wall",
-            title: t("help.topics.discussionsWall", "Discussions Wall"),
-            sub: t("help.topics.discussionsWallSub", "Collaborate with your team"),
-            contentId: "post-creation",
-            iconBg: "bg-blue-100",
-            iconStroke: "#2563eb",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-              </svg>
-            ),
-          },
-        ],
-      },
-      {
         id: "posting",
         label: t("help.sections.postingPrivacy", "Posting & privacy"),
         items: [
-          {
-            id: "create-post",
-            title: t("help.topics.creatingPosts", "How to create a post"),
-            sub: t("help.topics.creatingPostsSub", "Step-by-step guide"),
-            contentId: "post-creation",
-            iconBg: "bg-teal-100",
-            iconStroke: "#0d9488",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 8v8M8 12h8" />
-              </svg>
-            ),
-          },
-          {
-            id: "anonymous-posting",
-            title: t("help.topics.anonymousPosting", "Anonymous posting"),
-            sub: t("help.topics.anonymousPostingSub", "Post without revealing identity"),
-            contentId: "post-creation",
-            iconBg: "bg-green-100",
-            iconStroke: "#16a34a",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                <line x1="1" y1="1" x2="23" y2="23" />
-              </svg>
-            ),
-          },
           ...(isAdminRole
             ? [{
                 id: "post-status",
@@ -673,7 +523,7 @@ const HelpCenter = () => {
           }]
         : []),
     ],
-    [t, userRole, isAdminRole]
+    [t, isAdminRole]
   );
 
   // Filter by search

@@ -1,25 +1,25 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, Users, Briefcase, User, Check, X } from 'lucide-react';
+import { ArrowLeft, Shield, Users, Briefcase, Check, X } from 'lucide-react';
 import { ROLE_DEFINITIONS } from '../utils/guidanceContent';
 import { useAuth } from '../contexts/AuthContext';
 
 const RoleDefinitions = () => {
   const navigate = useNavigate();
   const { userData } = useAuth();
-  const userRole = userData?.role || 'employee';
+  const userRole = userData?.role;
 
   // Helper function to get visible roles based on user's role
   const getVisibleRoles = () => {
     const roleHierarchy = {
-      'super_admin': ['super_admin', 'company_admin', 'hr', 'employee'],
-      'company_admin': ['company_admin', 'hr', 'employee'],
-      'hr': ['hr', 'employee'],
-      'employee': ['employee']
+      'super_admin': ['super_admin', 'company_admin', 'hr'],
+      'company_admin': ['company_admin', 'hr'],
+      'hr': ['hr']
     };
-    return roleHierarchy[userRole] || ['employee'];
+    return roleHierarchy[userRole] || [];
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const visibleRoles = useMemo(() => getVisibleRoles(), [userRole]);
   const filteredRoleDefinitions = useMemo(() => {
     return Object.fromEntries(
@@ -27,55 +27,46 @@ const RoleDefinitions = () => {
     );
   }, [visibleRoles]);
 
-  const [selectedRole, setSelectedRole] = useState(visibleRoles[0] || 'employee');
+  const [selectedRole, setSelectedRole] = useState(visibleRoles[0]);
 
   // Feature permissions matrix
   const permissions = {
-    'Content Creation': {
-      'Create Posts': { super_admin: true, company_admin: true, hr: true, employee: true },
-      'Comment on Posts': { super_admin: true, company_admin: true, hr: true, employee: true },
-      'Edit Own Posts': { super_admin: true, company_admin: true, hr: true, employee: true },
-      'Delete Own Posts': { super_admin: true, company_admin: true, hr: true, employee: true },
-    },
     'Post Management': {
-      'Change Post Status': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Change Post Priority': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Pin/Unpin Posts': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Assign Posts': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Add Admin Comments': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Set Due Dates': { super_admin: true, company_admin: true, hr: true, employee: false },
+      'Change Post Status': { super_admin: true, company_admin: true, hr: true },
+      'Change Post Priority': { super_admin: true, company_admin: true, hr: true },
+      'Assign Posts': { super_admin: true, company_admin: true, hr: true },
+      'Add Internal Notes': { super_admin: true, company_admin: true, hr: true },
+      'Set Due Dates': { super_admin: true, company_admin: true, hr: true },
     },
     'Moderation': {
-      'View Reports': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Review Content': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Take Moderation Action': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'View Moderation Logs': { super_admin: true, company_admin: true, hr: true, employee: false },
+      'View Reports': { super_admin: true, company_admin: true, hr: true },
+      'Review Content': { super_admin: true, company_admin: true, hr: true },
+      'Take Moderation Action': { super_admin: true, company_admin: true, hr: true },
+      'View Moderation Logs': { super_admin: true, company_admin: true, hr: true },
     },
     'Management': {
-      'Manage Members': { super_admin: true, company_admin: true, hr: false, employee: false },
-      'Assign Tags': { super_admin: true, company_admin: true, hr: false, employee: false },
-      'Manage Departments': { super_admin: true, company_admin: true, hr: false, employee: false },
-      'Invite Employees': { super_admin: true, company_admin: true, hr: false, employee: false },
+      'Manage Members': { super_admin: true, company_admin: true, hr: false },
+      'Assign Tags': { super_admin: true, company_admin: true, hr: false },
+      'Manage Departments': { super_admin: true, company_admin: true, hr: false },
     },
     'Templates': {
-      'Create Templates': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Edit Templates': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Delete Templates': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Use Templates': { super_admin: true, company_admin: true, hr: true, employee: true },
+      'Create Templates': { super_admin: true, company_admin: true, hr: true },
+      'Edit Templates': { super_admin: true, company_admin: true, hr: true },
+      'Delete Templates': { super_admin: true, company_admin: true, hr: true },
+      'Use Templates': { super_admin: true, company_admin: true, hr: true },
     },
     'Analytics & Reporting': {
-      'View Analytics': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'View Audit Logs': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Export Reports': { super_admin: true, company_admin: true, hr: true, employee: false },
+      'View Analytics': { super_admin: true, company_admin: true, hr: true },
+      'View Audit Logs': { super_admin: true, company_admin: true, hr: true },
+      'Export Reports': { super_admin: true, company_admin: true, hr: true },
     },
     'HR Features': {
-      'View HR Inbox': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Receive HR Posts': { super_admin: true, company_admin: true, hr: true, employee: false },
-      'Send Post to HR': { super_admin: false, company_admin: false, hr: false, employee: true },
+      'View HR Inbox': { super_admin: true, company_admin: true, hr: true },
+      'Receive HR Posts': { super_admin: true, company_admin: true, hr: true },
     },
     'Company Management': {
-      'Manage Companies': { super_admin: true, company_admin: false, hr: false, employee: false },
-      'Manage Billing': { super_admin: true, company_admin: true, hr: false, employee: false },
+      'Manage Companies': { super_admin: true, company_admin: false, hr: false },
+      'Manage Billing': { super_admin: true, company_admin: true, hr: false },
     },
   };
 
@@ -83,14 +74,12 @@ const RoleDefinitions = () => {
     super_admin: 'bg-red-100 text-red-800 border-red-300',
     company_admin: 'bg-blue-100 text-blue-800 border-blue-300',
     hr: 'bg-purple-100 text-purple-800 border-purple-300',
-    employee: 'bg-green-100 text-green-800 border-green-300',
   };
 
   const roleIcons = {
     super_admin: Shield,
     company_admin: Briefcase,
     hr: Users,
-    employee: User,
   };
 
   return (
@@ -202,11 +191,6 @@ const RoleDefinitions = () => {
                       HR
                     </th>
                   )}
-                  {visibleRoles.includes('employee') && (
-                    <th className="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Employee
-                    </th>
-                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -248,15 +232,6 @@ const RoleDefinitions = () => {
                         {visibleRoles.includes('hr') && (
                           <td className="px-6 py-4 text-center">
                             {roles.hr ? (
-                              <Check className="w-5 h-5 text-green-600 mx-auto" />
-                            ) : (
-                              <X className="w-5 h-5 text-red-400 mx-auto" />
-                            )}
-                          </td>
-                        )}
-                        {visibleRoles.includes('employee') && (
-                          <td className="px-6 py-4 text-center">
-                            {roles.employee ? (
                               <Check className="w-5 h-5 text-green-600 mx-auto" />
                             ) : (
                               <X className="w-5 h-5 text-red-400 mx-auto" />

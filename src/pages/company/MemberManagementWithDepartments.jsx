@@ -8,7 +8,6 @@ import {
   getDocs,
   doc,
   updateDoc,
-  deleteDoc,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
@@ -20,20 +19,16 @@ import DepartmentAssignment from "../../components/DepartmentAssignment";
 import {
   Users,
   UserCheck,
-  UserX,
   Clock,
   Building2,
   AlertCircle,
   Search,
   Filter,
-  CheckCircle,
-  XCircle,
   Eye,
   Trash2,
   Ban,
   RefreshCw,
   X,
-  ChevronLeft,
   UsersRound,
   UserPlus,
   Calendar,
@@ -87,6 +82,7 @@ const MemberManagementWithDepartments = () => {
     }
 
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData, navigate]);
 
   const loadData = async () => {
@@ -142,7 +138,6 @@ const MemberManagementWithDepartments = () => {
       const roleOrder = {
         [UserRole.COMPANY_ADMIN]: 1,
         [UserRole.HR]: 2,
-        [UserRole.EMPLOYEE]: 3,
       };
 
       membersData.sort((a, b) => {
@@ -158,42 +153,6 @@ const MemberManagementWithDepartments = () => {
       alert("Failed to load data");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleApproveMember = async (memberId) => {
-    if (!confirm("Are you sure you want to approve this member?")) {
-      return;
-    }
-
-    try {
-      await setUserStatus(memberId, "active");
-
-      alert("Member approved successfully!");
-      loadData();
-    } catch (error) {
-      console.error("Error approving member:", error);
-      alert("Failed to approve member");
-    }
-  };
-
-  const handleRejectMember = async (memberId) => {
-    if (
-      !confirm(
-        "Are you sure you want to reject this member? This will permanently delete their account."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await setUserStatus(memberId, "rejected");
-
-      alert("Member rejected successfully!");
-      loadData();
-    } catch (error) {
-      console.error("Error rejecting member:", error);
-      alert("Failed to reject member");
     }
   };
 
@@ -365,23 +324,6 @@ const MemberManagementWithDepartments = () => {
     }
   };
 
-  const handleSelectUser = (userId) => {
-    setSelectedUsers((prev) => {
-      if (prev.includes(userId)) {
-        return prev.filter((id) => id !== userId);
-      }
-      return [...prev, userId];
-    });
-  };
-
-  const handleSelectAll = () => {
-    if (selectedUsers.length === filteredMembers.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(filteredMembers.map((m) => m.id));
-    }
-  };
-
   const getFilteredMembers = () => {
     return members.filter((member) => {
       // Search filter
@@ -438,12 +380,11 @@ const MemberManagementWithDepartments = () => {
         label: "HR",
         className: "bg-teal-50 text-[#1ABC9C] border border-teal-200",
       },
-      [UserRole.EMPLOYEE]: {
-        label: "Employee",
-        className: "bg-gray-50 text-gray-700 border border-gray-200",
-      },
     };
-    const config = roleConfig[role] || roleConfig[UserRole.EMPLOYEE];
+    const config = roleConfig[role] || {
+      label: role || "-",
+      className: "bg-gray-50 text-gray-700 border border-gray-200",
+    };
     return (
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}
@@ -458,10 +399,6 @@ const MemberManagementWithDepartments = () => {
       active: {
         label: "Active",
         className: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-      },
-      pending: {
-        label: "Pending",
-        className: "bg-amber-50 text-amber-700 border border-amber-200",
       },
       suspended: {
         label: "Suspended",
@@ -547,7 +484,7 @@ const MemberManagementWithDepartments = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#2D3E50]/5 flex items-center justify-center">
@@ -568,19 +505,6 @@ const MemberManagementWithDepartments = () => {
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Active</p>
                 <p className="text-2xl font-bold text-emerald-600">
                   {members.filter((m) => m.status === "active").length}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Pending</p>
-                <p className="text-2xl font-bold text-amber-600">
-                  {members.filter((m) => m.status === "pending").length}
                 </p>
               </div>
             </div>
@@ -659,7 +583,6 @@ const MemberManagementWithDepartments = () => {
                 <option value="all">All Roles</option>
                 <option value={UserRole.COMPANY_ADMIN}>Admin</option>
                 <option value={UserRole.HR}>HR</option>
-                <option value={UserRole.EMPLOYEE}>Employee</option>
               </select>
             </div>
 
@@ -715,7 +638,6 @@ const MemberManagementWithDepartments = () => {
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
-                <option value="pending">Pending</option>
                 <option value="suspended">Suspended</option>
               </select>
             </div>
@@ -887,25 +809,6 @@ const MemberManagementWithDepartments = () => {
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-1.5">
-                      {member.status === "pending" && (
-                        <>
-                          <button
-                            onClick={() => handleApproveMember(member.id)}
-                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                            title="Approve"
-                          >
-                            <CheckCircle className="w-4.5 h-4.5" />
-                          </button>
-                          <button
-                            onClick={() => handleRejectMember(member.id)}
-                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Reject"
-                          >
-                            <XCircle className="w-4.5 h-4.5" />
-                          </button>
-                        </>
-                      )}
-
                       {member.status === "active" && (
                         <>
                           <button
@@ -1281,7 +1184,6 @@ const MemberManagementWithDepartments = () => {
                 {[
                   { role: UserRole.COMPANY_ADMIN, label: "Admin", desc: "Full company management access", icon: "shield", className: "bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-400" },
                   { role: UserRole.HR, label: "HR", desc: "Human resources management access", icon: "users", className: "bg-teal-50 text-teal-700 border-teal-200 hover:border-teal-400" },
-                  { role: UserRole.EMPLOYEE, label: "Employee", desc: "Standard employee access", icon: "user", className: "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-400" },
                 ].map((option) => {
                   const isActive = roleChangingMember.role === option.role;
                   return (

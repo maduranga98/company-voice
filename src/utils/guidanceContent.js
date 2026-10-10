@@ -42,7 +42,7 @@ export const ROLE_DEFINITIONS = {
       "Manage tags and user classifications",
       "Configure company billing and subscriptions",
       "Create and manage post templates",
-      "Generate QR codes for employee invitations",
+      "Share the public report link and QR code",
       "Access company audit logs",
       "Manage policies and compliance"
     ],
@@ -54,7 +54,7 @@ export const ROLE_DEFINITIONS = {
       { name: "Analytics Dashboard", description: "View engagement metrics and company analytics" },
       { name: "User Tags System", description: "Classify users for assignment and filtering" },
       { name: "Template Management", description: "Create reusable post templates for consistency" },
-      { name: "QR Code Generation", description: "Generate employee invitation QR codes" },
+      { name: "Report Link QR Code", description: "Share the public report link as a QR code" },
       { name: "Billing Management", description: "Manage company subscription and billing" },
       { name: "Audit Logs", description: "Access company audit logs and compliance reports" },
       { name: "Policy Management", description: "Create and manage company policies" }
@@ -67,45 +67,19 @@ export const ROLE_DEFINITIONS = {
       "Manage HR-specific content and sensitive posts",
       "Perform member management and moderation",
       "Access company analytics and audit logs",
-      "Handle employee-related administrative tasks",
+      "Handle administrative tasks",
       "Manage departments and tags",
       "View HR-only posts and conversations",
-      "Generate employee reports"
     ],
     icon: "👥",
     features: [
       { name: "HR Conversations", description: "Access private HR messaging and consultations" },
-      { name: "Member Management", description: "Manage employees and their profiles" },
+      { name: "Member Management", description: "Manage staff accounts and their profiles" },
       { name: "Post Moderation", description: "Review HR-specific and sensitive content" },
-      { name: "Employee Reports", description: "Generate employee analytics and reports" },
-      { name: "Vendor Risk Assessment", description: "Evaluate and track vendor compliance" },
-      { name: "Department Management", description: "Organize employees by department" },
-      { name: "User Tags", description: "Classify employees for tracking and assignment" },
+            { name: "Vendor Risk Assessment", description: "Evaluate and track vendor compliance" },
+      { name: "Department Management", description: "Organize staff by department" },
+      { name: "User Tags", description: "Classify staff for tracking and assignment" },
       { name: "Analytics Access", description: "View HR-specific analytics and metrics" }
-    ]
-  },
-  employee: {
-    name: "Employee",
-    description: "Regular company employee with content creation privileges",
-    responsibilities: [
-      "Create posts (Problems, Ideas, Creative content, Discussions)",
-      "Comment on and engage with posts",
-      "View company feeds and content",
-      "Manage own posts (edit/delete)",
-      "View posts assigned to them (if tagged)",
-      "Access policy library",
-      "Send private messages to HR"
-    ],
-    icon: "👤",
-    features: [
-      { name: "Post Creation", description: "Create problems, ideas, creative content, and discussions" },
-      { name: "Anonymous Posting", description: "Post anonymously to protect your identity" },
-      { name: "Post Comments", description: "Engage with posts through comments and reactions" },
-      { name: "Assigned to Me", description: "Track posts and tasks assigned to you" },
-      { name: "Feed Navigation", description: "Browse and filter company posts and discussions" },
-      { name: "Profile Management", description: "Manage your personal profile and preferences" },
-      { name: "Policy Library", description: "Access company policies and guidelines" },
-      { name: "HR Messages", description: "Send private messages to HR department" }
     ]
   }
 };
@@ -362,11 +336,6 @@ export const MEMBER_MANAGEMENT_GUIDANCE = {
       description: "Full access to the platform",
       icon: "✅"
     },
-    PENDING: {
-      label: "Pending",
-      description: "Invitation sent, awaiting registration",
-      icon: "⏳"
-    },
     SUSPENDED: {
       label: "Suspended",
       description: "Access temporarily revoked",
@@ -383,7 +352,6 @@ export const MEMBER_MANAGEMENT_GUIDANCE = {
   roleAssignment: [
     "Assign Company Admin carefully - they have full access",
     "HR role is for human resources personnel",
-    "Most users should be Employees",
     "Only Super Admins can create other Super Admins"
   ],
   bulkOperations: [
@@ -455,11 +423,6 @@ export const ANALYTICS_GUIDANCE = {
   title: "Analytics & Reporting",
   description: "Understand engagement, trends, and performance metrics.",
   keyMetrics: {
-    postsByType: {
-      label: "Posts by Type",
-      description: "Distribution of Problem Reports, Ideas, Creative Content, and Discussions",
-      useCase: "Identify what type of content employees create most"
-    },
     postsByStatus: {
       label: "Posts by Status",
       description: "Current status distribution (Open, In Progress, Resolved, etc.)",
@@ -576,126 +539,6 @@ export const MODERATION_GUIDANCE = {
 };
 
 // ============================================================================
-// POST CREATION
-// ============================================================================
-
-export const POST_CREATION_GUIDANCE = {
-  title: "Creating Posts",
-  description: "Share problems, ideas, creative content, and discussions.",
-  postTypes: {
-    problem_report: {
-      label: "Problem Report",
-      description: "Report issues, bugs, or problems that need resolution",
-      whenToUse: "When something is broken, not working, or causing issues",
-      tips: [
-        "Be specific about the problem",
-        "Include steps to reproduce",
-        "Add screenshots or evidence",
-        "Describe impact and urgency"
-      ],
-      icon: "🐛"
-    },
-    idea_suggestion: {
-      label: "Idea Suggestion",
-      description: "Suggest improvements, features, or new ideas",
-      whenToUse: "When you have ideas to improve products, processes, or the workplace",
-      tips: [
-        "Explain the problem you're solving",
-        "Describe your proposed solution",
-        "Highlight expected benefits",
-        "Consider alternatives"
-      ],
-      icon: "💡"
-    },
-    creative_content: {
-      label: "Creative Content",
-      description: "Share creative work, designs, or innovative concepts",
-      whenToUse: "When sharing designs, creative projects, or artistic content",
-      tips: [
-        "Use visuals to showcase your work",
-        "Explain your creative process",
-        "Request specific feedback",
-        "Share inspiration sources"
-      ],
-      icon: "🎨"
-    },
-    team_discussion: {
-      label: "Team Discussion",
-      description: "Start conversations and team discussions",
-      whenToUse: "When you want to gather input, brainstorm, or discuss topics",
-      tips: [
-        "Frame discussion with clear questions",
-        "Provide context and background",
-        "Encourage diverse perspectives",
-        "Summarize conclusions in comments"
-      ],
-      icon: "💬"
-    }
-  },
-  privacySettings: {
-    COMPANY_PUBLIC: {
-      label: "Company Public",
-      description: "Visible to all company members",
-      icon: "🌐"
-    },
-    DEPARTMENT_ONLY: {
-      label: "Department Only",
-      description: "Only visible to your department",
-      icon: "👥"
-    },
-    HR_ONLY: {
-      label: "HR Only",
-      description: "Only visible to HR and admins",
-      icon: "🔒"
-    }
-  },
-  bestPractices: [
-    "Choose the right post type for your content",
-    "Write clear, descriptive titles",
-    "Provide sufficient context and details",
-    "Use appropriate privacy settings",
-    "Add relevant tags or mentions",
-    "Proofread before posting"
-  ]
-};
-
-// ============================================================================
-// QR CODE GENERATION
-// ============================================================================
-
-export const QR_CODE_GUIDANCE = {
-  title: "QR Code for Employee Invitations",
-  description: "Generate QR codes to simplify employee onboarding.",
-  howItWorks: [
-    "Admin generates a company-specific QR code",
-    "QR code is printed or displayed digitally",
-    "New employees scan with their mobile device",
-    "They're directed to registration with company pre-filled",
-    "After registration, they gain instant access"
-  ],
-  howToGenerate: [
-    "Navigate to QR Code page in admin panel",
-    "Click 'Generate QR Code'",
-    "Download QR code image or PDF with instructions",
-    "Share with new employees or display in office"
-  ],
-  distributionMethods: [
-    "Print and post in common areas",
-    "Include in new hire welcome packets",
-    "Display during orientation sessions",
-    "Share digitally via email or messaging",
-    "Add to employee handbook"
-  ],
-  bestPractices: [
-    "Include clear instructions with QR code",
-    "Test QR code before wide distribution",
-    "Regenerate periodically for security",
-    "Track successful registrations",
-    "Provide alternative registration methods"
-  ]
-};
-
-// ============================================================================
 // ASSIGNED TO ME FEATURE
 // ============================================================================
 
@@ -733,8 +576,6 @@ export const ASSIGNED_TO_ME_GUIDANCE = {
 // ============================================================================
 
 export const FEATURE_TOOLTIPS = {
-  pinPost: "Pin this post to keep it at the top of the feed",
-  archivePost: "Archive this post to remove it from active feeds",
   deletePost: "Permanently delete this post and all its comments",
   editPost: "Edit post content, privacy, or settings",
   changePriority: "Update the priority level (Critical, High, Medium, Low)",
@@ -742,9 +583,6 @@ export const FEATURE_TOOLTIPS = {
   assignPost: "Assign this post to specific users for action",
   addDueDate: "Set a deadline for resolution or completion",
   adminComment: "Add a private admin note (visible to admins only)",
-  reportContent: "Report this content for moderation review",
-  saveAsDraft: "Save as draft to finish later",
-  schedulePost: "Schedule this post to be published later",
   useTemplate: "Use a template to speed up post creation"
 };
 
@@ -758,8 +596,6 @@ export default {
   TEMPLATE_GUIDANCE,
   ANALYTICS_GUIDANCE,
   MODERATION_GUIDANCE,
-  POST_CREATION_GUIDANCE,
-  QR_CODE_GUIDANCE,
   ASSIGNED_TO_ME_GUIDANCE,
   FEATURE_TOOLTIPS
 };

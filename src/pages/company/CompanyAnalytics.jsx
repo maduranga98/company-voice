@@ -7,20 +7,15 @@ import {
   query,
   where,
   getDocs,
-  orderBy,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { hrCaseScope } from "../../utils/caseVisibility";
 import {
   PostStatus,
   PostPriority,
-  PostType,
 } from "../../utils/constants";
 import { getDepartments, getDepartmentStats } from "../../services/departmentservice";
 import {
-  calculateAverageResponseTime,
-  calculateUserEngagement,
-  calculateDepartmentPerformance,
   filterPostsByDateRange,
   exportToCSV,
   downloadCSV,
@@ -37,9 +32,7 @@ const CompanyAnalytics = () => {
       totalComments: 0,
       totalUsers: 0,
       activeUsers: 0,
-      pendingUsers: 0,
     },
-    postsByType: {},
     postsByStatus: {},
     postsByPriority: {},
     responseTimeAvg: 0,
@@ -63,6 +56,7 @@ const CompanyAnalytics = () => {
     if (userData?.companyId) {
       fetchAnalyticsData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
   // Re-calculate analytics when date filter changes
@@ -73,6 +67,7 @@ const CompanyAnalytics = () => {
       // Reset to show all data
       calculateAnalytics(allPostsData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFilter]);
 
   const fetchAnalyticsData = async () => {
@@ -122,23 +117,6 @@ const CompanyAnalytics = () => {
         totalComments: companyComments.length,
         totalUsers: users.length,
         activeUsers: users.filter((u) => u.status === "active").length,
-        pendingUsers: users.filter((u) => u.status === "pending").length,
-      };
-
-      // Posts by type
-      const postsByType = {
-        [PostType.PROBLEM_REPORT]: posts.filter(
-          (p) => p.type === PostType.PROBLEM_REPORT
-        ).length,
-        [PostType.CREATIVE_CONTENT]: posts.filter(
-          (p) => p.type === PostType.CREATIVE_CONTENT
-        ).length,
-        [PostType.TEAM_DISCUSSION]: posts.filter(
-          (p) => p.type === PostType.TEAM_DISCUSSION
-        ).length,
-        [PostType.IDEA_SUGGESTION]: posts.filter(
-          (p) => p.type === PostType.IDEA_SUGGESTION
-        ).length,
       };
 
       // Posts by status
@@ -312,7 +290,6 @@ const CompanyAnalytics = () => {
 
       setAnalytics({
         overview,
-        postsByType,
         postsByStatus,
         postsByPriority,
         responseTimeAvg: avgResponseHours,
@@ -355,7 +332,7 @@ const CompanyAnalytics = () => {
   };
 
   const calculateAnalytics = (data) => {
-    const { posts, comments, users, departments } = data;
+    const { posts, comments, users } = data;
 
     // Filter comments to only those belonging to filtered posts
     const postIds = new Set(posts.map((p) => p.id));
@@ -367,7 +344,6 @@ const CompanyAnalytics = () => {
       totalComments: filteredComments.length,
       totalUsers: users.length,
       activeUsers: users.filter((u) => u.status === "active").length,
-      pendingUsers: users.filter((u) => u.status === "pending").length,
     };
 
     // Recalculate other analytics based on filtered data...
@@ -377,16 +353,6 @@ const CompanyAnalytics = () => {
       overview,
       // Keep other analytics as-is for now
     }));
-  };
-
-  const getTypeLabel = (type) => {
-    const labels = {
-      [PostType.PROBLEM_REPORT]: "Problems",
-      [PostType.CREATIVE_CONTENT]: "Creative",
-      [PostType.TEAM_DISCUSSION]: "Discussions",
-      [PostType.IDEA_SUGGESTION]: "Ideas",
-    };
-    return labels[type] || type;
   };
 
   const getStatusLabel = (status) => {
@@ -627,7 +593,7 @@ const CompanyAnalytics = () => {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
@@ -700,32 +666,6 @@ const CompanyAnalytics = () => {
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-yellow-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Pending Users</p>
-              <p className="text-3xl font-bold text-yellow-600 mt-1">
-                {analytics.overview.pendingUsers}
-              </p>
-            </div>
-            <div className="bg-yellow-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-yellow-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
             </div>
@@ -833,39 +773,7 @@ const CompanyAnalytics = () => {
       </div>
 
       {/* Posts Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* By Type */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Posts by Type
-          </h3>
-          <div className="space-y-3">
-            {Object.entries(analytics.postsByType).map(([type, count]) => (
-              <div key={type} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">
-                  {getTypeLabel(type)}
-                </span>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{
-                        width: `${
-                          (count / Math.max(analytics.overview.totalPosts, 1)) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-900 w-8 text-right">
-                    {count}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* By Status */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -873,7 +781,7 @@ const CompanyAnalytics = () => {
           </h3>
           <div className="space-y-3">
             {Object.entries(analytics.postsByStatus)
-              .filter(([_, count]) => count > 0)
+              .filter(([, count]) => count > 0)
               .slice(0, 6)
               .map(([status, count]) => (
                 <div key={status} className="flex items-center justify-between">

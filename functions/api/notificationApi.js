@@ -38,9 +38,6 @@ exports.getNotificationPreferences = functions.https.onCall(async (data, context
     const defaultPreferences = {
       userId,
       inApp: {
-        comments: true,
-        reactions: true,
-        mentions: true,
         statusChanges: true,
         priorityChanges: true,
         newPosts: false,
@@ -53,7 +50,6 @@ exports.getNotificationPreferences = functions.https.onCall(async (data, context
         weeklyDigest: false,
         dailyDigest: false,
         immediate: {
-          mentions: false,
           assignedToYou: false,
           statusChanges: false,
         },

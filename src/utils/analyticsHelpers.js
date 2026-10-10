@@ -199,7 +199,6 @@ export const exportToCSV = (analyticsData, reportType) => {
       csvContent += `Total Comments,${analyticsData.overview.totalComments}\n`;
       csvContent += `Total Users,${analyticsData.overview.totalUsers}\n`;
       csvContent += `Active Users,${analyticsData.overview.activeUsers}\n`;
-      csvContent += `Pending Users,${analyticsData.overview.pendingUsers}\n`;
       csvContent += `Average Response Time (hours),${analyticsData.responseTimeAvg}\n`;
       csvContent += `Resolution Rate (%),${analyticsData.resolutionRate}\n`;
       break;

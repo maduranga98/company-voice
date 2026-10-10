@@ -4,12 +4,9 @@ import { db } from "../config/firebase";
 import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import Post from "../components/Post";
 import AdminActionPanel from "../components/AdminActionPanel";
 import {
-  PostStatus,
   PostStatusConfig,
-  PostPriority,
   PostPriorityConfig,
 } from "../utils/constants";
 import {
@@ -44,10 +41,12 @@ const AssignedToMe = () => {
     if (userData?.id && userData?.companyId) {
       loadAssignedPosts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData?.id, userData?.companyId]);
 
   useEffect(() => {
     filterPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [posts, selectedStatus, selectedPriority]);
 
   const loadAssignedPosts = async () => {
@@ -310,7 +309,16 @@ const AssignedToMe = () => {
                         onUpdate={handlePostUpdate}
                       />
                     </div>
-                    <Post post={post} />
+                    <div className="p-4">
+                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#2D3E50" }}>
+                        {post.title}
+                      </h3>
+                      {(post.description || post.content) && (
+                        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                          {post.description || post.content}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

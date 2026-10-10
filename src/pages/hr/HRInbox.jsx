@@ -14,7 +14,6 @@ import {
   UserRole,
   PostStatusConfig,
   PostPriorityConfig,
-  PostType,
   PostStatus,
 } from "../../utils/constants";
 import AdminActionPanel from "../../components/AdminActionPanel";
@@ -78,7 +77,7 @@ const HRInbox = () => {
   useEffect(() => {
     if (!userData) return;
     if (userData.role !== UserRole.HR && userData.role !== UserRole.COMPANY_ADMIN) {
-      navigate("/feed/problems");
+      navigate("/");
     }
   }, [userData, navigate]);
 

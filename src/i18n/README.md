@@ -112,7 +112,7 @@ The i18n configuration is in `src/i18n/config.js`. Key features:
 
 ### With variables
 ```jsx
-{t('auth.register.joinCompany', { companyName: 'Acme Corp' })}
+{t('report.description.minHint', { min: 20 })}
 ```
 
 ### Button text

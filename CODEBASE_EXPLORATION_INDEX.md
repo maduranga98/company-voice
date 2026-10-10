@@ -22,26 +22,6 @@ This comprehensive analysis includes 3 detailed documents to help you understand
 
 ---
 
-### 2. POST_MANAGEMENT_ENHANCEMENT_GUIDE.md (14 KB)
-**Location**: `/home/user/company-voice/POST_MANAGEMENT_ENHANCEMENT_GUIDE.md`
-
-**Contents**:
-- What's already built (post system, moderation, team features)
-- Key data models with JSON examples
-- All available service methods
-- Component purposes and features
-- Current limitations and gaps
-- Database best practices implemented
-- Priority enhancement recommendations (rich text, real-time, search, notifications)
-- Database schema additions needed
-- Quick wins (1-2 hour tasks)
-- Performance considerations
-- Testing checklist
-
-**Use this for**: Planning what to build next and understanding current capabilities
-
----
-
 ### 3. CODE_DEPENDENCY_MAP.md (18 KB)
 **Location**: `/home/user/company-voice/CODE_DEPENDENCY_MAP.md`
 
@@ -131,7 +111,6 @@ This comprehensive analysis includes 3 detailed documents to help you understand
 ### For Getting Started
 1. Read `CODEBASE_DEEP_DIVE.md` first - understand the data model and components
 2. Scan `CODE_DEPENDENCY_MAP.md` - see how components connect
-3. Review `POST_MANAGEMENT_ENHANCEMENT_GUIDE.md` - identify what you want to build
 
 ### For Planning a Feature
 1. Find the relevant section in the enhancement guide

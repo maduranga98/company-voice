@@ -51,7 +51,7 @@ async function loadTarget(userId) {
 
 /**
  * Whether `caller` may manage `target`. Never self, never a super_admin, company-scoped.
- * company_admin manages hr (and legacy employee) users and, for role changes, other company admins.
+ * company_admin manages hr users and, for role changes, other company admins.
  */
 function assertCanManage(caller, target, { allowAdmins = false } = {}) {
   if (target.id === caller.uid || target.role === 'super_admin') throw denied();
@@ -272,7 +272,7 @@ const changeUserRole = onCall(OPTIONS, async (request) => {
 
   const target = await loadTarget(userId);
   assertCanManage(caller, target, { allowAdmins: true });
-  if (!STAFF_ROLES.includes(target.role) && target.role !== 'employee') throw denied();
+  if (!STAFF_ROLES.includes(target.role)) throw denied();
   if (target.role === role) return { userId: target.id, role };
 
   await target.ref.update({ role, updatedAt: FieldValue.serverTimestamp() });

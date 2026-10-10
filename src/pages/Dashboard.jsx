@@ -13,14 +13,11 @@ const Dashboard = () => {
 
     // Route based on user role
     if (userData.role === "super_admin") {
-      navigate("/admin/companies");
+      navigate("/admin/companies", { replace: true });
     } else if (userData.role === "hr") {
-      navigate("/hr/inbox");
+      navigate("/hr/inbox", { replace: true });
     } else if (userData.role === "company_admin") {
-      navigate("/company/dashboard");
-    } else if (userData.role === "employee") {
-      // Redirect directly to creative feed (unified feed for all users)
-      navigate("/feed/creative");
+      navigate("/company/dashboard", { replace: true });
     }
   }, [userData, navigate]);
 
