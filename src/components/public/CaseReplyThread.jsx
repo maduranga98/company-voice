@@ -29,7 +29,7 @@ const CaseReplyThread = ({ messages, onSend, sending }) => {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white">
       <div className="border-b border-gray-100 px-4 py-3">
-        <h2 className="text-sm font-semibold text-[#2D3E50]">{t("report.checkCase.thread.heading")}</h2>
+        <h2 className="text-sm font-semibold text-[#0E1224]">{t("report.checkCase.thread.heading")}</h2>
       </div>
 
       <div className="max-h-96 space-y-3 overflow-y-auto px-4 py-4">
@@ -42,7 +42,7 @@ const CaseReplyThread = ({ messages, onSend, sending }) => {
               <div key={m.id} className={`flex ${fromReporter ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                    fromReporter ? "bg-[#1ABC9C] text-white" : "bg-gray-100 text-[#2D3E50]"
+                    fromReporter ? "bg-[#5B5BD6] text-white" : "bg-gray-100 text-[#0E1224]"
                   }`}
                 >
                   <p className="whitespace-pre-wrap break-words">{m.content || t("report.checkCase.thread.unreadable")}</p>
@@ -64,12 +64,12 @@ const CaseReplyThread = ({ messages, onSend, sending }) => {
           onChange={(e) => setDraft(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
           rows={2}
           placeholder={t("report.checkCase.thread.placeholder")}
-          className="flex-1 resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-[#2D3E50] focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20"
+          className="flex-1 resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-[#0E1224] focus:border-[#5B5BD6] focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/20"
         />
         <button
           type="submit"
           disabled={!draft.trim() || sending}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1ABC9C] text-white transition hover:bg-[#17a589] disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#5B5BD6] text-white transition hover:bg-[#4A49C2] disabled:cursor-not-allowed disabled:opacity-40"
           aria-label={t("report.checkCase.thread.send")}
         >
           {sending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}

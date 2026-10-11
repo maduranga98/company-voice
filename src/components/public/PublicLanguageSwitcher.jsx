@@ -10,7 +10,7 @@ const PublicLanguageSwitcher = () => {
       value={REPORT_LANGUAGES.some((l) => l.code === current) ? current : "en"}
       onChange={(e) => i18n.changeLanguage(e.target.value)}
       aria-label={t("report.languageLabel")}
-      className="rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]"
+      className="rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]"
     >
       {REPORT_LANGUAGES.map((lang) => (
         <option key={lang.code} value={lang.code} className="text-gray-900">

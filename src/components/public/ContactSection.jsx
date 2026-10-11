@@ -18,7 +18,7 @@ const ContactSection = ({ value, onChange }) => {
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 p-4 text-left text-sm font-semibold text-[#2D3E50]"
+        className="flex w-full items-center justify-between gap-3 p-4 text-left text-sm font-semibold text-[#0E1224]"
       >
         {t("report.contact.toggle")}
         <ChevronDown className={`h-4 w-4 shrink-0 transition ${open ? "rotate-180" : ""}`} aria-hidden="true" />
@@ -35,7 +35,7 @@ const ContactSection = ({ value, onChange }) => {
                 maxLength={max}
                 autoComplete={autoComplete}
                 onChange={(e) => onChange({ ...value, [id]: e.target.value })}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20"
+                className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:border-[#5B5BD6] focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/20"
               />
             </label>
           ))}

@@ -11,54 +11,56 @@ const SuperAdminNav = () => {
       id: "companies",
       label: "Companies",
       path: "/admin/companies",
-      icon: <Building2 className="w-5 h-5" />,
+      icon: <Building2 className="w-[18px] h-[18px]" />,
     },
     {
       id: "billing",
       label: "Billing",
       path: "/admin/billing",
-      icon: <CreditCard className="w-5 h-5" />,
+      icon: <CreditCard className="w-[18px] h-[18px]" />,
     },
     {
       id: "legal",
       label: "Legal Requests",
       path: "/admin/legal-requests",
-      icon: <Scale className="w-5 h-5" />,
+      icon: <Scale className="w-[18px] h-[18px]" />,
     },
     {
       id: "key-vault",
       label: "Key Vault",
       path: "/admin/key-vault",
-      icon: <Shield className="w-5 h-5" />,
+      icon: <Shield className="w-[18px] h-[18px]" />,
     },
     {
       id: "deleted-posts",
       label: "Deleted Posts",
       path: "/admin/deleted-posts",
-      icon: <Trash2 className="w-5 h-5" />,
+      icon: <Trash2 className="w-[18px] h-[18px]" />,
     },
   ];
 
   const isActiveTab = (path) => location.pathname === path;
 
   return (
-    <div className="bg-white border-b border-gray-100">
-      <div className="flex gap-1 overflow-x-auto px-2 no-scrollbar" style={{ scrollbarWidth: "none" }}>
+    <div className="border-b border-gray-200/70 bg-white">
+      <div
+        className="mx-auto flex max-w-[1280px] gap-1 overflow-x-auto px-3 no-scrollbar"
+        style={{ scrollbarWidth: "none" }}
+      >
         {tabs.map((tab) => {
           const isActive = isActiveTab(tab.path);
           return (
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
+              aria-current={isActive ? "page" : undefined}
+              className={`-mb-px flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "border-[#1ABC9C] text-[#1ABC9C]"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  ? "border-brand-600 text-brand-700"
+                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-ink"
               }`}
             >
-              <span className={isActive ? "text-[#1ABC9C]" : "text-gray-400"}>
-                {tab.icon}
-              </span>
+              <span className={isActive ? "text-brand-600" : "text-gray-400"}>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );

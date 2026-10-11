@@ -258,7 +258,7 @@ const AuditLog = () => {
     return (
       <div className="min-h-screen bg-gray-50/50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: "#1ABC9C" }} />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: "#5B5BD6" }} />
           <p className="mt-3 text-sm text-gray-500 font-medium">Loading audit logs...</p>
         </div>
       </div>
@@ -273,13 +273,13 @@ const AuditLog = () => {
           <div className="flex items-center space-x-4 mb-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="p-2 rounded-xl border border-gray-100 bg-white shadow-sm text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition-all"
+              className="p-2 rounded-xl border border-gray-100 bg-white shadow-sm text-gray-500 hover:text-[#0E1224] hover:border-gray-200 transition-all"
               title="Back to Dashboard"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: "#2D3E50" }}>
+              <h1 className="text-2xl font-bold" style={{ color: "#0E1224" }}>
                 Audit Log
               </h1>
               <p className="text-sm text-gray-500 mt-0.5">
@@ -298,16 +298,16 @@ const AuditLog = () => {
                 <Activity className="w-4 h-4 text-gray-400" />
               </div>
             </div>
-            <p className="text-3xl font-bold" style={{ color: "#2D3E50" }}>{stats.total}</p>
+            <p className="text-3xl font-bold" style={{ color: "#0E1224" }}>{stats.total}</p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-gray-500">Post Activities</p>
               <div className="p-2 rounded-xl" style={{ backgroundColor: "rgba(26, 188, 156, 0.1)" }}>
-                <FileText className="w-4 h-4" style={{ color: "#1ABC9C" }} />
+                <FileText className="w-4 h-4" style={{ color: "#5B5BD6" }} />
               </div>
             </div>
-            <p className="text-3xl font-bold" style={{ color: "#1ABC9C" }}>
+            <p className="text-3xl font-bold" style={{ color: "#5B5BD6" }}>
               {stats.bySource.post || 0}
             </p>
           </div>
@@ -338,8 +338,8 @@ const AuditLog = () => {
         {/* Filters Section */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm">
           <div className="flex items-center space-x-2 mb-5">
-            <SlidersHorizontal className="w-5 h-5" style={{ color: "#2D3E50" }} />
-            <h2 className="text-lg font-semibold" style={{ color: "#2D3E50" }}>
+            <SlidersHorizontal className="w-5 h-5" style={{ color: "#0E1224" }} />
+            <h2 className="text-lg font-semibold" style={{ color: "#0E1224" }}>
               Advanced Filters & Search
             </h2>
           </div>
@@ -353,7 +353,7 @@ const AuditLog = () => {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] transition-all"
               >
                 <option value="all">All Activities</option>
                 <optgroup label="Post Activities">
@@ -381,7 +381,7 @@ const AuditLog = () => {
               <select
                 value={filterUser}
                 onChange={(e) => setFilterUser(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] transition-all"
               >
                 <option value="all">All Users</option>
                 {admins.map((admin) => (
@@ -400,7 +400,7 @@ const AuditLog = () => {
               <select
                 value={filterSource}
                 onChange={(e) => setFilterSource(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] transition-all"
               >
                 <option value="all">All Sources</option>
                 <option value="post">Post Activities</option>
@@ -417,7 +417,7 @@ const AuditLog = () => {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] transition-all"
               />
             </div>
 
@@ -430,7 +430,7 @@ const AuditLog = () => {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] transition-all"
               />
             </div>
 
@@ -444,7 +444,7 @@ const AuditLog = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search in metadata..."
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] transition-all"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] transition-all"
               />
             </div>
           </div>
@@ -454,7 +454,7 @@ const AuditLog = () => {
             <button
               onClick={handleFilterChange}
               className="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl hover:opacity-90 transition-all shadow-sm"
-              style={{ backgroundColor: "#1ABC9C" }}
+              style={{ backgroundColor: "#5B5BD6" }}
             >
               <SlidersHorizontal className="w-4 h-4" />
               Apply Filters
@@ -462,7 +462,7 @@ const AuditLog = () => {
             <button
               onClick={handleSearch}
               className="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl hover:opacity-90 transition-all shadow-sm"
-              style={{ backgroundColor: "#2D3E50" }}
+              style={{ backgroundColor: "#0E1224" }}
             >
               <Search className="w-4 h-4" />
               Search
@@ -558,7 +558,7 @@ const AuditLog = () => {
                               className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
                                 activity.source === "system"
                                   ? "bg-purple-50 text-purple-700"
-                                  : "bg-[#1ABC9C]/10 text-[#1ABC9C]"
+                                  : "bg-[#5B5BD6]/10 text-[#5B5BD6]"
                               }`}
                             >
                               {activity.source === "system" ? "System" : "Post"}
@@ -566,7 +566,7 @@ const AuditLog = () => {
                           </td>
                           <td className="px-6 py-4 text-sm">
                             <div>
-                              <p className="font-medium" style={{ color: "#2D3E50" }}>{userName}</p>
+                              <p className="font-medium" style={{ color: "#0E1224" }}>{userName}</p>
                               <p className="text-xs text-gray-400 mt-0.5">
                                 {meta.adminId || meta.userId || "N/A"}
                               </p>
@@ -607,9 +607,9 @@ const AuditLog = () => {
                 <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">
-                      Showing <span className="font-medium" style={{ color: "#2D3E50" }}>{indexOfFirstItem + 1}</span> to{" "}
-                      <span className="font-medium" style={{ color: "#2D3E50" }}>{Math.min(indexOfLastItem, activities.length)}</span> of{" "}
-                      <span className="font-medium" style={{ color: "#2D3E50" }}>{activities.length}</span> activities
+                      Showing <span className="font-medium" style={{ color: "#0E1224" }}>{indexOfFirstItem + 1}</span> to{" "}
+                      <span className="font-medium" style={{ color: "#0E1224" }}>{Math.min(indexOfLastItem, activities.length)}</span> of{" "}
+                      <span className="font-medium" style={{ color: "#0E1224" }}>{activities.length}</span> activities
                     </div>
                     <div className="flex items-center space-x-1.5">
                       <button
@@ -632,7 +632,7 @@ const AuditLog = () => {
                                 ? "text-white shadow-sm"
                                 : "border border-gray-200 text-gray-600 bg-white hover:bg-gray-50"
                             }`}
-                            style={currentPage === pageNum ? { backgroundColor: "#1ABC9C" } : {}}
+                            style={currentPage === pageNum ? { backgroundColor: "#5B5BD6" } : {}}
                           >
                             {pageNum}
                           </button>

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, KeyRound, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Logo from "../../components/brand/Logo";
 import PublicLanguageSwitcher from "../../components/public/PublicLanguageSwitcher";
 import CaseTimers from "../../components/public/CaseTimers";
 import CaseReplyThread from "../../components/public/CaseReplyThread";
 import { caseErrorKey, fetchCaseStatus, sendCaseReply } from "../../services/publicCaseService";
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-mono text-sm uppercase tracking-wider text-[#2D3E50] focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20";
+  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 font-mono text-sm uppercase tracking-wider text-[#0E1224] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
 
 const STATUSES = [
   "open",
@@ -132,26 +133,26 @@ const CheckCasePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-[#2D3E50] text-white">
-        <div className="mx-auto max-w-xl px-4 pb-8 pt-4">
+    <div className="min-h-screen bg-background-softGray">
+      <header className="bg-gradient-ink text-white">
+        <div className="mx-auto max-w-xl px-4 pb-10 pt-5">
           <div className="flex items-center justify-between">
-            <img src="/voxwel-logo.png" alt="VoxWel" className="h-8 w-8 rounded-lg bg-white/10 p-1" />
+            <Logo size={28} tone="light" />
             <PublicLanguageSwitcher />
           </div>
           <h1 className="mt-6 flex items-center gap-2 text-2xl font-semibold leading-tight sm:text-3xl">
-            <KeyRound className="h-6 w-6 text-[#1ABC9C]" aria-hidden="true" />
+            <KeyRound className="h-6 w-6 text-brand-300" aria-hidden="true" />
             {t("report.checkCase.heading")}
           </h1>
           <p className="mt-3 text-sm text-white/80">{t("report.checkCase.intro")}</p>
         </div>
       </header>
 
-      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-gray-50 px-4 pb-16 pt-6">
+      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-softGray px-4 pb-16 pt-6">
         {!caseData ? (
           <form onSubmit={handleLookup} className="space-y-5" noValidate>
             <div>
-              <label htmlFor="case-code" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+              <label htmlFor="case-code" className="mb-1.5 block text-sm font-semibold text-[#0E1224]">
                 {t("report.checkCase.caseCodeLabel")}
               </label>
               <input
@@ -167,7 +168,7 @@ const CheckCasePage = () => {
             </div>
 
             <div>
-              <label htmlFor="case-key" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+              <label htmlFor="case-key" className="mb-1.5 block text-sm font-semibold text-[#0E1224]">
                 {t("report.checkCase.secretKeyLabel")}
               </label>
               <input
@@ -183,8 +184,8 @@ const CheckCasePage = () => {
             </div>
 
             {error && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
+              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#F43F5E]/10 p-3 text-sm text-[#0E1224]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#F43F5E]" aria-hidden="true" />
                 {t(error)}
               </p>
             )}
@@ -192,7 +193,7 @@ const CheckCasePage = () => {
             <button
               type="submit"
               disabled={!caseCode.trim() || !secretKey.trim() || loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1ABC9C] px-4 py-3.5 text-base font-semibold text-white transition hover:bg-[#17a589] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5B5BD6] px-4 py-3.5 text-base font-semibold text-white transition hover:bg-[#4A49C2] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               {loading ? t("report.checkCase.loading") : t("report.checkCase.submitButton")}
@@ -213,7 +214,7 @@ const CheckCasePage = () => {
               <button
                 type="button"
                 onClick={resetToLookup}
-                className="text-xs font-semibold text-[#2D3E50] underline underline-offset-2 hover:text-[#1ABC9C]"
+                className="text-xs font-semibold text-[#0E1224] underline underline-offset-2 hover:text-[#5B5BD6]"
               >
                 {t("report.checkCase.checkAnother")}
               </button>
@@ -227,14 +228,14 @@ const CheckCasePage = () => {
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 {t("report.checkCase.yourReport")}
               </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-[#2D3E50]">{caseData.description}</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-[#0E1224]">{caseData.description}</p>
             </div>
 
             <CaseTimers timers={caseData.timers} />
 
             {replyError && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
+              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#F43F5E]/10 p-3 text-sm text-[#0E1224]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#F43F5E]" aria-hidden="true" />
                 {t(replyError)}
               </p>
             )}

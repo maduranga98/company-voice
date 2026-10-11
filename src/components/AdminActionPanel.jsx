@@ -384,7 +384,7 @@ const AdminActionPanel = ({ post, currentUser, onUpdate }) => {
               <button
                 onClick={handleAddComment}
                 disabled={loading || !comment.trim()}
-                className="px-3 py-2 bg-[#1ABC9C] text-white rounded-lg text-xs font-medium hover:bg-[#17a68a] transition disabled:opacity-40"
+                className="px-3 py-2 bg-[#5B5BD6] text-white rounded-lg text-xs font-medium hover:bg-[#17a68a] transition disabled:opacity-40"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>

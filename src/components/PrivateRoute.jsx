@@ -21,7 +21,7 @@ const InactiveAccount = () => {
         <button
           type="button"
           onClick={backToSignIn}
-          className="rounded-lg bg-[#1ABC9C] px-4 py-2 text-sm font-semibold text-white hover:bg-[#17a589]"
+          className="rounded-lg bg-[#5B5BD6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#4A49C2]"
         >
           {t("auth.accountInactive.backToSignIn")}
         </button>

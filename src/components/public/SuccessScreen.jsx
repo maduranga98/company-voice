@@ -35,9 +35,9 @@ const CopyButton = ({ text }) => {
     <button
       type="button"
       onClick={async () => setCopied(await copyText(text))}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-[#2D3E50] hover:border-[#1ABC9C] print:hidden"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-[#0E1224] hover:border-[#5B5BD6] print:hidden"
     >
-      {copied ? <Check className="h-3.5 w-3.5 text-[#1ABC9C]" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+      {copied ? <Check className="h-3.5 w-3.5 text-[#5B5BD6]" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
       {copied ? t("report.success.copied") : t("report.success.copy")}
     </button>
   );
@@ -47,7 +47,7 @@ const Credential = ({ label, value }) => (
   <div className="rounded-2xl border border-gray-200 bg-white p-4">
     <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</p>
     <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-      <p className="select-all break-all font-mono text-2xl font-bold tracking-wider text-[#2D3E50] sm:text-3xl">{value}</p>
+      <p className="select-all break-all font-mono text-2xl font-bold tracking-wider text-[#0E1224] sm:text-3xl">{value}</p>
       <CopyButton text={value} />
     </div>
   </div>
@@ -96,10 +96,10 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
   return (
     <div className="space-y-5">
       <div className="print:hidden">
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1ABC9C]/15">
-          <Check className="h-6 w-6 text-[#1ABC9C]" aria-hidden="true" />
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#5B5BD6]/15">
+          <Check className="h-6 w-6 text-[#5B5BD6]" aria-hidden="true" />
         </span>
-        <h2 className="mt-4 text-2xl font-semibold text-[#2D3E50]">{t("report.success.title")}</h2>
+        <h2 className="mt-4 text-2xl font-semibold text-[#0E1224]">{t("report.success.title")}</h2>
         <p className="mt-1 text-sm text-gray-600">{t("report.success.intro")}</p>
       </div>
 
@@ -111,16 +111,16 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
       <Credential label={t("report.success.caseCode")} value={caseCode} />
       <Credential label={t("report.success.secretKey")} value={secretKey} />
 
-      <div role="alert" className="flex gap-3 rounded-2xl border-2 border-[#FF6B6B] bg-[#FF6B6B]/10 p-4">
-        <TriangleAlert className="h-5 w-5 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
-        <p className="text-sm font-semibold text-[#2D3E50]">{t("report.success.warning")}</p>
+      <div role="alert" className="flex gap-3 rounded-2xl border-2 border-[#F43F5E] bg-[#F43F5E]/10 p-4">
+        <TriangleAlert className="h-5 w-5 shrink-0 text-[#F43F5E]" aria-hidden="true" />
+        <p className="text-sm font-semibold text-[#0E1224]">{t("report.success.warning")}</p>
       </div>
 
       <div className="flex flex-wrap gap-3 print:hidden">
         <button
           type="button"
           onClick={download}
-          className="inline-flex items-center gap-2 rounded-xl bg-[#2D3E50] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#243242]"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0E1224] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#243242]"
         >
           <Download className="h-4 w-4" aria-hidden="true" />
           {t("report.success.download")}
@@ -128,7 +128,7 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C]"
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-[#0E1224] hover:border-[#5B5BD6]"
         >
           <Printer className="h-4 w-4" aria-hidden="true" />
           {t("report.success.print")}
@@ -139,7 +139,7 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
         <p className="text-sm text-gray-600">{t("report.success.checkCaseIntro")}</p>
         <Link
           to="/c"
-          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#2D3E50] px-4 py-2 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
+          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#0E1224] px-4 py-2 text-sm font-semibold text-[#0E1224] hover:border-[#5B5BD6] hover:text-[#5B5BD6]"
         >
           <KeyRound className="h-4 w-4" aria-hidden="true" />
           {t("report.success.checkCaseLink")}
@@ -147,12 +147,12 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
       </div>
 
       <div className="space-y-3 border-t border-gray-200 pt-5 print:hidden">
-        <label className="flex items-start gap-3 text-sm text-[#2D3E50]">
+        <label className="flex items-start gap-3 text-sm text-[#0E1224]">
           <input
             type="checkbox"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#1ABC9C]"
+            className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#5B5BD6]"
           />
           {t("report.success.confirmSaved")}
         </label>
@@ -160,7 +160,7 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
           type="button"
           disabled={!confirmed}
           onClick={onDone}
-          className="w-full rounded-xl bg-[#1ABC9C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#17a589] disabled:cursor-not-allowed disabled:opacity-40"
+          className="w-full rounded-xl bg-[#5B5BD6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#4A49C2] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {t("report.success.done")}
         </button>
