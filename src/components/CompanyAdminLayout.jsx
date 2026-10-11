@@ -273,7 +273,7 @@ const CompanyAdminLayout = ({ children }) => {
   );
 
   return (
-    <div className="min-h-screen bg-background-softGray">
+    <div className="min-h-screen bg-background-page">
       {/* ── DESKTOP SIDEBAR ── */}
       <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col border-r border-gray-200/70 bg-white lg:flex">
         {sidebarContent}

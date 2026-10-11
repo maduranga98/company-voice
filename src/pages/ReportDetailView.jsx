@@ -191,7 +191,7 @@ const ReportDetailView = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background-page flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-2 border-[#1ABC9C] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-500">Loading report...</p>
@@ -202,7 +202,7 @@ const ReportDetailView = () => {
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background-page flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-8 h-8 text-red-500" />
@@ -227,7 +227,7 @@ const ReportDetailView = () => {
   const isActioned = ["resolved", "dismissed"].includes(report.status);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background-page">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
 
         {/* Back button */}

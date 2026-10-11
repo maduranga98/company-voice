@@ -63,7 +63,7 @@ const Login = () => {
     "w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-[15px] text-ink placeholder-gray-400 shadow-xs transition hover:border-gray-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-100";
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-background-page">
       {/* Brand panel */}
       <aside className="bg-gradient-ink relative hidden overflow-hidden lg:flex lg:w-[46%] xl:w-1/2">
         <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-brand-500/25 blur-3xl" />
@@ -93,7 +93,7 @@ const Login = () => {
       </aside>
 
       {/* Form */}
-      <main className="flex flex-1 flex-col bg-background-cream">
+      <main className="flex flex-1 flex-col bg-background-page">
         <div className="flex items-center justify-between p-4 sm:p-6 lg:justify-end">
           <Logo size={28} className="lg:hidden" />
           <LanguageSwitcher />

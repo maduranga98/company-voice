@@ -123,7 +123,7 @@ const Notifications = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 min-h-screen bg-gray-50/50">
+    <div className="p-4 sm:p-6 lg:p-8 min-h-screen bg-background-page">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">

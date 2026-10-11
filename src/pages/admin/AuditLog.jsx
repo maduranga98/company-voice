@@ -256,7 +256,7 @@ const AuditLog = () => {
 
   if (loading && activities.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50/50 flex items-center justify-center">
+      <div className="min-h-screen bg-background-page flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: "#1ABC9C" }} />
           <p className="mt-3 text-sm text-gray-500 font-medium">Loading audit logs...</p>
@@ -266,7 +266,7 @@ const AuditLog = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-background-page">
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

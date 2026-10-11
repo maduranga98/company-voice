@@ -6,7 +6,7 @@ const InactiveLink = ({ titleKey = "report.inactive.title", bodyKey = "report.in
   const { t } = useTranslation();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-background-page">
       <div className="bg-[#2D3E50] px-4 py-4">
         <div className="mx-auto flex max-w-xl justify-end">
           <PublicLanguageSwitcher />

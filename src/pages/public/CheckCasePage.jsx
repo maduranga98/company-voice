@@ -152,7 +152,7 @@ const CheckCasePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-softGray">
+    <div className="min-h-screen bg-background-page">
       <header className="bg-gradient-ink text-white">
         <div className="mx-auto max-w-xl px-4 pb-10 pt-5">
           <div className="flex items-center justify-between">
@@ -167,7 +167,7 @@ const CheckCasePage = () => {
         </div>
       </header>
 
-      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-softGray px-4 pb-16 pt-6">
+      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-page px-4 pb-16 pt-6">
         {!caseData ? (
           <form onSubmit={handleLookup} className="space-y-5" noValidate>
             <div>

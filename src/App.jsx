@@ -83,7 +83,7 @@ function App() {
     <AuthProvider>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <ScrollToTop />
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background-page">
           <Routes>
             {/* ── PUBLIC ROUTES ── */}
             <Route path="/login" element={<Login />} />

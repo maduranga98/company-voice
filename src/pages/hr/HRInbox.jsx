@@ -499,7 +499,7 @@ const HRInbox = () => {
               </div>
 
               {/* Tab bodies stay mounted (hidden) so notes drafts and the live thread persist */}
-              <div className="flex-1 overflow-y-auto bg-background-softGray">
+              <div className="flex-1 overflow-y-auto bg-background-page">
                 <div
                   role="tabpanel"
                   id="hr-tabpanel-details"

@@ -178,7 +178,7 @@ const VendorRiskDashboard = () => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 pb-32">
+    <div className="min-h-screen bg-background-page pb-32">
       {/* Header */}
       <div className="bg-[#2D3E50] text-white px-6 py-8">
         <div className="flex items-center gap-3 mb-2">
