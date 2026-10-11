@@ -5,7 +5,7 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
 import { getPerformance } from "firebase/performance";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { isPublicReportRoute } from "../utils/publicRoute";
 
 const firebaseConfig = {
@@ -26,7 +26,8 @@ const app = initializeApp(firebaseConfig);
 // ============================================
 // Required by the public report callables (enforceAppCheck) and, once enforcement is
 // switched on in the console, Firestore and Storage. Set VITE_APPCHECK_SITE_KEY to a
-// reCAPTCHA v3 site key. In development set VITE_APPCHECK_DEBUG_TOKEN to a debug token
+// reCAPTCHA Enterprise (score-based) site key, created in the Google Cloud console and
+// registered in Firebase Console > App Check with the "reCAPTCHA Enterprise" provider. In development set VITE_APPCHECK_DEBUG_TOKEN to a debug token
 // registered in the console (or leave it empty to have the SDK print a new one).
 let appCheck = null;
 
@@ -37,7 +38,7 @@ if (appCheckSiteKey) {
   }
   try {
     appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(appCheckSiteKey),
+      provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
       isTokenAutoRefreshEnabled: true,
     });
   } catch (error) {
