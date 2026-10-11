@@ -380,6 +380,26 @@
     "confirmDelete": "¿Estás seguro de que deseas eliminar esta publicación?",
     "saving": "Guardando..."
   },
+  "casePanel": {
+    "statusUpdated": "Estado actualizado",
+    "priorityUpdated": "Prioridad actualizada",
+    "assigned": "Asignado",
+    "unassigned": "Sin asignar",
+    "dueDateSet": "Fecha límite establecida",
+    "dueDateCleared": "Fecha límite eliminada",
+    "noteAdded": "Nota añadida",
+    "failed": "Error: {{message}}",
+    "selectAssignee": "Seleccionar responsable...",
+    "search": "Buscar...",
+    "unassign": "Quitar asignación",
+    "assignToMe": "Asignarme",
+    "people": "Personas",
+    "noTaggedMembers": "No se encontraron miembros con etiqueta",
+    "remove": "Quitar",
+    "notePlaceholder": "Añadir una nota interna (solo personal)...",
+    "staff": "Personal",
+    "statusReadOnly": "El estado cambia mediante las acciones de moderación"
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Estados de Miembros",

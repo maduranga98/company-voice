@@ -810,7 +810,17 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
               )}
 
               <div className="flex items-center justify-between text-xs text-gray-400">
-                <span>Reported {createdDate.toLocaleDateString()}</span>
+                <span className="flex items-center gap-2">
+                  Reported {createdDate.toLocaleDateString()}
+                  {report.assignedTo && (
+                    <span className="text-indigo-600">· {report.assignedTo.name}</span>
+                  )}
+                  {report.dueDate && (
+                    <span>
+                      · Due {(report.dueDate.toDate ? report.dueDate.toDate() : new Date(report.dueDate)).toLocaleDateString()}
+                    </span>
+                  )}
+                </span>
                 <div className="flex items-center space-x-2">
                   {report.totalReportsForContent > 0 && (
                     <span className="bg-red-100 text-red-700 px-2.5 py-1 rounded-xl font-medium">

@@ -380,6 +380,26 @@
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette publication ?",
     "saving": "Enregistrement..."
   },
+  "casePanel": {
+    "statusUpdated": "Statut mis à jour",
+    "priorityUpdated": "Priorité mise à jour",
+    "assigned": "Assigné",
+    "unassigned": "Désassigné",
+    "dueDateSet": "Échéance définie",
+    "dueDateCleared": "Échéance supprimée",
+    "noteAdded": "Note ajoutée",
+    "failed": "Échec : {{message}}",
+    "selectAssignee": "Choisir un responsable...",
+    "search": "Rechercher...",
+    "unassign": "Désassigner",
+    "assignToMe": "M'assigner",
+    "people": "Personnes",
+    "noTaggedMembers": "Aucun membre avec étiquette trouvé",
+    "remove": "Retirer",
+    "notePlaceholder": "Ajouter une note interne (personnel uniquement)...",
+    "staff": "Personnel",
+    "statusReadOnly": "Le statut change via les actions de modération"
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Statuts des Membres",

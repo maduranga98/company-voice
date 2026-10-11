@@ -417,6 +417,26 @@
     "confirmDelete": "Sei sicuro di voler eliminare questo post?",
     "saving": "Salvataggio in corso..."
   },
+  "casePanel": {
+    "statusUpdated": "Stato aggiornato",
+    "priorityUpdated": "Priorità aggiornata",
+    "assigned": "Assegnato",
+    "unassigned": "Assegnazione rimossa",
+    "dueDateSet": "Scadenza impostata",
+    "dueDateCleared": "Scadenza rimossa",
+    "noteAdded": "Nota aggiunta",
+    "failed": "Errore: {{message}}",
+    "selectAssignee": "Seleziona assegnatario...",
+    "search": "Cerca...",
+    "unassign": "Rimuovi assegnazione",
+    "assignToMe": "Assegna a me",
+    "people": "Persone",
+    "noTaggedMembers": "Nessun membro con etichetta trovato",
+    "remove": "Rimuovi",
+    "notePlaceholder": "Aggiungi una nota interna (solo staff)...",
+    "staff": "Staff",
+    "statusReadOnly": "Lo stato cambia tramite le azioni di moderazione"
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Stati Membro",
