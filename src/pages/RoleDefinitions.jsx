@@ -117,7 +117,7 @@ const RoleDefinitions = () => {
                 className={`p-4 rounded-lg border-2 transition-all ${
                   selectedRole === roleKey
                     ? roleColors[roleKey]
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                    : 'bg-background-white border-gray-200 text-gray-600 hover:border-gray-300'
                 }`}
               >
                 <div className="flex flex-col items-center gap-2">
@@ -131,7 +131,7 @@ const RoleDefinitions = () => {
 
         {/* Selected Role Details */}
         {filteredRoleDefinitions[selectedRole] && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="bg-background-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-start gap-4 mb-4">
               <div className={`p-3 rounded-lg ${roleColors[selectedRole]}`}>
                 {React.createElement(roleIcons[selectedRole], { className: 'w-8 h-8' })}
@@ -161,7 +161,7 @@ const RoleDefinitions = () => {
         )}
 
         {/* Permissions Matrix */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-background-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-bold text-gray-800">Permissions Matrix</h2>
             <p className="text-gray-600 text-sm mt-1">

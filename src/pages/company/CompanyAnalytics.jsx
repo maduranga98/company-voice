@@ -448,7 +448,7 @@ const CompanyAnalytics = () => {
       </div>
 
       {/* Controls: Date Filter & Export */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-6">
         <div className="flex flex-wrap items-end gap-4">
           {/* Date Range Filter */}
           <div className="flex-1 min-w-[300px]">
@@ -547,7 +547,7 @@ const CompanyAnalytics = () => {
                 Export Options ▾
               </button>
               {showExportDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-10">
+                <div className="absolute right-0 mt-2 w-56 bg-background-white rounded-lg shadow-xl border border-gray-200 py-1 z-10">
                   <button
                     onClick={() => {
                       const csvContent = exportToCSV(analytics, "overview");
@@ -594,7 +594,7 @@ const CompanyAnalytics = () => {
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Posts</p>
@@ -620,7 +620,7 @@ const CompanyAnalytics = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Comments</p>
@@ -646,7 +646,7 @@ const CompanyAnalytics = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Active Users</p>
@@ -681,7 +681,7 @@ const CompanyAnalytics = () => {
       </div>
 
       {/* Employee Happiness Indicator */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
@@ -737,7 +737,7 @@ const CompanyAnalytics = () => {
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Average Response Time
           </h3>
@@ -752,7 +752,7 @@ const CompanyAnalytics = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Engagement Score
           </h3>
@@ -775,7 +775,7 @@ const CompanyAnalytics = () => {
       {/* Posts Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* By Status */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Posts by Status
           </h3>
@@ -811,7 +811,7 @@ const CompanyAnalytics = () => {
         </div>
 
         {/* By Priority */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Posts by Priority
           </h3>
@@ -855,7 +855,7 @@ const CompanyAnalytics = () => {
 
       {/* Department Comparison */}
       {analytics.departmentStats.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Department Comparison
           </h3>
@@ -886,7 +886,7 @@ const CompanyAnalytics = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-background-white divide-y divide-gray-200">
                 {analytics.departmentStats
                   .sort((a, b) => b.totalPosts - a.totalPosts)
                   .map((dept) => (
@@ -938,7 +938,7 @@ const CompanyAnalytics = () => {
       )}
 
       {/* Trends Chart */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
@@ -1030,7 +1030,7 @@ const CompanyAnalytics = () => {
       </div>
 
       {/* Top Contributors */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Top Contributors (Most Active)
         </h3>

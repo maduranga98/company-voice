@@ -47,7 +47,7 @@ const EvidenceUploader = ({ uploads, limits, children }) => {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         className={`rounded-2xl border-2 border-dashed p-5 text-center transition ${
-          dragging ? "border-[#1ABC9C] bg-[#1ABC9C]/10" : "border-gray-300 bg-white"
+          dragging ? "border-[#1ABC9C] bg-[#1ABC9C]/10" : "border-gray-300 bg-background-white"
         } ${full ? "opacity-60" : ""}`}
       >
         <Upload className="mx-auto h-6 w-6 text-[#1ABC9C]" aria-hidden="true" />
@@ -97,7 +97,7 @@ const EvidenceUploader = ({ uploads, limits, children }) => {
       {items.length > 0 && (
         <ul className="mt-3 space-y-2">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-3">
+            <li key={item.id} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-background-white p-3">
               <FileIcon type={item.type} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-[#2D3E50]">{item.name}</p>

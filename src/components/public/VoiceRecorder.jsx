@@ -150,7 +150,7 @@ const VoiceRecorder = ({ uploads, limits }) => {
   if (!mimeType) return null;
 
   return (
-    <div className="mt-3 rounded-2xl border-2 border-dashed border-gray-300 bg-white p-5 text-center">
+    <div className="mt-3 rounded-2xl border-2 border-dashed border-gray-300 bg-background-white p-5 text-center">
       {phase === "idle" && (
         <>
           <Mic className="mx-auto h-6 w-6 text-[#1ABC9C]" aria-hidden="true" />

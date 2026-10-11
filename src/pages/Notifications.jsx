@@ -157,7 +157,7 @@ const Notifications = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="mt-6 inline-flex gap-1 p-1 bg-white rounded-xl border border-gray-100 shadow-sm">
+          <div className="mt-6 inline-flex gap-1 p-1 bg-background-white rounded-xl border border-gray-100 shadow-sm">
             {[
               { key: "all", label: t('notifications.all'), count: notifications.length },
               { key: "unread", label: t('notifications.unread'), count: unreadCount },
@@ -188,12 +188,12 @@ const Notifications = () => {
 
         {/* Notifications List */}
         {loading ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-14 text-center">
+          <div className="bg-background-white rounded-2xl border border-gray-100 shadow-sm p-14 text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 mx-auto" style={{ borderTopColor: "#1ABC9C" }}></div>
             <p className="mt-4 text-sm text-gray-500">{t('notifications.loading')}</p>
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">
+          <div className="bg-background-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">
             <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
               <BellOff className="w-7 h-7 text-gray-300" />
             </div>
@@ -207,7 +207,7 @@ const Notifications = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50 overflow-hidden">
+          <div className="bg-background-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50 overflow-hidden">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}

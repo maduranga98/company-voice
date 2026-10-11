@@ -324,7 +324,7 @@ const SuperAdminLegalRequests = () => {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="bg-background-white border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 font-medium">Total</p>
@@ -416,7 +416,7 @@ const SuperAdminLegalRequests = () => {
           return (
             <div
               key={request.id}
-              className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+              className="bg-background-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
@@ -558,7 +558,7 @@ const SuperAdminLegalRequests = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-background-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -702,7 +702,7 @@ const SuperAdminLegalRequests = () => {
 
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white max-w-lg w-full rounded-xl shadow-2xl p-6">
+        <div className="bg-background-white max-w-lg w-full rounded-xl shadow-2xl p-6">
 
           {/* STEP 1 — Confirmation */}
           {disclosureStep === 1 && (
@@ -915,7 +915,7 @@ const SuperAdminLegalRequests = () => {
   return (
     <div className="min-h-screen bg-background-page">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-background-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
             {/* Title */}
@@ -971,7 +971,7 @@ const SuperAdminLegalRequests = () => {
         {renderStats()}
 
         {/* Tabs */}
-        <div className="bg-white border border-gray-200 rounded-lg mb-6">
+        <div className="bg-background-white border border-gray-200 rounded-lg mb-6">
           <nav className="flex -mb-px">
             {[
               { id: "pending", label: "Pending", count: stats?.pending },
@@ -1001,7 +1001,7 @@ const SuperAdminLegalRequests = () => {
         </div>
 
         {/* Requests List */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-background-white border border-gray-200 rounded-lg p-6">
           {renderRequestsList()}
         </div>
 

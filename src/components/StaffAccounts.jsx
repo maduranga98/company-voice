@@ -17,7 +17,7 @@ const errorKey = (error) => {
 
 const Modal = ({ title, children }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" role="dialog" aria-modal="true">
-    <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+    <div className="w-full max-w-md rounded-xl bg-background-white p-6 shadow-xl">
       <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
       {children}
     </div>

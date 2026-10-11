@@ -196,7 +196,7 @@ const CompanyManagement = () => {
   return (
     <div className="min-h-screen bg-background-page">
       {/* Header - Mobile Responsive */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-background-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
             {/* Title */}
@@ -281,7 +281,7 @@ const CompanyManagement = () => {
         </div>
 
         {/* Companies Table - Mobile Responsive */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-background-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -307,7 +307,7 @@ const CompanyManagement = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-background-white divide-y divide-gray-200">
                 {companies.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="px-6 py-12 text-center">
@@ -523,7 +523,7 @@ const CompanyManagement = () => {
       {/* Add Company Modal - Mobile Responsive */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+          <div className="bg-background-white rounded-2xl shadow-xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
             <div className="p-4 sm:p-6">
               {/* Modal Header */}
               <div className="flex justify-between items-start mb-6">
@@ -758,7 +758,7 @@ const CompanyManagement = () => {
       {/* Credentials Display Modal */}
       {showCredentialsModal && newCredentials && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+          <div className="bg-background-white rounded-2xl shadow-xl w-full max-w-md">
             <div className="p-6">
               <div className="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full mb-4">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -788,7 +788,7 @@ const CompanyManagement = () => {
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <label className="block text-xs font-medium text-gray-500 mb-1">Username</label>
-                  <div className="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-200">
+                  <div className="flex items-center justify-between bg-background-white px-3 py-2 rounded border border-gray-200">
                     <code className="text-sm font-mono text-gray-900">{newCredentials.username}</code>
                     <button
                       onClick={() => {
@@ -805,7 +805,7 @@ const CompanyManagement = () => {
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <label className="block text-xs font-medium text-gray-500 mb-1">Password</label>
-                  <div className="flex items-center justify-between bg-white px-3 py-2 rounded border border-gray-200">
+                  <div className="flex items-center justify-between bg-background-white px-3 py-2 rounded border border-gray-200">
                     <code className="text-sm font-mono text-gray-900">{newCredentials.password}</code>
                     <button
                       onClick={() => {
@@ -852,7 +852,7 @@ const CompanyManagement = () => {
       {/* Company Details Modal */}
       {showDetailsModal && selectedCompany && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
+          <div className="bg-background-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -950,7 +950,7 @@ const CompanyManagement = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && companyToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+          <div className="bg-background-white rounded-2xl shadow-xl w-full max-w-md">
             <div className="p-6">
               <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
                 <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

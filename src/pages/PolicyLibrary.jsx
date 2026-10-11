@@ -156,15 +156,15 @@ const PolicyLibrary = () => {
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
+        <div className="bg-background-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
           <div className="text-2xl font-bold text-[#2D3E50]">{policies.length}</div>
           <div className="text-xs text-gray-500 mt-1 font-medium">Total</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
+        <div className="bg-background-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
           <div className="text-2xl font-bold text-emerald-600">{acknowledgedCount}</div>
           <div className="text-xs text-emerald-600 mt-1 font-medium">Acknowledged</div>
         </div>
-        <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
+        <div className="bg-background-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
           <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
           <div className="text-xs text-amber-600 mt-1 font-medium">Pending</div>
         </div>
@@ -182,7 +182,7 @@ const PolicyLibrary = () => {
       )}
 
       {/* Search */}
-      <div className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3 mb-4 shadow-sm">
+      <div className="bg-background-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3 mb-4 shadow-sm">
         <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
         <input
           type="text"
@@ -202,7 +202,7 @@ const PolicyLibrary = () => {
             className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               categoryFilter === cat.value
                 ? "bg-[#1ABC9C] text-white shadow-sm"
-                : "bg-white text-gray-500 border border-gray-100 hover:border-gray-200"
+                : "bg-background-white text-gray-500 border border-gray-100 hover:border-gray-200"
             }`}
           >
             {cat.label}
@@ -228,7 +228,7 @@ const PolicyLibrary = () => {
           {filteredPolicies.map((policy) => {
             const isAcknowledged = acknowledgedIds.has(policy.id);
             return (
-              <div key={policy.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+              <div key={policy.id} className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
                 {/* Top row: category + acknowledgement status */}
                 <div className="flex items-center gap-2 mb-3">
                   <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${CATEGORY_BADGE[policy.category] || CATEGORY_BADGE.other}`}>
@@ -289,7 +289,7 @@ const PolicyLibrary = () => {
       {/* Policy Detail Modal */}
       {showModal && selectedPolicy && (
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-[60] p-0 sm:p-4">
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto pb-20 sm:pb-0">
+          <div className="bg-background-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto pb-20 sm:pb-0">
             <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
               <div className="flex-1 mr-4">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">

@@ -226,7 +226,7 @@ const Profile = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 pb-24 pt-2">
       {/* Profile header card */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
+      <div className="bg-background-white rounded-2xl shadow-sm overflow-hidden mb-4">
         {/* Gradient banner */}
         <div className="h-28 relative" style={{ background: "linear-gradient(135deg, #2D3E50 0%, #1ABC9C 100%)" }}>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyem0wLTMwVjBoMjR2NEgzNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
@@ -289,7 +289,7 @@ const Profile = () => {
       </div>
 
       {/* Account information */}
-      <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
+      <div className="bg-background-white rounded-2xl shadow-sm p-5 mb-4">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
           {t("profile.accountInformation", "Account Information")}
         </h3>
@@ -316,7 +316,7 @@ const Profile = () => {
 
       {/* Company Settings - only for company_admin */}
       {userData?.role === UserRole.COMPANY_ADMIN && companyData && (
-        <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
+        <div className="bg-background-white rounded-2xl shadow-sm p-5 mb-4">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
             {t("profile.companySettings", "Company Settings")}
           </h3>
@@ -373,7 +373,7 @@ const Profile = () => {
       )}
 
       {/* Quick links */}
-      <div className="bg-white rounded-2xl shadow-sm p-5 mb-4">
+      <div className="bg-background-white rounded-2xl shadow-sm p-5 mb-4">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
           {t("profile.quickLinks", "Quick Links")}
         </h3>
@@ -401,13 +401,13 @@ const Profile = () => {
       </div>
 
       {/* Change password */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
+      <div className="bg-background-white rounded-2xl shadow-sm p-5">
         <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("staff.password.title")}</h2>
         <ChangePasswordForm />
       </div>
 
       {/* Sign out */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
+      <div className="bg-background-white rounded-2xl shadow-sm p-5">
         <button
           onClick={handleLogout}
           className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-600 rounded-xl py-3 text-sm font-medium hover:bg-red-50 transition-colors"

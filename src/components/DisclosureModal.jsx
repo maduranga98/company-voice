@@ -193,7 +193,7 @@ const DisclosureModal = ({ isOpen, onClose, request, currentUser }) => {
         </div>
         <div>
           <p className="text-xs text-gray-500 mb-1">Legal Justification</p>
-          <p className="text-xs text-gray-700 bg-white border border-gray-200 rounded p-2 max-h-28 overflow-y-auto">
+          <p className="text-xs text-gray-700 bg-background-white border border-gray-200 rounded p-2 max-h-28 overflow-y-auto">
             {request.legalJustification}
           </p>
         </div>
@@ -419,7 +419,7 @@ const DisclosureModal = ({ isOpen, onClose, request, currentUser }) => {
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-xl my-8 overflow-hidden"
+        className="bg-background-white rounded-xl shadow-2xl w-full max-w-xl my-8 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header */}

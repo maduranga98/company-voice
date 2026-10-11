@@ -27,7 +27,7 @@ const CaseReplyThread = ({ messages, onSend, sending }) => {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white">
+    <div className="rounded-2xl border border-gray-200 bg-background-white">
       <div className="border-b border-gray-100 px-4 py-3">
         <h2 className="text-sm font-semibold text-[#2D3E50]">{t("report.checkCase.thread.heading")}</h2>
       </div>
@@ -64,7 +64,7 @@ const CaseReplyThread = ({ messages, onSend, sending }) => {
           onChange={(e) => setDraft(e.target.value.slice(0, MAX_MESSAGE_LENGTH))}
           rows={2}
           placeholder={t("report.checkCase.thread.placeholder")}
-          className="flex-1 resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-[#2D3E50] focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20"
+          className="flex-1 resize-none rounded-xl border border-gray-200 bg-background-white px-3 py-2 text-sm text-[#2D3E50] focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20"
         />
         <button
           type="submit"

@@ -265,7 +265,7 @@ const ReportDetailView = () => {
         <div className="space-y-4">
 
           {/* Reported Content Card */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-background-white rounded-2xl shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-gray-400" />
@@ -318,7 +318,7 @@ const ReportDetailView = () => {
 
           {/* Reporter's Explanation */}
           {report.description && (
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-background-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
                 <Flag className="w-4 h-4 text-gray-400" />
                 <h2 className="text-sm font-semibold text-gray-900">Reporter's Explanation</h2>
@@ -330,7 +330,7 @@ const ReportDetailView = () => {
           )}
 
           {/* Content Author Card */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-background-white rounded-2xl shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
               <User className="w-4 h-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">Content Author</h2>
@@ -390,7 +390,7 @@ const ReportDetailView = () => {
 
           {/* Moderator Actions */}
           {!isActioned && (
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-background-white rounded-2xl shadow-sm overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-gray-400" />
                 <h2 className="text-sm font-semibold text-gray-900">Moderator Actions</h2>
@@ -431,7 +431,7 @@ const ReportDetailView = () => {
           )}
 
           {/* Legal & Evidence Card */}
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-background-white rounded-2xl shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
               <Scale className="w-4 h-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">Legal & Evidence</h2>
@@ -491,7 +491,7 @@ const ReportDetailView = () => {
         const needsExtra = [ModerationActionType.REMOVE_AND_WARN, ModerationActionType.REMOVE_AND_SUSPEND].includes(selectedAction);
         return (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-background-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
               {/* Modal Header */}
               <div className="flex items-start justify-between p-5 border-b border-gray-100">
                 <div className="flex items-center gap-3">

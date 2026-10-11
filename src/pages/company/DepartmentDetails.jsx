@@ -46,7 +46,7 @@ const DepartmentDetails = () => {
     return (
       <div className="min-h-screen bg-background-page py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className="bg-background-white rounded-lg shadow-sm p-12 text-center">
             <svg
               className="w-16 h-16 mx-auto text-red-400 mb-4"
               fill="none"
@@ -126,7 +126,7 @@ const DepartmentDetails = () => {
         <div className={`bg-gradient-to-r from-${color}-500 to-${color}-600 rounded-xl shadow-lg p-8 mb-6 text-white`}>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-white bg-opacity-20 backdrop-blur rounded-xl flex items-center justify-center">
+              <div className="w-20 h-20 bg-background-white bg-opacity-20 backdrop-blur rounded-xl flex items-center justify-center">
                 <span className="text-5xl">{department.icon || "🏢"}</span>
               </div>
               <div>
@@ -174,7 +174,7 @@ const DepartmentDetails = () => {
 
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Members</p>
@@ -200,7 +200,7 @@ const DepartmentDetails = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Posts</p>
@@ -226,7 +226,7 @@ const DepartmentDetails = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-green-200">
+          <div className="bg-background-white rounded-xl shadow-sm p-6 border border-green-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Resolved Issues</p>
@@ -252,7 +252,7 @@ const DepartmentDetails = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-orange-200">
+          <div className="bg-background-white rounded-xl shadow-sm p-6 border border-orange-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending Issues</p>
@@ -280,7 +280,7 @@ const DepartmentDetails = () => {
         </div>
 
         {/* Members List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900">Department Members</h2>
             <p className="text-sm text-gray-600 mt-1">

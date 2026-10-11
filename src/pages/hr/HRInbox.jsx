@@ -108,7 +108,7 @@ const InboxSkeleton = () => {
     </div>
     <div className="space-y-3">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-36 rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex gap-3">
+        <div key={i} className="h-36 rounded-2xl border border-gray-100 bg-background-white shadow-sm p-4 flex gap-3">
           <div className="w-9 h-9 rounded-xl bg-gray-100 flex-shrink-0" />
           <div className="flex-1 space-y-2.5">
             <div className="h-4 w-2/3 rounded-md bg-gray-200" />
@@ -125,7 +125,7 @@ const InboxSkeleton = () => {
 };
 
 const EmptyState = ({ icon, title, description, action }) => (
-  <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
+  <div className="flex flex-col items-center justify-center py-16 px-6 text-center bg-background-white rounded-2xl border border-gray-100 shadow-sm">
     <div className="w-14 h-14 bg-[#1ABC9C]/10 rounded-2xl flex items-center justify-center mb-4">
       {icon}
     </div>
@@ -254,8 +254,8 @@ const HRInbox = () => {
               onClick={() => setActiveFilter(tile.id)}
               className={`rounded-2xl border px-3 py-2.5 lg:px-5 lg:py-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1ABC9C]/50 ${
                 active
-                  ? "bg-white border-[#1ABC9C] shadow-md ring-2 ring-[#1ABC9C]/15"
-                  : "bg-white border-gray-100 shadow-sm hover:border-gray-200 hover:shadow-md"
+                  ? "bg-background-white border-[#1ABC9C] shadow-md ring-2 ring-[#1ABC9C]/15"
+                  : "bg-background-white border-gray-100 shadow-sm hover:border-gray-200 hover:shadow-md"
               }`}
             >
               <span className="flex items-center gap-1.5 text-[11px] lg:text-xs font-medium text-gray-500">
@@ -287,7 +287,7 @@ const HRInbox = () => {
               <button
                 type="button"
                 onClick={() => setActiveFilter("all")}
-                className="mt-5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-[#2D3E50] transition hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
+                className="mt-5 rounded-xl border border-gray-200 bg-background-white px-4 py-2 text-sm font-semibold text-[#2D3E50] transition hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
               >
                 {t("hrInbox.showAll", "Show all posts")}
               </button>
@@ -308,7 +308,7 @@ const HRInbox = () => {
               return (
                 <article
                   key={post.id}
-                  className={`bg-white rounded-2xl border transition-all ${
+                  className={`bg-background-white rounded-2xl border transition-all ${
                     isSelected
                       ? "border-[#1ABC9C] shadow-md"
                       : "border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200"
@@ -405,7 +405,7 @@ const HRInbox = () => {
 
           {/* Right: detail panel — desktop only */}
           {selectedPost && (
-            <div className="hidden lg:flex lg:flex-col lg:flex-1 lg:min-w-0 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 h-[calc(100vh-8rem)] overflow-hidden">
+            <div className="hidden lg:flex lg:flex-col lg:flex-1 lg:min-w-0 bg-background-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 h-[calc(100vh-8rem)] overflow-hidden">
               {/* Header: title, state at a glance, export + close */}
               <div className="px-6 pt-5 pb-3 flex-shrink-0">
                 <div className="flex items-start gap-4">
@@ -508,7 +508,7 @@ const HRInbox = () => {
                   className="space-y-3 p-4"
                 >
                   {selectedPost.source === "policy_link" && (
-                    <div className="rounded-xl border border-gray-100 bg-white p-4">
+                    <div className="rounded-xl border border-gray-100 bg-background-white p-4">
                       <SectionLabel>Policy concern</SectionLabel>
                       <p className="text-sm text-gray-700">
                         {selectedPost.policyTitle}
@@ -519,14 +519,14 @@ const HRInbox = () => {
                       </p>
                     </div>
                   )}
-                  <div className="rounded-xl border border-gray-100 bg-white p-4">
+                  <div className="rounded-xl border border-gray-100 bg-background-white p-4">
                     <SectionLabel>Submission</SectionLabel>
                     <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                       {selectedPost.description || selectedPost.content || "-"}
                     </p>
                   </div>
                   {Array.isArray(selectedPost.attachments) && selectedPost.attachments.length > 0 && (
-                    <div className="rounded-xl border border-gray-100 bg-white overflow-hidden">
+                    <div className="rounded-xl border border-gray-100 bg-background-white overflow-hidden">
                       <CaseAttachments attachments={selectedPost.attachments} />
                     </div>
                   )}
@@ -540,7 +540,7 @@ const HRInbox = () => {
                     hidden={activeTab !== "conversation"}
                     className="p-4"
                   >
-                    <div className="rounded-xl border border-gray-100 bg-white p-3">
+                    <div className="rounded-xl border border-gray-100 bg-background-white p-3">
                       <AnonymousThread
                         key={selectedPost.id}
                         embedded

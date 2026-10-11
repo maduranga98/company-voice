@@ -126,7 +126,7 @@ const DepartmentCard = ({
   if (viewMode === "list") {
     return (
       <div
-        className={`bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow ${
+        className={`bg-background-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow ${
           isInactive ? "opacity-60" : ""
         }`}
       >
@@ -264,7 +264,7 @@ const DepartmentCard = ({
   // Grid view
   return (
     <div
-      className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden ${
+      className={`bg-background-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden ${
         isInactive ? "opacity-60" : ""
       }`}
       onMouseEnter={() => setShowActions(true)}
@@ -276,7 +276,7 @@ const DepartmentCard = ({
       >
         <div className="flex items-center justify-between">
           <div
-            className={`w-14 h-14 bg-white bg-opacity-20 backdrop-blur rounded-lg flex items-center justify-center`}
+            className={`w-14 h-14 bg-background-white bg-opacity-20 backdrop-blur rounded-lg flex items-center justify-center`}
           >
             <span className="text-3xl">{department.icon || "🏢"}</span>
           </div>

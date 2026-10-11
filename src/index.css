@@ -85,9 +85,10 @@
 
   /* Surfaces
      page   = default page background (warm off-white, easier on eyes) -> bg-background-page
-     white  = cards / panels sitting on the page background, kept pure white for contrast */
+     card   = cards / panels: a barely-there warm tint (not pure white) so they sit softly on the page
+            background instead of glaring -> bg-background-white */
   --color-background-page: #faf9f7;
-  --color-background-white: #ffffff;
+  --color-background-white: #fcfbf9;
   --color-background-cream: var(--color-background-page);
   --color-background-softGray: #f7f9fc;
   --color-background-lightMist: #eef2f7;

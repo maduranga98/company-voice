@@ -244,7 +244,7 @@ const CompanyDashboard = () => {
           <div className="flex gap-3">
             <button
               onClick={() => navigate("/hr/inbox")}
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:bg-brand-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-background-white px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:bg-brand-50"
             >
               Open inbox
               <ArrowUpRight size={16} />
@@ -267,7 +267,7 @@ const CompanyDashboard = () => {
           return (
             <div
               key={card.label}
-              className={`rounded-2xl border bg-white p-4 shadow-xs transition-shadow hover:shadow-md lg:p-5 ${
+              className={`rounded-2xl border bg-background-white p-4 shadow-xs transition-shadow hover:shadow-md lg:p-5 ${
                 card.alert ? "border-rose-200 ring-4 ring-rose-50" : "border-gray-200/70"
               }`}
             >
@@ -283,7 +283,7 @@ const CompanyDashboard = () => {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Attention queue */}
-        <section className="overflow-hidden rounded-2xl border border-gray-200/70 bg-white shadow-xs lg:col-span-2">
+        <section className="overflow-hidden rounded-2xl border border-gray-200/70 bg-background-white shadow-xs lg:col-span-2">
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 lg:px-6">
             <div>
               <h2 className="text-base font-semibold text-ink">{t('company.recentPostsTitle')}</h2>
@@ -351,7 +351,7 @@ const CompanyDashboard = () => {
         </section>
 
         {/* Case health */}
-        <section className="rounded-2xl border border-gray-200/70 bg-white p-5 shadow-xs lg:p-6">
+        <section className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
           <h2 className="text-base font-semibold text-ink">Case health</h2>
           <p className="mt-0.5 text-[13px] text-gray-500">Where every case stands right now</p>
 
@@ -401,7 +401,7 @@ const CompanyDashboard = () => {
         <h2 className="text-base font-semibold text-ink">Shortcuts</h2>
         <div className="grid gap-5 lg:grid-cols-3">
           {quickGroups.map((group) => (
-            <div key={group.title} className="rounded-2xl border border-gray-200/70 bg-white p-2 shadow-xs">
+            <div key={group.title} className="rounded-2xl border border-gray-200/70 bg-background-white p-2 shadow-xs">
               <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">
                 {group.title}
               </p>

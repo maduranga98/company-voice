@@ -27,7 +27,7 @@ const TypeSelector = ({ value, onChange }) => {
               className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition sm:flex-col sm:items-start ${
                 selected
                   ? "border-[#1ABC9C] bg-[#1ABC9C]/10"
-                  : "border-gray-200 bg-white hover:border-[#1ABC9C]/50"
+                  : "border-gray-200 bg-background-white hover:border-[#1ABC9C]/50"
               }`}
             >
               <Icon

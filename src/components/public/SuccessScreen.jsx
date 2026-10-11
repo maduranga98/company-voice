@@ -44,7 +44,7 @@ const CopyButton = ({ text }) => {
 };
 
 const Credential = ({ label, value }) => (
-  <div className="rounded-2xl border border-gray-200 bg-white p-4">
+  <div className="rounded-2xl border border-gray-200 bg-background-white p-4">
     <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</p>
     <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
       <p className="select-all break-all font-mono text-2xl font-bold tracking-wider text-[#2D3E50] sm:text-3xl">{value}</p>
@@ -128,7 +128,7 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, allowCaseProgressChec
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C]"
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-background-white px-4 py-2.5 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C]"
         >
           <Printer className="h-4 w-4" aria-hidden="true" />
           {t("report.success.print")}
@@ -136,7 +136,7 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, allowCaseProgressChec
       </div>
 
       {allowCaseProgressCheck && (
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 print:hidden">
+        <div className="rounded-2xl border border-gray-200 bg-background-white p-4 print:hidden">
           <p className="text-sm text-gray-600">{t("report.success.checkCaseIntro")}</p>
           <Link
             to="/c"

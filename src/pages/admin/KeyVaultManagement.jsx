@@ -312,7 +312,7 @@ const KeyVaultManagement = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-background-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
@@ -408,7 +408,7 @@ const KeyVaultManagement = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-background-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
@@ -515,7 +515,7 @@ const KeyVaultManagement = () => {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-background-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">
@@ -614,7 +614,7 @@ const KeyVaultManagement = () => {
   return (
     <div className="min-h-screen bg-background-page">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-background-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
             <div className="flex flex-col space-y-2">
@@ -678,7 +678,7 @@ const KeyVaultManagement = () => {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white border border-gray-200 rounded-lg p-5">
+          <div className="bg-background-white border border-gray-200 rounded-lg p-5">
             <p className="text-sm text-gray-600 font-medium">
               Total Companies with Vault Initialized
             </p>
@@ -689,7 +689,7 @@ const KeyVaultManagement = () => {
               Companies with an active key vault
             </p>
           </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-5">
+          <div className="bg-background-white border border-gray-200 rounded-lg p-5">
             <p className="text-sm text-gray-600 font-medium">
               Total Companies without Vault
             </p>
@@ -700,7 +700,7 @@ const KeyVaultManagement = () => {
               Companies not yet set up
             </p>
           </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-5">
+          <div className="bg-background-white border border-gray-200 rounded-lg p-5">
             <p className="text-sm text-gray-600 font-medium">
               Keys Rotated This Month
             </p>
@@ -717,7 +717,7 @@ const KeyVaultManagement = () => {
         </div>
 
         {/* Companies Table */}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-background-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
               Company Key Vault Status
@@ -833,7 +833,7 @@ const KeyVaultManagement = () => {
                                   <button
                                     onClick={() => openReinitModal(company)}
                                     title="Old vault format — click to upgrade"
-                                    className="px-3 py-1.5 bg-white border border-red-400 text-red-600 text-sm font-medium rounded hover:bg-red-50 transition-colors"
+                                    className="px-3 py-1.5 bg-background-white border border-red-400 text-red-600 text-sm font-medium rounded hover:bg-red-50 transition-colors"
                                   >
                                     ⚠ Re-initialize
                                   </button>

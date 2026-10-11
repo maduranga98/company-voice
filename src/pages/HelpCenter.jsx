@@ -77,7 +77,7 @@ const HelpCenter = () => {
                       <h5 className="text-xs font-semibold text-gray-700 mb-1.5">Available Features:</h5>
                       <div className="grid grid-cols-1 gap-1.5">
                         {role.features.map((feature, idx) => (
-                          <div key={idx} className="bg-white rounded-lg p-2 border border-blue-100 flex items-start gap-2">
+                          <div key={idx} className="bg-background-white rounded-lg p-2 border border-blue-100 flex items-start gap-2">
                             <span className="text-blue-500 text-xs font-bold flex-shrink-0 mt-0.5">✓</span>
                             <div>
                               <div className="text-xs font-semibold text-gray-800">{feature.name}</div>
@@ -549,7 +549,7 @@ const HelpCenter = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 pb-24">
       {/* Search bar */}
-      <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex gap-2 mt-4 mb-4">
+      <div className="bg-background-white rounded-xl border border-gray-200 px-4 py-3 flex gap-2 mt-4 mb-4">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" className="flex-shrink-0 mt-0.5">
           <circle cx="11" cy="11" r="8" />
           <path d="M21 21l-4.35-4.35" />
@@ -569,7 +569,7 @@ const HelpCenter = () => {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-1">
             {section.label}
           </p>
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-background-white rounded-xl shadow-sm overflow-hidden">
             {section.items.map((item, i) => {
               const isExpanded = expandedItemId === item.id;
               return (

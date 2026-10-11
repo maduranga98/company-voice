@@ -26,7 +26,7 @@ const CATEGORIES = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
+  "w-full rounded-xl border border-gray-200 bg-background-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
 
 const formatDate = (iso, locale) => {
   if (!iso) return "";
@@ -195,7 +195,7 @@ const PolicyAckPage = () => {
         )}
 
         {result ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center" role="status">
+          <div className="rounded-2xl border border-gray-200 bg-background-white p-6 text-center" role="status">
             <CheckCircle2 className="mx-auto h-12 w-12 text-[#1ABC9C]" aria-hidden="true" />
             <h2 className="mt-4 text-xl font-semibold text-[#2D3E50]">
               {result.status === "concern_received"
@@ -224,7 +224,7 @@ const PolicyAckPage = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <article className="rounded-2xl border border-gray-200 bg-white p-5">
+            <article className="rounded-2xl border border-gray-200 bg-background-white p-5">
               <div className="flex flex-wrap items-center gap-2 text-xs">
                 <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-[#2D3E50]">
                   {CATEGORIES.includes(policy.category)
@@ -305,7 +305,7 @@ const PolicyAckPage = () => {
                     aria-pressed={mode === value}
                     onClick={() => setMode(value)}
                     className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                      mode === value ? "bg-white text-[#2D3E50] shadow-xs" : "text-gray-500 hover:text-[#2D3E50]"
+                      mode === value ? "bg-background-white text-[#2D3E50] shadow-xs" : "text-gray-500 hover:text-[#2D3E50]"
                     }`}
                   >
                     {t(`report.policy.mode.${value}`)}
@@ -314,7 +314,7 @@ const PolicyAckPage = () => {
               </div>
 
               {mode === "acknowledge" ? (
-                <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4">
+                <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-background-white p-4">
                   <input
                     type="checkbox"
                     checked={confirmed}
@@ -346,7 +346,7 @@ const PolicyAckPage = () => {
                     </span>
                     <span>{t("report.policy.concern.counter", { count: concernText.length, max: MAX_CONCERN })}</span>
                   </div>
-                  <p className="mt-3 flex items-start gap-2 rounded-xl bg-white p-3 text-xs text-gray-600">
+                  <p className="mt-3 flex items-start gap-2 rounded-xl bg-background-white p-3 text-xs text-gray-600">
                     <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2D3E50]" aria-hidden="true" />
                     {t("report.policy.concern.note")}
                   </p>

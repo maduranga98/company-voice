@@ -96,7 +96,7 @@ const HRConversations = () => {
     return (
       <div className="min-h-screen bg-background-page flex flex-col">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
+        <header className="bg-background-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
           <button
             onClick={() => setSelectedPostId(null)}
             className="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-xl flex-shrink-0 hover:bg-gray-200 transition"
@@ -143,7 +143,7 @@ const HRConversations = () => {
   return (
     <div className="min-h-screen bg-background-page flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 pt-5 pb-4">
+      <div className="bg-background-white border-b border-gray-200 px-4 pt-5 pb-4">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center">
             <MessageSquare size={20} className="text-teal-600" />
@@ -216,7 +216,7 @@ const HRConversations = () => {
               <button
                 key={thread.postId}
                 onClick={() => handleSelectThread(thread)}
-                className="w-full bg-white px-4 py-4 hover:bg-gray-50 active:bg-gray-100 transition text-left"
+                className="w-full bg-background-white px-4 py-4 hover:bg-gray-50 active:bg-gray-100 transition text-left"
               >
                 <div className="flex gap-3">
                   <PostTypeAvatar postType={thread.postType} />

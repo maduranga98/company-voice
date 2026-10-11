@@ -223,7 +223,7 @@ const LegalRequestsPage = () => {
           return (
             <div
               key={request.id}
-              className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
+              className="bg-background-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow"
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
@@ -387,7 +387,7 @@ const LegalRequestsPage = () => {
         )}
 
         {/* Requests List */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="bg-background-white border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Your Legal Requests
           </h2>
@@ -409,7 +409,7 @@ const LegalRequestsPage = () => {
       {/* Create Request Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
+          <div className="bg-background-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
@@ -617,7 +617,7 @@ const LegalRequestsPage = () => {
                       <div className="flex text-sm text-gray-600">
                         <label
                           htmlFor="file-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                          className="relative cursor-pointer bg-background-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
                         >
                           <span>Upload a file</span>
                           <input

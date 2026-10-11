@@ -29,7 +29,7 @@ const ExportCasePdfButton = ({ post, currentUser, className = "" }) => {
       type="button"
       onClick={handleClick}
       disabled={busy}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-[#2D3E50] transition hover:border-[#1ABC9C] hover:text-[#16A085] disabled:cursor-wait disabled:opacity-60 ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-background-white px-3 py-2 text-xs font-semibold text-[#2D3E50] transition hover:border-[#1ABC9C] hover:text-[#16A085] disabled:cursor-wait disabled:opacity-60 ${className}`}
     >
       {busy ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Download aria-hidden="true" className="h-3.5 w-3.5" />}
       {busy ? t("hrInbox.exportingPdf", "Exporting...") : t("hrInbox.exportPdf", "Export PDF")}

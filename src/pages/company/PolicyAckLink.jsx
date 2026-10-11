@@ -225,7 +225,7 @@ const PolicyAckLink = () => {
   }
 
   const { summary } = report;
-  const cardClass = "rounded-2xl border border-gray-200 bg-white p-5";
+  const cardClass = "rounded-2xl border border-gray-200 bg-background-white p-5";
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">
@@ -326,7 +326,7 @@ const PolicyAckLink = () => {
               rows={6}
               spellCheck={false}
               placeholder={t("report.policyLink.roster.placeholder")}
-              className="mt-3 w-full resize-y rounded-xl border border-gray-200 bg-white px-3.5 py-3 font-mono text-xs text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              className="mt-3 w-full resize-y rounded-xl border border-gray-200 bg-background-white px-3.5 py-3 font-mono text-xs text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100"
             />
             <label className="mt-3 flex items-start gap-3">
               <input
@@ -365,7 +365,7 @@ const PolicyAckLink = () => {
               <select
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
-                className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm text-[#2D3E50]"
+                className="rounded-lg border border-gray-200 bg-background-white px-2 py-1 text-sm text-[#2D3E50]"
               >
                 {versions.map((v) => (
                   <option key={v} value={v}>
@@ -400,7 +400,7 @@ const PolicyAckLink = () => {
                 aria-pressed={filter === value}
                 onClick={() => setFilter(value)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                  filter === value ? "bg-white text-[#2D3E50] shadow-xs" : "text-gray-500 hover:text-[#2D3E50]"
+                  filter === value ? "bg-background-white text-[#2D3E50] shadow-xs" : "text-gray-500 hover:text-[#2D3E50]"
                 }`}
               >
                 {t(`report.policyLink.table.filter.${value}`)}
@@ -414,7 +414,7 @@ const PolicyAckLink = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("report.policyLink.table.search")}
-              className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              className="w-full rounded-xl border border-gray-200 bg-background-white py-2 pl-9 pr-3 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100"
             />
           </div>
           {summary.concerns > 0 && (

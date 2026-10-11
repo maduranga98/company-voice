@@ -76,7 +76,7 @@ const DetailCell = ({ details }) => {
 // Summary card
 const SummaryCard = ({ label, value, highlight, sublabel }) => (
   <div
-    className={`bg-white rounded-lg border p-4 shadow-sm ${
+    className={`bg-background-white rounded-lg border p-4 shadow-sm ${
       highlight ? "border-[#FF6B6B]/50 bg-[#FF6B6B]/5" : "border-slate-200"
     }`}
   >
@@ -179,7 +179,7 @@ const AuditExportPage = () => {
       </div>
 
       {/* ---- STICKY FILTERS BAR ---- */}
-      <div className="sticky top-0 z-20 bg-white border border-slate-200 rounded-lg shadow-sm p-4 mb-6">
+      <div className="sticky top-0 z-20 bg-background-white border border-slate-200 rounded-lg shadow-sm p-4 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           {/* From date */}
           <div>
@@ -283,7 +283,7 @@ const AuditExportPage = () => {
       )}
 
       {/* ---- RESULTS TABLE ---- */}
-      <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-background-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -341,7 +341,7 @@ const AuditExportPage = () => {
                   <tr
                     key={log.id}
                     className={`border-t border-slate-100 hover:bg-slate-50 transition-colors ${
-                      idx % 2 === 1 ? "bg-slate-50/50" : "bg-white"
+                      idx % 2 === 1 ? "bg-slate-50/50" : "bg-background-white"
                     }`}
                   >
                     <td className="px-4 py-3 text-xs text-slate-600 whitespace-nowrap font-mono">
@@ -383,7 +383,7 @@ const AuditExportPage = () => {
               <button
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page === 1}
-                className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-background-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
               >
                 Previous
               </button>
@@ -393,7 +393,7 @@ const AuditExportPage = () => {
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page === totalPages}
-                className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-background-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
               >
                 Next
               </button>

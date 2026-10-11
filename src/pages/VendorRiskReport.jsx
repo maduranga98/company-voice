@@ -151,7 +151,7 @@ const VendorRiskReport = () => {
           type="button"
           onClick={() => onChange(val)}
           className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all border ${
-            value === val ? activeClass : "bg-white text-gray-400 border-gray-100 hover:border-gray-200"
+            value === val ? activeClass : "bg-background-white text-gray-400 border-gray-100 hover:border-gray-200"
           }`}
         >
           {label}
@@ -231,7 +231,7 @@ const VendorRiskReport = () => {
           {/* New Report Card */}
           <button
             onClick={() => setMode("new")}
-            className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#1ABC9C] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
+            className="bg-background-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#1ABC9C] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
           >
             <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center flex-shrink-0">
               <AlertTriangle className="w-6 h-6 text-orange-500" />
@@ -245,7 +245,7 @@ const VendorRiskReport = () => {
           {/* Corroborate Card */}
           <button
             onClick={() => setMode("corroborate")}
-            className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#1ABC9C] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
+            className="bg-background-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#1ABC9C] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
           >
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
               <Users className="w-6 h-6 text-blue-500" />
@@ -281,7 +281,7 @@ const VendorRiskReport = () => {
         <h2 className="text-lg font-bold text-[#2D3E50] mb-1">New Vendor Report</h2>
         <p className="text-sm text-gray-500 mb-5">Provide details about the vendor concern</p>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
           {/* Vendor Name */}
           <div>
             <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Vendor or Supplier Name</label>
@@ -450,7 +450,7 @@ const VendorRiskReport = () => {
         </div>
 
         {/* Reference Code Input */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
+        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
           <label className="block text-sm font-semibold text-[#2D3E50] mb-1">Reference Code</label>
           <p className="text-xs text-gray-400 mb-3">Format: VXW-YYYY-NNNN</p>
 
@@ -493,7 +493,7 @@ const VendorRiskReport = () => {
 
         {/* Corroboration form - only if code is valid */}
         {refCodeValid === true && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-4 space-y-5">
+          <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-4 space-y-5">
             {/* Privacy reminder */}
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-2.5">
               <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />

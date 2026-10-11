@@ -571,7 +571,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
   const renderFilters = () => {
     if (mainTab === "critical") {
       return (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
+        <div className="bg-background-white border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
           <div className="flex items-center mb-4">
             <Filter className="w-5 h-5 text-[#2D3E50] mr-2" />
             <h3 className="text-lg font-semibold text-[#2D3E50]">Filters</h3>
@@ -646,7 +646,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
 
     if (mainTab === "all" || mainTab === "general") {
       return (
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
+        <div className="bg-background-white border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
           <div className="flex items-center mb-4">
             <Filter className="w-5 h-5 text-[#2D3E50] mr-2" />
             <h3 className="text-lg font-semibold text-[#2D3E50]">Filters</h3>
@@ -690,7 +690,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
           {repeatOffenders.slice(0, 5).map((offender) => (
             <div
               key={offender.authorId}
-              className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-sm"
+              className="flex items-center justify-between bg-background-white p-4 rounded-xl border border-gray-100 shadow-sm"
             >
               <div>
                 <p className="font-medium text-[#2D3E50]">{offender.authorName}</p>
@@ -754,7 +754,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <div
               key={report.id}
               onClick={() => handleReportClick(report.id)}
-              className={`bg-white border rounded-2xl p-5 hover:shadow-md transition-all cursor-pointer ${
+              className={`bg-background-white border rounded-2xl p-5 hover:shadow-md transition-all cursor-pointer ${
                 isCritical && report.priority === "critical"
                   ? "border-red-200 bg-red-50/50"
                   : "border-gray-100"
@@ -907,7 +907,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
         {repeatOffenders.map((offender) => (
           <div
             key={offender.authorId}
-            className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm"
+            className="bg-background-white border border-gray-100 rounded-2xl p-5 shadow-sm"
           >
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -971,7 +971,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
           <div className="flex items-center space-x-4 mb-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition shadow-sm"
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 bg-background-white text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition shadow-sm"
               title="Back to Dashboard"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -998,7 +998,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
         )}
 
         {/* Main Tabs */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
+        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 mb-6">
           <div className="p-1.5">
             <nav className="flex gap-1">
               {tabs.map((tab) => (
@@ -1033,7 +1033,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
         {mainTab === "critical" && renderRepeatOffenders()}
 
         {/* Content */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+        <div className="bg-background-white border border-gray-100 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-[#2D3E50]">
               {mainTab === "all" && `All Reports (${reports.length})`}
