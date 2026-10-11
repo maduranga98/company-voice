@@ -8,6 +8,7 @@ import {
   getVendorReportStats,
 } from "../../services/vendorRiskService";
 import CaseHandlingPanel from "../../components/case/CaseHandlingPanel";
+import OpenCaseLink from "../../components/case/OpenCaseLink";
 import { CaseType } from "../../utils/caseTypes";
 import {
   ArrowLeft, FileText, AlertTriangle, ChevronRight, Download, Shield,
@@ -326,6 +327,7 @@ const VendorRiskDashboard = () => {
                 <div className="text-[10px] font-mono text-white/40 tracking-wider">{selectedReport.referenceCode}</div>
                 <div className="text-base font-bold text-white truncate leading-tight mt-0.5">{selectedReport.vendorName}</div>
               </div>
+              <OpenCaseLink caseType={CaseType.VENDOR} caseId={selectedReport.id} variant="dark" className="flex-shrink-0" />
               {selectedReport.autoEscalated && (
                 <span className="flex-shrink-0 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5">
                   <AlertTriangle className="w-3 h-3" /> Auto-escalated

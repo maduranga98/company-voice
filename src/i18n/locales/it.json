@@ -458,6 +458,64 @@
     "dueToday": "Scade oggi",
     "overdueOn": "In ritardo · {{date}}"
   },
+  "caseDetail": {
+    "back": "Indietro",
+    "openFullCase": "Apri caso completo",
+    "copyLink": "Copia link",
+    "linkCopied": "Link copiato",
+    "anonymous": "Anonimo",
+    "due": "Scadenza {{date}}",
+    "submission": "Segnalazione",
+    "conversation": "Conversazione con il segnalante",
+    "handling": "Gestione del caso",
+    "policyConcern": "Dubbio su una policy",
+    "employeeId": "ID dipendente",
+    "type": {
+      "post": "Segnalazione",
+      "vendor": "Rischio fornitore",
+      "moderation": "Moderazione"
+    },
+    "vendor": {
+      "category": "Categoria",
+      "severity": "Gravità",
+      "corroborations": "Conferme",
+      "earlierNotes": "Note di revisione precedenti",
+      "evidenceFile": "File di prova {{n}}"
+    },
+    "moderation": {
+      "reporterNotes": "Note del segnalante",
+      "openActions": "Apri azioni di moderazione"
+    },
+    "notFound": {
+      "title": "Caso non trovato",
+      "body": "Questo caso non esiste o il link non è corretto."
+    },
+    "noAccess": {
+      "title": "Nessun accesso",
+      "body": "Non hai accesso a questo caso."
+    },
+    "error": {
+      "title": "Impossibile caricare il caso",
+      "body": "Qualcosa è andato storto. Riprova."
+    },
+    "timeline": {
+      "title": "Attività",
+      "empty": "Ancora nessuna attività."
+    },
+    "activity": {
+      "someone": "Qualcuno",
+      "created": "Caso creato",
+      "statusChanged": "{{actor}} ha cambiato lo stato da {{from}} a {{to}}",
+      "priorityChanged": "{{actor}} ha cambiato la priorità da {{from}} a {{to}}",
+      "assigned": "{{actor}} ha assegnato il caso a {{assignee}}",
+      "unassigned": "{{actor}} ha rimosso l'assegnatario",
+      "dueDateSet": "{{actor}} ha impostato la scadenza al {{date}}",
+      "dueDateCleared": "{{actor}} ha rimosso la scadenza",
+      "noteAdded": "{{actor}} ha aggiunto una nota interna",
+      "reviewed": "{{actor}} ha esaminato: {{action}}",
+      "other": "{{actor}}: {{type}}"
+    }
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Stati Membro",

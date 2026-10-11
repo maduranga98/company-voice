@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import ChangePasswordForm from "./ChangePasswordForm";
@@ -33,8 +33,12 @@ const InactiveAccount = () => {
 const PrivateRoute = ({ children }) => {
   const { currentUser, inactiveAccount } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
 
-  if (!currentUser) return inactiveAccount ? <InactiveAccount /> : <Navigate to="/login" />;
+  // Remember where the visitor was headed so a shared deep link (e.g. /cases/...) survives sign-in.
+  if (!currentUser) {
+    return inactiveAccount ? <InactiveAccount /> : <Navigate to="/login" state={{ from: location }} />;
+  }
 
   // Accounts created or reset by an administrator must choose their own password first.
   if (currentUser.mustChangePassword) {

@@ -607,5 +607,63 @@
     "dueOn": "නියමිත දිනය {{date}}",
     "dueToday": "අද නියමිතයි",
     "overdueOn": "කාලය ඉක්මවා ඇත · {{date}}"
+  },
+  "caseDetail": {
+    "back": "ආපසු",
+    "openFullCase": "සම්පූර්ණ අවස්ථාව විවෘත කරන්න",
+    "copyLink": "සබැඳිය පිටපත් කරන්න",
+    "linkCopied": "සබැඳිය පිටපත් කරන ලදී",
+    "anonymous": "නිර්නාමික",
+    "due": "නියමිත දිනය {{date}}",
+    "submission": "ඉදිරිපත් කිරීම",
+    "conversation": "වාර්තාකරු සමඟ සංවාදය",
+    "handling": "අවස්ථාව හැසිරවීම",
+    "policyConcern": "ප්‍රතිපත්ති සම්බන්ධ අදහස",
+    "employeeId": "සේවක හැඳුනුම",
+    "type": {
+      "post": "වාර්තාව",
+      "vendor": "සැපයුම්කරු අවදානම",
+      "moderation": "මධ්‍යස්ථකරණය"
+    },
+    "vendor": {
+      "category": "ප්‍රවර්ගය",
+      "severity": "බරපතලකම",
+      "corroborations": "තහවුරු කිරීම්",
+      "earlierNotes": "පෙර සමාලෝචන සටහන්",
+      "evidenceFile": "සාක්ෂි ගොනුව {{n}}"
+    },
+    "moderation": {
+      "reporterNotes": "වාර්තාකරුගේ සටහන්",
+      "openActions": "මධ්‍යස්ථ ක්‍රියා විවෘත කරන්න"
+    },
+    "notFound": {
+      "title": "අවස්ථාව හමු නොවීය",
+      "body": "මෙම අවස්ථාව නොපවතී හෝ සබැඳිය වැරදිය."
+    },
+    "noAccess": {
+      "title": "ප්‍රවේශය නැත",
+      "body": "මෙම අවස්ථාවට ඔබට ප්‍රවේශය නැත."
+    },
+    "error": {
+      "title": "අවස්ථාව පූරණය කළ නොහැකි විය",
+      "body": "යම් දෝෂයක් සිදු විය. කරුණාකර නැවත උත්සාහ කරන්න."
+    },
+    "timeline": {
+      "title": "ක්‍රියාකාරකම්",
+      "empty": "තවම ක්‍රියාකාරකම් නැත."
+    },
+    "activity": {
+      "someone": "යමෙක්",
+      "created": "අවස්ථාව සාදන ලදී",
+      "statusChanged": "{{actor}} තත්ත්වය {{from}} සිට {{to}} වෙත වෙනස් කළා",
+      "priorityChanged": "{{actor}} ප්‍රමුඛතාව {{from}} සිට {{to}} වෙත වෙනස් කළා",
+      "assigned": "{{actor}} මෙය {{assignee}} වෙත පැවරුවා",
+      "unassigned": "{{actor}} පවරන ලද අය ඉවත් කළා",
+      "dueDateSet": "{{actor}} නියමිත දිනය {{date}} ලෙස සකස් කළා",
+      "dueDateCleared": "{{actor}} නියමිත දිනය ඉවත් කළා",
+      "noteAdded": "{{actor}} අභ්‍යන්තර සටහනක් එක් කළා",
+      "reviewed": "{{actor}} සමාලෝචනය කළා: {{action}}",
+      "other": "{{actor}}: {{type}}"
+    }
   }
 }

@@ -5,6 +5,7 @@ import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AdminActionPanel from "../components/AdminActionPanel";
+import OpenCaseLink from "../components/case/OpenCaseLink";
 import { PostStatusConfig, PostPriorityConfig } from "../utils/constants";
 import { CaseType, getCaseAdapter } from "../utils/caseTypes";
 import { StatusBadge, PriorityBadge, DueDateChip } from "../components/case/CaseBadges";
@@ -269,6 +270,7 @@ const AssignedToMe = () => {
                         {post.status && PostStatusConfig[post.status] && <StatusBadge status={post.status} />}
                         {post.priority && PostPriorityConfig[post.priority] && <PriorityBadge priority={post.priority} />}
                       </div>
+                      <OpenCaseLink caseType={CaseType.POST} caseId={post.id} className="ml-auto mr-2" />
                       <button
                         onClick={() => setExpandedPost(null)}
                         className="p-1.5 rounded-xl hover:bg-gray-200 transition-colors"
