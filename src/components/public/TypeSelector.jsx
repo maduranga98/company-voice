@@ -12,7 +12,7 @@ const TypeSelector = ({ value, onChange }) => {
 
   return (
     <fieldset>
-      <legend className="mb-3 text-base font-semibold text-[#2D3E50]">{t("report.type.heading")}</legend>
+      <legend className="mb-3 text-base font-semibold text-[#0E1224]">{t("report.type.heading")}</legend>
       <div className="grid gap-3 sm:grid-cols-3" role="radiogroup">
         {TYPES.map(({ id, icon }) => {
           const Icon = icon;
@@ -26,16 +26,16 @@ const TypeSelector = ({ value, onChange }) => {
               onClick={() => onChange(id)}
               className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition sm:flex-col sm:items-start ${
                 selected
-                  ? "border-[#1ABC9C] bg-[#1ABC9C]/10"
-                  : "border-gray-200 bg-white hover:border-[#1ABC9C]/50"
+                  ? "border-[#5B5BD6] bg-[#5B5BD6]/10"
+                  : "border-gray-200 bg-white hover:border-[#5B5BD6]/50"
               }`}
             >
               <Icon
-                className={`h-6 w-6 shrink-0 ${selected ? "text-[#1ABC9C]" : "text-[#2D3E50]"}`}
+                className={`h-6 w-6 shrink-0 ${selected ? "text-[#5B5BD6]" : "text-[#0E1224]"}`}
                 aria-hidden="true"
               />
               <span>
-                <span className="block text-sm font-semibold text-[#2D3E50]">{t(`report.type.${id}.title`)}</span>
+                <span className="block text-sm font-semibold text-[#0E1224]">{t(`report.type.${id}.title`)}</span>
                 <span className="mt-0.5 block text-xs text-gray-500">{t(`report.type.${id}.description`)}</span>
               </span>
             </button>

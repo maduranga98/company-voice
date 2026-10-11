@@ -141,7 +141,7 @@ const HRInbox = () => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#1ABC9C] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#5B5BD6] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-500">{t("common.loading", "Loading...")}</p>
         </div>
       </div>
@@ -153,12 +153,12 @@ const HRInbox = () => {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 lg:gap-4 mb-1 lg:mb-2">
-          <div className="w-10 h-10 lg:w-14 lg:h-14 bg-[#1ABC9C]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Inbox size={20} className="text-[#1ABC9C] lg:hidden" />
-            <Inbox size={26} className="text-[#1ABC9C] hidden lg:block" />
+          <div className="w-10 h-10 lg:w-14 lg:h-14 bg-[#5B5BD6]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Inbox size={20} className="text-[#5B5BD6] lg:hidden" />
+            <Inbox size={26} className="text-[#5B5BD6] hidden lg:block" />
           </div>
           <div>
-            <h1 className="text-xl lg:text-3xl font-bold text-[#2D3E50]">
+            <h1 className="text-xl lg:text-3xl font-bold text-[#0E1224]">
               {t("navigation.hrInbox", "HR Inbox")}
             </h1>
             <p className="text-sm lg:text-base text-gray-500">
@@ -171,7 +171,7 @@ const HRInbox = () => {
       {/* Stats Bar */}
       <div className="grid grid-cols-4 gap-3 lg:gap-4">
         {[
-          { label: t("hrInbox.total", "Total"), value: stats.total, color: "text-[#2D3E50]", bg: "bg-gray-50" },
+          { label: t("hrInbox.total", "Total"), value: stats.total, color: "text-[#0E1224]", bg: "bg-gray-50" },
           { label: t("hrInbox.open", "Open"), value: stats.open, color: "text-yellow-600", bg: "bg-yellow-50" },
           { label: t("hrInbox.inProgress", "In Progress"), value: stats.inProgress, color: "text-blue-600", bg: "bg-blue-50" },
           { label: t("hrInbox.resolved", "Resolved"), value: stats.resolved, color: "text-green-600", bg: "bg-green-50" },
@@ -191,14 +191,14 @@ const HRInbox = () => {
             onClick={() => setActiveFilter(tab.id)}
             className={`flex-1 px-3 py-2 lg:px-4 lg:py-2.5 rounded-lg text-xs lg:text-sm font-medium transition-all ${
               activeFilter === tab.id
-                ? "bg-white text-[#2D3E50] shadow-sm"
+                ? "bg-white text-[#0E1224] shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
             {tab.label}
             {tab.count > 0 && (
               <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs lg:text-sm ${
-                activeFilter === tab.id ? "bg-[#1ABC9C]/10 text-[#1ABC9C]" : "bg-gray-200 text-gray-500"
+                activeFilter === tab.id ? "bg-[#5B5BD6]/10 text-[#5B5BD6]" : "bg-gray-200 text-gray-500"
               }`}>
                 {tab.count}
               </span>
@@ -236,7 +236,7 @@ const HRInbox = () => {
                   onClick={() => setSelectedPost(isSelected ? null : post)}
                   className={`bg-white rounded-2xl border transition-all cursor-pointer ${
                     isSelected
-                      ? "border-[#1ABC9C] shadow-md"
+                      ? "border-[#5B5BD6] shadow-md"
                       : "border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200"
                   }`}
                 >
@@ -248,9 +248,9 @@ const HRInbox = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-0.5 lg:mb-1">
                               {isUnread && (
-                                <span className="w-2 h-2 bg-[#FF6B6B] rounded-full flex-shrink-0" />
+                                <span className="w-2 h-2 bg-[#F43F5E] rounded-full flex-shrink-0" />
                               )}
-                              <h3 className="text-sm lg:text-base font-semibold text-[#2D3E50] truncate">
+                              <h3 className="text-sm lg:text-base font-semibold text-[#0E1224] truncate">
                                 {post.title}
                               </h3>
                             </div>
@@ -298,12 +298,12 @@ const HRInbox = () => {
 
           {/* Right: detail panel — desktop only */}
           {selectedPost && (
-            <div className="hidden lg:flex lg:flex-col lg:flex-1 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 max-h-[calc(100vh-160px)] overflow-hidden">
+            <div className="hidden lg:flex lg:flex-col lg:flex-1 bg-white rounded-2xl border border-[#5B5BD6] shadow-md sticky top-24 max-h-[calc(100vh-160px)] overflow-hidden">
               {/* Panel header — title + close */}
               <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-start gap-4 flex-shrink-0">
                 <PostTypeIcon type={selectedPost.type} />
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-[#2D3E50] leading-snug">
+                  <h3 className="text-base font-semibold text-[#0E1224] leading-snug">
                     {selectedPost.title}
                   </h3>
                   {/* Metadata chips */}

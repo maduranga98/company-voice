@@ -35,6 +35,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
+import Logo from "./brand/Logo";
 
 const CompanyAdminLayout = ({ children }) => {
   const { t } = useTranslation();
@@ -104,22 +105,10 @@ const CompanyAdminLayout = ({ children }) => {
 
   const isActive = (path) => location.pathname === path;
 
-  const getRoleBadge = () => {
-    if (userData?.role === "company_admin") {
-      return (
-        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#1ABC9C]/15 text-[#1ABC9C] uppercase tracking-wide">
-          Admin
-        </span>
-      );
-    } else if (userData?.role === "hr") {
-      return (
-        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 uppercase tracking-wide">
-          HR
-        </span>
-      );
-    }
-    return null;
-  };
+  const roleLabel =
+    userData?.role === "company_admin" ? "Admin" : userData?.role === "hr" ? "HR" : "";
+
+  const initial = userData?.displayName?.charAt(0)?.toUpperCase() || "U";
 
   const isHR = userData?.role === "hr";
 
@@ -181,19 +170,24 @@ const CompanyAdminLayout = ({ children }) => {
       <button
         key={item.path}
         onClick={() => handleNavigate(item.path)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
+        aria-current={active ? "page" : undefined}
+        className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors duration-150 ${
           active
-            ? "bg-[#1ABC9C]/10 text-[#1ABC9C]"
-            : "text-gray-400 hover:text-white hover:bg-white/5"
+            ? "bg-brand-50 text-brand-700"
+            : "text-gray-600 hover:bg-gray-100 hover:text-ink"
         }`}
       >
-        {active && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#1ABC9C] rounded-r-full" />
-        )}
-        <Icon size={18} className={active ? "text-[#1ABC9C]" : "text-gray-500 group-hover:text-gray-300"} />
-        <span className="flex-1 text-left truncate">{item.label}</span>
+        <Icon
+          size={17}
+          strokeWidth={active ? 2.25 : 1.9}
+          className={active ? "text-brand-600" : "text-gray-400 group-hover:text-gray-600"}
+        />
+        <span className="flex-1 truncate text-left">{item.label}</span>
         {item.badge && (
-          <span className="w-2 h-2 bg-[#FF6B6B] rounded-full animate-pulse" />
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+          </span>
         )}
       </button>
     );
@@ -202,23 +196,18 @@ const CompanyAdminLayout = ({ children }) => {
   const renderSection = (section) => {
     if (section.id === "main") {
       return (
-        <div key={section.id} className="space-y-0.5 mb-2">
+        <div key={section.id} className="mb-4 space-y-0.5">
           {section.items.map(renderNavItem)}
         </div>
       );
     }
 
     return (
-      <div key={section.id} className="mb-3">
-        <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
-          <span className="text-xs font-bold uppercase tracking-widest text-gray-500">
-            {section.title}
-          </span>
-          <div className="flex-1 h-px bg-white/[0.07]" />
-        </div>
-        <div className="space-y-0.5">
-          {section.items.map(renderNavItem)}
-        </div>
+      <div key={section.id} className="mb-4">
+        <p className="px-3 pb-1.5 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400">
+          {section.title}
+        </p>
+        <div className="space-y-0.5">{section.items.map(renderNavItem)}</div>
       </div>
     );
   };
@@ -241,61 +230,52 @@ const CompanyAdminLayout = ({ children }) => {
 
   const sidebarContent = (
     <>
-      {/* Logo & brand */}
-      <div className="h-16 flex items-center gap-3 px-5 border-b border-white/[0.06] flex-shrink-0">
-        <div
-          className="flex items-center gap-3 cursor-pointer group"
+      {/* Brand */}
+      <div className="flex h-16 flex-shrink-0 items-center px-5">
+        <button
           onClick={() => handleNavigate("/company/dashboard")}
+          className="rounded-lg"
+          aria-label="VoxWel home"
         >
-          <div className="relative">
-            <div className="absolute inset-0 bg-[#1ABC9C] rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity" />
-            <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center relative">
-              <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
-            </div>
-          </div>
-          <div>
-            <span className="text-lg font-bold text-white group-hover:text-[#1ABC9C] transition-colors">VoxWel</span>
-            <p className="text-xs text-gray-500 font-medium">Admin Panel</p>
-          </div>
-        </div>
-      </div>
-
-      {/* User card */}
-      <div className="px-4 py-4 border-b border-white/[0.06] flex-shrink-0">
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1ABC9C] to-[#16a085] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-            {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">{userData?.displayName}</p>
-            <div className="mt-1">{getRoleBadge()}</div>
-          </div>
-        </div>
+          <Logo size={30} />
+        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-1 scrollbar-thin">
+      <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 pb-3 pt-1">
         {navSections.map(renderSection)}
       </nav>
 
-      {/* Logout at bottom */}
-      <div className="px-4 py-4 border-t border-white/[0.06] flex-shrink-0">
-        <button
-          onClick={handleLogout}
-          disabled={loading}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
-        >
-          <LogOut size={18} />
-          <span>{loading ? t("common.loading", "Logging out...") : t("auth.logout", "Logout")}</span>
-        </button>
+      {/* Account */}
+      <div className="flex-shrink-0 border-t border-gray-100 p-3">
+        <div className="flex items-center gap-3 rounded-xl p-2">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-primary text-sm font-semibold text-white">
+            {initial}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-ink">{userData?.displayName}</p>
+            {roleLabel && (
+              <p className="text-xs font-medium text-brand-600">{roleLabel}</p>
+            )}
+          </div>
+          <button
+            onClick={handleLogout}
+            disabled={loading}
+            title={t("auth.logout", "Logout")}
+            aria-label={t("auth.logout", "Logout")}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
       </div>
     </>
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f9fb]">
+    <div className="min-h-screen bg-background-softGray">
       {/* ── DESKTOP SIDEBAR ── */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-60 bg-[#1e2530] z-40 flex-col shadow-2xl">
+      <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col border-r border-gray-200/70 bg-white lg:flex">
         {sidebarContent}
       </aside>
 
@@ -303,14 +283,14 @@ const CompanyAdminLayout = ({ children }) => {
       {sidebarOpen && (
         <>
           <div
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="lg:hidden fixed left-0 top-0 h-full w-72 bg-[#1e2530] z-50 flex flex-col shadow-2xl animate-slide-in">
-            {/* Close button */}
+          <aside className="animate-slide-in fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-white shadow-xl lg:hidden">
             <button
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 transition-all z-10"
+              aria-label="Close menu"
+              className="absolute right-3 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-ink"
             >
               <X size={18} />
             </button>
@@ -320,65 +300,62 @@ const CompanyAdminLayout = ({ children }) => {
       )}
 
       {/* ── TOP HEADER ── */}
-      <header className="sticky top-0 z-30 bg-white border-b border-gray-200/80 lg:ml-60">
-        <div className="flex items-center justify-between h-14 px-4 lg:px-6">
-          {/* Mobile: hamburger + logo */}
+      <header className="sticky top-0 z-30 border-b border-gray-200/70 bg-white/80 backdrop-blur-md lg:ml-64">
+        <div className="flex h-14 items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              aria-label="Open menu"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 lg:hidden"
             >
               <Menu size={20} />
             </button>
-            <div
-              className="lg:hidden flex items-center gap-2 cursor-pointer"
+            <button
+              className="flex items-center lg:hidden"
               onClick={() => handleNavigate("/company/dashboard")}
+              aria-label="VoxWel home"
             >
-              <img src="/voxwel-logo.png" alt="VoxWel" className="w-7 h-7 object-contain rounded-lg" />
-              <span className="text-base font-bold text-[#2D3E50]">VoxWel</span>
-            </div>
-          </div>
-
-          {/* Desktop: Page context (breadcrumb-like) */}
-          <div className="hidden lg:block">
-            <h2 className="text-sm font-semibold text-gray-800">
+              <Logo size={26} />
+            </button>
+            <h2 className="hidden text-[15px] font-semibold text-ink lg:block">
               {getPageTitle(location.pathname, t)}
             </h2>
           </div>
 
-          {/* Right side actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <LanguageSwitcher />
             <button
               onClick={() => handleNavigate("/company/notifications")}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors relative"
+              aria-label={t("navigation.notifications", "Notifications")}
+              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-ink"
             >
               <Bell size={18} />
             </button>
-            {/* Desktop user avatar */}
-            <div
-              className="hidden lg:flex items-center gap-2 pl-3 ml-1 border-l border-gray-200 cursor-pointer"
+            <button
+              className="ml-1 hidden items-center gap-2 rounded-full border-l border-gray-200 py-1 pl-3 pr-1 lg:flex"
               onClick={() => handleNavigate("/company/profile")}
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1ABC9C] to-[#16a085] flex items-center justify-center text-white font-bold text-xs">
-                {userData?.displayName?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-              <span className="text-sm font-medium text-gray-700 hidden xl:block">{userData?.displayName}</span>
-            </div>
+              <span className="hidden text-sm font-medium text-gray-700 xl:block">
+                {userData?.displayName}
+              </span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-primary text-xs font-semibold text-white">
+                {initial}
+              </span>
+            </button>
           </div>
         </div>
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="lg:ml-60 pb-20 lg:pb-6 min-h-[calc(100vh-56px)]">
-        <div className="w-full px-4 lg:px-6 py-4 lg:py-6">
+      <main className="min-h-[calc(100vh-56px)] pb-24 lg:ml-64 lg:pb-10">
+        <div className="mx-auto w-full max-w-[1280px] px-4 py-5 lg:px-8 lg:py-8">
           {children ?? <Outlet />}
         </div>
       </main>
 
       {/* ── MOBILE BOTTOM NAV ── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40"
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200/70 bg-white/90 backdrop-blur-md lg:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex h-16">
@@ -389,19 +366,24 @@ const CompanyAdminLayout = ({ children }) => {
             return (
               <button
                 key={tab.id}
-                onClick={() => tab.action ? tab.action() : handleNavigate(tab.path)}
-                className="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors"
+                onClick={() => (tab.action ? tab.action() : handleNavigate(tab.path))}
+                className="relative flex flex-1 flex-col items-center justify-center gap-1"
               >
-                {active && (
-                  <div className="absolute top-0 left-2 right-2 h-[2.5px] bg-[#1ABC9C] rounded-b-full" />
-                )}
-                <div className="relative">
-                  <Icon size={22} className={active ? "text-[#1ABC9C]" : "text-gray-400"} />
+                <div
+                  className={`relative flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
+                    active ? "bg-brand-100" : ""
+                  }`}
+                >
+                  <Icon size={20} className={active ? "text-brand-700" : "text-gray-400"} />
                   {tab.badge && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#FF6B6B] rounded-full border-2 border-white" />
+                    <span className="absolute right-2 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-rose-500" />
                   )}
                 </div>
-                <span className={`text-xs font-medium ${active ? "text-[#1ABC9C]" : "text-gray-400"}`}>
+                <span
+                  className={`text-[11px] font-medium ${
+                    active ? "text-brand-700" : "text-gray-400"
+                  }`}
+                >
                   {tab.label}
                 </span>
               </button>

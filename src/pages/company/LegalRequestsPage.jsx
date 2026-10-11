@@ -322,7 +322,7 @@ const LegalRequestsPage = () => {
                         setShowDisclosureModal(true);
                       }}
                       className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors shadow-sm"
-                      style={{ backgroundColor: "#2D3E50" }}
+                      style={{ backgroundColor: "#0E1224" }}
                       onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
                       onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
                     >

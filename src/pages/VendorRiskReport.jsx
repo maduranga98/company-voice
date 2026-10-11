@@ -185,7 +185,7 @@ const VendorRiskReport = () => {
 
   const UploadArea = ({ files, onFilesChange }) => (
     <div>
-      <label className="block border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center cursor-pointer hover:border-[#1ABC9C] hover:bg-teal-50/30 transition-all">
+      <label className="block border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center cursor-pointer hover:border-[#5B5BD6] hover:bg-teal-50/30 transition-all">
         <CloudUpload className="w-7 h-7 text-gray-300 mx-auto mb-2" />
         <span className="text-sm text-gray-500 font-medium">Tap to upload files</span>
         <input
@@ -217,10 +217,10 @@ const VendorRiskReport = () => {
     return (
       <div className="max-w-2xl mx-auto px-4 pb-24">
         {/* Header */}
-        <div className="bg-[#2D3E50] text-white rounded-b-3xl px-6 py-10 -mx-4">
+        <div className="bg-[#0E1224] text-white rounded-b-3xl px-6 py-10 -mx-4">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 bg-[#1ABC9C]/20 rounded-2xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-[#1ABC9C]" />
+            <div className="w-12 h-12 bg-[#5B5BD6]/20 rounded-2xl flex items-center justify-center">
+              <Shield className="w-6 h-6 text-[#5B5BD6]" />
             </div>
           </div>
           <h1 className="text-xl font-bold text-center">Report a Vendor Concern</h1>
@@ -231,13 +231,13 @@ const VendorRiskReport = () => {
           {/* New Report Card */}
           <button
             onClick={() => setMode("new")}
-            className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#1ABC9C] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
+            className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#5B5BD6] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
           >
             <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center flex-shrink-0">
               <AlertTriangle className="w-6 h-6 text-orange-500" />
             </div>
             <div>
-              <div className="text-sm font-bold text-[#2D3E50]">Report a new concern</div>
+              <div className="text-sm font-bold text-[#0E1224]">Report a new concern</div>
               <div className="text-xs text-gray-500 mt-1">Submit a new anonymous report about a vendor or supplier</div>
             </div>
           </button>
@@ -245,13 +245,13 @@ const VendorRiskReport = () => {
           {/* Corroborate Card */}
           <button
             onClick={() => setMode("corroborate")}
-            className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#1ABC9C] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
+            className="bg-white rounded-2xl border border-gray-100 p-5 cursor-pointer hover:border-[#5B5BD6] hover:shadow-md transition-all text-left flex items-center gap-4 shadow-sm"
           >
             <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center flex-shrink-0">
               <Users className="w-6 h-6 text-blue-500" />
             </div>
             <div>
-              <div className="text-sm font-bold text-[#2D3E50]">Add to an existing report</div>
+              <div className="text-sm font-bold text-[#0E1224]">Add to an existing report</div>
               <div className="text-xs text-gray-500 mt-1">Have information about an existing concern? Enter the reference code.</div>
             </div>
           </button>
@@ -272,35 +272,35 @@ const VendorRiskReport = () => {
       <div className="max-w-2xl mx-auto px-4 pb-24 pt-4">
         <button
           onClick={() => { resetNewForm(); setMode("choice"); }}
-          className="text-sm text-gray-500 flex items-center gap-1.5 mb-5 hover:text-[#2D3E50] transition-colors"
+          className="text-sm text-gray-500 flex items-center gap-1.5 mb-5 hover:text-[#0E1224] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
 
-        <h2 className="text-lg font-bold text-[#2D3E50] mb-1">New Vendor Report</h2>
+        <h2 className="text-lg font-bold text-[#0E1224] mb-1">New Vendor Report</h2>
         <p className="text-sm text-gray-500 mb-5">Provide details about the vendor concern</p>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
           {/* Vendor Name */}
           <div>
-            <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Vendor or Supplier Name</label>
+            <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Vendor or Supplier Name</label>
             <input
               type="text"
               value={vendorName}
               onChange={(e) => setVendorName(e.target.value)}
               placeholder="e.g. ABC Logistics Pvt Ltd"
-              className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1ABC9C] focus:ring-1 focus:ring-[#1ABC9C]/20 bg-gray-50/50"
+              className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5B5BD6] focus:ring-1 focus:ring-[#5B5BD6]/20 bg-gray-50/50"
             />
           </div>
 
           {/* Risk Category */}
           <div>
-            <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Risk Category</label>
+            <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Risk Category</label>
             <select
               value={riskCategory}
               onChange={(e) => setRiskCategory(e.target.value)}
-              className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1ABC9C] focus:ring-1 focus:ring-[#1ABC9C]/20 bg-gray-50/50"
+              className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5B5BD6] focus:ring-1 focus:ring-[#5B5BD6]/20 bg-gray-50/50"
             >
               <option value="">Select a category...</option>
               <option value="labor">Labor Practices</option>
@@ -314,19 +314,19 @@ const VendorRiskReport = () => {
 
           {/* Severity */}
           <div>
-            <label className="block text-sm font-semibold text-[#2D3E50] mb-2">Severity Level</label>
+            <label className="block text-sm font-semibold text-[#0E1224] mb-2">Severity Level</label>
             <SeverityPills value={severity} onChange={setSeverity} />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Describe your concern</label>
+            <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Describe your concern</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={5}
               placeholder="Provide as much detail as possible. Describe what you observed, when it happened, and any relevant context..."
-              className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1ABC9C] focus:ring-1 focus:ring-[#1ABC9C]/20 resize-none bg-gray-50/50"
+              className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5B5BD6] focus:ring-1 focus:ring-[#5B5BD6]/20 resize-none bg-gray-50/50"
             />
             <div className="text-xs text-gray-400 text-right mt-1">
               {description.length} characters (minimum 50)
@@ -335,14 +335,14 @@ const VendorRiskReport = () => {
 
           {/* Evidence Upload */}
           <div>
-            <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Attach Evidence (optional)</label>
+            <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Attach Evidence (optional)</label>
             <p className="text-xs text-gray-400 mb-2">Images or PDFs only -- Max 5 files -- 10MB each</p>
             <UploadArea files={selectedFiles} onFilesChange={setSelectedFiles} />
             {uploadProgress > 0 && uploadProgress < 100 && (
               <div className="mt-3">
                 <div className="bg-gray-100 rounded-full h-2">
                   <div
-                    className="bg-[#1ABC9C] h-full rounded-full transition-all"
+                    className="bg-[#5B5BD6] h-full rounded-full transition-all"
                     style={{ width: `${uploadProgress}%` }}
                   />
                 </div>
@@ -359,7 +359,7 @@ const VendorRiskReport = () => {
         <button
           onClick={handleSubmitReport}
           disabled={loading || !vendorName.trim() || !riskCategory || description.length < 50}
-          className="mt-4 w-full bg-[#2D3E50] text-white rounded-xl py-3.5 font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-[#24333f] transition-colors"
+          className="mt-4 w-full bg-[#0E1224] text-white rounded-xl py-3.5 font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-[#1A1F3A] transition-colors"
         >
           {loading ? (
             <>
@@ -381,12 +381,12 @@ const VendorRiskReport = () => {
         <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
           <CheckCircle className="w-8 h-8 text-emerald-500" />
         </div>
-        <h2 className="text-xl font-bold text-[#2D3E50] mt-5">Report Submitted</h2>
+        <h2 className="text-xl font-bold text-[#0E1224] mt-5">Report Submitted</h2>
         <p className="text-sm text-gray-500 mt-2">Your concern has been recorded anonymously.</p>
 
-        <div className="bg-[#2D3E50] text-white rounded-2xl p-6 mt-6 text-left">
+        <div className="bg-[#0E1224] text-white rounded-2xl p-6 mt-6 text-left">
           <div className="text-xs uppercase tracking-wider text-white/50 font-semibold">Your Reference Code</div>
-          <div className="text-2xl font-mono font-bold text-[#1ABC9C] mt-2 text-center">{submittedCode}</div>
+          <div className="text-2xl font-mono font-bold text-[#5B5BD6] mt-2 text-center">{submittedCode}</div>
 
           <div className="border-t border-white/10 my-5" />
 
@@ -417,7 +417,7 @@ const VendorRiskReport = () => {
           </button>
           <button
             onClick={() => navigate("/")}
-            className="w-full bg-[#1ABC9C] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#17a589] transition"
+            className="w-full bg-[#5B5BD6] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#4A49C2] transition"
           >
             Back to Home
           </button>
@@ -432,13 +432,13 @@ const VendorRiskReport = () => {
       <div className="max-w-2xl mx-auto px-4 pb-24 pt-4">
         <button
           onClick={() => { resetCorrForm(); setMode("choice"); }}
-          className="text-sm text-gray-500 flex items-center gap-1.5 mb-5 hover:text-[#2D3E50] transition-colors"
+          className="text-sm text-gray-500 flex items-center gap-1.5 mb-5 hover:text-[#0E1224] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
         </button>
 
-        <h2 className="text-lg font-bold text-[#2D3E50] mb-1">Add to Existing Report</h2>
+        <h2 className="text-lg font-bold text-[#0E1224] mb-1">Add to Existing Report</h2>
         <p className="text-sm text-gray-500 mb-5">Corroborate an existing vendor concern</p>
 
         {/* Explanation */}
@@ -451,7 +451,7 @@ const VendorRiskReport = () => {
 
         {/* Reference Code Input */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
-          <label className="block text-sm font-semibold text-[#2D3E50] mb-1">Reference Code</label>
+          <label className="block text-sm font-semibold text-[#0E1224] mb-1">Reference Code</label>
           <p className="text-xs text-gray-400 mb-3">Format: VXW-YYYY-NNNN</p>
 
           <div className="flex gap-2">
@@ -460,12 +460,12 @@ const VendorRiskReport = () => {
               value={refCodeInput}
               onChange={(e) => setRefCodeInput(e.target.value.toUpperCase())}
               placeholder="e.g. VXW-2025-0047"
-              className="flex-1 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1ABC9C] focus:ring-1 focus:ring-[#1ABC9C]/20 font-mono bg-gray-50/50"
+              className="flex-1 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5B5BD6] focus:ring-1 focus:ring-[#5B5BD6]/20 font-mono bg-gray-50/50"
             />
             <button
               onClick={handleVerifyCode}
               disabled={refCodeInput.length < 8 || refCodeChecking}
-              className="bg-[#2D3E50] text-white px-5 py-3 rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-[#24333f] transition-colors"
+              className="bg-[#0E1224] text-white px-5 py-3 rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-[#1A1F3A] transition-colors"
             >
               {refCodeChecking ? "..." : "Verify"}
             </button>
@@ -504,11 +504,11 @@ const VendorRiskReport = () => {
 
             {/* Relationship */}
             <div>
-              <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Your Relationship to This Incident</label>
+              <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Your Relationship to This Incident</label>
               <select
                 value={relationship}
                 onChange={(e) => setRelationship(e.target.value)}
-                className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1ABC9C] focus:ring-1 focus:ring-[#1ABC9C]/20 bg-gray-50/50"
+                className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5B5BD6] focus:ring-1 focus:ring-[#5B5BD6]/20 bg-gray-50/50"
               >
                 <option value="">Select...</option>
                 <option value="witness">I witnessed this directly</option>
@@ -519,14 +519,14 @@ const VendorRiskReport = () => {
 
             {/* Account */}
             <div>
-              <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Describe what you know</label>
+              <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Describe what you know</label>
               <p className="text-xs text-gray-400 mb-1.5">Describe your own independent account. Do not reference the original report.</p>
               <textarea
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
                 rows={4}
                 placeholder="What did you observe or experience?..."
-                className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#1ABC9C] focus:ring-1 focus:ring-[#1ABC9C]/20 resize-none bg-gray-50/50"
+                className="w-full border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#5B5BD6] focus:ring-1 focus:ring-[#5B5BD6]/20 resize-none bg-gray-50/50"
               />
               <div className="text-xs text-gray-400 text-right mt-1">
                 {account.length} characters (minimum 30)
@@ -535,13 +535,13 @@ const VendorRiskReport = () => {
 
             {/* Severity */}
             <div>
-              <label className="block text-sm font-semibold text-[#2D3E50] mb-2">In your view, how serious is this?</label>
+              <label className="block text-sm font-semibold text-[#0E1224] mb-2">In your view, how serious is this?</label>
               <SeverityPills value={corrSeverity} onChange={setCorrSeverity} />
             </div>
 
             {/* Evidence upload */}
             <div>
-              <label className="block text-sm font-semibold text-[#2D3E50] mb-1.5">Attach Evidence (optional)</label>
+              <label className="block text-sm font-semibold text-[#0E1224] mb-1.5">Attach Evidence (optional)</label>
               <p className="text-xs text-gray-400 mb-2">Images or PDFs only -- Max 5 files -- 10MB each</p>
               <UploadArea files={corrFiles} onFilesChange={setCorrFiles} />
             </div>
@@ -551,7 +551,7 @@ const VendorRiskReport = () => {
             <button
               onClick={handleSubmitCorroboration}
               disabled={loading || !relationship || account.length < 30}
-              className="w-full bg-[#2D3E50] text-white rounded-xl py-3.5 font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-[#24333f] transition-colors"
+              className="w-full bg-[#0E1224] text-white rounded-xl py-3.5 font-semibold text-sm disabled:opacity-40 flex items-center justify-center gap-2 hover:bg-[#1A1F3A] transition-colors"
             >
               {loading ? (
                 <>
@@ -575,22 +575,22 @@ const VendorRiskReport = () => {
         <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
           <CheckCircle className="w-8 h-8 text-emerald-500" />
         </div>
-        <h2 className="text-xl font-bold text-[#2D3E50] mt-5">Account Submitted</h2>
+        <h2 className="text-xl font-bold text-[#0E1224] mt-5">Account Submitted</h2>
         <p className="text-sm text-gray-500 mt-2">Your information has been added to the report anonymously.</p>
 
-        <div className="bg-[#2D3E50] rounded-2xl p-6 mt-6 text-left">
+        <div className="bg-[#0E1224] rounded-2xl p-6 mt-6 text-left">
           <div className="text-sm font-bold text-white">What happens next?</div>
           <ul className="text-xs text-white/70 mt-3 space-y-2.5">
-            <li className="flex items-start gap-2"><span className="text-[#1ABC9C] mt-0.5">--</span> HR will review all submissions independently</li>
-            <li className="flex items-start gap-2"><span className="text-[#1ABC9C] mt-0.5">--</span> If 3 or more people report the same concern, it is automatically escalated</li>
-            <li className="flex items-start gap-2"><span className="text-[#1ABC9C] mt-0.5">--</span> No submitter's identity is ever revealed</li>
-            <li className="flex items-start gap-2"><span className="text-[#1ABC9C] mt-0.5">--</span> You will not receive updates (to protect your anonymity)</li>
+            <li className="flex items-start gap-2"><span className="text-[#5B5BD6] mt-0.5">--</span> HR will review all submissions independently</li>
+            <li className="flex items-start gap-2"><span className="text-[#5B5BD6] mt-0.5">--</span> If 3 or more people report the same concern, it is automatically escalated</li>
+            <li className="flex items-start gap-2"><span className="text-[#5B5BD6] mt-0.5">--</span> No submitter's identity is ever revealed</li>
+            <li className="flex items-start gap-2"><span className="text-[#5B5BD6] mt-0.5">--</span> You will not receive updates (to protect your anonymity)</li>
           </ul>
         </div>
 
         <button
           onClick={() => navigate("/")}
-          className="mt-6 w-full bg-[#2D3E50] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#24333f] transition"
+          className="mt-6 w-full bg-[#0E1224] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#1A1F3A] transition"
         >
           Done
         </button>

@@ -37,7 +37,7 @@ const AnonymityGuaranteeScreen = ({ onContinue, onBack, onClose, infoMode = fals
 
       {/* Card */}
       <div
-        className="relative w-full max-w-lg bg-[#2D3E50] rounded-xl shadow-2xl overflow-y-auto max-h-[90vh]"
+        className="relative w-full max-w-lg bg-[#0E1224] rounded-xl shadow-2xl overflow-y-auto max-h-[90vh]"
         style={{ fontFamily: "Sora, system-ui, sans-serif" }}
       >
         {/* Back / Close button */}
@@ -54,9 +54,9 @@ const AnonymityGuaranteeScreen = ({ onContinue, onBack, onClose, infoMode = fals
         <div className="px-6 pt-14 pb-6">
           {/* Shield icon + heading */}
           <div className="flex flex-col items-center text-center mb-6">
-            <div className="w-16 h-16 rounded-xl bg-[#00BCD4]/10 flex items-center justify-center mb-4 border border-[#00BCD4]/20">
+            <div className="w-16 h-16 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center mb-4 border border-[#8B5CF6]/20">
               <svg
-                className="w-9 h-9 text-[#00BCD4]"
+                className="w-9 h-9 text-[#8B5CF6]"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.8"
@@ -81,9 +81,9 @@ const AnonymityGuaranteeScreen = ({ onContinue, onBack, onClose, infoMode = fals
           <ul className="space-y-3 mb-6">
             {guaranteeItems.map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-lg bg-[#00BCD4]/15 flex items-center justify-center">
+                <span className="flex-shrink-0 mt-0.5 w-5 h-5 rounded-lg bg-[#8B5CF6]/15 flex items-center justify-center">
                   <svg
-                    className="w-3 h-3 text-[#00BCD4]"
+                    className="w-3 h-3 text-[#8B5CF6]"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2.5"
@@ -143,7 +143,7 @@ const AnonymityGuaranteeScreen = ({ onContinue, onBack, onClose, infoMode = fals
             <div className="space-y-3">
               <button
                 onClick={onContinue}
-                className="w-full py-3 bg-[#00BCD4] text-white font-semibold rounded-lg hover:bg-[#0097a7] transition-colors text-sm"
+                className="w-full py-3 bg-[#8B5CF6] text-white font-semibold rounded-lg hover:bg-[#7C3AED] transition-colors text-sm"
               >
                 I understand, continue anonymously →
               </button>

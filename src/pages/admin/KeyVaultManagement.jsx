@@ -469,7 +469,7 @@ const KeyVaultManagement = () => {
                     onClick={handleInitialize}
                     disabled={initSubmitting || !dpoEmail.trim()}
                     className="px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50"
-                    style={{ backgroundColor: "#00BCD4" }}
+                    style={{ backgroundColor: "#8B5CF6" }}
                   >
                     {initSubmitting ? "Generating..." : "Generate Key Pair"}
                   </button>
@@ -817,7 +817,7 @@ const KeyVaultManagement = () => {
                               <button
                                 onClick={() => openInitModal(company)}
                                 className="px-3 py-1.5 text-white text-sm font-medium rounded hover:opacity-90 transition-opacity"
-                                style={{ backgroundColor: "#00BCD4" }}
+                                style={{ backgroundColor: "#8B5CF6" }}
                               >
                                 Initialize Vault
                               </button>

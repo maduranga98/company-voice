@@ -236,7 +236,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-amber-600 font-medium">
                   Pending Reports
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {stats.pendingReports}
                 </p>
               </div>
@@ -250,7 +250,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 font-medium">Under Review</p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {stats.underReviewReports}
                 </p>
               </div>
@@ -264,7 +264,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-emerald-600 font-medium">Resolved</p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {stats.resolvedReports}
                 </p>
               </div>
@@ -278,7 +278,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-red-600 font-medium">Strikes Issued</p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {stats.totalStrikesIssued}
                 </p>
               </div>
@@ -346,7 +346,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-red-600 font-medium">
                   Critical This Month
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {criticalThisMonth}
                 </p>
               </div>
@@ -362,7 +362,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-blue-600 font-medium">
                   Avg Resolution Time
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {avgResolutionTime > 0 ? `${avgResolutionTime}d` : "N/A"}
                 </p>
               </div>
@@ -395,7 +395,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-orange-600 font-medium">
                   Pending Legal Review
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {pendingLegalReviews}
                 </p>
               </div>
@@ -424,7 +424,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 font-medium">Spam Reports</p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {spamCount}
                 </p>
               </div>
@@ -440,7 +440,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-orange-600 font-medium">
                   Inappropriate
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {inappropriateCount}
                 </p>
               </div>
@@ -456,7 +456,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-purple-600 font-medium">
                   False Information
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {falseInfoCount}
                 </p>
               </div>
@@ -470,7 +470,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-emerald-600 font-medium">Resolved</p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {
                     reports.filter((r) => r.status === ReportStatus.RESOLVED)
                       .length
@@ -504,7 +504,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-red-600 font-medium">
                   Repeat Offenders
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {totalOffenders}
                 </p>
               </div>
@@ -520,7 +520,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-orange-600 font-medium">
                   Critical Offenders
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {criticalOffenders}
                 </p>
               </div>
@@ -536,7 +536,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-amber-600 font-medium">
                   Total Strikes
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {totalStrikes}
                 </p>
               </div>
@@ -552,7 +552,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <p className="text-sm text-purple-600 font-medium">
                   Total Reports
                 </p>
-                <p className="text-2xl font-bold text-[#2D3E50] mt-1">
+                <p className="text-2xl font-bold text-[#0E1224] mt-1">
                   {allReports.length}
                 </p>
               </div>
@@ -573,8 +573,8 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
       return (
         <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
           <div className="flex items-center mb-4">
-            <Filter className="w-5 h-5 text-[#2D3E50] mr-2" />
-            <h3 className="text-lg font-semibold text-[#2D3E50]">Filters</h3>
+            <Filter className="w-5 h-5 text-[#0E1224] mr-2" />
+            <h3 className="text-lg font-semibold text-[#0E1224]">Filters</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -588,7 +588,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                     type="checkbox"
                     checked={selectedReasons.includes(ReportReason.HARASSMENT)}
                     onChange={() => toggleReason(ReportReason.HARASSMENT)}
-                    className="mr-2.5 rounded-md border-gray-300 text-[#1ABC9C] focus:ring-[#1ABC9C]"
+                    className="mr-2.5 rounded-md border-gray-300 text-[#5B5BD6] focus:ring-[#5B5BD6]"
                   />
                   <span className="text-sm text-gray-700">
                     {ReportReasonConfig[ReportReason.HARASSMENT].icon}{" "}
@@ -602,7 +602,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                       ReportReason.DISCRIMINATION
                     )}
                     onChange={() => toggleReason(ReportReason.DISCRIMINATION)}
-                    className="mr-2.5 rounded-md border-gray-300 text-[#1ABC9C] focus:ring-[#1ABC9C]"
+                    className="mr-2.5 rounded-md border-gray-300 text-[#5B5BD6] focus:ring-[#5B5BD6]"
                   />
                   <span className="text-sm text-gray-700">
                     {ReportReasonConfig[ReportReason.DISCRIMINATION].icon}{" "}
@@ -614,7 +614,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                     type="checkbox"
                     checked={selectedReasons.includes(ReportReason.VIOLENCE)}
                     onChange={() => toggleReason(ReportReason.VIOLENCE)}
-                    className="mr-2.5 rounded-md border-gray-300 text-[#1ABC9C] focus:ring-[#1ABC9C]"
+                    className="mr-2.5 rounded-md border-gray-300 text-[#5B5BD6] focus:ring-[#5B5BD6]"
                   />
                   <span className="text-sm text-gray-700">
                     {ReportReasonConfig[ReportReason.VIOLENCE].icon} Violence
@@ -630,7 +630,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1ABC9C] text-sm"
+                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B5BD6] text-sm"
               >
                 <option value="all">All Statuses</option>
                 <option value={ReportStatus.PENDING}>Pending</option>
@@ -648,8 +648,8 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
       return (
         <div className="bg-white border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
           <div className="flex items-center mb-4">
-            <Filter className="w-5 h-5 text-[#2D3E50] mr-2" />
-            <h3 className="text-lg font-semibold text-[#2D3E50]">Filters</h3>
+            <Filter className="w-5 h-5 text-[#0E1224] mr-2" />
+            <h3 className="text-lg font-semibold text-[#0E1224]">Filters</h3>
           </div>
 
           <div>
@@ -659,7 +659,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1ABC9C] text-sm"
+              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#5B5BD6] text-sm"
             >
               <option value="all">All Statuses</option>
               <option value={ReportStatus.PENDING}>Pending</option>
@@ -682,7 +682,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
       <div className="bg-red-50 border border-gray-100 rounded-2xl p-5 mb-6 shadow-sm">
         <div className="flex items-center mb-4">
           <Users className="w-5 h-5 text-red-600 mr-2" />
-          <h3 className="text-lg font-semibold text-[#2D3E50]">
+          <h3 className="text-lg font-semibold text-[#0E1224]">
             Repeat Offenders
           </h3>
         </div>
@@ -693,7 +693,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
               className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-sm"
             >
               <div>
-                <p className="font-medium text-[#2D3E50]">{offender.authorName}</p>
+                <p className="font-medium text-[#0E1224]">{offender.authorName}</p>
                 <p className="text-sm text-gray-500">
                   {offender.count} reports
                   {offender.criticalCount > 0 && (
@@ -722,7 +722,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
     if (loading) {
       return (
         <div className="text-center py-16">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#1ABC9C]"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5B5BD6]"></div>
           <p className="text-gray-500 mt-3 text-sm">Loading reports...</p>
         </div>
       );
@@ -764,7 +764,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{reasonConfig.icon}</span>
                   <div>
-                    <h3 className="font-semibold text-[#2D3E50]">
+                    <h3 className="font-semibold text-[#0E1224]">
                       {reasonConfig.label}
                     </h3>
                     <p className="text-sm text-gray-500">
@@ -875,7 +875,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
     if (loading) {
       return (
         <div className="text-center py-16">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#1ABC9C]"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5B5BD6]"></div>
           <p className="text-gray-500 mt-3 text-sm">Loading user data...</p>
         </div>
       );
@@ -901,7 +901,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-[#2D3E50] text-lg">
+                <h3 className="font-semibold text-[#0E1224] text-lg">
                   {offender.authorName}
                 </h3>
                 <p className="text-sm text-gray-400">ID: {offender.authorId}</p>
@@ -922,7 +922,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
 
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-2xl font-bold text-[#2D3E50]">
+                <p className="text-2xl font-bold text-[#0E1224]">
                   {offender.count}
                 </p>
                 <p className="text-sm text-gray-500">Total Reports</p>
@@ -961,16 +961,16 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
           <div className="flex items-center space-x-4 mb-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition shadow-sm"
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-gray-100 bg-white text-gray-500 hover:text-[#0E1224] hover:border-gray-200 transition shadow-sm"
               title="Back to Dashboard"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#2D3E50] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-[#0E1224] flex items-center justify-center">
                 <LayoutDashboard className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-[#2D3E50]">
+              <h1 className="text-2xl font-bold text-[#0E1224]">
                 Unified Moderation Dashboard
               </h1>
             </div>
@@ -1001,8 +1001,8 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                   }}
                   className={`flex-1 py-3 px-4 text-center font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-2 ${
                     mainTab === tab.id
-                      ? "bg-[#2D3E50] text-white shadow-sm"
-                      : "text-gray-500 hover:text-[#2D3E50] hover:bg-gray-50"
+                      ? "bg-[#0E1224] text-white shadow-sm"
+                      : "text-gray-500 hover:text-[#0E1224] hover:bg-gray-50"
                   }`}
                 >
                   {tab.icon}
@@ -1025,7 +1025,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
         {/* Content */}
         <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-semibold text-[#2D3E50]">
+            <h2 className="text-lg font-semibold text-[#0E1224]">
               {mainTab === "all" && `All Reports (${reports.length})`}
               {mainTab === "critical" && `Critical Issues (${reports.length})`}
               {mainTab === "general" && `General Violations (${reports.length})`}

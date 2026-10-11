@@ -8,119 +8,175 @@
 */
 
 @theme {
-  /* ============================================
-     PRIMARY COLORS
-     ============================================ */
-  --color-primary-navy: #2d3e50;
-  --color-primary-teal: #1abc9c;
-  --color-primary: #1abc9c;
+  /* ---------- Brand: Iris ---------- */
+  --color-brand-50: #f5f6ff;
+  --color-brand-100: #ebedff;
+  --color-brand-200: #d9dcff;
+  --color-brand-300: #bbc0fa;
+  --color-brand-400: #9aa0f2;
+  --color-brand-500: #7a7fe6;
+  --color-brand-600: #5b5bd6;
+  --color-brand-700: #4a49c2;
+  --color-brand-800: #3b3aa0;
+  --color-brand-900: #2f2e7c;
+  --color-brand-950: #1c1b4d;
 
-  /* ============================================
-     ACCENT COLORS
-     ============================================ */
-  --color-accent-coral: #ff6b6b;
-  --color-accent: #ff6b6b;
+  /* ---------- Ink (deep neutral used for text + dark surfaces) ---------- */
+  --color-ink: #0e1224;
+  --color-ink-soft: #1a1f3a;
 
-  /* ============================================
-     BACKGROUND COLORS
-     ============================================ */
-  --color-background-white: #faf9f7; /* Warm off-white, easier on eyes */
-  --color-background-cream: #faf9f7;
-  --color-background-softGray: #f7f9fc;
-  --color-background-lightMist: #eef2f7;
-  --color-background-offWhite: #f8f9fa;
+  /* Legacy brand tokens now point at the new identity */
+  --color-primary-navy: #0e1224;
+  --color-primary-teal: #5b5bd6;
+  --color-primary: #5b5bd6;
+  --color-accent-coral: #f43f5e;
+  --color-accent: #f43f5e;
 
-  /* ============================================
-     TEXT COLORS
-     ============================================ */
-  --color-text-primary: #1a1f2e;
-  --color-text-secondary: #4a5568;
-  --color-text-tertiary: #7f8c8d;
+  /* Re-map the old blue / indigo / teal / sky families to Iris so every
+     existing screen picks up the new brand without per-file edits. */
+  --color-blue-50: #f5f6ff;
+  --color-blue-100: #ebedff;
+  --color-blue-200: #d9dcff;
+  --color-blue-300: #bbc0fa;
+  --color-blue-400: #9aa0f2;
+  --color-blue-500: #7a7fe6;
+  --color-blue-600: #5b5bd6;
+  --color-blue-700: #4a49c2;
+  --color-blue-800: #3b3aa0;
+  --color-blue-900: #2f2e7c;
+  --color-indigo-50: #f5f6ff;
+  --color-indigo-100: #ebedff;
+  --color-indigo-200: #d9dcff;
+  --color-indigo-300: #bbc0fa;
+  --color-indigo-400: #9aa0f2;
+  --color-indigo-500: #7a7fe6;
+  --color-indigo-600: #5b5bd6;
+  --color-indigo-700: #4a49c2;
+  --color-indigo-800: #3b3aa0;
+  --color-indigo-900: #2f2e7c;
+  --color-teal-50: #f5f6ff;
+  --color-teal-100: #ebedff;
+  --color-teal-200: #d9dcff;
+  --color-teal-300: #bbc0fa;
+  --color-teal-400: #9aa0f2;
+  --color-teal-500: #7a7fe6;
+  --color-teal-600: #5b5bd6;
+  --color-teal-700: #4a49c2;
+  --color-teal-800: #3b3aa0;
+  --color-teal-900: #2f2e7c;
+  --color-sky-50: #f5f6ff;
+  --color-sky-100: #ebedff;
+  --color-sky-500: #7a7fe6;
+  --color-sky-600: #5b5bd6;
+
+  /* ---------- Neutrals: cool, slightly violet-tinted ---------- */
+  --color-gray-50: #f8f9fc;
+  --color-gray-100: #f1f2f8;
+  --color-gray-200: #e4e6f0;
+  --color-gray-300: #cfd2e0;
+  --color-gray-400: #9a9fb5;
+  --color-gray-500: #6b7088;
+  --color-gray-600: #50546b;
+  --color-gray-700: #3a3d52;
+  --color-gray-800: #232638;
+  --color-gray-900: #0e1224;
+
+  /* Surfaces */
+  --color-background-white: #ffffff;
+  --color-background-cream: #fafbfe;
+  --color-background-softGray: #f6f7fb;
+  --color-background-lightMist: #eef0f8;
+  --color-background-offWhite: #f8f9fc;
+
+  /* Text */
+  --color-text-primary: #0e1224;
+  --color-text-secondary: #50546b;
+  --color-text-tertiary: #6b7088;
   --color-text-onDark: #ffffff;
 
-  /* ============================================
-     BORDER COLORS
-     ============================================ */
-  --color-border-light: #e2e8f0;
-  --color-border-medium: #cbd5e0;
-  --color-border-dark: #a0aec0;
+  /* Borders */
+  --color-border-light: #e8eaf3;
+  --color-border-medium: #d3d6e4;
+  --color-border-dark: #9a9fb5;
 
-  /* ============================================
-     STATUS COLORS
-     ============================================ */
+  /* Status */
   --color-status-success: #10b981;
   --color-status-success-light: #d1fae5;
   --color-status-success-dark: #047857;
-
   --color-status-warning: #f59e0b;
   --color-status-warning-light: #fef3c7;
   --color-status-warning-dark: #b45309;
-
   --color-status-error: #ef4444;
   --color-status-error-light: #fee2e2;
   --color-status-error-dark: #b91c1c;
+  --color-status-info: #5b5bd6;
+  --color-status-info-light: #ebedff;
+  --color-status-info-dark: #4a49c2;
 
-  --color-status-info: #3b82f6;
-  --color-status-info-light: #dbeafe;
-  --color-status-info-dark: #1d4ed8;
-
-  /* ============================================
-     POST STATUS COLORS
-     ============================================ */
-  --color-status-open: #6b7280;
-  --color-status-open-bg: #f3f4f6;
-
-  --color-status-acknowledged: #3b82f6;
-  --color-status-acknowledged-bg: #dbeafe;
-
+  --color-status-open: #6b7088;
+  --color-status-open-bg: #f1f2f8;
+  --color-status-acknowledged: #5b5bd6;
+  --color-status-acknowledged-bg: #ebedff;
   --color-status-in-progress: #f59e0b;
   --color-status-in-progress-bg: #fef3c7;
-
   --color-status-under-review: #8b5cf6;
   --color-status-under-review-bg: #ede9fe;
-
   --color-status-resolved: #10b981;
   --color-status-resolved-bg: #d1fae5;
-
   --color-status-closed: #64748b;
   --color-status-closed-bg: #f1f5f9;
-
   --color-status-rejected: #ef4444;
   --color-status-rejected-bg: #fee2e2;
 
-  /* ============================================
-     FONT FAMILIES
-     ============================================ */
-  --font-family-sans: "Inter", system-ui, -apple-system, "Segoe UI", "Roboto",
-    "Helvetica Neue", "Arial", sans-serif;
+  /* Type */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    "Roboto", "Helvetica Neue", Arial, sans-serif;
 
-  /* ============================================
-     SHADOWS
-     ============================================ */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -2px rgb(0 0 0 / 0.05);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 10px 10px -5px rgb(0 0 0 / 0.04);
+  /* Softer, layered shadows */
+  --shadow-xs: 0 1px 2px 0 rgb(14 18 36 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(14 18 36 / 0.05), 0 1px 3px 0 rgb(14 18 36 / 0.04);
+  --shadow: 0 2px 6px -1px rgb(14 18 36 / 0.07), 0 1px 3px 0 rgb(14 18 36 / 0.05);
+  --shadow-md: 0 4px 12px -2px rgb(14 18 36 / 0.08), 0 2px 4px -1px rgb(14 18 36 / 0.04);
+  --shadow-lg: 0 12px 24px -6px rgb(14 18 36 / 0.1), 0 4px 8px -2px rgb(14 18 36 / 0.05);
+  --shadow-xl: 0 24px 48px -12px rgb(14 18 36 / 0.16), 0 8px 16px -4px rgb(14 18 36 / 0.06);
+  --shadow-glow: 0 8px 24px -6px rgb(91 91 214 / 0.45);
+
+  --animate-fade-up: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shake: shake 0.4s ease-in-out;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
 }
 
 /* ============================================
-   CUSTOM BACKGROUND GRADIENTS
+   GRADIENTS
    ============================================ */
 @layer utilities {
   .bg-gradient-primary {
-    background-image: linear-gradient(135deg, #2d3e50 0%, #1abc9c 100%);
+    background-image: linear-gradient(135deg, #7a7fe6 0%, #4a49c2 100%);
   }
-
   .bg-gradient-soft {
-    background-image: linear-gradient(135deg, #ebf8ff 0%, #e0f2f1 100%);
+    background-image: linear-gradient(135deg, #f5f6ff 0%, #eef0f8 100%);
   }
-
   .bg-gradient-coral {
-    background-image: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+    background-image: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
   }
+  .bg-gradient-ink {
+    background-color: #0e1224;
+    background-image:
+      radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
+      radial-gradient(120% 120% at 0% 0%, #2f2e7c 0%, #0e1224 60%);
+    background-size: 22px 22px, 100% 100%;
+  }
+  .tabular { font-variant-numeric: tabular-nums; }
 }
 
 /* ============================================
@@ -131,17 +187,42 @@
     @apply border-border-light;
   }
 
-  body {
-    @apply antialiased;
-    @apply font-sans;
-    background-color: var(--color-background-softGray);
-    color: var(--color-text-primary);
-  }
-
-  /* Ensure smooth font rendering */
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply antialiased font-sans;
+    background-color: var(--color-background-softGray);
+    color: var(--color-text-primary);
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  h1, h2, h3 { letter-spacing: -0.015em; }
+
+  ::selection { background: var(--color-brand-200); color: var(--color-ink); }
+
+  /* One consistent, accessible focus treatment across the app */
+  :where(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  :where(input, select, textarea):focus-visible {
+    outline-offset: 0;
+    border-color: var(--color-brand-500);
+  }
+  :where(input[type="checkbox"], input[type="radio"]) { accent-color: var(--color-brand-600); }
+
+  button:not(:disabled), [role="button"] { cursor: pointer; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -185,7 +266,7 @@
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background: var(--color-border-medium);
-    border-radius: 4px;
+    border-radius: 999px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
@@ -253,7 +334,7 @@
   border-radius: 0.25rem;
   font-family: 'Courier New', monospace;
   font-size: 0.875rem;
-  color: #e11d48;
+  color: var(--color-brand-700);
 }
 
 .ProseMirror strong {
