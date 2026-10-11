@@ -1143,6 +1143,7 @@
         "heading": "Private messages",
         "empty": "No messages yet. You can send one below.",
         "unreadable": "[Could not read this message]",
+        "legacy": "[Message sent before this upgrade — unavailable]",
         "you": "You",
         "them": "The company",
         "placeholder": "Write a private reply...",

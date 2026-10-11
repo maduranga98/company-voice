@@ -20,9 +20,9 @@ Branch: `rework/check-my-case`.
 - `getCaseStatus` returns status, priority, category, type, `involvesHR`, the
   reporter's own `description` (their own text, shown back to them), `createdAt`,
   the computed EU Directive timers, and the thread's messages (still
-  AES-encrypted — the client decrypts with the same bundled `VITE_ANONYMOUS_SECRET`
-  the HR side already uses; see step 1's weakness #2, unchanged here).
-- `submitCaseReply` appends an encrypted `{sender: "reporter", ...}` message to
+  stored as plain text `content`; originally AES-encrypted, since removed, see the
+  end of STEP1_NOTES.md).
+- `submitCaseReply` appends a plain-text `{sender: "reporter", content, ...}` message to
   `anonymousThreads/{postId}` (creating the thread if it doesn't exist yet) and
   notifies `company_admin` (+ `hr` unless `involvesHR`) with a new `case_reply`
   notification type, following the same `notifyStaff` pattern as step 1's
@@ -112,3 +112,5 @@ Branch: `rework/check-my-case`.
 
 Voice recording UI, policy acknowledgement link, Stripe/signup changes, landing
 page rewrite. See `STEP1_NOTES.md` section 4.
+
+> Update: thread messages are now plain text (`content`), not AES `encryptedContent`; `submitCaseReply` no longer uses `ANONYMOUS_SECRET`. See the end of STEP1_NOTES.md.

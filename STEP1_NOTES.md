@@ -20,7 +20,7 @@ Branch: `rework/public-report-form` (local), pushed to `claude/kind-hypatia-onwd
 - Notifications: `notifyAuthor` skips anonymous posts. `CreatePost` notifies hr/company_admin for `hr_only` posts with type `hr_post_received`. Public cases use new type `new_case` (added to `NotificationType`; the Notifications page falls back to a generic bell icon).
 
 ### Anonymous threads (`src/services/anonymousThreadService.js`)
-- `anonymousThreads/{postId}`: `{postId, companyId, reporterId?, messages[], lastReporterActivity, lastInvestigatorActivity, lastReadBy, createdAt}`; message = `{id, sender, encryptedContent, timestamp, read}`; `ThreadSender` = `reporter | investigator`; AES via CryptoJS with `VITE_ANONYMOUS_SECRET` (falls back to a hard-coded default string when unset).
+- `anonymousThreads/{postId}`: `{postId, companyId, reporterId?, messages[], lastReporterActivity, lastInvestigatorActivity, lastReadBy, createdAt}`; message = `{id, sender, content, timestamp, read}` (plain text; see the thread-message note at the end of this file); `ThreadSender` = `reporter | investigator`.
 - Not touched. Step 2 (check my case / replies) will need a server-side path: public reporters have no `reporterId`, so threads for public cases must be addressed by `caseAccess`.
 
 ### HR inbox and case detail
@@ -52,7 +52,7 @@ Branch: `rework/public-report-form` (local), pushed to `claude/kind-hypatia-onwd
 
 ### Weaknesses found (not fixed unless stated)
 1. `authSessions` forgery (section 0). Highest priority.
-2. `VITE_ANONYMOUS_SECRET` is bundled into the client. Anyone can decrypt every `authorId`, thread message and `reporterContactEncrypted`. If unset it falls back to the literal `"default-secret-key-change-in-production"`. `functions` uses a separate `ANONYMOUS_SECRET` secret that **must equal** the value baked into the client build or HR will see contact details as garbage.
+2. `VITE_ANONYMOUS_SECRET` is bundled into the client. Anyone can decrypt every `authorId` and `reporterContactEncrypted` (thread messages are no longer encrypted, see the end of this file). If unset it falls back to the literal `"default-secret-key-change-in-production"`. `functions` uses a separate `ANONYMOUS_SECRET` secret that **must equal** the value baked into the client build or HR will see contact details as garbage. (The same mismatch used to make every thread message unreadable; that risk is gone for thread messages, see below. It still applies to `authorId` and `reporterContactEncrypted`.)
 3. `creatorId` is stored in plain text next to the encrypted `authorId` on anonymous posts, so the encryption adds nothing for anyone who can read the post.
 4. `users` rules allow any anonymous-provider session to read all user docs and create users; `generateAuthToken` hashes passwords with unsalted SHA-256, is `cors: true`, has no rate limit or App Check.
 5. Billing: `CompanyBilling.jsx` and `billingService.js` imported `@stripe/stripe-js` (non-pure entry), which injects `js.stripe.com` into every page at app start, including the public form. **Fixed**: both now use `@stripe/stripe-js/pure` and load lazily.
@@ -154,3 +154,12 @@ Cloudflare Turnstile is no longer used: no widget, no `VITE_TURNSTILE_SITE_KEY`,
 4. Server-side validation, MIME sniffing and a 10 MB, 5-file limit.
 
 Known gap: a determined attacker with valid App Check tokens can use up a company's 50/day quota and block real reports. If that happens, raise the quota, rotate the report link from the QR page, or add a proof-of-work challenge (self-hosted, no third party).
+
+## Thread-message encryption removed (resolved)
+
+Reporter <-> HR thread messages (`anonymousThreads/{postId}.messages`) are now stored as **plain text** in `content`; the AES layer (`encryptedContent`) was removed. Do not re-add it without a new threat model.
+
+- Why: the bundled `VITE_ANONYMOUS_SECRET` made the encryption reversible by anyone with the client bundle, so it gave no real anonymity; message content never carries identity; and a `ANONYMOUS_SECRET` (Functions) vs `VITE_ANONYMOUS_SECRET` (build) mismatch made every message unreadable on both ends. This resolves the secret-mismatch weakness listed above *for thread messages*.
+- Anonymity comes from not storing reporter identity (no `authorId`, case code + secret key only), not from encrypting message text. Access control is Firestore rules / `caseAccess` verification.
+- Legacy: messages written before this change have only `encryptedContent`. They are never decrypted; readers flag them `legacy: true` and the UI shows "[Message sent before this upgrade — unavailable]" (`report.checkCase.thread.legacy`). `getCaseStatus` never returns the ciphertext.
+- Out of scope and unchanged: `ANONYMOUS_SECRET` still protects `authorId` (client) and `reporterContactEncrypted` (`publicReportApi.js`). `submitCaseReply` no longer needs the secret, so it was dropped from that function's `secrets` list only.

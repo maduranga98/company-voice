@@ -11,7 +11,6 @@
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const logger = require('firebase-functions/logger');
-const CryptoJS = require('crypto-js');
 const { db, FieldValue, serverTimestamp } = require('../config/firebase');
 const { verifySecretKey } = require('../utils/caseKeys');
 const { hashKey, consumeRateLimit } = require('../utils/rateLimit');
@@ -19,7 +18,7 @@ const { sanitizeText } = require('../utils/publicReportValidation');
 const { isCaseProgressCheckAllowed } = require('../utils/companySettings');
 const { computeCaseTimers } = require('../utils/caseTimers');
 const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
-const { ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
+const { CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
 
 const CASE_CODE_PATTERN = /^VW-[0-9A-Z]{4}-[0-9A-Z]{4}$/;
 const MAX_FAILED_ATTEMPTS = 5;
@@ -144,7 +143,10 @@ const getCaseStatus = onCall(
           ? (threadData.messages || []).map((m) => ({
               id: m.id,
               sender: m.sender,
-              encryptedContent: m.encryptedContent,
+              // Plain text. Pre-upgrade messages only have `encryptedContent`; never send the
+              // ciphertext, just flag them so the client can label them as unavailable.
+              content: typeof m.content === 'string' ? m.content : '',
+              legacy: typeof m.content !== 'string' && Boolean(m.encryptedContent),
               timestamp: m.timestamp,
             }))
           : [],
@@ -192,7 +194,7 @@ async function notifyReplyStaff(companyId, postId, involvesHR) {
 }
 
 const submitCaseReply = onCall(
-  { ...BASE_OPTIONS, secrets: [ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT], memory: '256MiB' },
+  { ...BASE_OPTIONS, secrets: [CASE_KEY_PEPPER, IP_HASH_SALT], memory: '256MiB' },
   async (request) => {
     const { caseCode, secretKey, message } = request.data || {};
 
@@ -218,11 +220,10 @@ const submitCaseReply = onCall(
       if (!allowed) throw rateLimited();
 
       const threadRef = db.collection('anonymousThreads').doc(postRef.id);
-      const encryptedContent = CryptoJS.AES.encrypt(text, ANONYMOUS_SECRET.value()).toString();
       const entry = {
         id: `${Date.now()}_${Math.random().toString(36).slice(2, 11)}`,
         sender: 'reporter',
-        encryptedContent,
+        content: text,
         timestamp: new Date().toISOString(),
         read: false,
       };

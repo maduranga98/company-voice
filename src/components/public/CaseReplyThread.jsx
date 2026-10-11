@@ -45,7 +45,7 @@ const CaseReplyThread = ({ messages, onSend, sending }) => {
                     fromReporter ? "bg-[#1ABC9C] text-white" : "bg-gray-100 text-[#2D3E50]"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap break-words">{m.content || t("report.checkCase.thread.unreadable")}</p>
+                  <p className="whitespace-pre-wrap break-words">{m.content || t(m.legacy ? "report.checkCase.thread.legacy" : "report.checkCase.thread.unreadable")}</p>
                   <p className={`mt-1 text-[11px] ${fromReporter ? "text-white/70" : "text-gray-400"}`}>
                     {fromReporter ? t("report.checkCase.thread.you") : t("report.checkCase.thread.them")}
                     {" · "}

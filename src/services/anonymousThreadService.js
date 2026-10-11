@@ -11,37 +11,16 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import CryptoJS from "crypto-js";
 import { ThreadSender } from "../utils/constants";
 
-const ANONYMOUS_SECRET =
-  import.meta.env.VITE_ANONYMOUS_SECRET || "default-secret-key-change-in-production";
-
-// ============================================
-// ENCRYPTION HELPERS
-// ============================================
-
-const encryptMessage = (text) => {
-  return CryptoJS.AES.encrypt(text, ANONYMOUS_SECRET).toString();
-};
-
-const decryptMessage = (encryptedText) => {
-  if (!encryptedText || typeof encryptedText !== "string") return "";
-  try {
-    const bytes = CryptoJS.AES.decrypt(encryptedText, ANONYMOUS_SECRET);
-    // bytes.toString can throw "Malformed UTF-8 data" in CryptoJS 4.x
-    // when the key doesn't match — wrap separately
-    try {
-      const text = bytes.toString(CryptoJS.enc.Utf8);
-      return text || "";
-    } catch {
-      return "";
-    }
-  } catch (error) {
-    console.error("Error decrypting message:", error);
-    return "";
-  }
-};
+// Thread messages are stored as plain text in `content`. Messages written before
+// encryption was removed only have `encryptedContent`; they are flagged `legacy`
+// (never decrypted) so the UI can label them instead of showing a broken bubble.
+export const normalizeThreadMessage = ({ encryptedContent, ...msg }) => ({
+  ...msg,
+  content: typeof msg.content === "string" ? msg.content : "",
+  legacy: typeof msg.content !== "string" && Boolean(encryptedContent),
+});
 
 // ============================================
 // THREAD MANAGEMENT
@@ -94,7 +73,7 @@ export const createThread = async (postId, companyId, reporterId = null) => {
  * Creates the thread first if it doesn't exist.
  * @param {string} postId - The post ID
  * @param {string} senderRole - ThreadSender.REPORTER or ThreadSender.INVESTIGATOR
- * @param {string} messageText - Plain-text message content to encrypt
+ * @param {string} messageText - Plain-text message content
  * @param {string} companyId - Company ID for thread creation if needed
  * @returns {Promise<{success: boolean}>}
  */
@@ -107,12 +86,10 @@ export const addMessage = async (postId, senderRole, messageText, companyId) => 
       await createThread(postId, companyId);
     }
 
-    const encryptedContent = encryptMessage(messageText);
-
     const message = {
       id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       sender: senderRole,
-      encryptedContent,
+      content: messageText,
       timestamp: new Date().toISOString(),
       read: false,
     };
@@ -135,10 +112,10 @@ export const addMessage = async (postId, senderRole, messageText, companyId) => 
 };
 
 /**
- * Fetch and decrypt all messages in a thread.
+ * Fetch all messages in a thread.
  * @param {string} postId - The post ID
  * @param {string} companyId - Company ID (used for validation context)
- * @returns {Promise<object|null>} Thread data with decrypted messages, or null if not found
+ * @returns {Promise<object|null>} Thread data with normalized messages, or null if not found
  */
 export const getThread = async (postId, companyId) => {
   try {
@@ -151,14 +128,9 @@ export const getThread = async (postId, companyId) => {
 
     const data = snap.data();
 
-    const decryptedMessages = (data.messages || []).map((msg) => ({
-      ...msg,
-      content: decryptMessage(msg.encryptedContent),
-    }));
-
     return {
       ...data,
-      messages: decryptedMessages,
+      messages: (data.messages || []).map(normalizeThreadMessage),
     };
   } catch (error) {
     console.error("Error fetching thread:", error);
@@ -226,15 +198,13 @@ export const subscribeToCompanyThreads = (companyId, onUpdate) => {
         // Post fetch failed — use fallback title
       }
 
-      // Decrypt the last message for preview
+      // Last message preview
       let lastMessagePreview = "";
       let lastMessageSender = "";
       if (data.messages.length > 0) {
         const lastMsg = data.messages[data.messages.length - 1];
-        const decrypted = decryptMessage(lastMsg.encryptedContent);
-        lastMessagePreview = decrypted
-          ? (decrypted.length > 60 ? decrypted.substring(0, 60) + "..." : decrypted)
-          : "";
+        const text = typeof lastMsg.content === "string" ? lastMsg.content : "";
+        lastMessagePreview = text.length > 60 ? text.substring(0, 60) + "..." : text;
         lastMessageSender = lastMsg.sender;
       }
 
