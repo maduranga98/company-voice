@@ -36,6 +36,10 @@ await env.withSecurityRulesDisabled(async (ctx) => {
   await setDoc(doc(db, "reportSlugs", "acme-1234"), { companyId: "c1" });
   await setDoc(doc(db, "rateLimits", "h"), { count: 1 });
   await setDoc(doc(db, "authSessions", "legacy"), { role: "super_admin", userId: "x", companyId: null });
+  await setDoc(doc(db, "companies", "c1", "policyResponses", "r1"), { policyId: "p1", response: "acknowledged", employeeKey: "e1" });
+  await setDoc(doc(db, "companies", "c1", "policyEmployees", "e1"), { employeeKey: "e1", acknowledgementCount: 1 });
+  await setDoc(doc(db, "policyLinks", "acme-pol1"), { companyId: "c1", policyId: "p1", active: true });
+  await setDoc(doc(db, "policyLinkRosters", "acme-pol1"), { companyId: "c1", employees: [] });
 });
 
 // Contexts. Staff carry the claims the login function mints; "anon" is any Firebase user without them.
@@ -118,6 +122,17 @@ for (const k of ["admin", "hr", "root"]) for (const c of ["caseAccess/VW-AAAA-BB
   await check(`${k} cannot read ${c}`, assertFails(getDoc(doc(fs(k), col, id))));
   await check(`${k} cannot write ${c}`, assertFails(setDoc(doc(fs(k), col, id), { a: 1 })));
 }
+
+// ---- public policy acknowledgements: written by functions only, read by the company's staff
+for (const path of [["companies", "c1", "policyResponses", "r1"], ["companies", "c1", "policyEmployees", "e1"], ["policyLinks", "acme-pol1"], ["policyLinkRosters", "acme-pol1"]]) {
+  const label = path.length === 4 ? path[2] : path[0];
+  for (const k of ["admin", "hr", "root"]) await check(`${k} reads ${label}`, assertSucceeds(getDoc(doc(fs(k), ...path))));
+  for (const k of ["hr2", "anon", "nobody"]) await check(`${k} cannot read ${label}`, assertFails(getDoc(doc(fs(k), ...path))));
+  for (const k of ["admin", "hr", "root", "anon", "nobody"]) await check(`${k} cannot write ${label}`, assertFails(setDoc(doc(fs(k), ...path), { companyId: "c1", x: 1 })));
+}
+await check("hr cannot list another company's responses", assertFails(getDocs(collection(fs("hr2"), "companies", "c1", "policyResponses"))));
+await check("hr lists its own company's responses", assertSucceeds(getDocs(query(collection(fs("hr"), "companies", "c1", "policyResponses"), where("policyId", "==", "p1")))));
+await check("hr lists its company's policy links", assertSucceeds(getDocs(query(collection(fs("hr"), "policyLinks"), where("companyId", "==", "c1")))));
 
 // ---- storage
 const st = (k) => ctx[k].storage();

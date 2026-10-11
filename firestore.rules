@@ -155,6 +155,35 @@ service cloud.firestore {
         || (isCompanyAdmin() && belongsToCompany(companyId)
             && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive', 'reportSlug', 'reportingEnabled']));
       allow delete: if false;
+
+      // Public policy acknowledgements (/p/:slug). Written only by Cloud Functions (Admin SDK);
+      // admin/HR of the company read them for the acknowledgement table.
+      // - policyResponses: one doc per acknowledgement or raised concern
+      // - policyEmployees: one doc per distinct acknowledging employee (the billing quantity)
+      match /policyResponses/{responseId} {
+        allow read: if isSuperAdmin() || belongsToCompany(companyId);
+        allow write: if false;
+      }
+
+      match /policyEmployees/{employeeKey} {
+        allow read: if isSuperAdmin() || belongsToCompany(companyId);
+        allow write: if false;
+      }
+    }
+
+    // ============================================
+    // POLICY ACKNOWLEDGEMENT LINKS (public /p/:slug)
+    // ============================================
+    // - Staff of the company can read their links and rosters (no secret in them)
+    // - Created and changed only by Cloud Functions; the public page goes through callables
+    match /policyLinks/{slug} {
+      allow read: if isSuperAdmin() || (isAuthenticated() && getUserCompanyId() == resource.data.companyId);
+      allow write: if false;
+    }
+
+    match /policyLinkRosters/{slug} {
+      allow read: if isSuperAdmin() || (isAuthenticated() && getUserCompanyId() == resource.data.companyId);
+      allow write: if false;
     }
 
     // ============================================

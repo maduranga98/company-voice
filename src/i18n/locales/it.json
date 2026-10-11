@@ -1103,6 +1103,123 @@
         "send": "Invia"
       }
     },
+    "policy": {
+      "eyebrow": "Presa visione della policy",
+      "version": "Versione {{version}}",
+      "effective": "In vigore dal {{date}}",
+      "categories": {
+        "code_of_conduct": "Codice di condotta",
+        "anti_harassment": "Contro le molestie",
+        "data_privacy": "Privacy dei dati",
+        "whistleblower": "Tutela del segnalante",
+        "safety": "Sicurezza sul lavoro",
+        "gdpr": "Informativa GDPR",
+        "other": "Altro"
+      },
+      "documentOnly": "Il testo completo di questa policy è nel documento allegato.",
+      "openDocument": "Apri il documento della policy ({{name}})",
+      "form": {
+        "employeeIdLabel": "ID dipendente",
+        "employeeNameLabel": "Il tuo nome completo"
+      },
+      "mode": {
+        "label": "La tua risposta",
+        "acknowledge": "Conferma",
+        "concern": "Segnala un dubbio"
+      },
+      "acknowledge": {
+        "checkbox": "Ho letto e compreso questa policy.",
+        "button": "Conferma la policy"
+      },
+      "concern": {
+        "label": "Qual è il tuo dubbio?",
+        "placeholder": "Spiega alle risorse umane cosa non è chiaro o su cosa non sei d'accordo, e perché.",
+        "minHint": "Scrivi almeno {{min}} caratteri.",
+        "counter": "{{count}} / {{max}}",
+        "note": "Questo messaggio arriva alle risorse umane insieme al tuo nome e al tuo ID dipendente. Non è anonimo. Per segnalare qualcosa in forma anonima, usa invece il link di segnalazione della tua organizzazione.",
+        "button": "Invia il dubbio"
+      },
+      "sending": "Invio in corso…",
+      "success": {
+        "acknowledgedTitle": "Grazie, {{name}}",
+        "acknowledgedBody": "La tua conferma di «{{policy}}» (versione {{version}}) è stata registrata.",
+        "alreadyTitle": "Già registrato",
+        "alreadyBody": "Hai già confermato «{{policy}}» (versione {{version}}). Non devi fare altro.",
+        "concernTitle": "Dubbio ricevuto",
+        "concernBody": "Le risorse umane hanno ricevuto il tuo dubbio su «{{policy}}» e potrebbero contattarti ai recapiti indicati.",
+        "another": "Rispondi per un altro dipendente"
+      },
+      "errors": {
+        "invalid": "Controlla ID dipendente, nome e risposta, poi riprova.",
+        "notOnRoster": "Questo ID dipendente non è stato riconosciuto. Controllalo o chiedi aiuto alle risorse umane.",
+        "updated": "Questa policy è stata appena aggiornata. Leggi la nuova versione e rispondi di nuovo.",
+        "rateLimited": "Troppi tentativi. Riprova più tardi.",
+        "network": "Impossibile raggiungere il server. Controlla la connessione e riprova.",
+        "inactive": "Questo link alla policy non è più attivo.",
+        "generic": "Qualcosa è andato storto. Riprova."
+      },
+      "inactive": {
+        "title": "Questo link alla policy non è attivo",
+        "body": "Controlla il link o chiedine uno nuovo alla tua organizzazione."
+      }
+    },
+    "policyLink": {
+      "title": "Link di presa visione della policy",
+      "back": "Torna alle policy",
+      "intro": "Condividi questo link o il codice QR. I dipendenti lo aprono senza accedere, leggono la policy e la confermano o segnalano un dubbio.",
+      "linkLabel": "Link pubblico",
+      "copy": "Copia link",
+      "copied": "Link copiato",
+      "open": "Apri la pagina",
+      "active": "Il link è attivo",
+      "paused": "Il link è sospeso",
+      "activeHelp": "Quando è sospeso, il link mostra una pagina «non attivo».",
+      "qrAlt": "Codice QR del link di presa visione della policy",
+      "downloadQr": "Scarica QR",
+      "loadError": "Impossibile caricare questo link alla policy. Riprova.",
+      "saveError": "Impossibile salvare la modifica. Riprova.",
+      "notPublished": "Si possono condividere solo policy pubblicate. Pubblica prima questa policy.",
+      "roster": {
+        "title": "Elenco dipendenti (facoltativo)",
+        "help": "Incolla un dipendente per riga come «ID, Nome». Aggiunge l'elenco di chi non ha ancora confermato.",
+        "placeholder": "EMP-001, Ada Lovelace\nEMP-002, Grace Hopper",
+        "require": "Accetta solo ID presenti in questo elenco",
+        "requireHelp": "Rifiuta gli ID sconosciuti, così vengono registrati e conteggiati solo dipendenti reali.",
+        "save": "Salva elenco",
+        "saved": "Elenco salvato: {{count}} dipendenti.",
+        "savedWithSkipped": "Elenco salvato: {{count}} dipendenti. Righe non valide ignorate: {{lines}}."
+      },
+      "stats": {
+        "acknowledged": "Confermate",
+        "pending": "In attesa",
+        "concerns": "Dubbi",
+        "outsideRoster": "Fuori elenco"
+      },
+      "table": {
+        "title": "Conferme",
+        "version": "Versione",
+        "filter": {
+          "all": "Tutti",
+          "pending": "In attesa",
+          "acknowledged": "Confermate",
+          "concern": "Dubbi"
+        },
+        "search": "Cerca per ID o nome",
+        "inbox": "Apri la posta delle risorse umane",
+        "employeeId": "ID dipendente",
+        "name": "Nome",
+        "status": "Stato",
+        "date": "Confermata il",
+        "statuses": {
+          "acknowledged": "Confermata",
+          "pending": "In attesa",
+          "concern": "Dubbio segnalato"
+        },
+        "alsoConcern": "+ {{count}} dubbio/i",
+        "notOnRoster": "(fuori elenco)",
+        "empty": "Nessuno da mostrare per ora."
+      }
+    },
     "inactive": {
       "title": "Questo link di segnalazione non è attivo",
       "body": "Controlla il link o chiedine uno nuovo alla tua organizzazione."

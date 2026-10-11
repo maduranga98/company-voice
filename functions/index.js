@@ -80,6 +80,15 @@ const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
 // Check My Case API (no-login case status and private replies)
 const { getCaseStatus, submitCaseReply } = require('./api/caseAccessApi');
 
+// Policy Acknowledgement API (no-login policy acknowledgement links)
+const {
+  getPolicyForLink,
+  submitPolicyAcknowledgement,
+  ensurePolicyLink,
+  setPolicyLinkActive,
+  setPolicyLinkRoster,
+} = require('./api/policyAckApi');
+
 // Webhooks - COMMENTED OUT FOR NOW
 // const { handleStripeWebhook } = require('./webhooks/stripeWebhook');
 
@@ -171,3 +180,10 @@ exports.cleanupPublicReports = cleanupPublicReports;
 // Export Check My Case Functions
 exports.getCaseStatus = getCaseStatus;
 exports.submitCaseReply = submitCaseReply;
+
+// Export Policy Acknowledgement Functions
+exports.getPolicyForLink = getPolicyForLink;
+exports.submitPolicyAcknowledgement = submitPolicyAcknowledgement;
+exports.ensurePolicyLink = ensurePolicyLink;
+exports.setPolicyLinkActive = setPolicyLinkActive;
+exports.setPolicyLinkRoster = setPolicyLinkRoster;

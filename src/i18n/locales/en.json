@@ -1103,6 +1103,123 @@
         "send": "Send"
       }
     },
+    "policy": {
+      "eyebrow": "Policy acknowledgement",
+      "version": "Version {{version}}",
+      "effective": "Effective {{date}}",
+      "categories": {
+        "code_of_conduct": "Code of Conduct",
+        "anti_harassment": "Anti-Harassment",
+        "data_privacy": "Data Privacy",
+        "whistleblower": "Whistleblower Protection",
+        "safety": "Workplace Safety",
+        "gdpr": "GDPR Notice",
+        "other": "Other"
+      },
+      "documentOnly": "The full text of this policy is in the attached document.",
+      "openDocument": "Open the policy document ({{name}})",
+      "form": {
+        "employeeIdLabel": "Employee ID",
+        "employeeNameLabel": "Your full name"
+      },
+      "mode": {
+        "label": "Your response",
+        "acknowledge": "Acknowledge",
+        "concern": "Raise a concern"
+      },
+      "acknowledge": {
+        "checkbox": "I have read and understood this policy.",
+        "button": "Acknowledge policy"
+      },
+      "concern": {
+        "label": "What is your concern?",
+        "placeholder": "Tell HR what is unclear, or what you disagree with, and why.",
+        "minHint": "Please write at least {{min}} characters.",
+        "counter": "{{count}} / {{max}}",
+        "note": "This goes to HR together with your name and employee ID. It is not anonymous. To report something anonymously, use your organisation's report link instead.",
+        "button": "Send concern"
+      },
+      "sending": "Sending…",
+      "success": {
+        "acknowledgedTitle": "Thank you, {{name}}",
+        "acknowledgedBody": "Your acknowledgement of “{{policy}}” (version {{version}}) has been recorded.",
+        "alreadyTitle": "Already on record",
+        "alreadyBody": "You have already acknowledged “{{policy}}” (version {{version}}). Nothing more to do.",
+        "concernTitle": "Concern received",
+        "concernBody": "HR has received your concern about “{{policy}}” and may contact you using the details you gave.",
+        "another": "Respond for another employee"
+      },
+      "errors": {
+        "invalid": "Please check your employee ID, name and response, then try again.",
+        "notOnRoster": "That employee ID was not recognised. Check it, or ask HR for help.",
+        "updated": "This policy was just updated. Please read the new version and respond again.",
+        "rateLimited": "Too many attempts. Please try again later.",
+        "network": "Could not reach the server. Check your connection and try again.",
+        "inactive": "This policy link is no longer active.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "inactive": {
+        "title": "This policy link is not active",
+        "body": "Please check the link, or ask your organisation for a new one."
+      }
+    },
+    "policyLink": {
+      "title": "Policy acknowledgement link",
+      "back": "Back to policies",
+      "intro": "Share this link or QR code. Employees open it without logging in, read the policy and acknowledge it or raise a concern.",
+      "linkLabel": "Public link",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "open": "Open page",
+      "active": "Link is active",
+      "paused": "Link is paused",
+      "activeHelp": "When paused, the link shows a “not active” page.",
+      "qrAlt": "QR code for the policy acknowledgement link",
+      "downloadQr": "Download QR",
+      "loadError": "Could not load this policy link. Please try again.",
+      "saveError": "Could not save the change. Please try again.",
+      "notPublished": "Only published policies can be shared. Publish this policy first.",
+      "roster": {
+        "title": "Employee roster (optional)",
+        "help": "Paste one employee per line as “ID, Name”. This adds a list of who has not acknowledged yet.",
+        "placeholder": "EMP-001, Ada Lovelace\nEMP-002, Grace Hopper",
+        "require": "Only accept employee IDs on this roster",
+        "requireHelp": "Rejects unknown IDs, so only real employees are recorded and counted.",
+        "save": "Save roster",
+        "saved": "Roster saved: {{count}} employees.",
+        "savedWithSkipped": "Roster saved: {{count}} employees. Skipped invalid lines: {{lines}}."
+      },
+      "stats": {
+        "acknowledged": "Acknowledged",
+        "pending": "Not yet",
+        "concerns": "Concerns",
+        "outsideRoster": "Not on roster"
+      },
+      "table": {
+        "title": "Acknowledgements",
+        "version": "Version",
+        "filter": {
+          "all": "All",
+          "pending": "Not yet",
+          "acknowledged": "Acknowledged",
+          "concern": "Concerns"
+        },
+        "search": "Search by ID or name",
+        "inbox": "Open HR inbox",
+        "employeeId": "Employee ID",
+        "name": "Name",
+        "status": "Status",
+        "date": "Acknowledged on",
+        "statuses": {
+          "acknowledged": "Acknowledged",
+          "pending": "Not yet",
+          "concern": "Concern raised"
+        },
+        "alsoConcern": "+ {{count}} concern(s)",
+        "notOnRoster": "(not on roster)",
+        "empty": "No one to show yet."
+      }
+    },
     "inactive": {
       "title": "This reporting link is not active",
       "body": "Please check the link, or ask your organisation for a new one."

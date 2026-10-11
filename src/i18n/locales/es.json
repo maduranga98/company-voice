@@ -1045,6 +1045,123 @@
         "send": "Enviar"
       }
     },
+    "policy": {
+      "eyebrow": "Confirmación de política",
+      "version": "Versión {{version}}",
+      "effective": "En vigor desde el {{date}}",
+      "categories": {
+        "code_of_conduct": "Código de conducta",
+        "anti_harassment": "Contra el acoso",
+        "data_privacy": "Privacidad de datos",
+        "whistleblower": "Protección del denunciante",
+        "safety": "Seguridad en el trabajo",
+        "gdpr": "Aviso RGPD",
+        "other": "Otra"
+      },
+      "documentOnly": "El texto completo de esta política está en el documento adjunto.",
+      "openDocument": "Abrir el documento de la política ({{name}})",
+      "form": {
+        "employeeIdLabel": "ID de empleado",
+        "employeeNameLabel": "Tu nombre completo"
+      },
+      "mode": {
+        "label": "Tu respuesta",
+        "acknowledge": "Confirmar",
+        "concern": "Plantear una inquietud"
+      },
+      "acknowledge": {
+        "checkbox": "He leído y comprendido esta política.",
+        "button": "Confirmar la política"
+      },
+      "concern": {
+        "label": "¿Cuál es tu inquietud?",
+        "placeholder": "Cuéntale a RR. HH. qué no está claro o con qué no estás de acuerdo, y por qué.",
+        "minHint": "Escribe al menos {{min}} caracteres.",
+        "counter": "{{count}} / {{max}}",
+        "note": "Esto llega a RR. HH. junto con tu nombre e ID de empleado. No es anónimo. Para informar de algo de forma anónima, usa el enlace de denuncia de tu organización.",
+        "button": "Enviar inquietud"
+      },
+      "sending": "Enviando…",
+      "success": {
+        "acknowledgedTitle": "Gracias, {{name}}",
+        "acknowledgedBody": "Se ha registrado tu confirmación de «{{policy}}» (versión {{version}}).",
+        "alreadyTitle": "Ya registrado",
+        "alreadyBody": "Ya habías confirmado «{{policy}}» (versión {{version}}). No tienes que hacer nada más.",
+        "concernTitle": "Inquietud recibida",
+        "concernBody": "RR. HH. ha recibido tu inquietud sobre «{{policy}}» y puede contactarte con los datos que indicaste.",
+        "another": "Responder por otro empleado"
+      },
+      "errors": {
+        "invalid": "Revisa tu ID de empleado, tu nombre y tu respuesta, e inténtalo de nuevo.",
+        "notOnRoster": "No se reconoce ese ID de empleado. Revísalo o pide ayuda a RR. HH.",
+        "updated": "Esta política se acaba de actualizar. Lee la nueva versión y responde de nuevo.",
+        "rateLimited": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+        "network": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+        "inactive": "Este enlace de política ya no está activo.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      },
+      "inactive": {
+        "title": "Este enlace de política no está activo",
+        "body": "Revisa el enlace o pide uno nuevo a tu organización."
+      }
+    },
+    "policyLink": {
+      "title": "Enlace de confirmación de política",
+      "back": "Volver a las políticas",
+      "intro": "Comparte este enlace o código QR. Los empleados lo abren sin iniciar sesión, leen la política y la confirman o plantean una inquietud.",
+      "linkLabel": "Enlace público",
+      "copy": "Copiar enlace",
+      "copied": "Enlace copiado",
+      "open": "Abrir página",
+      "active": "El enlace está activo",
+      "paused": "El enlace está en pausa",
+      "activeHelp": "En pausa, el enlace muestra una página de «no activo».",
+      "qrAlt": "Código QR del enlace de confirmación de política",
+      "downloadQr": "Descargar QR",
+      "loadError": "No se pudo cargar este enlace de política. Inténtalo de nuevo.",
+      "saveError": "No se pudo guardar el cambio. Inténtalo de nuevo.",
+      "notPublished": "Solo se pueden compartir políticas publicadas. Publica primero esta política.",
+      "roster": {
+        "title": "Lista de empleados (opcional)",
+        "help": "Pega un empleado por línea como «ID, Nombre». Así se añade la lista de quienes aún no han confirmado.",
+        "placeholder": "EMP-001, Ada Lovelace\nEMP-002, Grace Hopper",
+        "require": "Aceptar solo IDs de empleado de esta lista",
+        "requireHelp": "Rechaza IDs desconocidos, de modo que solo se registren y cuenten empleados reales.",
+        "save": "Guardar lista",
+        "saved": "Lista guardada: {{count}} empleados.",
+        "savedWithSkipped": "Lista guardada: {{count}} empleados. Líneas no válidas omitidas: {{lines}}."
+      },
+      "stats": {
+        "acknowledged": "Confirmadas",
+        "pending": "Pendientes",
+        "concerns": "Inquietudes",
+        "outsideRoster": "Fuera de la lista"
+      },
+      "table": {
+        "title": "Confirmaciones",
+        "version": "Versión",
+        "filter": {
+          "all": "Todos",
+          "pending": "Pendientes",
+          "acknowledged": "Confirmadas",
+          "concern": "Inquietudes"
+        },
+        "search": "Buscar por ID o nombre",
+        "inbox": "Abrir bandeja de RR. HH.",
+        "employeeId": "ID de empleado",
+        "name": "Nombre",
+        "status": "Estado",
+        "date": "Confirmado el",
+        "statuses": {
+          "acknowledged": "Confirmada",
+          "pending": "Pendiente",
+          "concern": "Inquietud planteada"
+        },
+        "alsoConcern": "+ {{count}} inquietud(es)",
+        "notOnRoster": "(fuera de la lista)",
+        "empty": "Aún no hay nadie que mostrar."
+      }
+    },
     "inactive": {
       "title": "Este enlace de denuncias no está activo",
       "body": "Comprueba el enlace o pide uno nuevo a tu organización."

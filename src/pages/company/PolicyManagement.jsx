@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Bell,
   Trash2,
+  Link2,
 } from "lucide-react";
 import {
   createPolicy,
@@ -481,6 +482,13 @@ const PolicyManagement = () => {
                                 title="Archive"
                               >
                                 <Archive className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => navigate(`/company/policies/${policy.id}/link`)}
+                                className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition"
+                                title="Public link, QR code and acknowledgements"
+                              >
+                                <Link2 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => openStatsModal(policy)}
