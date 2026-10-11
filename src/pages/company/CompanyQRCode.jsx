@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 
 const CompanyQRCode = () => {
   const { t } = useTranslation();
-  const { userData, logout } = useAuth();
+  const { userData } = useAuth();
   const navigate = useNavigate();
   const [company, setCompany] = useState(null);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -781,7 +781,7 @@ const CompanyQRCode = () => {
           } else {
             const fullShareText = `${shareText}\n\n${reportUrl}`;
             await navigator.clipboard.writeText(fullShareText);
-            alert(t('company.shareInfoCopied'));
+            toast.success(t('company.shareInfoCopied'));
           }
         });
       };
@@ -789,13 +789,13 @@ const CompanyQRCode = () => {
       qrImage.src = qrCodeUrl;
     } catch (error) {
       console.error("Error sharing:", error);
-      alert(t('company.unableToShare'));
+      toast.error(t('company.unableToShare'));
     }
   };
 
   const copyCompanyId = () => {
     navigator.clipboard.writeText(company.id);
-    alert(t('company.companyIdCopied'));
+    toast.success(t('company.companyIdCopied'));
   };
 
   const copyReportLink = () => {
@@ -803,416 +803,179 @@ const CompanyQRCode = () => {
     navigator.clipboard.writeText(reportUrl).then(() => {
       toast.success(t('report.link.linkCopied'));
     }).catch(() => {
-      alert(reportUrl);
+      toast.error(reportUrl);
     });
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-page flex items-center justify-center">
-        <div className="text-center">
-          <svg
-            className="animate-spin h-12 w-12 text-primary-600 mx-auto mb-4"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p className="text-gray-600">{t('common.loading')}</p>
-        </div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-[#1ABC9C]" />
       </div>
     );
   }
 
+  const tips = [
+    t('report.link.tipEmail'),
+    t('report.link.tipNoticeBoards'),
+    t('report.link.tipHandbook'),
+    t('report.link.tipOnboarding'),
+  ];
+  const practices = [
+    t('company.bestPracticeHighRes'),
+    t('company.bestPracticeTestScan'),
+    t('company.bestPracticeKeepAccessible'),
+    t('report.link.bestPracticeRotate'),
+  ];
+  const disabled = linkBusy || !company;
+
   return (
-    <div className="min-h-screen bg-background-page">
-      {/* Header */}
-      <header className="bg-background-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Title */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
+          {t('report.link.title')}
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">{t('report.link.instructions')}</p>
+      </div>
+
+      {linkError && (
+        <p role="alert" className="mb-6 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {linkError}
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        {/* QR + share (left) */}
+        <section className="lg:col-span-2">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm lg:sticky lg:top-6">
+            <div
+              className={`mx-auto flex aspect-square w-full max-w-xs items-center justify-center rounded-2xl border border-gray-100 bg-white p-3 transition ${
+                reportingEnabled ? '' : 'opacity-40 grayscale'
+              }`}
+            >
+              {qrCodeUrl ? (
+                <img src={qrCodeUrl} alt="Company QR Code" className="h-full w-full" />
+              ) : (
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-[#1ABC9C]" />
+              )}
+            </div>
+            <p className="mx-auto mt-4 max-w-xs text-center text-sm text-gray-500">
+              {t('report.link.scanDesc')}
+            </p>
+
+            {/* Link */}
+            <div className="mt-6">
+              <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                {t('report.link.linkLabel')}
+              </p>
+              <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 py-1.5 pl-3 pr-1.5">
+                <span className="min-w-0 flex-1 truncate font-mono text-xs text-gray-700" title={reportUrl}>
+                  {reportUrl || t('report.link.preparing')}
+                </span>
+                <button
+                  onClick={copyReportLink}
+                  disabled={!reportUrl}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 transition hover:bg-gray-100 disabled:opacity-50"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  <Icon d={ICONS.link} className="h-3.5 w-3.5" />
+                  {t('report.link.copyLink')}
+                </button>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <ActionButton primary onClick={downloadQRCode} icon={ICONS.download} label={t('company.downloadQR')} />
+              <ActionButton onClick={printQRCode} icon={ICONS.print} label={t('company.print')} />
+              <ActionButton onClick={shareQRCode} icon={ICONS.share} label={t('company.share')} />
+            </div>
+          </div>
+        </section>
+
+        {/* Settings, details, tips (right) */}
+        <div className="space-y-6 lg:col-span-3">
+          {/* Controls */}
+          <section className="divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div className="flex items-start justify-between gap-4 p-5">
+              <div>
+                <p id="reporting-label" className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <span
+                    className={`h-2 w-2 rounded-full ${reportingEnabled ? 'bg-[#1ABC9C]' : 'bg-gray-300'}`}
+                    aria-hidden="true"
                   />
-                </svg>
-              </button>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {t('report.link.title')}
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                {userData?.displayName || userData?.username}
-              </span>
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">
-                COMPANY ADMIN
-              </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
-              >
-                {t('common.logout')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {t('company.yourCompanyQRCode')}
-          </h2>
-          <p className="text-gray-600">
-            {t('report.link.instructions')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Side - Company Info */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Company Card */}
-            <div className="bg-background-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {t('company.companyDetails')}
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    {t('company.companyName')}
-                  </label>
-                  <p className="text-gray-900 font-semibold mt-1">
-                    {company?.name}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    {t('company.industry')}
-                  </label>
-                  <p className="text-gray-900 mt-1">
-                    {company?.industry || t('company.notSpecified')}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    {t('company.companyId')}
-                  </label>
-                  <div className="flex items-center mt-1">
-                    <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono text-gray-700 flex-1">
-                      {company?.id}
-                    </code>
-                    <button
-                      onClick={copyCompanyId}
-                      className="ml-2 text-primary-600 hover:text-primary-700"
-                      title="Copy Company ID"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    {t('company.status')}
-                  </label>
-                  <div className="mt-1">
-                    <span
-                      className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        company?.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {company?.isActive ? t('company.statusActive') : t('company.statusInactive')}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    {t('company.employees')}
-                  </label>
-                  <p className="text-gray-900 font-semibold mt-1">
-                    {company?.employeeCount || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Right Side - QR Code */}
-          <div className="lg:col-span-2">
-            <div className="bg-background-white rounded-xl shadow-sm p-8">
-              {/* QR Code Display */}
-              <div className="flex flex-col items-center mb-8">
-                <div className="bg-background-white p-8 rounded-2xl border-2 border-primary-200 shadow-xl mb-6">
-                  {qrCodeUrl && (
-                    <img
-                      src={qrCodeUrl}
-                      alt="Company QR Code"
-                      className="w-80 h-80"
-                    />
-                  )}
-                </div>
-                <p className="text-center text-gray-600 max-w-md mb-6">
-                  {t('report.link.scanDesc')}
+                  {reportingEnabled ? t('report.link.reportingOn') : t('report.link.reportingOff')}
                 </p>
-
-                {/* Report link controls */}
-                <div className="w-full max-w-2xl mb-6 space-y-3">
-                  {linkError && (
-                    <p role="alert" className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                      {linkError}
-                    </p>
-                  )}
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-                    <p className="text-xs font-medium text-gray-500 mb-1">{t('report.link.linkLabel')}</p>
-                    <p className="break-all font-mono text-sm text-gray-900">
-                      {reportUrl || t('report.link.preparing')}
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        role="switch"
-                        checked={reportingEnabled}
-                        disabled={linkBusy || !company}
-                        onChange={toggleReporting}
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600"
-                      />
-                      <span>
-                        <span className="block text-sm font-semibold text-gray-900">
-                          {reportingEnabled ? t('report.link.reportingOn') : t('report.link.reportingOff')}
-                        </span>
-                        <span className="block text-xs text-gray-500">{t('report.link.toggleHelp')}</span>
-                      </span>
-                    </label>
-                    <button
-                      onClick={() => setConfirmRegenerate(true)}
-                      disabled={linkBusy || !reportUrl}
-                      className="px-4 py-2 text-sm font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
-                    >
-                      {t('report.link.regenerate')}
-                    </button>
-                  </div>
-                  <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 px-4 py-3">
-                    <span>
-                      <span id="case-check-label" className="block text-sm font-semibold text-gray-900">
-                        {t('report.link.caseCheckLabel')}
-                      </span>
-                      <span className="block text-xs text-gray-500">{t('report.link.caseCheckHelp')}</span>
-                    </span>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={caseCheckEnabled}
-                      aria-labelledby="case-check-label"
-                      disabled={linkBusy || !company}
-                      onClick={toggleCaseCheck}
-                      className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1ABC9C] focus-visible:ring-offset-2 disabled:opacity-50 ${
-                        caseCheckEnabled ? 'bg-[#1ABC9C]' : 'bg-gray-300'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                          caseCheckEnabled ? 'translate-x-5' : 'translate-x-0.5'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl">
-                  <button
-                    onClick={downloadQRCode}
-                    className="flex items-center justify-center px-6 py-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 active:bg-indigo-800 transition shadow-lg"
-                  >
-                    <svg
-                      className="w-6 h-6 mr-2 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                    <span className="text-base">{t('company.downloadQR')}</span>
-                  </button>
-
-                  <button
-                    onClick={printQRCode}
-                    className="flex items-center justify-center px-6 py-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 active:bg-green-800 transition shadow-lg"
-                  >
-                    <svg
-                      className="w-6 h-6 mr-2 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                      />
-                    </svg>
-                    <span className="text-base">{t('company.print')}</span>
-                  </button>
-
-                  <button
-                    onClick={shareQRCode}
-                    className="flex items-center justify-center px-6 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 active:bg-blue-800 transition shadow-lg"
-                  >
-                    <svg
-                      className="w-6 h-6 mr-2 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2.5"
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                      />
-                    </svg>
-                    <span className="text-base">{t('company.share')}</span>
-                  </button>
-
-                  <button
-                    onClick={copyReportLink}
-                    className="flex items-center justify-center px-6 py-4 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition"
-                  >
-                    <svg
-                      className="w-6 h-6 mr-2 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                      />
-                    </svg>
-                    <span className="text-base">{t('report.link.copyLink')}</span>
-                  </button>
-                </div>
+                <p className="mt-1 text-sm text-gray-500">{t('report.link.toggleHelp')}</p>
               </div>
-
-              {/* Usage Instructions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="w-6 h-6 text-blue-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h4 className="text-sm font-semibold text-blue-900 mb-2">
-                        {t('company.distributionTips')}
-                      </h4>
-                      <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• {t('report.link.tipEmail')}</li>
-                        <li>• {t('report.link.tipNoticeBoards')}</li>
-                        <li>• {t('report.link.tipHandbook')}</li>
-                        <li>• {t('report.link.tipOnboarding')}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 border border-green-200 rounded-lg p-5">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="w-6 h-6 text-green-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h4 className="text-sm font-semibold text-green-900 mb-2">
-                        {t('company.bestPractices')}
-                      </h4>
-                      <ul className="text-sm text-green-800 space-y-1">
-                        <li>• {t('company.bestPracticeHighRes')}</li>
-                        <li>• {t('company.bestPracticeTestScan')}</li>
-                        <li>• {t('company.bestPracticeKeepAccessible')}</li>
-                        <li>• {t('report.link.bestPracticeRotate')}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Toggle checked={reportingEnabled} disabled={disabled} onChange={toggleReporting} labelledBy="reporting-label" />
             </div>
-          </div>
+
+            <div className="flex items-start justify-between gap-4 p-5">
+              <div>
+                <p id="case-check-label" className="text-sm font-semibold text-gray-900">
+                  {t('report.link.caseCheckLabel')}
+                </p>
+                <p className="mt-1 text-sm text-gray-500">{t('report.link.caseCheckHelp')}</p>
+              </div>
+              <Toggle checked={caseCheckEnabled} disabled={disabled} onChange={toggleCaseCheck} labelledBy="case-check-label" />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 p-5">
+              <p className="max-w-md text-sm text-gray-500">{t('report.link.regenerateBody')}</p>
+              <button
+                onClick={() => setConfirmRegenerate(true)}
+                disabled={linkBusy || !reportUrl}
+                className="rounded-lg border border-red-200 px-3.5 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+              >
+                {t('report.link.regenerate')}
+              </button>
+            </div>
+          </section>
+
+          {/* Company details */}
+          <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <h2 className="mb-4 text-sm font-semibold text-gray-900">{t('company.companyDetails')}</h2>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+              <Detail label={t('company.companyName')} value={company?.name} />
+              <Detail label={t('company.industry')} value={company?.industry || t('company.notSpecified')} />
+              <Detail label={t('company.employees')} value={company?.employeeCount || 0} />
+              <div>
+                <dt className="text-xs text-gray-400">{t('company.status')}</dt>
+                <dd className="mt-1">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                      company?.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+                    }`}
+                  >
+                    {company?.isActive ? t('company.statusActive') : t('company.statusInactive')}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-gray-50 px-3 py-2">
+              <div className="min-w-0">
+                <p className="text-xs text-gray-400">{t('company.companyId')}</p>
+                <code className="block truncate font-mono text-xs text-gray-700">{company?.id}</code>
+              </div>
+              <button
+                onClick={copyCompanyId}
+                title={t('company.companyId')}
+                aria-label={t('company.companyId')}
+                className="rounded-lg p-2 text-gray-400 transition hover:bg-white hover:text-gray-700"
+              >
+                <Icon d={ICONS.copy} className="h-4 w-4" />
+              </button>
+            </div>
+          </section>
+
+          {/* Tips */}
+          <section className="grid grid-cols-1 gap-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:grid-cols-2">
+            <TipList title={t('company.distributionTips')} items={tips} />
+            <TipList title={t('company.bestPractices')} items={practices} />
+          </section>
         </div>
-      </main>
+      </div>
 
       {confirmRegenerate && (
         <div
@@ -1220,22 +983,26 @@ const CompanyQRCode = () => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="regenerate-title"
+          onClick={() => setConfirmRegenerate(false)}
         >
-          <div className="w-full max-w-md rounded-xl bg-background-white p-6 shadow-xl">
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 id="regenerate-title" className="text-lg font-semibold text-gray-900">
               {t('report.link.regenerateTitle')}
             </h3>
-            <p className="mt-2 text-sm text-gray-600">{t('report.link.regenerateBody')}</p>
+            <p className="mt-2 text-sm text-gray-500">{t('report.link.regenerateBody')}</p>
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setConfirmRegenerate(false)}
-                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
               >
                 {t('report.link.cancel')}
               </button>
               <button
                 onClick={regenerateLink}
-                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700"
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
               >
                 {t('report.link.regenerateConfirm')}
               </button>
@@ -1246,5 +1013,74 @@ const CompanyQRCode = () => {
     </div>
   );
 };
+
+const ICONS = {
+  download: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4",
+  print: "M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z",
+  share: "M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z",
+  link: "M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1",
+  copy: "M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z",
+};
+
+const Icon = ({ d, className = "h-5 w-5" }) => (
+  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+  </svg>
+);
+
+const ActionButton = ({ icon, label, onClick, primary }) => (
+  <button
+    onClick={onClick}
+    className={`flex flex-col items-center justify-center gap-1.5 rounded-xl px-2 py-3 text-xs font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1ABC9C] focus-visible:ring-offset-2 ${
+      primary
+        ? 'bg-[#1ABC9C] text-white hover:bg-[#17a589]'
+        : 'bg-gray-50 text-gray-700 ring-1 ring-gray-200 hover:bg-gray-100'
+    }`}
+  >
+    <Icon d={icon} className="h-5 w-5" />
+    <span className="text-center leading-tight">{label}</span>
+  </button>
+);
+
+const Toggle = ({ checked, onChange, disabled, labelledBy }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    aria-labelledby={labelledBy}
+    disabled={disabled}
+    onClick={onChange}
+    className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1ABC9C] focus-visible:ring-offset-2 disabled:opacity-50 ${
+      checked ? 'bg-[#1ABC9C]' : 'bg-gray-300'
+    }`}
+  >
+    <span
+      className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+        checked ? 'translate-x-5' : 'translate-x-0.5'
+      }`}
+    />
+  </button>
+);
+
+const Detail = ({ label, value }) => (
+  <div className="min-w-0">
+    <dt className="text-xs text-gray-400">{label}</dt>
+    <dd className="mt-1 truncate text-sm font-medium text-gray-900">{value}</dd>
+  </div>
+);
+
+const TipList = ({ title, items }) => (
+  <div>
+    <h3 className="mb-3 text-sm font-semibold text-gray-900">{title}</h3>
+    <ul className="space-y-2">
+      {items.map((item) => (
+        <li key={item} className="flex items-start gap-2 text-sm text-gray-500">
+          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#1ABC9C]" aria-hidden="true" />
+          {item}
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 export default CompanyQRCode;
