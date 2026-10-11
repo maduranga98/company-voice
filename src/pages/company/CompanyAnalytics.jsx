@@ -13,6 +13,7 @@ import { hrCaseScope } from "../../utils/caseVisibility";
 import {
   PostStatus,
   PostPriority,
+  PostPriorityConfig,
 } from "../../utils/constants";
 import { getDepartments, getDepartmentStats } from "../../services/departmentservice";
 import {
@@ -20,6 +21,18 @@ import {
   exportToCSV,
   downloadCSV,
 } from "../../utils/analyticsHelpers";
+import { StatusBadge, PriorityBadge } from "../../components/case/CaseBadges";
+import {
+  ArrowLeft,
+  FileText,
+  MessagesSquare,
+  Users,
+  Download,
+  ChevronDown,
+  TrendingUp,
+  Trophy,
+  Info,
+} from "lucide-react";
 
 const CompanyAnalytics = () => {
   const { userData } = useAuth();
@@ -355,44 +368,17 @@ const CompanyAnalytics = () => {
     }));
   };
 
-  const getStatusLabel = (status) => {
-    const labels = {
-      [PostStatus.OPEN]: "Open",
-      [PostStatus.ACKNOWLEDGED]: "Acknowledged",
-      [PostStatus.IN_PROGRESS]: "In Progress",
-      [PostStatus.WORKING_ON]: "Working On",
-      [PostStatus.UNDER_REVIEW]: "Under Review",
-      [PostStatus.RESOLVED]: "Resolved",
-      [PostStatus.CLOSED]: "Closed",
-      [PostStatus.REJECTED]: "Rejected",
-    };
-    return labels[status] || status;
-  };
-
-  const getPriorityLabel = (priority) => {
-    const labels = {
-      [PostPriority.CRITICAL]: "Critical",
-      [PostPriority.HIGH]: "High",
-      [PostPriority.MEDIUM]: "Medium",
-      [PostPriority.LOW]: "Low",
-    };
-    return labels[priority] || priority;
-  };
-
-  const getPriorityColor = (priority) => {
-    const colors = {
-      [PostPriority.CRITICAL]: "bg-red-100 text-red-800",
-      [PostPriority.HIGH]: "bg-orange-100 text-orange-800",
-      [PostPriority.MEDIUM]: "bg-yellow-100 text-yellow-800",
-      [PostPriority.LOW]: "bg-green-100 text-green-800",
-    };
-    return colors[priority] || "bg-gray-100 text-gray-800";
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="space-y-6 lg:space-y-8" aria-busy="true">
+        <div className="h-16 w-64 animate-pulse rounded-xl bg-gray-200/60" />
+        <div className="h-24 animate-pulse rounded-2xl bg-gray-200/60" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-28 animate-pulse rounded-2xl bg-gray-200/60" />
+          ))}
+        </div>
+        <div className="h-72 animate-pulse rounded-2xl bg-gray-200/60" />
       </div>
     );
   }
@@ -409,80 +395,74 @@ const CompanyAnalytics = () => {
   };
 
   const getHappinessColor = (score) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-blue-600";
-    if (score >= 40) return "text-yellow-600";
+    if (score >= 80) return "text-emerald-600";
+    if (score >= 60) return "text-brand-600";
+    if (score >= 40) return "text-amber-600";
     if (score >= 20) return "text-orange-600";
-    return "text-red-600";
+    return "text-rose-600";
+  };
+
+  const getHappinessBar = (score) => {
+    if (score >= 80) return "bg-emerald-500";
+    if (score >= 60) return "bg-brand-500";
+    if (score >= 40) return "bg-amber-500";
+    if (score >= 20) return "bg-orange-500";
+    return "bg-rose-500";
   };
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8">
+    <div className="space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <button
-          onClick={() => navigate("/company/dashboard")}
-          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <button
+            onClick={() => navigate("/company/dashboard")}
+            className="mb-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-500 transition hover:text-ink"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          {t("common.back")}
-        </button>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Analytics Dashboard
-        </h1>
-        <p className="text-gray-600">
-          Comprehensive insights into your company's engagement and performance
-        </p>
+            <ArrowLeft size={14} />
+            {t("common.back")}
+          </button>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink lg:text-3xl">
+            Analytics
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Engagement and performance across your company
+          </p>
+        </div>
       </div>
 
       {/* Controls: Date Filter & Export */}
-      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-6">
+      <section className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
         <div className="flex flex-wrap items-end gap-4">
           {/* Date Range Filter */}
-          <div className="flex-1 min-w-[300px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date Range Filter
+          <div className="min-w-[300px] flex-1">
+            <label className="mb-2 block text-[13px] font-medium text-gray-600">
+              Date range filter
             </label>
-            <div className="flex gap-2 items-end">
-              <div>
-                <input
-                  type="date"
-                  value={dateFilter.startDate}
-                  onChange={(e) =>
-                    setDateFilter((prev) => ({
-                      ...prev,
-                      startDate: e.target.value,
-                    }))
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <span className="text-gray-600">to</span>
-              <div>
-                <input
-                  type="date"
-                  value={dateFilter.endDate}
-                  onChange={(e) =>
-                    setDateFilter((prev) => ({
-                      ...prev,
-                      endDate: e.target.value,
-                    }))
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="date"
+                value={dateFilter.startDate}
+                onChange={(e) =>
+                  setDateFilter((prev) => ({
+                    ...prev,
+                    startDate: e.target.value,
+                  }))
+                }
+                className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              />
+              <span className="text-sm text-gray-500">to</span>
+              <input
+                type="date"
+                value={dateFilter.endDate}
+                onChange={(e) =>
+                  setDateFilter((prev) => ({
+                    ...prev,
+                    endDate: e.target.value,
+                  }))
+                }
+                className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100"
+              />
               <button
                 onClick={() =>
                   setDateFilter((prev) => ({
@@ -491,9 +471,9 @@ const CompanyAnalytics = () => {
                   }))
                 }
                 disabled={!dateFilter.startDate || !dateFilter.endDate}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium transition"
+                className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-gray-300"
               >
-                Apply Filter
+                Apply filter
               </button>
               {dateFilter.enabled && (
                 <button
@@ -504,9 +484,9 @@ const CompanyAnalytics = () => {
                       enabled: false,
                     })
                   }
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium transition"
+                  className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-200"
                 >
-                  Clear Filter
+                  Clear
                 </button>
               )}
             </div>
@@ -522,41 +502,30 @@ const CompanyAnalytics = () => {
                   `analytics-report-${new Date().toISOString().split("T")[0]}.csv`
                 );
               }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition flex items-center gap-2"
+              className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-ink-soft"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Export Full Report
+              <Download size={16} />
+              Export full report
             </button>
             <div className="relative">
               <button
                 onClick={() => setShowExportDropdown((prev) => !prev)}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium transition"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-background-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
               >
-                Export Options ▾
+                More
+                <ChevronDown size={15} />
               </button>
               {showExportDropdown && (
-                <div className="absolute right-0 mt-2 w-56 bg-background-white rounded-lg shadow-xl border border-gray-200 py-1 z-10">
+                <div className="absolute right-0 z-10 mt-2 w-56 rounded-xl border border-gray-200/70 bg-background-white py-1 shadow-lg">
                   <button
                     onClick={() => {
                       const csvContent = exportToCSV(analytics, "overview");
                       downloadCSV(csvContent, `overview-${new Date().toISOString().split("T")[0]}.csv`);
                       setShowExportDropdown(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    Export Overview
+                    Export overview
                   </button>
                   <button
                     onClick={() => {
@@ -564,9 +533,9 @@ const CompanyAnalytics = () => {
                       downloadCSV(csvContent, `user-engagement-${new Date().toISOString().split("T")[0]}.csv`);
                       setShowExportDropdown(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    Export User Engagement
+                    Export user engagement
                   </button>
                   <button
                     onClick={() => {
@@ -574,9 +543,9 @@ const CompanyAnalytics = () => {
                       downloadCSV(csvContent, `departments-${new Date().toISOString().split("T")[0]}.csv`);
                       setShowExportDropdown(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    Export Department Performance
+                    Export department performance
                   </button>
                 </div>
               )}
@@ -585,213 +554,150 @@ const CompanyAnalytics = () => {
         </div>
 
         {dateFilter.enabled && (
-          <div className="mt-4 text-sm text-blue-600">
+          <div className="mt-4 text-[13px] font-medium text-brand-700">
             Showing data from {new Date(dateFilter.startDate).toLocaleDateString()} to{" "}
             {new Date(dateFilter.endDate).toLocaleDateString()}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Posts</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
-                {analytics.overview.totalPosts}
-              </p>
-            </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-4 shadow-xs lg:p-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+            <FileText size={18} />
           </div>
+          <p className="tabular mt-4 text-3xl font-semibold tracking-tight text-ink">
+            {analytics.overview.totalPosts}
+          </p>
+          <p className="mt-1 text-[13px] font-medium text-gray-500">Total posts</p>
         </div>
 
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Comments</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">
-                {analytics.overview.totalComments}
-              </p>
-            </div>
-            <div className="bg-purple-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-            </div>
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-4 shadow-xs lg:p-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+            <MessagesSquare size={18} />
           </div>
+          <p className="tabular mt-4 text-3xl font-semibold tracking-tight text-ink">
+            {analytics.overview.totalComments}
+          </p>
+          <p className="mt-1 text-[13px] font-medium text-gray-500">Total comments</p>
         </div>
 
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Active Users</p>
-              <p className="text-3xl font-bold text-green-600 mt-1">
-                {analytics.overview.activeUsers}
-              </p>
-            </div>
-            <div className="bg-green-100 rounded-full p-3">
-              <svg
-                className="w-6 h-6 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
-            </div>
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-4 shadow-xs lg:p-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <Users size={18} />
           </div>
+          <p className="tabular mt-4 text-3xl font-semibold tracking-tight text-ink">
+            {analytics.overview.activeUsers}
+          </p>
+          <p className="mt-1 text-[13px] font-medium text-gray-500">Active users</p>
         </div>
 
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-sm p-6 text-white">
-          <div>
-            <p className="text-sm font-medium text-blue-100">Resolution Rate</p>
-            <p className="text-3xl font-bold mt-1">{analytics.resolutionRate}%</p>
+        <div className="bg-gradient-primary rounded-2xl p-4 text-white shadow-sm lg:p-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
+            <TrendingUp size={18} />
           </div>
+          <p className="tabular mt-4 text-3xl font-semibold tracking-tight">
+            {analytics.resolutionRate}%
+          </p>
+          <p className="mt-1 text-[13px] font-medium text-white/80">Resolution rate</p>
         </div>
-      </div>
+      </section>
 
       {/* Employee Happiness Indicator */}
-      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-8">
-        <div className="flex items-center justify-between mb-4">
+      <section className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Employee Happiness Indicator
+            <h3 className="text-base font-semibold text-ink">
+              Employee happiness indicator
             </h3>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="mt-0.5 text-[13px] text-gray-500">
               Based on resolution rate, engagement, and response time
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-6xl">{getHappinessEmoji(analytics.happinessScore)}</span>
+            <span className="text-5xl">{getHappinessEmoji(analytics.happinessScore)}</span>
             <div className="text-center">
-              <p className={`text-5xl font-bold ${getHappinessColor(analytics.happinessScore)}`}>
+              <p className={`text-4xl font-semibold tabular ${getHappinessColor(analytics.happinessScore)}`}>
                 {analytics.happinessScore}
               </p>
-              <p className="text-sm text-gray-500">out of 100</p>
+              <p className="text-xs text-gray-400">out of 100</p>
             </div>
           </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+        <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-gray-100">
           <div
-            className={`h-4 rounded-full transition-all duration-500 ${
-              analytics.happinessScore >= 80
-                ? "bg-green-500"
-                : analytics.happinessScore >= 60
-                ? "bg-blue-500"
-                : analytics.happinessScore >= 40
-                ? "bg-yellow-500"
-                : analytics.happinessScore >= 20
-                ? "bg-orange-500"
-                : "bg-red-500"
-            }`}
+            className={`h-3 rounded-full transition-all duration-500 ${getHappinessBar(analytics.happinessScore)}`}
             style={{ width: `${analytics.happinessScore}%` }}
-          ></div>
+          />
         </div>
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Resolution</p>
-            <p className="text-xl font-bold text-gray-900">{analytics.resolutionRate}%</p>
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-gray-50 p-3 text-center">
+            <p className="text-[13px] text-gray-500">Resolution</p>
+            <p className="tabular text-lg font-semibold text-ink">{analytics.resolutionRate}%</p>
           </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Engagement</p>
-            <p className="text-xl font-bold text-gray-900">
+          <div className="rounded-xl bg-gray-50 p-3 text-center">
+            <p className="text-[13px] text-gray-500">Engagement</p>
+            <p className="tabular text-lg font-semibold text-ink">
               {((analytics.overview.totalComments / Math.max(analytics.overview.totalPosts, 1)) * 10).toFixed(1)}/10
             </p>
           </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Response Time</p>
-            <p className="text-xl font-bold text-gray-900">{analytics.responseTimeAvg}h</p>
+          <div className="rounded-xl bg-gray-50 p-3 text-center">
+            <p className="text-[13px] text-gray-500">Response time</p>
+            <p className="tabular text-lg font-semibold text-ink">{analytics.responseTimeAvg}h</p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Average Response Time
-          </h3>
-          <div className="flex items-baseline">
-            <p className="text-4xl font-bold text-indigo-600">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+          <h3 className="text-base font-semibold text-ink">Average response time</h3>
+          <div className="mt-3 flex items-baseline">
+            <p className="tabular text-4xl font-semibold text-ink">
               {analytics.responseTimeAvg}
             </p>
-            <span className="ml-2 text-gray-600">hours</span>
+            <span className="ml-2 text-gray-500">hours</span>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="mt-2 text-[13px] text-gray-500">
             Time to first admin response on posts
           </p>
         </div>
 
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Engagement Score
-          </h3>
-          <div className="flex items-baseline">
-            <p className="text-4xl font-bold text-purple-600">
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+          <h3 className="text-base font-semibold text-ink">Engagement score</h3>
+          <div className="mt-3 flex items-baseline">
+            <p className="tabular text-4xl font-semibold text-ink">
               {(
                 (analytics.overview.totalComments /
                   Math.max(analytics.overview.totalPosts, 1)) *
                 10
               ).toFixed(1)}
             </p>
-            <span className="ml-2 text-gray-600">/ 10</span>
+            <span className="ml-2 text-gray-500">/ 10</span>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="mt-2 text-[13px] text-gray-500">
             Comments per post ratio indicator
           </p>
         </div>
-      </div>
+      </section>
 
       {/* Posts Breakdown */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
         {/* By Status */}
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Posts by Status
-          </h3>
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+          <h3 className="mb-4 text-base font-semibold text-ink">Posts by status</h3>
           <div className="space-y-3">
             {Object.entries(analytics.postsByStatus)
               .filter(([, count]) => count > 0)
               .slice(0, 6)
               .map(([status, count]) => (
-                <div key={status} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">
-                    {getStatusLabel(status)}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
+                <div key={status} className="flex items-center justify-between gap-3">
+                  <StatusBadge status={status} />
+                  <div className="flex flex-1 items-center justify-end gap-2">
+                    <div className="h-2 w-24 rounded-full bg-gray-100">
                       <div
-                        className="bg-indigo-600 h-2 rounded-full"
+                        className="h-2 rounded-full bg-brand-500"
                         style={{
                           width: `${
                             (count /
@@ -801,7 +707,7 @@ const CompanyAnalytics = () => {
                         }}
                       ></div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 w-8 text-right">
+                    <span className="tabular w-8 text-right text-sm font-semibold text-ink">
                       {count}
                     </span>
                   </div>
@@ -811,28 +717,17 @@ const CompanyAnalytics = () => {
         </div>
 
         {/* By Priority */}
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Posts by Priority
-          </h3>
+        <div className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+          <h3 className="mb-4 text-base font-semibold text-ink">Posts by priority</h3>
           <div className="space-y-3">
             {Object.entries(analytics.postsByPriority).map(
               ([priority, count]) => (
-                <div
-                  key={priority}
-                  className="flex items-center justify-between"
-                >
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded ${getPriorityColor(
-                      priority
-                    )}`}
-                  >
-                    {getPriorityLabel(priority)}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
+                <div key={priority} className="flex items-center justify-between gap-3">
+                  <PriorityBadge priority={priority} />
+                  <div className="flex flex-1 items-center justify-end gap-2">
+                    <div className="h-2 w-24 rounded-full bg-gray-100">
                       <div
-                        className="bg-purple-600 h-2 rounded-full"
+                        className={`h-2 rounded-full ${PostPriorityConfig[priority]?.badgeBg || "bg-gray-400"}`}
                         style={{
                           width: `${
                             (count /
@@ -842,7 +737,7 @@ const CompanyAnalytics = () => {
                         }}
                       ></div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 w-8 text-right">
+                    <span className="tabular w-8 text-right text-sm font-semibold text-ink">
                       {count}
                     </span>
                   </div>
@@ -851,80 +746,83 @@ const CompanyAnalytics = () => {
             )}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Department Comparison */}
       {analytics.departmentStats.length > 0 && (
-        <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Department Comparison
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Compare performance metrics across departments
-          </p>
+        <section className="overflow-hidden rounded-2xl border border-gray-200/70 bg-background-white shadow-xs">
+          <div className="border-b border-gray-100 px-5 py-4 lg:px-6">
+            <h3 className="text-base font-semibold text-ink">Department comparison</h3>
+            <p className="mt-0.5 text-[13px] text-gray-500">
+              Compare performance metrics across departments
+            </p>
+          </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50/80">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
                     Department
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
                     Members
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Posts
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
+                    Total posts
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
                     Resolved
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
                     Pending
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Resolution Rate
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
+                    Resolution rate
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-background-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {analytics.departmentStats
                   .sort((a, b) => b.totalPosts - a.totalPosts)
                   .map((dept) => (
-                    <tr key={dept.id} className="hover:bg-gray-50 transition cursor-pointer"
-                        onClick={() => navigate(`/departments/${dept.id}`)}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <span className="text-2xl mr-3">{dept.icon}</span>
-                          <span className="text-sm font-medium text-gray-900">
+                    <tr
+                      key={dept.id}
+                      className="cursor-pointer transition hover:bg-gray-50"
+                      onClick={() => navigate(`/departments/${dept.id}`)}
+                    >
+                      <td className="whitespace-nowrap px-5 py-4 lg:px-6">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{dept.icon}</span>
+                          <span className="text-sm font-semibold text-ink">
                             {dept.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-600 lg:px-6">
                         {dept.memberCount}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-600 lg:px-6">
                         {dept.totalPosts}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">
+                      <td className="whitespace-nowrap px-5 py-4 lg:px-6">
+                        <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
                           {dept.resolvedIssues}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                      <td className="whitespace-nowrap px-5 py-4 lg:px-6">
+                        <span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700">
                           {dept.pendingIssues}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                      <td className="whitespace-nowrap px-5 py-4 lg:px-6">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-16 rounded-full bg-gray-100">
                             <div
-                              className="bg-blue-600 h-2 rounded-full"
+                              className="h-2 rounded-full bg-brand-500"
                               style={{ width: `${dept.resolutionRate}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="tabular text-sm font-semibold text-ink">
                             {dept.resolutionRate}%
                           </span>
                         </div>
@@ -934,44 +832,42 @@ const CompanyAnalytics = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
       )}
 
       {/* Trends Chart */}
-      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80 mb-8">
-        <div className="flex items-center justify-between mb-4">
+      <section className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Post Activity Trends
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
+            <h3 className="text-base font-semibold text-ink">Post activity trends</h3>
+            <p className="mt-0.5 text-[13px] text-gray-500">
               Track post creation patterns over time
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setTrendPeriod("7")}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${
                 trendPeriod === "7"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-brand-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              7 Days
+              7 days
             </button>
             <button
               onClick={() => setTrendPeriod("30")}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${
                 trendPeriod === "30"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-brand-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              30 Days
+              30 days
             </button>
           </div>
         </div>
-        <div className="h-64 flex items-end justify-between gap-1">
+        <div className="mt-5 flex h-64 items-end justify-between gap-1">
           {trendData.map((data, index) => {
             const height = (data.count / maxTrendValue) * 100;
             const isWeekend =
@@ -980,15 +876,15 @@ const CompanyAnalytics = () => {
             return (
               <div
                 key={index}
-                className="flex-1 flex flex-col items-center justify-end group relative"
+                className="group relative flex flex-1 flex-col items-center justify-end"
               >
                 <div
-                  className={`w-full ${
-                    isWeekend ? "bg-indigo-300" : "bg-indigo-600"
-                  } rounded-t hover:bg-indigo-700 transition-all cursor-pointer`}
+                  className={`w-full rounded-t transition-all ${
+                    isWeekend ? "bg-brand-200" : "bg-brand-500"
+                  } cursor-pointer hover:bg-brand-600`}
                   style={{ height: `${height}%`, minHeight: data.count > 0 ? "4px" : "0" }}
                 ></div>
-                <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                <div className="absolute bottom-full mb-2 hidden whitespace-nowrap rounded-lg bg-ink px-2 py-1 text-xs text-white group-hover:block">
                   {new Date(data.date).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -999,73 +895,60 @@ const CompanyAnalytics = () => {
             );
           })}
         </div>
-        <div className="flex justify-between mt-4 text-xs text-gray-500">
+        <div className="mt-4 flex justify-between text-xs text-gray-400">
           <span>{trendPeriod} days ago</span>
           <span>Today</span>
         </div>
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <div className="flex items-start gap-3">
-            <svg
-              className="w-5 h-5 text-blue-600 mt-0.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900">Trend Insights</p>
-              <p className="text-sm text-blue-700 mt-1">
-                {trendData.reduce((sum, d) => sum + d.count, 0)} total posts in the last {trendPeriod} days.
-                Average: {(trendData.reduce((sum, d) => sum + d.count, 0) / trendData.length).toFixed(1)} posts/day
-              </p>
-            </div>
+        <div className="mt-4 flex items-start gap-3 rounded-xl bg-brand-50 p-4">
+          <Info size={18} className="mt-0.5 flex-shrink-0 text-brand-600" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-brand-800">Trend insights</p>
+            <p className="mt-1 text-sm text-brand-700">
+              {trendData.reduce((sum, d) => sum + d.count, 0)} total posts in the last {trendPeriod} days.
+              Average: {(trendData.reduce((sum, d) => sum + d.count, 0) / trendData.length).toFixed(1)} posts/day
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Top Contributors */}
-      <div className="bg-background-white rounded-xl shadow-sm p-6 border border-gray-200/80">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Top Contributors (Most Active)
+      <section className="rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6">
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-ink">
+          <Trophy size={17} className="text-amber-500" />
+          Top contributors
         </h3>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {analytics.userEngagement.map((user, index) => (
             <div
               key={user.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              className="flex items-center justify-between rounded-xl bg-gray-50 p-3"
             >
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-bold text-white">
                   {index + 1}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{user.name}</p>
+                  <p className="text-sm font-semibold text-ink">{user.name}</p>
                   <p className="text-xs text-gray-500">
                     {user.posts} posts • {user.comments} comments
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold text-indigo-600">
+                <p className="tabular text-lg font-semibold text-brand-600">
                   {user.total}
                 </p>
-                <p className="text-xs text-gray-500">activities</p>
+                <p className="text-xs text-gray-400">activities</p>
               </div>
             </div>
           ))}
           {analytics.userEngagement.length === 0 && (
-            <p className="text-center text-gray-500 py-8">
+            <p className="py-8 text-center text-sm text-gray-500">
               No user activity data available yet
             </p>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 };
