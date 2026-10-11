@@ -58,7 +58,8 @@
     "profile": "Perfil",
     "notifications": "Notificaciones",
     "settings": "Configuración",
-    "home": "Inicio"
+    "home": "Inicio",
+    "caseOverview": "Resumen de casos"
   },
   "company": {
     "dashboard": "Panel de la Empresa",
@@ -487,6 +488,46 @@
       "noteAdded": "{{actor}} añadió una nota interna",
       "reviewed": "{{actor}} revisó: {{action}}",
       "other": "{{actor}}: {{type}}"
+    }
+  },
+  "caseOverview": {
+    "title": "Resumen de casos",
+    "subtitle": "Todo lo abierto en informes, riesgo de proveedores y moderación",
+    "refresh": "Actualizar",
+    "untitled": "Caso sin título",
+    "unassigned": "Sin asignar",
+    "open": "Abiertos",
+    "overdue": "Vencidos",
+    "atRisk": "En riesgo",
+    "allTypes": "Todos",
+    "mine": "Asignados a mí",
+    "view": "Vista",
+    "list": "Vista de lista",
+    "board": "Vista de tablero",
+    "emptyTitle": "Nada requiere atención",
+    "emptyBody": "No hay casos abiertos con estos filtros.",
+    "partialFailure": "No se pudieron cargar algunos casos: {{types}}.",
+    "truncated": "Se muestran hasta 500 casos por origen.",
+    "timersMet": "Plazos de la Directiva cumplidos",
+    "sla": {
+      "dueIn_one": "{{label}}: vence en {{count}} día",
+      "dueIn_other": "{{label}}: vence en {{count}} días",
+      "dueToday": "{{label}}: vence hoy",
+      "overdueBy_one": "{{label}}: vencido hace {{count}} día",
+      "overdueBy_other": "{{label}}: vencido hace {{count}} días",
+      "overdue": "{{label}}: vencido",
+      "label": {
+        "acknowledge": "Acuse de recibo",
+        "feedback": "Respuesta"
+      },
+      "assigned": {
+        "dueIn_one": "Vence en {{count}} día",
+        "dueIn_other": "Vence en {{count}} días",
+        "dueToday": "Vence hoy",
+        "overdueBy_one": "Vencido hace {{count}} día",
+        "overdueBy_other": "Vencido hace {{count}} días",
+        "overdue": "Vencido"
+      }
     }
   },
   "guidance": {
