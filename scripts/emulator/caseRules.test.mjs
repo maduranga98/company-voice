@@ -4,7 +4,7 @@
 // with the Firestore emulator on 127.0.0.1:8085. Writes use the exact payload shapes caseService.js sends.
 import { initializeTestEnvironment, assertSucceeds, assertFails } from "@firebase/rules-unit-testing";
 import { readFileSync } from "fs";
-import { setDoc, doc, updateDoc, addDoc, collection, getDocs, query, where, Timestamp, getDoc } from "firebase/firestore";
+import { setDoc, doc, updateDoc, deleteDoc, addDoc, collection, getDocs, query, where, Timestamp, getDoc } from "firebase/firestore";
 
 const env = await initializeTestEnvironment({
   projectId: "demo-test",
@@ -78,6 +78,25 @@ await t("overview: vendorReports company query ok", assertSucceeds(getDocs(query
 await t("overview: contentReports company query ok", assertSucceeds(getDocs(query(collection(hr, "contentReports"), where("companyId", "==", "c1")))));
 await t("overview: anonymousThreads company query (HR) ok", assertSucceeds(getDocs(query(collection(hr, "anonymousThreads"), where("companyId", "==", "c1")))));
 await t("overview: other company cannot read vendorReports", assertFails(getDocs(query(collection(hrOther, "vendorReports"), where("companyId", "==", "c1")))));
+
+// --- phase D routing rules
+const ca1 = env.authenticatedContext("ca1", { role: "company_admin", companyId: "c1" }).firestore();
+const ca2 = env.authenticatedContext("ca2", { role: "company_admin", companyId: "c2" }).firestore();
+const goodRule = { name: "Critical to legal", enabled: true, order: 1, conditions: { priorities: ["critical"], categories: ["safety"] }, action: { type: "department", id: "d1", name: "Legal" }, createdAt: Timestamp.now(), updatedAt: Timestamp.now(), createdBy: "ca1" };
+await t("routing: company_admin creates a valid rule", assertSucceeds(setDoc(doc(ca1, "companies/c1/routingRules/r1"), goodRule)));
+await t("routing: empty conditions ok", assertSucceeds(setDoc(doc(ca1, "companies/c1/routingRules/r2"), { ...goodRule, conditions: {}, action: { type: "userTag", id: "t1", name: "T" } })));
+await t("routing: hr cannot write rules", assertFails(setDoc(doc(hr, "companies/c1/routingRules/r3"), goodRule)));
+await t("routing: hr can read rules", assertSucceeds(getDocs(collection(hr, "companies/c1/routingRules"))));
+await t("routing: other company admin cannot write", assertFails(setDoc(doc(ca2, "companies/c1/routingRules/r4"), goodRule)));
+await t("routing: other company cannot read", assertFails(getDocs(collection(hrOther, "companies/c1/routingRules"))));
+await t("routing: bad action type rejected", assertFails(setDoc(doc(ca1, "companies/c1/routingRules/r5"), { ...goodRule, action: { type: "robot", id: "x", name: "x" } })));
+await t("routing: unknown field rejected", assertFails(setDoc(doc(ca1, "companies/c1/routingRules/r6"), { ...goodRule, evil: true })));
+await t("routing: unknown condition key rejected", assertFails(setDoc(doc(ca1, "companies/c1/routingRules/r7"), { ...goodRule, conditions: { everything: ["x"] } })));
+await t("routing: non-list condition rejected", assertFails(setDoc(doc(ca1, "companies/c1/routingRules/r8"), { ...goodRule, conditions: { priorities: "critical" } })));
+await t("routing: empty name rejected", assertFails(setDoc(doc(ca1, "companies/c1/routingRules/r9"), { ...goodRule, name: "" })));
+await t("routing: update (toggle) ok", assertSucceeds(updateDoc(doc(ca1, "companies/c1/routingRules/r1"), { enabled: false, updatedAt: Timestamp.now() })));
+await t("routing: routingState is server-only", assertFails(setDoc(doc(ca1, "companies/c1/routingState/r1"), { cursor: 5 })));
+await t("routing: admin deletes rule", assertSucceeds(deleteDoc(doc(ca1, "companies/c1/routingRules/r2"))));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 await env.cleanup();

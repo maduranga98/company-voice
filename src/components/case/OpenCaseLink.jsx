@@ -9,7 +9,7 @@ const OpenCaseLink = ({ caseType, caseId, className = "", variant = "light" }) =
   const { t } = useTranslation();
   const tone =
     variant === "dark"
-      ? "bg-white/10 text-white hover:bg-white/20"
+      ? "bg-background-white/10 text-white hover:bg-background-white/20"
       : "bg-gray-100 text-gray-600 hover:bg-gray-200";
   return (
     <Link

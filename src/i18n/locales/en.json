@@ -77,7 +77,8 @@
     "analytics": "Analytics",
     "content": "Content",
     "management": "Management",
-    "caseOverview": "Case Overview"
+    "caseOverview": "Case Overview",
+    "routingRules": "Routing rules"
   },
   "company": {
     "dashboard": "Company Dashboard",
@@ -1462,6 +1463,82 @@
       "invalid": "Please check the details and try again.",
       "forbidden": "You are not allowed to do that.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "routingRules": {
+    "title": "Routing rules",
+    "subtitle": "Automatically assign new cases. Rules run top to bottom and the first match wins. Anyone can still reassign a case afterwards.",
+    "addRule": "Add rule",
+    "privacyNote": "Reports flagged as involving HR are only ever auto-assigned to company admins, never to HR staff.",
+    "newRule": "New rule",
+    "editRule": "Edit rule",
+    "name": "Rule name",
+    "namePlaceholder": "e.g. Safety reports to Legal",
+    "when": "When a new case",
+    "caseTypes": "Case type",
+    "priorities": "Priority",
+    "categories": "Category",
+    "sources": "Source",
+    "departments": "Department",
+    "any": "any",
+    "conditionHint": "A case must match every group you pick; any one choice inside a group is enough. Leave a group empty to ignore it.",
+    "assignTo": "Assign to",
+    "target": "Target",
+    "chooseTarget": "Choose…",
+    "everyCase": "Every new case",
+    "emptyTitle": "No routing rules yet",
+    "emptyBody": "New cases stay unassigned until someone picks them up.",
+    "loadFailed": "Could not load routing rules",
+    "saveFailed": "Could not save the rule",
+    "saved": "Rule saved",
+    "deleted": "Rule deleted",
+    "confirmDelete": "Delete this rule? Cases already assigned are not changed.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "enabled": "Enabled",
+    "caseType": {
+      "post": "Reports & posts",
+      "vendor": "Vendor risk",
+      "moderation": "Moderation"
+    },
+    "priority": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "source": {
+      "public_link": "Report link",
+      "policy_link": "Policy link",
+      "internal": "Internal"
+    },
+    "action": {
+      "user": "Person",
+      "userTag": "Tag (rotating)",
+      "department": "Department"
+    },
+    "actionHint": {
+      "user": "Always this person (must be active HR or admin).",
+      "userTag": "Rotates through active HR/admin members holding this tag.",
+      "department": "Assigns the department; someone there picks it up."
+    },
+    "category": {
+      "harassment": "Harassment",
+      "discrimination": "Discrimination",
+      "safety": "Safety",
+      "fraud_ethics": "Fraud & ethics",
+      "management": "Management",
+      "workplace_conditions": "Workplace conditions",
+      "pay_benefits": "Pay & benefits",
+      "labor": "Labor practices",
+      "data_privacy": "Data privacy",
+      "fraud": "Fraud or corruption",
+      "compliance": "Regulatory compliance",
+      "inappropriate": "Inappropriate",
+      "spam": "Spam",
+      "false_info": "False information",
+      "violence": "Violence",
+      "other": "Other"
     }
   }
 }

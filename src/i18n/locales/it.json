@@ -77,7 +77,8 @@
     "analytics": "Analitiche",
     "content": "Contenuto",
     "management": "Gestione",
-    "caseOverview": "Panoramica casi"
+    "caseOverview": "Panoramica casi",
+    "routingRules": "Regole di assegnazione"
   },
   "company": {
     "dashboard": "Pannello Aziendale",
@@ -1462,6 +1463,82 @@
       "invalid": "Controlla i dati e riprova.",
       "forbidden": "Non hai il permesso di farlo.",
       "generic": "Qualcosa è andato storto. Riprova."
+    }
+  },
+  "routingRules": {
+    "title": "Regole di assegnazione",
+    "subtitle": "Assegna automaticamente i nuovi casi. Le regole vengono valutate dall'alto in basso e vince la prima che corrisponde. Chiunque può poi riassegnare un caso.",
+    "addRule": "Aggiungi regola",
+    "privacyNote": "Le segnalazioni che coinvolgono le risorse umane vengono assegnate automaticamente solo agli amministratori dell'azienda, mai al personale HR.",
+    "newRule": "Nuova regola",
+    "editRule": "Modifica regola",
+    "name": "Nome della regola",
+    "namePlaceholder": "es. Segnalazioni sicurezza all'ufficio legale",
+    "when": "Quando un nuovo caso",
+    "caseTypes": "Tipo di caso",
+    "priorities": "Priorità",
+    "categories": "Categoria",
+    "sources": "Origine",
+    "departments": "Reparto",
+    "any": "qualsiasi",
+    "conditionHint": "Un caso deve corrispondere a ogni gruppo scelto; basta una scelta per gruppo. Lascia vuoto un gruppo per ignorarlo.",
+    "assignTo": "Assegna a",
+    "target": "Destinazione",
+    "chooseTarget": "Scegli…",
+    "everyCase": "Ogni nuovo caso",
+    "emptyTitle": "Nessuna regola di assegnazione",
+    "emptyBody": "I nuovi casi restano non assegnati finché qualcuno non li prende in carico.",
+    "loadFailed": "Impossibile caricare le regole",
+    "saveFailed": "Impossibile salvare la regola",
+    "saved": "Regola salvata",
+    "deleted": "Regola eliminata",
+    "confirmDelete": "Eliminare questa regola? I casi già assegnati non cambiano.",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "enabled": "Attiva",
+    "caseType": {
+      "post": "Segnalazioni e post",
+      "vendor": "Rischio fornitori",
+      "moderation": "Moderazione"
+    },
+    "priority": {
+      "critical": "Critica",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Bassa"
+    },
+    "source": {
+      "public_link": "Link di segnalazione",
+      "policy_link": "Link della policy",
+      "internal": "Interno"
+    },
+    "action": {
+      "user": "Persona",
+      "userTag": "Tag (a rotazione)",
+      "department": "Reparto"
+    },
+    "actionHint": {
+      "user": "Sempre questa persona (HR o amministratore attivo).",
+      "userTag": "Ruota tra i membri HR/amministratori attivi con questo tag.",
+      "department": "Assegna il reparto; qualcuno lì lo prende in carico."
+    },
+    "category": {
+      "harassment": "Molestie",
+      "discrimination": "Discriminazione",
+      "safety": "Sicurezza",
+      "fraud_ethics": "Frode ed etica",
+      "management": "Gestione",
+      "workplace_conditions": "Condizioni di lavoro",
+      "pay_benefits": "Retribuzione e benefit",
+      "labor": "Pratiche di lavoro",
+      "data_privacy": "Privacy dei dati",
+      "fraud": "Frode o corruzione",
+      "compliance": "Conformità normativa",
+      "inappropriate": "Inappropriato",
+      "spam": "Spam",
+      "false_info": "Informazioni false",
+      "violence": "Violenza",
+      "other": "Altro"
     }
   }
 }

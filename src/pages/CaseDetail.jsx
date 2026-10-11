@@ -29,7 +29,7 @@ const toDate = (value) => {
 };
 
 const Card = ({ title, children }) => (
-  <section className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+  <section className="rounded-2xl border border-gray-100 bg-background-white shadow-sm">
     {title && (
       <h2 className="border-b border-gray-100 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
         {title}
@@ -323,7 +323,7 @@ const CaseDetail = () => {
         </div>
         <button
           onClick={copyLink}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-background-white px-3 py-1.5 text-sm text-gray-600 hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
         >
           <Link2 size={14} /> {t("caseDetail.copyLink")}
         </button>

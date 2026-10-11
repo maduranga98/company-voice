@@ -59,7 +59,8 @@
     "notifications": "Notificaciones",
     "settings": "Configuración",
     "home": "Inicio",
-    "caseOverview": "Resumen de casos"
+    "caseOverview": "Resumen de casos",
+    "routingRules": "Reglas de asignación"
   },
   "company": {
     "dashboard": "Panel de la Empresa",
@@ -1414,6 +1415,82 @@
       "invalid": "Revisa los datos e inténtalo de nuevo.",
       "forbidden": "No tienes permiso para hacer eso.",
       "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  },
+  "routingRules": {
+    "title": "Reglas de asignación",
+    "subtitle": "Asigna automáticamente los casos nuevos. Las reglas se evalúan de arriba abajo y gana la primera que coincide. Cualquiera puede reasignar un caso después.",
+    "addRule": "Añadir regla",
+    "privacyNote": "Los informes marcados como relacionados con RR. HH. solo se asignan automáticamente a administradores de la empresa, nunca al personal de RR. HH.",
+    "newRule": "Nueva regla",
+    "editRule": "Editar regla",
+    "name": "Nombre de la regla",
+    "namePlaceholder": "p. ej. Informes de seguridad a Legal",
+    "when": "Cuando un caso nuevo",
+    "caseTypes": "Tipo de caso",
+    "priorities": "Prioridad",
+    "categories": "Categoría",
+    "sources": "Origen",
+    "departments": "Departamento",
+    "any": "cualquiera",
+    "conditionHint": "Un caso debe cumplir todos los grupos que elijas; basta con una opción dentro de cada grupo. Deja un grupo vacío para ignorarlo.",
+    "assignTo": "Asignar a",
+    "target": "Destino",
+    "chooseTarget": "Elegir…",
+    "everyCase": "Cada caso nuevo",
+    "emptyTitle": "Aún no hay reglas de asignación",
+    "emptyBody": "Los casos nuevos quedan sin asignar hasta que alguien los tome.",
+    "loadFailed": "No se pudieron cargar las reglas",
+    "saveFailed": "No se pudo guardar la regla",
+    "saved": "Regla guardada",
+    "deleted": "Regla eliminada",
+    "confirmDelete": "¿Eliminar esta regla? Los casos ya asignados no cambian.",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "enabled": "Activada",
+    "caseType": {
+      "post": "Informes y publicaciones",
+      "vendor": "Riesgo de proveedores",
+      "moderation": "Moderación"
+    },
+    "priority": {
+      "critical": "Crítica",
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "source": {
+      "public_link": "Enlace de denuncia",
+      "policy_link": "Enlace de política",
+      "internal": "Interno"
+    },
+    "action": {
+      "user": "Persona",
+      "userTag": "Etiqueta (rotativa)",
+      "department": "Departamento"
+    },
+    "actionHint": {
+      "user": "Siempre esta persona (debe ser RR. HH. o administrador activo).",
+      "userTag": "Rota entre los miembros activos de RR. HH./administradores con esta etiqueta.",
+      "department": "Asigna el departamento; alguien de allí lo atiende."
+    },
+    "category": {
+      "harassment": "Acoso",
+      "discrimination": "Discriminación",
+      "safety": "Seguridad",
+      "fraud_ethics": "Fraude y ética",
+      "management": "Dirección",
+      "workplace_conditions": "Condiciones laborales",
+      "pay_benefits": "Salario y beneficios",
+      "labor": "Prácticas laborales",
+      "data_privacy": "Privacidad de datos",
+      "fraud": "Fraude o corrupción",
+      "compliance": "Cumplimiento normativo",
+      "inappropriate": "Inapropiado",
+      "spam": "Spam",
+      "false_info": "Información falsa",
+      "violence": "Violencia",
+      "other": "Otro"
     }
   }
 }

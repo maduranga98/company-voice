@@ -24,7 +24,7 @@ const Chip = ({ active, onClick, children }) => (
   <button
     onClick={onClick}
     className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-      active ? "bg-[#2D3E50] text-white" : "border border-gray-100 bg-white text-gray-500 hover:border-gray-200"
+      active ? "bg-[#2D3E50] text-white" : "border border-gray-100 bg-background-white text-gray-500 hover:border-gray-200"
     }`}
   >
     {children}
@@ -35,7 +35,7 @@ const Tile = ({ label, value, tone, active, onClick }) => (
   <button
     onClick={onClick}
     aria-pressed={active}
-    className={`rounded-xl border bg-white p-4 text-left transition-colors ${
+    className={`rounded-xl border bg-background-white p-4 text-left transition-colors ${
       active ? "border-[#1ABC9C]" : "border-gray-100 hover:border-gray-200"
     }`}
   >
@@ -76,7 +76,7 @@ const Deadlines = ({ item, now }) => (
 const ListRow = ({ item, now, t }) => (
   <Link
     to={caseHref(item.caseType, item.id)}
-    className="flex flex-col gap-2 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:border-[#1ABC9C] sm:flex-row sm:items-center"
+    className="flex flex-col gap-2 rounded-xl border border-gray-100 bg-background-white p-4 transition-colors hover:border-[#1ABC9C] sm:flex-row sm:items-center"
   >
     <div className="min-w-0 flex-1">
       <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -108,7 +108,7 @@ const ListRow = ({ item, now, t }) => (
 const BoardCard = ({ item, now }) => (
   <Link
     to={caseHref(item.caseType, item.id)}
-    className="block space-y-2 rounded-lg border border-gray-100 bg-white p-3 transition-colors hover:border-[#1ABC9C]"
+    className="block space-y-2 rounded-lg border border-gray-100 bg-background-white p-3 transition-colors hover:border-[#1ABC9C]"
   >
     <p className="line-clamp-2 text-sm font-medium text-[#2D3E50]">{item.title}</p>
     <div className="flex flex-wrap items-center gap-1.5">
@@ -261,7 +261,7 @@ const CaseOverview = () => {
           onClick={() => { setRefreshing(true); load(); }}
           disabled={refreshing}
           aria-label={t("caseOverview.refresh")}
-          className="rounded-lg border border-gray-100 bg-white p-2 text-gray-500 hover:border-gray-200 disabled:opacity-50"
+          className="rounded-lg border border-gray-100 bg-background-white p-2 text-gray-500 hover:border-gray-200 disabled:opacity-50"
         >
           <RefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
         </button>
@@ -299,7 +299,7 @@ const CaseOverview = () => {
           <Chip active={mineOnly} onClick={() => { setMineOnly((v) => !v); setUnassignedOnly(false); }}>
             {t("caseOverview.mine")}
           </Chip>
-          <div className="flex rounded-lg border border-gray-100 bg-white p-0.5" role="group" aria-label={t("caseOverview.view")}>
+          <div className="flex rounded-lg border border-gray-100 bg-background-white p-0.5" role="group" aria-label={t("caseOverview.view")}>
             <button
               onClick={() => changeView("list")}
               aria-pressed={view === "list"}
