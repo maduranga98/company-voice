@@ -380,6 +380,21 @@
     "confirmDelete": "¿Estás seguro de que deseas eliminar esta publicación?",
     "saving": "Guardando..."
   },
+  "hrInbox": {
+    "subtitle": "Publicaciones enviadas directamente a RR. HH.",
+    "all": "Todas",
+    "open": "Abiertas",
+    "inProgress": "En curso",
+    "resolved": "Resueltas",
+    "total": "Total",
+    "empty": "Aún no hay publicaciones de RR. HH.",
+    "emptyDesc": "Las publicaciones enviadas a RR. HH. aparecerán aquí",
+    "filterLabel": "Filtrar por estado",
+    "anonymous": "Anónimo",
+    "emptyFiltered": "Nada por aquí",
+    "emptyFilteredDesc": "Ninguna publicación coincide con este estado por ahora.",
+    "showAll": "Ver todas las publicaciones"
+  },
   "casePanel": {
     "statusUpdated": "Estado actualizado",
     "priorityUpdated": "Prioridad actualizada",
@@ -398,7 +413,16 @@
     "remove": "Quitar",
     "notePlaceholder": "Añadir una nota interna (solo personal)...",
     "staff": "Personal",
-    "statusReadOnly": "El estado cambia mediante las acciones de moderación"
+    "statusReadOnly": "El estado cambia mediante las acciones de moderación",
+    "assignment": "Asignación",
+    "change": "Cambiar",
+    "clear": "Quitar",
+    "noDueDate": "Sin fecha límite",
+    "notes": "Notas internas",
+    "noNotes": "Aún no hay notas",
+    "dueOn": "Vence el {{date}}",
+    "dueToday": "Vence hoy",
+    "overdueOn": "Vencido · {{date}}"
   },
   "guidance": {
     "ui": {

@@ -5,17 +5,17 @@ import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AdminActionPanel from "../components/AdminActionPanel";
-import {
-  PostStatusConfig,
-  PostPriorityConfig,
-} from "../utils/constants";
+import { PostStatusConfig, PostPriorityConfig } from "../utils/constants";
+import { CaseType, getCaseAdapter } from "../utils/caseTypes";
+import { StatusBadge, PriorityBadge, DueDateChip } from "../components/case/CaseBadges";
 import {
   ClipboardCheck,
   AlertTriangle,
   ChevronUp,
-  Calendar,
   Inbox,
 } from "lucide-react";
+
+const CLOSED_STATUSES = getCaseAdapter(CaseType.POST).closedStatuses;
 
 const getTimeAgo = (date) => {
   if (!date) return "";
@@ -233,20 +233,8 @@ const AssignedToMe = () => {
                   <div className="p-4">
                     {/* Top row: type + time */}
                     <div className="flex items-center gap-2 mb-2.5">
-                      {post.status && PostStatusConfig[post.status] && (
-                        <span
-                          className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
-                        >
-                          {PostStatusConfig[post.status].label}
-                        </span>
-                      )}
-                      {post.priority && PostPriorityConfig[post.priority] && (
-                        <span
-                          className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
-                        >
-                          {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
-                        </span>
-                      )}
+                      {post.status && PostStatusConfig[post.status] && <StatusBadge status={post.status} />}
+                      {post.priority && PostPriorityConfig[post.priority] && <PriorityBadge priority={post.priority} />}
                       <span className="text-[10px] text-gray-400 ml-auto">
                         {getTimeAgo(post.createdAt)}
                       </span>
@@ -259,10 +247,9 @@ const AssignedToMe = () => {
 
                     {/* Due date if present */}
                     {post.dueDate && (
-                      <p className="text-[11px] text-amber-600 mb-2.5 inline-flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-lg">
-                        <Calendar className="w-3 h-3" />
-                        Due: {post.dueDate.toLocaleDateString()}
-                      </p>
+                      <div className="mb-2.5">
+                        <DueDateChip dueDate={post.dueDate} closed={CLOSED_STATUSES.includes(post.status)} />
+                      </div>
                     )}
 
                     {/* Expand button */}
@@ -279,20 +266,8 @@ const AssignedToMe = () => {
                     {/* Collapse header */}
                     <div className="px-4 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
                       <div className="flex items-center gap-2 flex-wrap">
-                        {post.status && PostStatusConfig[post.status] && (
-                          <span
-                            className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostStatusConfig[post.status].bgColor} ${PostStatusConfig[post.status].textColor}`}
-                          >
-                            {PostStatusConfig[post.status].label}
-                          </span>
-                        )}
-                        {post.priority && PostPriorityConfig[post.priority] && (
-                          <span
-                            className={`px-2 py-0.5 rounded-xl text-[10px] font-semibold ${PostPriorityConfig[post.priority].bgColor} ${PostPriorityConfig[post.priority].textColor}`}
-                          >
-                            {PostPriorityConfig[post.priority].icon} {PostPriorityConfig[post.priority].label}
-                          </span>
-                        )}
+                        {post.status && PostStatusConfig[post.status] && <StatusBadge status={post.status} />}
+                        {post.priority && PostPriorityConfig[post.priority] && <PriorityBadge priority={post.priority} />}
                       </div>
                       <button
                         onClick={() => setExpandedPost(null)}

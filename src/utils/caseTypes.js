@@ -44,7 +44,7 @@ const VENDOR_SEVERITY_TO_PRIORITY = {
   high: PostPriority.HIGH,
 };
 
-const toDate = (value) => {
+export const toDate = (value) => {
   if (!value) return null;
   if (typeof value.toDate === "function") return value.toDate();
   if (value.seconds) return new Date(value.seconds * 1000);

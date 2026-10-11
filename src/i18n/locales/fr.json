@@ -380,6 +380,21 @@
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette publication ?",
     "saving": "Enregistrement..."
   },
+  "hrInbox": {
+    "subtitle": "Publications envoyées directement aux RH",
+    "all": "Toutes",
+    "open": "Ouvertes",
+    "inProgress": "En cours",
+    "resolved": "Résolues",
+    "total": "Total",
+    "empty": "Aucune publication RH pour l'instant",
+    "emptyDesc": "Les publications envoyées aux RH apparaîtront ici",
+    "filterLabel": "Filtrer par statut",
+    "anonymous": "Anonyme",
+    "emptyFiltered": "Rien ici",
+    "emptyFilteredDesc": "Aucune publication ne correspond à ce statut pour le moment.",
+    "showAll": "Afficher toutes les publications"
+  },
   "casePanel": {
     "statusUpdated": "Statut mis à jour",
     "priorityUpdated": "Priorité mise à jour",
@@ -398,7 +413,16 @@
     "remove": "Retirer",
     "notePlaceholder": "Ajouter une note interne (personnel uniquement)...",
     "staff": "Personnel",
-    "statusReadOnly": "Le statut change via les actions de modération"
+    "statusReadOnly": "Le statut change via les actions de modération",
+    "assignment": "Attribution",
+    "change": "Modifier",
+    "clear": "Effacer",
+    "noDueDate": "Aucune échéance",
+    "notes": "Notes internes",
+    "noNotes": "Aucune note pour l'instant",
+    "dueOn": "Échéance le {{date}}",
+    "dueToday": "Échéance aujourd'hui",
+    "overdueOn": "En retard · {{date}}"
   },
   "guidance": {
     "ui": {

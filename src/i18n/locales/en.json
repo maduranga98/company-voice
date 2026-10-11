@@ -398,7 +398,12 @@
     "resolved": "Resolved",
     "total": "Total",
     "empty": "No HR posts yet",
-    "emptyDesc": "Posts sent to HR will appear here"
+    "emptyDesc": "Posts sent to HR will appear here",
+    "filterLabel": "Filter by status",
+    "anonymous": "Anonymous",
+    "emptyFiltered": "Nothing here",
+    "emptyFilteredDesc": "No posts match this status right now.",
+    "showAll": "Show all posts"
   },
   "adminPanel": {
     "title": "Admin Controls",
@@ -435,7 +440,16 @@
     "remove": "Remove",
     "notePlaceholder": "Add an internal note (staff only)...",
     "staff": "Staff",
-    "statusReadOnly": "Status changes through the moderation actions below"
+    "statusReadOnly": "Status changes through the moderation actions below",
+    "assignment": "Assignment",
+    "change": "Change",
+    "clear": "Clear",
+    "noDueDate": "No due date",
+    "notes": "Internal notes",
+    "noNotes": "No notes yet",
+    "dueOn": "Due {{date}}",
+    "dueToday": "Due today",
+    "overdueOn": "Overdue · {{date}}"
   },
   "guidance": {
     "ui": {
