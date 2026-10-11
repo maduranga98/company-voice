@@ -39,12 +39,27 @@ on current `main` (after the HR Inbox redesign, #205/#206).
 - `npm run build` passes; `npx eslint` clean on every new/changed file.
 - Locale files parse and keep key order.
 
+- **Phase A foundation verified in the Firestore emulator** (this branch, 33 checks,
+  `scripts/emulator/caseRules.test.mjs`): `validCaseFields` accepts the exact payloads
+  `caseService` writes (priority / assign user + department / unassign / due date) on both
+  `vendorReports` and `contentReports`, and rejects bad priority, bad assignee type or
+  shape, non-timestamp due date, other-company and signed-out writes; legacy docs without
+  the case fields still update; `caseActivities`/`caseNotes` create correctly, reject
+  `caseType: post`, cross-company writes and spoofed `authorId`, and are append-only; the
+  timeline/notes queries (`companyId`+`caseId`, `moderationActivities` by `reportId`) pass
+  as HR and are denied cross-company.
+- **`scripts/backfillCaseFields.js` verified against the emulator** with real-shaped legacy
+  docs: dry run reports counts without writing; `--apply` sets `priority` (vendor from
+  `severity`, else `medium`), `assignedTo: null`, `dueDate: null`; docs already carrying the
+  fields are untouched; re-run is a no-op. Note it also replaces an *invalid* stored
+  priority (e.g. `"weird"`) with `medium`, by design.
+
 ### Not verified
-- No emulator or browser run. Untested: the three load paths, the permission-denied
-  state for HR on `involvesHR` posts, timeline queries (equality-only filters, so no new
-  composite index is expected, but not confirmed against a live project), deep link
-  through login, copy-link in an insecure context.
-- Timeline for posts is capped at 200 activities.
+- No browser run, and no run against a live project. Untested: the three load paths in the
+  UI, the permission-denied state for HR on `involvesHR` posts, deep link through login,
+  copy-link in an insecure context. The post timeline query is not exercised by the
+  emulator script (only rules-level queries are).
+- Timeline queries are equality-only and sorted client-side (the existing ordered `getPostActivityTimeline` needs a `postActivities (companyId, postId, createdAt)` composite index that is not in `firestore.indexes.json`, and swallows the error into an empty list), so they need no index and are uncapped.
 - The activity text for status/priority uses the stored value for priority (not translated)
   and the English-only status labels already in `constants.js`.
 - Pre-existing and unchanged: `moderationActivities` entries carry `userId` but no name,

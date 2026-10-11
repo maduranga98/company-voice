@@ -1,7 +1,6 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../config/firebase";
 import { CaseType } from "../utils/caseTypes";
-import { getPostActivityTimeline } from "./postManagementService";
 import { CASE_ACTIVITIES_COLLECTION } from "./caseService";
 
 // One chronological history per case, normalised to
@@ -39,7 +38,12 @@ export const getCaseTimeline = async (caseType, caseId, companyId) => {
   let entries = [];
 
   if (caseType === CaseType.POST) {
-    const activities = await getPostActivityTimeline(caseId, companyId, 200);
+    // Equality-only (sorted below) so no composite index is needed; the ordered query in
+    // postManagementService.getPostActivityTimeline would need (companyId, postId, createdAt).
+    const activities = await fetchByEquality("postActivities", [
+      ["companyId", companyId],
+      ["postId", caseId],
+    ]);
     entries = activities.map(normalizeActivity("postActivities"));
   } else {
     const caseActivities = await fetchByEquality(CASE_ACTIVITIES_COLLECTION, [
