@@ -135,7 +135,7 @@ const KeyVaultSetup = ({ companyId: propCompanyId, onVaultInitialized }) => {
             </div>
           </div>
 
-          <div className="p-5 space-y-4 bg-white">
+          <div className="p-5 space-y-4 bg-background-white">
             {keyVersion && (
               <p className="text-xs text-gray-500">
                 Key Version: <span className="font-bold text-gray-700">v{keyVersion}</span>
@@ -205,7 +205,7 @@ const KeyVaultSetup = ({ companyId: propCompanyId, onVaultInitialized }) => {
   // ─── Setup / Rotate form ──────────────────────────────────────────────────
   return (
     <div className="max-w-lg mx-auto">
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-background-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         {/* Header */}
         <div
           className="px-5 py-4 flex items-center gap-3"

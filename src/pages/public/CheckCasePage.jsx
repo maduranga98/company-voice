@@ -8,7 +8,7 @@ import CaseReplyThread from "../../components/public/CaseReplyThread";
 import { CASE_CHECK_DISABLED_KEY, caseErrorKey, fetchCaseStatus, sendCaseReply } from "../../services/publicCaseService";
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 font-mono text-sm uppercase tracking-wider text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
+  "w-full rounded-xl border border-gray-200 bg-background-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 font-mono text-sm uppercase tracking-wider text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
 
 const STATUSES = [
   "open",
@@ -63,7 +63,7 @@ const Notice = ({ messageKey, role = "alert" }) => {
   const { t } = useTranslation();
   if (messageKey === CASE_CHECK_DISABLED_KEY) {
     return (
-      <p role="status" className="flex items-start gap-2 rounded-xl border border-gray-200 bg-white p-3 text-sm text-[#2D3E50]">
+      <p role="status" className="flex items-start gap-2 rounded-xl border border-gray-200 bg-background-white p-3 text-sm text-[#2D3E50]">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2D3E50]" aria-hidden="true" />
         {t(messageKey)}
       </p>
@@ -238,7 +238,7 @@ const CheckCasePage = () => {
               {t("report.checkCase.submittedOn", { date: formatDate(caseData.createdAt, locale) })}
             </p>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-4">
+            <div className="rounded-2xl border border-gray-200 bg-background-white p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 {t("report.checkCase.yourReport")}
               </p>

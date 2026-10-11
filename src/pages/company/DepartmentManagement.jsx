@@ -168,7 +168,7 @@ const DepartmentManagement = () => {
     <div className="min-h-screen bg-background-page py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-background-white rounded-lg shadow-sm p-6 mb-6">
           <button
             onClick={() => navigate("/company/dashboard")}
             className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
@@ -368,7 +368,7 @@ const DepartmentManagement = () => {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-2 rounded ${
-                    viewMode === "grid" ? "bg-white shadow-sm" : ""
+                    viewMode === "grid" ? "bg-background-white shadow-sm" : ""
                   }`}
                   title="Grid view"
                 >
@@ -389,7 +389,7 @@ const DepartmentManagement = () => {
                 <button
                   onClick={() => setViewMode("list")}
                   className={`p-2 rounded ${
-                    viewMode === "list" ? "bg-white shadow-sm" : ""
+                    viewMode === "list" ? "bg-background-white shadow-sm" : ""
                   }`}
                   title="List view"
                 >
@@ -425,7 +425,7 @@ const DepartmentManagement = () => {
 
         {/* Departments Grid/List */}
         {filteredDepartments.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className="bg-background-white rounded-lg shadow-sm p-12 text-center">
             <svg
               className="w-16 h-16 mx-auto text-gray-400 mb-4"
               fill="none"

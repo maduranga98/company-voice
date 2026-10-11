@@ -153,7 +153,7 @@ function BillingDashboard() {
   return (
     <div className="min-h-screen bg-background-page">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-background-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 space-y-3 sm:space-y-0">
             {/* Title */}
@@ -334,7 +334,7 @@ function MetricCard({ title, value, subtitle, icon, trend }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-background-white rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-2">
         <span className="text-2xl">{icon}</span>
         <span className={`text-sm font-medium ${trendColors[trend]}`}>
@@ -359,7 +359,7 @@ function OverviewTab({ revenueReport }) {
   return (
     <div className="space-y-6">
       {/* Revenue Breakdown */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-background-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           Revenue Breakdown
         </h3>
@@ -386,7 +386,7 @@ function OverviewTab({ revenueReport }) {
       </div>
 
       {/* Company Breakdown */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-background-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
             Top Companies by Revenue
@@ -410,7 +410,7 @@ function OverviewTab({ revenueReport }) {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-background-white divide-y divide-gray-200">
               {revenueReport.companyBreakdown
                 ?.sort((a, b) => b.revenue - a.revenue)
                 .slice(0, 10)
@@ -467,7 +467,7 @@ function SubscriptionsTab({ subscriptions, filter, onFilterChange }) {
       </div>
 
       {/* Subscriptions Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-background-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -492,7 +492,7 @@ function SubscriptionsTab({ subscriptions, filter, onFilterChange }) {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-background-white divide-y divide-gray-200">
               {subscriptions.map((sub) => (
                 <tr key={sub.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -544,19 +544,19 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
     <div className="space-y-4">
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-background-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-600">Total Invoiced</p>
           <p className="text-2xl font-bold text-gray-900">
             {formatCurrency(totalAmount)}
           </p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-background-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-600">Total Paid</p>
           <p className="text-2xl font-bold text-green-600">
             {formatCurrency(paidAmount)}
           </p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-background-white rounded-lg shadow-sm p-4">
           <p className="text-sm text-gray-600">Outstanding</p>
           <p className="text-2xl font-bold text-orange-600">
             {formatCurrency(totalAmount - paidAmount)}
@@ -582,7 +582,7 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-background-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -604,7 +604,7 @@ function InvoicesTab({ invoices, filter, onFilterChange }) {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-background-white divide-y divide-gray-200">
               {invoices.map((invoice) => (
                 <tr key={invoice.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -682,7 +682,7 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
       </div>
 
       {/* Disputes Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-background-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -707,7 +707,7 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-background-white divide-y divide-gray-200">
               {disputes.map((dispute) => (
                 <tr key={dispute.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -758,7 +758,7 @@ function DisputesTab({ disputes, filter, onFilterChange, onResolve }) {
       {/* Resolve Dispute Modal */}
       {selectedDispute && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-background-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Resolve Dispute
             </h3>
@@ -859,7 +859,7 @@ function RevenueTab({
   return (
     <div className="space-y-6">
       {/* Report Controls */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-background-white rounded-lg shadow-sm p-6">
         <div className="flex items-center space-x-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -909,25 +909,25 @@ function RevenueTab({
         <div className="space-y-6">
           {/* Revenue Summary */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-background-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Total Revenue</p>
               <p className="text-3xl font-bold text-gray-900">
                 {formatCurrency(report.totalRevenue)}
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-background-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Active Companies</p>
               <p className="text-3xl font-bold text-gray-900">
                 {report.activeCompanies}
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-background-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Total Users</p>
               <p className="text-3xl font-bold text-gray-900">
                 {report.totalActiveUsers}
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-background-white rounded-lg shadow-sm p-6">
               <p className="text-sm text-gray-600">Avg Users/Company</p>
               <p className="text-3xl font-bold text-gray-900">
                 {report.averageUsersPerCompany}
@@ -936,7 +936,7 @@ function RevenueTab({
           </div>
 
           {/* Export Options */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-background-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Export Report
             </h3>
@@ -957,7 +957,7 @@ function RevenueTab({
 
 function HistoryTab({ history }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-background-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-medium text-gray-900">Billing History</h3>
       </div>
@@ -979,7 +979,7 @@ function HistoryTab({ history }) {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-background-white divide-y divide-gray-200">
             {history.map((event) => (
               <tr key={event.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">

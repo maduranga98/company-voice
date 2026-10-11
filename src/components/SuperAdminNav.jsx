@@ -42,7 +42,7 @@ const SuperAdminNav = () => {
   const isActiveTab = (path) => location.pathname === path;
 
   return (
-    <div className="border-b border-gray-200/70 bg-white">
+    <div className="border-b border-gray-200/70 bg-background-white">
       <div
         className="mx-auto flex max-w-[1280px] gap-1 overflow-x-auto px-3 no-scrollbar"
         style={{ scrollbarWidth: "none" }}

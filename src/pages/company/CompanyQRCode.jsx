@@ -844,7 +844,7 @@ const CompanyQRCode = () => {
   return (
     <div className="min-h-screen bg-background-page">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-background-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -903,7 +903,7 @@ const CompanyQRCode = () => {
           {/* Left Side - Company Info */}
           <div className="lg:col-span-1 space-y-6">
             {/* Company Card */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-background-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 {t('company.companyDetails')}
               </h3>
@@ -984,10 +984,10 @@ const CompanyQRCode = () => {
 
           {/* Right Side - QR Code */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm p-8">
+            <div className="bg-background-white rounded-xl shadow-sm p-8">
               {/* QR Code Display */}
               <div className="flex flex-col items-center mb-8">
-                <div className="bg-white p-8 rounded-2xl border-2 border-primary-200 shadow-xl mb-6">
+                <div className="bg-background-white p-8 rounded-2xl border-2 border-primary-200 shadow-xl mb-6">
                   {qrCodeUrl && (
                     <img
                       src={qrCodeUrl}
@@ -1221,7 +1221,7 @@ const CompanyQRCode = () => {
           aria-modal="true"
           aria-labelledby="regenerate-title"
         >
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-xl bg-background-white p-6 shadow-xl">
             <h3 id="regenerate-title" className="text-lg font-semibold text-gray-900">
               {t('report.link.regenerateTitle')}
             </h3>

@@ -183,7 +183,7 @@ const TemplateCard = ({ template, onEdit, onDelete, isAdmin, showStats }) => {
   const canEdit = isAdmin;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition">
+    <div className="bg-background-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition">
       {/* Template Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
@@ -298,7 +298,7 @@ const TemplateModal = ({ template, onClose, onSuccess, userData }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[9999]">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-background-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-slate-100">
           <h2 className="text-xl font-semibold">
             {template ? t('templates.editTemplate') : t('templates.createTemplate')}

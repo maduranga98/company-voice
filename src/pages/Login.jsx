@@ -60,7 +60,7 @@ const Login = () => {
   };
 
   const fieldClass =
-    "w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-[15px] text-ink placeholder-gray-400 shadow-xs transition hover:border-gray-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-100";
+    "w-full rounded-xl border border-gray-200 bg-background-white py-3 pl-11 pr-4 text-[15px] text-ink placeholder-gray-400 shadow-xs transition hover:border-gray-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-100";
 
   return (
     <div className="flex min-h-screen bg-background-page">

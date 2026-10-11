@@ -443,29 +443,29 @@ const MemberManagement = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="bg-background-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.totalMembers')}</p>
             <p className="text-2xl font-bold text-gray-900">{members.length}</p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="bg-background-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.activeMembers')}</p>
             <p className="text-2xl font-bold text-green-600">
               {members.filter((m) => m.status === "active").length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="bg-background-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.taggedMembers')}</p>
             <p className="text-2xl font-bold text-indigo-600">
               {members.filter((m) => m.userTagId).length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="bg-background-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.inDepartments')}</p>
             <p className="text-2xl font-bold text-blue-600">
               {members.filter((m) => m.departmentId).length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="bg-background-white rounded-lg shadow-sm p-4 border border-gray-200">
             <p className="text-sm text-gray-600">{t('company.departmentTitle')}</p>
             <p className="text-2xl font-bold text-purple-600">
               {departments.length}
@@ -475,7 +475,7 @@ const MemberManagement = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-background-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
           {/* Search */}
           <div>
@@ -571,13 +571,13 @@ const MemberManagement = () => {
 
       {/* Members List */}
       {filteredMembers.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
+        <div className="bg-background-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
           <p className="text-gray-600">
             {t('company.noMembers')}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden overflow-x-auto">
+        <div className="bg-background-white rounded-xl shadow-sm border border-gray-200 overflow-hidden overflow-x-auto">
           <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -764,7 +764,7 @@ const MemberManagement = () => {
           </button>
 
           {showRemovedSection && (
-            <div className="bg-white rounded-xl shadow-sm border border-red-100 overflow-hidden overflow-x-auto">
+            <div className="bg-background-white rounded-xl shadow-sm border border-red-100 overflow-hidden overflow-x-auto">
               {selectedRemovedIds.length > 0 && (
                 <div className="px-4 py-3 bg-red-50 border-b border-red-100 flex items-center justify-between">
                   <span className="text-sm text-red-700">
@@ -865,7 +865,7 @@ const MemberManagement = () => {
       {/* Assign Tag Modal */}
       {showTagModal && selectedMember && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="bg-background-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 {t('company.assignTagTo')} {selectedMember.displayName}
@@ -948,7 +948,7 @@ const MemberManagement = () => {
       {/* Assign Department Modal */}
       {showDepartmentModal && selectedMember && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="bg-background-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 {t('company.assignDepartmentTo')} {selectedMember.displayName}
@@ -1026,7 +1026,7 @@ const MemberManagement = () => {
       {/* Change Role Modal */}
       {showRoleModal && selectedMember && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
+          <div className="bg-background-white rounded-xl shadow-xl max-w-md w-full">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 {t('company.changeRoleTitle', 'Change Role')}

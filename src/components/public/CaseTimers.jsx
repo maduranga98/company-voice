@@ -26,7 +26,7 @@ const CaseTimers = ({ timers }) => {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-2.5 rounded-2xl border border-gray-200 bg-white p-4">
+    <div className="space-y-2.5 rounded-2xl border border-gray-200 bg-background-white p-4">
       <Row
         done={timers.isAcknowledged}
         doneLabel={t("report.checkCase.timers.acknowledged")}

@@ -81,7 +81,7 @@ const PillSelect = ({ label, value, options, onChange, disabled = false, classNa
         aria-labelledby={labelId}
         onClick={() => (open ? close(false) : openMenu())}
         onKeyDown={onTriggerKeyDown}
-        className="flex w-full items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-2.5 py-2 transition hover:border-gray-300 focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-gray-200 bg-background-white px-2.5 py-2 transition hover:border-gray-300 focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span className="min-w-0 truncate">{selected?.node ?? selected?.label}</span>
         <ChevronDown aria-hidden="true" className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -92,7 +92,7 @@ const PillSelect = ({ label, value, options, onChange, disabled = false, classNa
           role="listbox"
           aria-labelledby={labelId}
           onKeyDown={onMenuKeyDown}
-          className="absolute left-0 z-30 mt-1.5 max-h-72 w-max min-w-full max-w-[16rem] overflow-y-auto rounded-xl border border-gray-100 bg-white p-1 shadow-lg"
+          className="absolute left-0 z-30 mt-1.5 max-h-72 w-max min-w-full max-w-[16rem] overflow-y-auto rounded-xl border border-gray-100 bg-background-white p-1 shadow-lg"
         >
           {options.map((option, index) => {
             const isSelected = option.value === value;

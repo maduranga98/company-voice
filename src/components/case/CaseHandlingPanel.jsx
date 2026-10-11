@@ -30,11 +30,11 @@ const TAG_COLORS = {
 };
 
 const INPUT =
-  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-[#2D3E50] placeholder:text-gray-400 transition focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20 disabled:opacity-60";
+  "w-full rounded-lg border border-gray-200 bg-background-white px-3 py-2 text-sm text-[#2D3E50] placeholder:text-gray-400 transition focus:border-[#1ABC9C] focus:outline-none focus:ring-2 focus:ring-[#1ABC9C]/20 disabled:opacity-60";
 
 // Labelled card so assignment, due date and notes read as three distinct actions.
 const Section = ({ icon, title, action, children }) => (
-  <section className="rounded-xl border border-gray-100 bg-white p-3 shadow-xs">
+  <section className="rounded-xl border border-gray-100 bg-background-white p-3 shadow-xs">
     <div className="mb-2.5 flex items-center justify-between gap-2">
       <h4 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
         {icon}
@@ -208,7 +208,7 @@ const CaseHandlingPanel = ({ caseType, caseData, currentUser, onUpdate, children
             <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-gray-500">
               {t("adminPanel.status")}
             </span>
-            <div className="rounded-xl border border-gray-100 bg-white px-2.5 py-2">
+            <div className="rounded-xl border border-gray-100 bg-background-white px-2.5 py-2">
               <StatusBadge status={status} config={adapter.statusConfig} size="md" />
             </div>
           </div>
@@ -275,7 +275,7 @@ const CaseHandlingPanel = ({ caseType, caseData, currentUser, onUpdate, children
           )}
 
           {showAssignDropdown && (
-            <div className="absolute left-0 z-30 mt-2 max-h-72 w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+            <div className="absolute left-0 z-30 mt-2 max-h-72 w-full overflow-hidden rounded-xl border border-gray-100 bg-background-white shadow-lg">
               <div className="border-b border-gray-100 p-2">
                 <input
                   type="text"

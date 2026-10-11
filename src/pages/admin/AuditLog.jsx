@@ -273,7 +273,7 @@ const AuditLog = () => {
           <div className="flex items-center space-x-4 mb-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className="p-2 rounded-xl border border-gray-100 bg-white shadow-sm text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition-all"
+              className="p-2 rounded-xl border border-gray-100 bg-background-white shadow-sm text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition-all"
               title="Back to Dashboard"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -291,7 +291,7 @@ const AuditLog = () => {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="bg-background-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-gray-500">Total Activities</p>
               <div className="p-2 rounded-xl bg-gray-50">
@@ -300,7 +300,7 @@ const AuditLog = () => {
             </div>
             <p className="text-3xl font-bold" style={{ color: "#2D3E50" }}>{stats.total}</p>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="bg-background-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-gray-500">Post Activities</p>
               <div className="p-2 rounded-xl" style={{ backgroundColor: "rgba(26, 188, 156, 0.1)" }}>
@@ -311,7 +311,7 @@ const AuditLog = () => {
               {stats.bySource.post || 0}
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="bg-background-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-gray-500">System Activities</p>
               <div className="p-2 rounded-xl bg-purple-50">
@@ -322,7 +322,7 @@ const AuditLog = () => {
               {stats.bySource.system || 0}
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="bg-background-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-gray-500">Active Users</p>
               <div className="p-2 rounded-xl bg-emerald-50">
@@ -336,7 +336,7 @@ const AuditLog = () => {
         </div>
 
         {/* Filters Section */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm">
+        <div className="bg-background-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm">
           <div className="flex items-center space-x-2 mb-5">
             <SlidersHorizontal className="w-5 h-5" style={{ color: "#2D3E50" }} />
             <h2 className="text-lg font-semibold" style={{ color: "#2D3E50" }}>
@@ -501,7 +501,7 @@ const AuditLog = () => {
         </div>
 
         {/* Activity List */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+        <div className="bg-background-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
           {activities.length === 0 ? (
             <div className="p-12 text-center">
               <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -615,7 +615,7 @@ const AuditLog = () => {
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-background-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronLeft className="w-4 h-4" />
                         Prev
@@ -630,7 +630,7 @@ const AuditLog = () => {
                             className={`px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all ${
                               currentPage === pageNum
                                 ? "text-white shadow-sm"
-                                : "border border-gray-200 text-gray-600 bg-white hover:bg-gray-50"
+                                : "border border-gray-200 text-gray-600 bg-background-white hover:bg-gray-50"
                             }`}
                             style={currentPage === pageNum ? { backgroundColor: "#1ABC9C" } : {}}
                           >
@@ -641,7 +641,7 @@ const AuditLog = () => {
                       <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 bg-background-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                       >
                         Next
                         <ChevronRight className="w-4 h-4" />

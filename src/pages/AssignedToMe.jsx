@@ -209,7 +209,7 @@ const AssignedToMe = () => {
 
       {/* Empty state */}
       {filteredPosts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex flex-col items-center justify-center py-16 text-center bg-background-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
             <Inbox className="w-6 h-6 text-gray-300" />
           </div>
@@ -227,7 +227,7 @@ const AssignedToMe = () => {
             return (
               <div
                 key={post.id}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
+                className="bg-background-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
               >
                 {!isExpanded ? (
                   <div className="p-4">

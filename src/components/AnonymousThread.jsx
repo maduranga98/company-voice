@@ -278,7 +278,7 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
 
             {/* Reply Box */}
             <div
-              className="border-t p-3 bg-white flex gap-2 items-end"
+              className="border-t p-3 bg-background-white flex gap-2 items-end"
               style={{ borderColor: "#E5E7EB" }}
             >
               <textarea

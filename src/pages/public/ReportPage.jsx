@@ -18,7 +18,7 @@ const MAX_DESCRIPTION = 5000;
 const EMPTY_CONTACT = { name: "", email: "", phone: "" };
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
+  "w-full rounded-xl border border-gray-200 bg-background-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
 
 // Search engines and referrers must never see report links.
 const useNoIndex = () => {
@@ -261,7 +261,7 @@ const ReportPage = () => {
                 </div>
               </div>
 
-              <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4">
+              <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-background-white p-4">
                 <input
                   type="checkbox"
                   checked={involvesHR}

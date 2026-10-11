@@ -275,7 +275,7 @@ const CompanyAdminLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-background-page">
       {/* ── DESKTOP SIDEBAR ── */}
-      <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col border-r border-gray-200/70 bg-white lg:flex">
+      <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col border-r border-gray-200/70 bg-background-white lg:flex">
         {sidebarContent}
       </aside>
 
@@ -286,7 +286,7 @@ const CompanyAdminLayout = ({ children }) => {
             className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="animate-slide-in fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-white shadow-xl lg:hidden">
+          <aside className="animate-slide-in fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-background-white shadow-xl lg:hidden">
             <button
               onClick={() => setSidebarOpen(false)}
               aria-label="Close menu"

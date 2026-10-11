@@ -132,7 +132,7 @@ const DeletedPosts = () => {
   return (
     <div className="min-h-screen bg-background-page">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-background-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">Super Admin Panel</h1>
@@ -185,7 +185,7 @@ const DeletedPosts = () => {
             <p className="mt-4 text-gray-600">Loading deleted posts...</p>
           </div>
         ) : deletedPosts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+          <div className="bg-background-white rounded-lg shadow-sm p-12 text-center">
             <svg
               className="mx-auto h-12 w-12 text-gray-400"
               fill="none"
@@ -203,7 +203,7 @@ const DeletedPosts = () => {
             <p className="mt-1 text-gray-500">There are no deleted posts to review.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-background-white rounded-lg shadow-sm overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -227,7 +227,7 @@ const DeletedPosts = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-background-white divide-y divide-gray-200">
                 {deletedPosts.map((post) => (
                   <tr key={post.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -277,8 +277,8 @@ const DeletedPosts = () => {
       {/* Details Modal */}
       {showDetailsModal && selectedPost && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+          <div className="bg-background-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-background-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
               <h3 className="text-lg font-medium text-gray-900">Post Details</h3>
               <button
                 onClick={() => setShowDetailsModal(false)}

@@ -485,7 +485,7 @@ const MemberManagementWithDepartments = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#2D3E50]/5 flex items-center justify-center">
                 <Users className="w-5 h-5 text-[#2D3E50]" />
@@ -496,7 +496,7 @@ const MemberManagementWithDepartments = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
                 <UserCheck className="w-5 h-5 text-emerald-600" />
@@ -509,7 +509,7 @@ const MemberManagementWithDepartments = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
                 <Tag className="w-5 h-5 text-indigo-600" />
@@ -522,7 +522,7 @@ const MemberManagementWithDepartments = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#1ABC9C]/10 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-[#1ABC9C]" />
@@ -535,7 +535,7 @@ const MemberManagementWithDepartments = () => {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center">
                 <AlertCircle className="w-5 h-5 text-gray-500" />
@@ -551,7 +551,7 @@ const MemberManagementWithDepartments = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {/* Search */}
             <div>
@@ -578,7 +578,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-background-white"
               >
                 <option value="all">All Roles</option>
                 <option value={UserRole.COMPANY_ADMIN}>Admin</option>
@@ -594,7 +594,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedTag}
                 onChange={(e) => setSelectedTag(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-background-white"
               >
                 <option value="all">All Tags</option>
                 <option value="untagged">Untagged</option>
@@ -614,7 +614,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-background-white"
               >
                 <option value="all">All Departments</option>
                 <option value="unassigned">Unassigned</option>
@@ -634,7 +634,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-background-white"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -672,7 +672,7 @@ const MemberManagementWithDepartments = () => {
         </div>
 
         {/* Members Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
@@ -944,7 +944,7 @@ const MemberManagementWithDepartments = () => {
             </button>
 
             {showRemovedSection && (
-              <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
+              <div className="bg-background-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
                 {selectedRemovedIds.length > 0 && (
                   <div className="px-4 sm:px-6 py-3 bg-red-50 border-b border-red-100 flex items-center justify-between">
                     <span className="text-sm font-medium text-red-700">
@@ -1048,7 +1048,7 @@ const MemberManagementWithDepartments = () => {
       {/* Tag Assignment Modal */}
       {showTagModal && tagAssigningMember && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+          <div className="bg-background-white rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
@@ -1158,7 +1158,7 @@ const MemberManagementWithDepartments = () => {
       {/* Role Change Modal */}
       {showRoleModal && roleChangingMember && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
+          <div className="bg-background-white rounded-2xl shadow-xl max-w-md w-full border border-gray-100">
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
@@ -1231,7 +1231,7 @@ const MemberManagementWithDepartments = () => {
       {/* Department Assignment Modal */}
       {showDepartmentModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-100">
+          <div className="bg-background-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-100">
             <DepartmentAssignment
               users={assigningUser}
               companyId={userData.companyId}
@@ -1251,7 +1251,7 @@ const MemberManagementWithDepartments = () => {
       {/* Member Details Modal */}
       {showMemberDetailsModal && viewingMember && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-100">
+          <div className="bg-background-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-100">
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">

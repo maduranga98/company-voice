@@ -203,7 +203,7 @@ const VendorRiskDashboard = () => {
             { label: "Resolved", value: stats.resolved, color: "text-emerald-600" },
             { label: "Closed", value: stats.closed, color: "text-gray-500" },
           ].map(({ label, value, color }) => (
-            <div key={label} className="bg-white rounded-2xl p-3.5 text-center shadow-sm border border-gray-100">
+            <div key={label} className="bg-background-white rounded-2xl p-3.5 text-center shadow-sm border border-gray-100">
               <div className={`text-xl font-bold ${color}`}>{value}</div>
               <div className="text-[10px] text-gray-500 mt-1 font-medium uppercase tracking-wide">{label}</div>
             </div>
@@ -220,7 +220,7 @@ const VendorRiskDashboard = () => {
             className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               activeTab === tab
                 ? "bg-[#2D3E50] text-white shadow-sm"
-                : "bg-white text-gray-500 border border-gray-100 hover:border-gray-200"
+                : "bg-background-white text-gray-500 border border-gray-100 hover:border-gray-200"
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -243,7 +243,7 @@ const VendorRiskDashboard = () => {
             <div
               key={report.id}
               onClick={() => handleCardClick(report)}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-3 overflow-hidden cursor-pointer hover:shadow-md hover:border-gray-200 transition-all"
+              className="bg-background-white rounded-2xl shadow-sm border border-gray-100 mb-3 overflow-hidden cursor-pointer hover:shadow-md hover:border-gray-200 transition-all"
             >
               {/* Status strip */}
               <div className={`h-1 ${STATUS_STRIP_COLOR[report.status] || "bg-gray-300"}`} />
@@ -348,7 +348,7 @@ const VendorRiskDashboard = () => {
               ) : (
                 <div className="max-w-2xl mx-auto">
                   {/* ── RISK OVERVIEW ── */}
-                  <div className="bg-white mx-4 mt-4 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-background-white mx-4 mt-4 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="px-5 pt-5 pb-4">
                       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Risk Overview</div>
 
@@ -440,7 +440,7 @@ const VendorRiskDashboard = () => {
                   </div>
 
                   {/* ── ORIGINAL REPORT ── */}
-                  <div className="bg-white mx-4 mt-3 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-background-white mx-4 mt-3 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="px-5 pt-5 pb-2">
                       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                         <MessageSquare className="w-3 h-3" /> Original Report
@@ -509,7 +509,7 @@ const VendorRiskDashboard = () => {
                     )}
 
                     {!selectedReport.corroborations?.length ? (
-                      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+                      <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
                         <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center mx-auto mb-3">
                           <Users className="w-5 h-5 text-gray-300" />
                         </div>
@@ -519,7 +519,7 @@ const VendorRiskDashboard = () => {
                     ) : (
                       <div className="space-y-3">
                         {selectedReport.corroborations.map((corr, i) => (
-                          <div key={corr.id || i} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                          <div key={corr.id || i} className="bg-background-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className={`h-0.5 ${SEVERITY_CONFIG[corr.severity]?.bar || "bg-gray-200"}`} />
                             <div className="p-4">
                               <div className="flex items-center gap-2 flex-wrap mb-3">
@@ -563,7 +563,7 @@ const VendorRiskDashboard = () => {
                   </div>
 
                   {/* ── CASE HANDLING ── */}
-                  <div className="bg-white mx-4 mt-3 mb-8 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-background-white mx-4 mt-3 mb-8 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="px-5 pt-5 pb-4">
                       <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-1.5">
                         <FileSearch className="w-3 h-3" /> Investigation Actions

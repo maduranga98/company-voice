@@ -332,7 +332,7 @@ const PolicyManagement = () => {
       )}
 
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-background-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -370,7 +370,7 @@ const PolicyManagement = () => {
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Policies", value: stats.total, color: "text-gray-900", bg: "bg-white" },
+            { label: "Total Policies", value: stats.total, color: "text-gray-900", bg: "bg-background-white" },
             { label: "Published", value: stats.published, color: "text-green-700", bg: "bg-green-50" },
             { label: "Draft", value: stats.draft, color: "text-amber-700", bg: "bg-amber-50" },
             { label: "Archived", value: stats.archived, color: "text-gray-500", bg: "bg-gray-100" },
@@ -390,7 +390,7 @@ const PolicyManagement = () => {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition ${
                 activeTab === tab
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-background-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -401,7 +401,7 @@ const PolicyManagement = () => {
 
         {/* Table */}
         {filteredPolicies.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 p-16 text-center">
+          <div className="bg-background-white rounded-xl border border-gray-100 p-16 text-center">
             <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-1">No policies</h3>
             <p className="text-gray-500 text-sm">
@@ -411,7 +411,7 @@ const PolicyManagement = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-background-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -520,7 +520,7 @@ const PolicyManagement = () => {
       {/* ─── Create / Edit Modal ─────────────────────────────────── */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-background-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-900">
@@ -699,7 +699,7 @@ const PolicyManagement = () => {
       {/* ─── Stats Modal ─────────────────────────────────────────── */}
       {showStatsModal && statsPolicy && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-background-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Acknowledgement Stats</h2>
