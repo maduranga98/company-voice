@@ -38,6 +38,7 @@ import AssignedToMe from "./pages/AssignedToMe";
 // Moderation Pages
 import ModerationDashboard from "./pages/ModerationDashboard";
 import ReportDetailView from "./pages/ReportDetailView";
+import CaseDetail from "./pages/CaseDetail";
 
 // Legal Pages
 import SuperAdminLegalRequests from "./pages/admin/SuperAdminLegalRequests";
@@ -150,6 +151,16 @@ function App() {
                 <PrivateRoute>
                   <RoleBasedLayout>
                     <ModerationDashboard />
+                  </RoleBasedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/cases/:caseType/:caseId"
+              element={
+                <PrivateRoute>
+                  <RoleBasedLayout>
+                    <CaseDetail />
                   </RoleBasedLayout>
                 </PrivateRoute>
               }

@@ -431,6 +431,64 @@
     "dueToday": "Échéance aujourd'hui",
     "overdueOn": "En retard · {{date}}"
   },
+  "caseDetail": {
+    "back": "Retour",
+    "openFullCase": "Ouvrir le dossier",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié",
+    "anonymous": "Anonyme",
+    "due": "Échéance {{date}}",
+    "submission": "Signalement",
+    "conversation": "Échange avec le déclarant",
+    "handling": "Traitement du dossier",
+    "policyConcern": "Préoccupation sur une politique",
+    "employeeId": "ID employé",
+    "type": {
+      "post": "Signalement",
+      "vendor": "Risque fournisseur",
+      "moderation": "Modération"
+    },
+    "vendor": {
+      "category": "Catégorie",
+      "severity": "Gravité",
+      "corroborations": "Corroborations",
+      "earlierNotes": "Notes de revue précédentes",
+      "evidenceFile": "Fichier de preuve {{n}}"
+    },
+    "moderation": {
+      "reporterNotes": "Notes du déclarant",
+      "openActions": "Ouvrir les actions de modération"
+    },
+    "notFound": {
+      "title": "Dossier introuvable",
+      "body": "Ce dossier n'existe pas ou le lien est incorrect."
+    },
+    "noAccess": {
+      "title": "Accès refusé",
+      "body": "Vous n'avez pas accès à ce dossier."
+    },
+    "error": {
+      "title": "Impossible de charger le dossier",
+      "body": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "timeline": {
+      "title": "Activité",
+      "empty": "Aucune activité pour le moment."
+    },
+    "activity": {
+      "someone": "Quelqu'un",
+      "created": "Dossier créé",
+      "statusChanged": "{{actor}} a changé le statut de {{from}} à {{to}}",
+      "priorityChanged": "{{actor}} a changé la priorité de {{from}} à {{to}}",
+      "assigned": "{{actor}} a assigné le dossier à {{assignee}}",
+      "unassigned": "{{actor}} a retiré le responsable",
+      "dueDateSet": "{{actor}} a fixé l'échéance au {{date}}",
+      "dueDateCleared": "{{actor}} a supprimé l'échéance",
+      "noteAdded": "{{actor}} a ajouté une note interne",
+      "reviewed": "{{actor}} a examiné : {{action}}",
+      "other": "{{actor}} : {{type}}"
+    }
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Statuts des Membres",

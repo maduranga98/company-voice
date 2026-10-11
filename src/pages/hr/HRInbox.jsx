@@ -18,6 +18,7 @@ import Avatar from "../../components/Avatar";
 import AnonymousThread from "../../components/AnonymousThread";
 import ExportCasePdfButton from "../../components/case/ExportCasePdfButton";
 import { StatusBadge, PriorityBadge, DueDateChip } from "../../components/case/CaseBadges";
+import OpenCaseLink from "../../components/case/OpenCaseLink";
 import {
   Inbox,
   AlertTriangle,
@@ -393,8 +394,9 @@ const HRInbox = () => {
 
                   {/* Mobile inline expansion */}
                   {isSelected && (
-                    <div className="lg:hidden border-t border-gray-100 bg-background-softGray rounded-b-2xl p-3 space-y-3">
+                    <div className="lg:hidden border-t border-gray-100 bg-background-softGray rounded-b-2xl p-3 space-y-3" onClick={(e) => e.stopPropagation()}>
                       <ExportCasePdfButton post={post} currentUser={userData} className="w-full" />
+                      <OpenCaseLink caseType={CaseType.POST} caseId={post.id} className="w-full" />
                       <AdminActionPanel post={post} currentUser={userData} />
                     </div>
                   )}
@@ -442,6 +444,7 @@ const HRInbox = () => {
                       </span>
                     </div>
                   </div>
+                  <OpenCaseLink caseType={CaseType.POST} caseId={selectedPost.id} className="flex-shrink-0" />
                   <ExportCasePdfButton post={selectedPost} currentUser={userData} />
                   <button
                     type="button"

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
@@ -24,6 +24,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Load remembered username
@@ -49,7 +50,12 @@ const Login = () => {
       }
 
       await login(username, password);
-      navigate("/dashboard");
+      const from = location.state?.from;
+      // Only same-app paths: `from` comes from router state set by PrivateRoute.
+      const target = from?.pathname?.startsWith("/") && !from.pathname.startsWith("//")
+        ? `${from.pathname}${from.search || ""}`
+        : "/dashboard";
+      navigate(target);
     } catch (error) {
       // Display the actual error message from the server
       setError(error.message || t("auth.login.invalidCredentials"));

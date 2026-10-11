@@ -458,6 +458,64 @@
     "dueToday": "Due today",
     "overdueOn": "Overdue · {{date}}"
   },
+  "caseDetail": {
+    "back": "Back",
+    "openFullCase": "Open full case",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "anonymous": "Anonymous",
+    "due": "Due {{date}}",
+    "submission": "Submission",
+    "conversation": "Conversation with reporter",
+    "handling": "Case handling",
+    "policyConcern": "Policy concern",
+    "employeeId": "Employee ID",
+    "type": {
+      "post": "Report",
+      "vendor": "Vendor risk",
+      "moderation": "Moderation"
+    },
+    "vendor": {
+      "category": "Category",
+      "severity": "Severity",
+      "corroborations": "Corroborations",
+      "earlierNotes": "Earlier review notes",
+      "evidenceFile": "Evidence file {{n}}"
+    },
+    "moderation": {
+      "reporterNotes": "Reporter notes",
+      "openActions": "Open moderation actions"
+    },
+    "notFound": {
+      "title": "Case not found",
+      "body": "This case doesn't exist or the link is wrong."
+    },
+    "noAccess": {
+      "title": "No access",
+      "body": "You don't have access to this case."
+    },
+    "error": {
+      "title": "Couldn't load the case",
+      "body": "Something went wrong. Please try again."
+    },
+    "timeline": {
+      "title": "Activity",
+      "empty": "No activity yet."
+    },
+    "activity": {
+      "someone": "Someone",
+      "created": "Case created",
+      "statusChanged": "{{actor}} changed status from {{from}} to {{to}}",
+      "priorityChanged": "{{actor}} changed priority from {{from}} to {{to}}",
+      "assigned": "{{actor}} assigned this to {{assignee}}",
+      "unassigned": "{{actor}} removed the assignee",
+      "dueDateSet": "{{actor}} set the due date to {{date}}",
+      "dueDateCleared": "{{actor}} cleared the due date",
+      "noteAdded": "{{actor}} added an internal note",
+      "reviewed": "{{actor}} reviewed: {{action}}",
+      "other": "{{actor}}: {{type}}"
+    }
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Member Statuses",

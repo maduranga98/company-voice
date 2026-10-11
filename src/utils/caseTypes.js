@@ -106,3 +106,6 @@ export const getCasePriority = (caseType, caseData) => getCaseAdapter(caseType).
 
 export const isCaseClosed = (caseType, caseData) =>
   getCaseAdapter(caseType).closedStatuses.includes(caseData.status);
+
+// Stable, shareable URL for a case. The one URL shape used everywhere.
+export const caseHref = (caseType, caseId) => `/cases/${caseType}/${caseId}`;
