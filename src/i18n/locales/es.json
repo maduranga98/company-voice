@@ -1095,6 +1095,7 @@
         "heading": "Mensajes privados",
         "empty": "Aún no hay mensajes. Puedes enviar uno abajo.",
         "unreadable": "[No se pudo leer este mensaje]",
+        "legacy": "[Mensaje enviado antes de esta actualización — no disponible]",
         "you": "Tú",
         "them": "La empresa",
         "placeholder": "Escribe una respuesta privada...",

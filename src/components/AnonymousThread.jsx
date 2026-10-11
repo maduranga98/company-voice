@@ -1,39 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../config/firebase";
-import CryptoJS from "crypto-js";
 import {
   createThread,
   addMessage,
   markThreadRead,
+  normalizeThreadMessage,
 } from "../services/anonymousThreadService";
 import { useAuth } from "../contexts/AuthContext";
 import { ThreadSender, UserRole } from "../utils/constants";
-
-const ANONYMOUS_SECRET =
-  import.meta.env.VITE_ANONYMOUS_SECRET || "default-secret-key-change-in-production";
 
 // Brand colors
 const NAVY = "#2D3E50";
 const TEAL = "#00BCD4";
 const CORAL = "#FF6B6B";
-
-const decryptMessage = (encryptedText) => {
-  if (!encryptedText || typeof encryptedText !== "string") return "";
-  try {
-    const bytes = CryptoJS.AES.decrypt(encryptedText, ANONYMOUS_SECRET);
-    // bytes.toString can throw "Malformed UTF-8 data" in CryptoJS 4.x
-    // when the key doesn't match — wrap separately
-    try {
-      const text = bytes.toString(CryptoJS.enc.Utf8);
-      return text || "";
-    } catch {
-      return "";
-    }
-  } catch {
-    return "";
-  }
-};
 
 const isInvestigatorRole = (role) =>
   [UserRole.SUPER_ADMIN, UserRole.COMPANY_ADMIN, UserRole.HR].includes(role);
@@ -94,17 +74,14 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
         const data = snap.data();
         setThreadData(data);
 
-        const decrypted = (data.messages || []).map((msg) => ({
-          ...msg,
-          content: decryptMessage(msg.encryptedContent),
-        }));
-        setMessages(decrypted);
+        const normalized = (data.messages || []).map(normalizeThreadMessage);
+        setMessages(normalized);
 
         // Count unread messages from the other party
         const lastReadRaw = data.lastReadBy?.[senderRole];
         const lastReadDate = lastReadRaw?.toDate ? lastReadRaw.toDate() : null;
 
-        const unread = decrypted.filter((msg) => {
+        const unread = normalized.filter((msg) => {
           if (msg.sender !== otherSender) return false;
           if (!lastReadDate) return true;
           return new Date(msg.timestamp) > lastReadDate;
@@ -284,7 +261,13 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
                           color: msg.content ? "#ffffff" : "rgba(255,255,255,0.5)",
                         }}
                       >
-                        {msg.content || <em className="text-xs">Unable to display message</em>}
+                        {msg.content || (
+                          <em className="text-xs">
+                            {msg.legacy
+                              ? "[Message sent before this upgrade — unavailable]"
+                              : "Unable to display message"}
+                          </em>
+                        )}
                       </div>
                     </div>
                   );

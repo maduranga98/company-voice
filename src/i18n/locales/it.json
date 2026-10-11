@@ -1143,6 +1143,7 @@
         "heading": "Messaggi privati",
         "empty": "Nessun messaggio ancora. Puoi inviarne uno qui sotto.",
         "unreadable": "[Impossibile leggere questo messaggio]",
+        "legacy": "[Messaggio inviato prima di questo aggiornamento — non disponibile]",
         "you": "Tu",
         "them": "L'azienda",
         "placeholder": "Scrivi una risposta privata...",
