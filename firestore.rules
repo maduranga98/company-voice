@@ -158,14 +158,14 @@ service cloud.firestore {
     // ============================================
     // - Members read their own company; super_admin reads all
     // - Created and deleted by Cloud Functions (createCompanyWithAdmin, deleteCompany)
-    // - Company admins can update their own company except activation and report link fields
+    // - Company admins can update their own company except activation, report link and settings fields (settings go through updateCompanySettings)
     match /companies/{companyId} {
       allow read: if isSuperAdmin() || (isAuthenticated() && belongsToCompany(companyId));
 
       allow create: if false;
       allow update: if isSuperAdmin()
         || (isCompanyAdmin() && belongsToCompany(companyId)
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive', 'reportSlug', 'reportingEnabled']));
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive', 'reportSlug', 'reportingEnabled', 'settings']));
       allow delete: if false;
 
       // Public policy acknowledgements (/p/:slug). Written only by Cloud Functions (Admin SDK);

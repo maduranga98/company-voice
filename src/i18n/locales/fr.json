@@ -1032,6 +1032,7 @@
       "yourReport": "Ce que vous avez signalé",
       "errors": {
         "invalid": "Ce code de dossier ou cette clé secrète est incorrect.",
+        "disabled": "Le suivi du statut des dossiers n'est pas disponible pour cette organisation. Votre signalement a bien été reçu et est traité par l'entreprise.",
         "rateLimited": "Trop de tentatives. Veuillez réessayer plus tard.",
         "network": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
         "generic": "Une erreur s'est produite. Veuillez réessayer."
@@ -1205,6 +1206,8 @@
       "reportingOn": "Les signalements sont acceptés",
       "reportingOff": "Les signalements sont désactivés",
       "toggleHelp": "Lorsque c'est désactivé, le lien affiche une page inactive et aucun signalement ne peut être envoyé.",
+      "caseCheckLabel": "Les employés peuvent suivre l'avancement du dossier",
+      "caseCheckHelp": "Si activé, les auteurs de signalement peuvent utiliser /c avec leur code de dossier et leur clé secrète pour voir le statut et échanger des réponses privées. Si désactivé, ils ne peuvent plus y voir le statut ni envoyer ou recevoir de réponses ; seuls les RH peuvent encore traiter le dossier en interne.",
       "scanToReport": "Scannez pour envoyer un signalement",
       "howTitle": "Comment envoyer un signalement",
       "stepsTitle": "Étapes",

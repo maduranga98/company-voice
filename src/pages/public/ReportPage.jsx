@@ -199,6 +199,7 @@ const ReportPage = () => {
             companyName={config.companyName}
             caseCode={credentials.caseCode}
             secretKey={credentials.secretKey}
+            allowCaseProgressCheck={config.allowCaseProgressCheck !== false}
             onDone={handleDone}
           />
         ) : (

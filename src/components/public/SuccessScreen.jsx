@@ -57,7 +57,7 @@ const Credential = ({ label, value }) => (
  * Shows the case code and secret key once. They live only in this component's props:
  * never in the URL, localStorage or any cache. The parent clears them on `onDone`.
  */
-const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
+const SuccessScreen = ({ companyName, caseCode, secretKey, allowCaseProgressCheck = true, onDone }) => {
   const { t } = useTranslation();
   const [confirmed, setConfirmed] = useState(false);
 
@@ -135,16 +135,18 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 print:hidden">
-        <p className="text-sm text-gray-600">{t("report.success.checkCaseIntro")}</p>
-        <Link
-          to="/c"
-          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#2D3E50] px-4 py-2 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
-        >
-          <KeyRound className="h-4 w-4" aria-hidden="true" />
-          {t("report.success.checkCaseLink")}
-        </Link>
-      </div>
+      {allowCaseProgressCheck && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 print:hidden">
+          <p className="text-sm text-gray-600">{t("report.success.checkCaseIntro")}</p>
+          <Link
+            to="/c"
+            className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#2D3E50] px-4 py-2 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
+          >
+            <KeyRound className="h-4 w-4" aria-hidden="true" />
+            {t("report.success.checkCaseLink")}
+          </Link>
+        </div>
+      )}
 
       <div className="space-y-3 border-t border-gray-200 pt-5 print:hidden">
         <label className="flex items-start gap-3 text-sm text-[#2D3E50]">

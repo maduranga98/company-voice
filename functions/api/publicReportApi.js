@@ -34,6 +34,7 @@ const {
 const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../utils/rateLimit');
 const { SLUG_PATTERN, issueReportSlug } = require('../utils/reportSlugs');
 const { assertRole, assertCompany } = require('../utils/authz');
+const { isCaseProgressCheckAllowed, buildSettingsUpdate } = require('../utils/companySettings');
 const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
 
 const { ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
@@ -78,6 +79,7 @@ const getPublicReportConfig = onCall(BASE_OPTIONS, async (request) => {
       ? company.defaultLanguage
       : 'en',
     categories: CATEGORIES,
+    allowCaseProgressCheck: isCaseProgressCheckAllowed(company),
     limits: {
       maxFiles: LIMITS.maxFiles,
       maxFileMB: LIMITS.maxFileMB,
@@ -361,9 +363,34 @@ const setReportingEnabled = onCall(BASE_OPTIONS, async (request) => {
   return { enabled };
 });
 
+const updateCompanySettings = onCall(BASE_OPTIONS, async (request) => {
+  const { companyId, settings } = request.data || {};
+  requireCompanyAdmin(request, companyId);
+
+  let updates;
+  try {
+    updates = buildSettingsUpdate(settings);
+  } catch {
+    throw new HttpsError('invalid-argument', 'Invalid settings.');
+  }
+
+  const companyRef = db.collection('companies').doc(companyId);
+  try {
+    await companyRef.update(updates);
+  } catch (error) {
+    if (error && (error.code === 5 || error.code === 'not-found')) {
+      throw new HttpsError('not-found', 'Company not found.');
+    }
+    logger.error('updateCompanySettings: failed', { code: error && error.code });
+    throw new HttpsError('internal', 'Could not update settings.');
+  }
+  return { settings };
+});
+
 module.exports = {
   getPublicReportConfig,
   submitPublicReport,
   ensureReportSlug,
   setReportingEnabled,
+  updateCompanySettings,
 };

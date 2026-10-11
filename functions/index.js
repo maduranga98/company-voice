@@ -73,6 +73,7 @@ const {
   submitPublicReport,
   ensureReportSlug,
   setReportingEnabled,
+  updateCompanySettings,
 } = require('./api/publicReportApi');
 
 const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
@@ -175,6 +176,7 @@ exports.getPublicReportConfig = getPublicReportConfig;
 exports.submitPublicReport = submitPublicReport;
 exports.ensureReportSlug = ensureReportSlug;
 exports.setReportingEnabled = setReportingEnabled;
+exports.updateCompanySettings = updateCompanySettings;
 exports.cleanupPublicReports = cleanupPublicReports;
 
 // Export Check My Case Functions

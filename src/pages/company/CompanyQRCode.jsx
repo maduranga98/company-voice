@@ -17,6 +17,7 @@ const CompanyQRCode = () => {
   const [loading, setLoading] = useState(true);
   const [reportUrl, setReportUrl] = useState("");
   const [reportingEnabled, setReportingEnabled] = useState(true);
+  const [caseCheckEnabled, setCaseCheckEnabled] = useState(true);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkError, setLinkError] = useState("");
   const [confirmRegenerate, setConfirmRegenerate] = useState(false);
@@ -44,6 +45,7 @@ const CompanyQRCode = () => {
         const companyData = { id: companyDoc.id, ...companyDoc.data() };
         setCompany(companyData);
         setReportingEnabled(companyData.reportingEnabled !== false);
+        setCaseCheckEnabled(companyData.settings?.allowCaseProgressCheck !== false);
 
         let slug = companyData.reportSlug;
         if (!slug) {
@@ -94,6 +96,24 @@ const CompanyQRCode = () => {
       setReportingEnabled(next);
     } catch (error) {
       console.error("Error updating reporting status:", error);
+      setLinkError(t("report.link.saveError"));
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
+  const toggleCaseCheck = async () => {
+    const next = !caseCheckEnabled;
+    setLinkBusy(true);
+    setLinkError("");
+    try {
+      await httpsCallable(functions, "updateCompanySettings")({
+        companyId: company.id,
+        settings: { allowCaseProgressCheck: next },
+      });
+      setCaseCheckEnabled(next);
+    } catch (error) {
+      console.error("Error updating case progress setting:", error);
       setLinkError(t("report.link.saveError"));
     } finally {
       setLinkBusy(false);
@@ -1016,6 +1036,31 @@ const CompanyQRCode = () => {
                       className="px-4 py-2 text-sm font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
                     >
                       {t('report.link.regenerate')}
+                    </button>
+                  </div>
+                  <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 px-4 py-3">
+                    <span>
+                      <span id="case-check-label" className="block text-sm font-semibold text-gray-900">
+                        {t('report.link.caseCheckLabel')}
+                      </span>
+                      <span className="block text-xs text-gray-500">{t('report.link.caseCheckHelp')}</span>
+                    </span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={caseCheckEnabled}
+                      aria-labelledby="case-check-label"
+                      disabled={linkBusy || !company}
+                      onClick={toggleCaseCheck}
+                      className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1ABC9C] focus-visible:ring-offset-2 disabled:opacity-50 ${
+                        caseCheckEnabled ? 'bg-[#1ABC9C]' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                          caseCheckEnabled ? 'translate-x-5' : 'translate-x-0.5'
+                        }`}
+                      />
                     </button>
                   </div>
                 </div>
