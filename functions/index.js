@@ -77,6 +77,9 @@ const {
 
 const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
 
+// Check My Case API (no-login case status and private replies)
+const { getCaseStatus, submitCaseReply } = require('./api/caseAccessApi');
+
 // Webhooks - COMMENTED OUT FOR NOW
 // const { handleStripeWebhook } = require('./webhooks/stripeWebhook');
 
@@ -164,3 +167,7 @@ exports.submitPublicReport = submitPublicReport;
 exports.ensureReportSlug = ensureReportSlug;
 exports.setReportingEnabled = setReportingEnabled;
 exports.cleanupPublicReports = cleanupPublicReports;
+
+// Export Check My Case Functions
+exports.getCaseStatus = getCaseStatus;
+exports.submitCaseReply = submitCaseReply;
