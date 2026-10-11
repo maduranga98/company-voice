@@ -10,8 +10,8 @@ every existing company keeps the feature on until its admin switches it off.
   default, the `isCaseProgressCheckAllowed(company)` check and the payload validator.
 - **Backend**
   - `updateCompanySettings({ companyId, settings })` in `functions/api/publicReportApi.js`, next to
-    `setReportingEnabled` (same `requireCompanyAdmin` + `BASE_OPTIONS` pattern; `companyApi`
-    in `companyAdminApi.js` is billing-only and has no `BASE_OPTIONS`). Unknown keys and
+    `setReportingEnabled` (same `requireCompanyAdmin` + `BASE_OPTIONS` pattern; the billing-only
+    `companyAdminApi.js` has no `BASE_OPTIONS`). Unknown keys and
     non-boolean values are rejected. Exported in `functions/index.js`.
   - `getPublicReportConfig` now returns `allowCaseProgressCheck`, so `/r/:slug` needs no new lookup.
   - **Server-side enforcement**: `verifyCaseCredentials` in `caseAccessApi.js` (used by both
