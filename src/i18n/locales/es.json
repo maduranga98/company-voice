@@ -1002,6 +1002,10 @@
       "attachmentsMissing": "No se encontró uno de tus archivos. Quítalo y vuelve a añadirlo.",
       "inactive": "Este enlace de denuncias ya no está activo."
     },
+    "form": {
+      "checkCaseIntro": "¿Ya envió un informe?",
+      "checkCaseLink": "Consultar su estado"
+    },
     "success": {
       "title": "Tu informe ha sido enviado",
       "intro": "Gracias por hablar. Aquí tienes tu código de caso y tu clave secreta.",

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { AlertTriangle, Loader2, WifiOff } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { AlertTriangle, KeyRound, Loader2, WifiOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ReportHeader from "../../components/public/ReportHeader";
 import TypeSelector from "../../components/public/TypeSelector";
@@ -10,12 +10,7 @@ import SuccessScreen from "../../components/public/SuccessScreen";
 import InactiveLink from "../../components/public/InactiveLink";
 import { REPORT_LANGUAGES } from "../../utils/reportLanguages";
 import { useEvidenceUploads } from "../../hooks/useEvidenceUploads";
-import {
-  createReportToken,
-  fetchReportConfig,
-  submitErrorKey,
-  submitReport,
-} from "../../services/publicReportService";
+import { createReportToken, fetchReportConfig, submitErrorKey, submitReport } from "../../services/publicReportService";
 
 const MIN_DESCRIPTION = 20;
 const MAX_DESCRIPTION = 5000;
@@ -188,7 +183,10 @@ const ReportPage = () => {
 
       <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-softGray px-4 pb-16 pt-6 print:mt-0 print:bg-white">
         {!online && (
-          <p role="status" className="mb-4 flex items-center gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50] print:hidden">
+          <p
+            role="status"
+            className="mb-4 flex items-center gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50] print:hidden"
+          >
             <WifiOff className="h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
             {t("report.submit.offline")}
           </p>
@@ -203,101 +201,118 @@ const ReportPage = () => {
             onDone={handleDone}
           />
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-            <TypeSelector value={type} onChange={setType} />
-
-            <div>
-              <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
-                {t("report.category.label")}
-              </label>
-              <select
-                id="report-category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">{t("report.category.placeholder")}</option>
-                {config.categories.map((id) => (
-                  <option key={id} value={id}>
-                    {t(`report.category.options.${id}`)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="report-description" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
-                {t("report.description.label")}
-              </label>
-              <textarea
-                id="report-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                maxLength={MAX_DESCRIPTION}
-                rows={7}
-                autoComplete="off"
-                placeholder={t("report.description.placeholder")}
-                className={`${inputClass} resize-y`}
-              />
-              <div className="mt-1 flex justify-between gap-3 text-xs text-gray-500">
-                <span>
-                  {trimmedLength > 0 && trimmedLength < MIN_DESCRIPTION
-                    ? t("report.description.minHint", { min: MIN_DESCRIPTION })
-                    : ""}
-                </span>
-                <span>{t("report.description.counter", { count: description.length, max: MAX_DESCRIPTION })}</span>
-              </div>
-            </div>
-
-            <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4">
-              <input
-                type="checkbox"
-                checked={involvesHR}
-                onChange={(e) => setInvolvesHR(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#1ABC9C]"
-              />
-              <span>
-                <span className="block text-sm font-semibold text-[#2D3E50]">{t("report.involvesHR.label")}</span>
-                <span className="mt-0.5 block text-xs text-gray-500">{t("report.involvesHR.helper")}</span>
-              </span>
-            </label>
-
-            <EvidenceUploader uploads={uploads} limits={config.limits} />
-
-            <ContactSection value={contact} onChange={setContact} />
-
-            {/* Honeypot: hidden from people and assistive tech, so only bots fill it. */}
-            <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-              <label htmlFor="report-website">Website</label>
-              <input
-                id="report-website"
-                type="text"
-                name="website"
-                tabIndex={-1}
-                autoComplete="off"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-              />
-            </div>
-
-            {error && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
-                {t(error)}
+          <>
+            {config.allowCaseProgressCheck !== false && (
+              <p className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-600 print:hidden">
+                {t("report.form.checkCaseIntro")}
+                <Link
+                  to="/c"
+                  className="inline-flex items-center gap-1.5 font-semibold text-[#2D3E50] underline-offset-2 hover:text-[#1ABC9C] hover:underline"
+                >
+                  <KeyRound className="h-3.5 w-3.5" aria-hidden="true" />
+                  {t("report.form.checkCaseLink")}
+                </Link>
               </p>
             )}
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              <TypeSelector value={type} onChange={setType} />
 
-            {uploads.uploading && <p className="text-xs text-gray-500">{t("report.submit.uploadsPending")}</p>}
+              <div>
+                <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                  {t("report.category.label")}
+                </label>
+                <select
+                  id="report-category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">{t("report.category.placeholder")}</option>
+                  {config.categories.map((id) => (
+                    <option key={id} value={id}>
+                      {t(`report.category.options.${id}`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3.5 text-base font-semibold text-white shadow-glow transition hover:bg-brand-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-              {busy ? t("report.submit.sending") : t("report.submit.button")}
-            </button>
-          </form>
+              <div>
+                <label htmlFor="report-description" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                  {t("report.description.label")}
+                </label>
+                <textarea
+                  id="report-description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  maxLength={MAX_DESCRIPTION}
+                  rows={7}
+                  autoComplete="off"
+                  placeholder={t("report.description.placeholder")}
+                  className={`${inputClass} resize-y`}
+                />
+                <div className="mt-1 flex justify-between gap-3 text-xs text-gray-500">
+                  <span>
+                    {trimmedLength > 0 && trimmedLength < MIN_DESCRIPTION
+                      ? t("report.description.minHint", { min: MIN_DESCRIPTION })
+                      : ""}
+                  </span>
+                  <span>{t("report.description.counter", { count: description.length, max: MAX_DESCRIPTION })}</span>
+                </div>
+              </div>
+
+              <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4">
+                <input
+                  type="checkbox"
+                  checked={involvesHR}
+                  onChange={(e) => setInvolvesHR(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#1ABC9C]"
+                />
+                <span>
+                  <span className="block text-sm font-semibold text-[#2D3E50]">{t("report.involvesHR.label")}</span>
+                  <span className="mt-0.5 block text-xs text-gray-500">{t("report.involvesHR.helper")}</span>
+                </span>
+              </label>
+
+              <EvidenceUploader uploads={uploads} limits={config.limits} />
+
+              <ContactSection value={contact} onChange={setContact} />
+
+              {/* Honeypot: hidden from people and assistive tech, so only bots fill it. */}
+              <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                <label htmlFor="report-website">Website</label>
+                <input
+                  id="report-website"
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                />
+              </div>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]"
+                >
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
+                  {t(error)}
+                </p>
+              )}
+
+              {uploads.uploading && <p className="text-xs text-gray-500">{t("report.submit.uploadsPending")}</p>}
+
+              <button
+                type="submit"
+                disabled={!canSubmit}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3.5 text-base font-semibold text-white shadow-glow transition hover:bg-brand-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                {busy ? t("report.submit.sending") : t("report.submit.button")}
+              </button>
+            </form>
+          </>
         )}
       </main>
     </div>
