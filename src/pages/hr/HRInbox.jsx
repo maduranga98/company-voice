@@ -18,6 +18,8 @@ import {
 } from "../../utils/constants";
 import AdminActionPanel from "../../components/AdminActionPanel";
 import CaseAttachments from "../../components/CaseAttachments";
+import OpenCaseLink from "../../components/case/OpenCaseLink";
+import { CaseType } from "../../utils/caseTypes";
 import {
   Inbox,
   AlertTriangle,
@@ -288,6 +290,7 @@ const HRInbox = () => {
                   {/* Mobile inline expansion */}
                   {isSelected && (
                     <div className="lg:hidden border-t border-gray-100 p-4" onClick={(e) => e.stopPropagation()}>
+                      <OpenCaseLink caseType={CaseType.POST} caseId={post.id} className="mb-3" />
                       <AdminActionPanel post={post} currentUser={userData} />
                     </div>
                   )}
@@ -338,6 +341,7 @@ const HRInbox = () => {
                     </span>
                   </div>
                 </div>
+                <OpenCaseLink caseType={CaseType.POST} caseId={selectedPost.id} className="flex-shrink-0" />
                 <button
                   onClick={() => setSelectedPost(null)}
                   className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"

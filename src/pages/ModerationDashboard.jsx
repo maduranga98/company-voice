@@ -17,6 +17,8 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import OpenCaseLink from "../components/case/OpenCaseLink";
+import { CaseType } from "../utils/caseTypes";
 import {
   getCompanyReports,
   getModerationStats,
@@ -822,6 +824,7 @@ ${report.retentionYears ? `Retention: ${report.retentionYears} years` : ""}
                   )}
                 </span>
                 <div className="flex items-center space-x-2">
+                  <OpenCaseLink caseType={CaseType.MODERATION} caseId={report.id} />
                   {report.totalReportsForContent > 0 && (
                     <span className="bg-red-100 text-red-700 px-2.5 py-1 rounded-xl font-medium">
                       {report.totalReportsForContent} report{report.totalReportsForContent !== 1 ? 's' : ''}
