@@ -136,7 +136,7 @@ const PolicyLibrary = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-[#5B5BD6] border-t-transparent animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-[#1ABC9C] border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -145,19 +145,19 @@ const PolicyLibrary = () => {
     <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
       {/* Toast */}
       {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-[#0E1224] text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
+        <div className="fixed top-4 right-4 z-50 bg-[#2D3E50] text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
           {toast}
         </div>
       )}
 
       {/* Page title */}
-      <h1 className="text-xl font-bold text-[#0E1224] mb-1">Company Policies</h1>
+      <h1 className="text-xl font-bold text-[#2D3E50] mb-1">Company Policies</h1>
       <p className="text-sm text-gray-500 mb-5">Review and acknowledge company policies</p>
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 mb-5">
         <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
-          <div className="text-2xl font-bold text-[#0E1224]">{policies.length}</div>
+          <div className="text-2xl font-bold text-[#2D3E50]">{policies.length}</div>
           <div className="text-xs text-gray-500 mt-1 font-medium">Total</div>
         </div>
         <div className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100">
@@ -201,7 +201,7 @@ const PolicyLibrary = () => {
             onClick={() => setCategoryFilter(cat.value)}
             className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               categoryFilter === cat.value
-                ? "bg-[#5B5BD6] text-white shadow-sm"
+                ? "bg-[#1ABC9C] text-white shadow-sm"
                 : "bg-white text-gray-500 border border-gray-100 hover:border-gray-200"
             }`}
           >
@@ -245,7 +245,7 @@ const PolicyLibrary = () => {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-sm font-bold text-[#0E1224] mb-1">{policy.title}</h3>
+                <h3 className="text-sm font-bold text-[#2D3E50] mb-1">{policy.title}</h3>
 
                 {/* Effective date */}
                 <p className="text-xs text-gray-400 mb-2">
@@ -263,7 +263,7 @@ const PolicyLibrary = () => {
                 {policy.requiresAcknowledgement && !isAcknowledged ? (
                   <button
                     onClick={() => openModal(policy)}
-                    className="w-full py-2.5 bg-[#5B5BD6] text-white text-xs font-semibold rounded-xl hover:bg-[#4A49C2] transition-colors"
+                    className="w-full py-2.5 bg-[#1ABC9C] text-white text-xs font-semibold rounded-xl hover:bg-[#16A085] transition-colors"
                   >
                     Read & Acknowledge
                   </button>
@@ -298,7 +298,7 @@ const PolicyLibrary = () => {
                   </span>
                   <span className="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-0.5 rounded-lg">v{selectedPolicy.version}</span>
                 </div>
-                <h2 className="text-lg font-bold text-[#0E1224]">{selectedPolicy.title}</h2>
+                <h2 className="text-lg font-bold text-[#2D3E50]">{selectedPolicy.title}</h2>
               </div>
               <button onClick={closeModal} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl flex-shrink-0 transition-colors">
                 <X className="w-5 h-5" />
@@ -338,7 +338,7 @@ const PolicyLibrary = () => {
                 ].map((item) => (
                   <div key={item.label} className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                     <p className="text-xs font-semibold text-gray-400 uppercase mb-1">{item.label}</p>
-                    <p className="text-xs text-[#0E1224] font-medium">{item.value}</p>
+                    <p className="text-xs text-[#2D3E50] font-medium">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -363,7 +363,7 @@ const PolicyLibrary = () => {
                         type="checkbox"
                         checked={ackChecked}
                         onChange={(e) => setAckChecked(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 text-[#5B5BD6] border-gray-300 rounded focus:ring-[#5B5BD6]"
+                        className="mt-0.5 w-4 h-4 text-[#1ABC9C] border-gray-300 rounded focus:ring-[#1ABC9C]"
                       />
                       <span className="text-sm text-gray-700">
                         I have read and understood this policy.
@@ -372,7 +372,7 @@ const PolicyLibrary = () => {
                     <button
                       onClick={handleAcknowledge}
                       disabled={!ackChecked || acknowledging}
-                      className="w-full py-2.5 bg-[#5B5BD6] text-white text-sm font-semibold rounded-xl hover:bg-[#4A49C2] transition-colors disabled:opacity-40"
+                      className="w-full py-2.5 bg-[#1ABC9C] text-white text-sm font-semibold rounded-xl hover:bg-[#16A085] transition-colors disabled:opacity-40"
                     >
                       {acknowledging ? "Confirming..." : "Confirm Acknowledgement"}
                     </button>

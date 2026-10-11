@@ -10,11 +10,11 @@ const Row = ({ done, doneLabel, pendingLabel, overdueLabel, deadline }) => {
   return (
     <div className="flex items-start gap-2.5">
       {done ? (
-        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#5B5BD6]" aria-hidden="true" />
+        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#1ABC9C]" aria-hidden="true" />
       ) : (
-        <Clock className={`mt-0.5 h-4 w-4 shrink-0 ${overdue ? "text-[#F43F5E]" : "text-gray-400"}`} aria-hidden="true" />
+        <Clock className={`mt-0.5 h-4 w-4 shrink-0 ${overdue ? "text-[#FF6B6B]" : "text-gray-400"}`} aria-hidden="true" />
       )}
-      <p className={`text-sm ${overdue ? "text-[#F43F5E]" : "text-gray-600"}`}>
+      <p className={`text-sm ${overdue ? "text-[#FF6B6B]" : "text-gray-600"}`}>
         {done ? doneLabel : overdue ? overdueLabel : pendingLabel(Math.max(daysLeft, 0))}
       </p>
     </div>

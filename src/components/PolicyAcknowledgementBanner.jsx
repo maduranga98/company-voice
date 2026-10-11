@@ -73,12 +73,12 @@ const PolicyAcknowledgementBanner = ({ companyId, userId, onAcknowledged }) => {
         />
       )}
 
-      <div className="mx-4 sm:mx-6 mt-4 flex items-center justify-between gap-4 bg-[#0E1224] text-white rounded-lg px-4 py-3 shadow-md">
+      <div className="mx-4 sm:mx-6 mt-4 flex items-center justify-between gap-4 bg-[#2D3E50] text-white rounded-lg px-4 py-3 shadow-md">
         <div className="flex items-center gap-3 min-w-0">
           {/* Shield icon */}
-          <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#8B5CF6]/15 flex items-center justify-center">
+          <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#00BCD4]/15 flex items-center justify-center">
             <svg
-              className="w-4.5 h-4.5 text-[#8B5CF6]"
+              className="w-4.5 h-4.5 text-[#00BCD4]"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -95,7 +95,7 @@ const PolicyAcknowledgementBanner = ({ companyId, userId, onAcknowledged }) => {
             VoxWel's anonymous reporting protects your identity.{" "}
             <button
               onClick={() => setShowGuarantee(true)}
-              className="text-[#8B5CF6] underline underline-offset-2 hover:text-[#4dd9ec] transition-colors whitespace-nowrap"
+              className="text-[#00BCD4] underline underline-offset-2 hover:text-[#4dd9ec] transition-colors whitespace-nowrap"
             >
               Learn how it works →
             </button>
@@ -106,7 +106,7 @@ const PolicyAcknowledgementBanner = ({ companyId, userId, onAcknowledged }) => {
           <button
             onClick={handleAcknowledge}
             disabled={acknowledging}
-            className="px-3 py-1.5 bg-[#8B5CF6] text-white text-xs font-semibold rounded-lg hover:bg-[#7C3AED] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 bg-[#00BCD4] text-white text-xs font-semibold rounded-lg hover:bg-[#0097A7] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {acknowledging ? "Saving…" : "Got it"}
           </button>

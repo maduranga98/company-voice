@@ -191,7 +191,7 @@ const ReportDetailView = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-[#5B5BD6] border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-2 border-[#1ABC9C] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-500">Loading report...</p>
         </div>
       </div>
@@ -208,7 +208,7 @@ const ReportDetailView = () => {
           <p className="text-gray-900 font-semibold mb-1">{error || "Report not found"}</p>
           <button
             onClick={() => navigate("/moderation")}
-            className="text-sm text-[#5B5BD6] hover:text-[#4A49C2] font-medium"
+            className="text-sm text-[#1ABC9C] hover:text-[#16A085] font-medium"
           >
             Back to Moderation Dashboard
           </button>
@@ -510,7 +510,7 @@ const ReportDetailView = () => {
                     value={moderatorNotes}
                     onChange={(e) => setModeratorNotes(e.target.value)}
                     placeholder="Internal notes for the moderation team..."
-                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5B5BD6] focus:border-transparent placeholder-gray-400 resize-none"
+                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1ABC9C] focus:border-transparent placeholder-gray-400 resize-none"
                   />
                 </div>
 
@@ -526,7 +526,7 @@ const ReportDetailView = () => {
                         value={violationType}
                         onChange={(e) => setViolationType(e.target.value)}
                         placeholder="e.g., Harassment, Inappropriate Content"
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5B5BD6] focus:border-transparent placeholder-gray-400"
+                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1ABC9C] focus:border-transparent placeholder-gray-400"
                       />
                     </div>
 
@@ -539,7 +539,7 @@ const ReportDetailView = () => {
                         value={explanation}
                         onChange={(e) => setExplanation(e.target.value)}
                         placeholder="This will be sent to the user in their notification..."
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#5B5BD6] focus:border-transparent placeholder-gray-400 resize-none"
+                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1ABC9C] focus:border-transparent placeholder-gray-400 resize-none"
                       />
                     </div>
 

@@ -6,9 +6,9 @@ import { getKeyPartA, combineAndDecrypt } from "../services/keyVaultService";
 import { logDisclosure } from "../services/disclosureAuditService";
 
 // Brand colors
-const NAVY = "#0E1224";
-const TEAL = "#8B5CF6";
-const CORAL = "#F43F5E";
+const NAVY = "#2D3E50";
+const TEAL = "#00BCD4";
+const CORAL = "#FF6B6B";
 
 const STEPS = {
   CONFIRM: 0,

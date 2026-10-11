@@ -8,7 +8,7 @@ import CaseReplyThread from "../../components/public/CaseReplyThread";
 import { caseErrorKey, fetchCaseStatus, sendCaseReply } from "../../services/publicCaseService";
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 font-mono text-sm uppercase tracking-wider text-[#0E1224] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
+  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 font-mono text-sm uppercase tracking-wider text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
 
 const STATUSES = [
   "open",
@@ -152,7 +152,7 @@ const CheckCasePage = () => {
         {!caseData ? (
           <form onSubmit={handleLookup} className="space-y-5" noValidate>
             <div>
-              <label htmlFor="case-code" className="mb-1.5 block text-sm font-semibold text-[#0E1224]">
+              <label htmlFor="case-code" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
                 {t("report.checkCase.caseCodeLabel")}
               </label>
               <input
@@ -168,7 +168,7 @@ const CheckCasePage = () => {
             </div>
 
             <div>
-              <label htmlFor="case-key" className="mb-1.5 block text-sm font-semibold text-[#0E1224]">
+              <label htmlFor="case-key" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
                 {t("report.checkCase.secretKeyLabel")}
               </label>
               <input
@@ -184,8 +184,8 @@ const CheckCasePage = () => {
             </div>
 
             {error && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#F43F5E]/10 p-3 text-sm text-[#0E1224]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#F43F5E]" aria-hidden="true" />
+              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
                 {t(error)}
               </p>
             )}
@@ -193,7 +193,7 @@ const CheckCasePage = () => {
             <button
               type="submit"
               disabled={!caseCode.trim() || !secretKey.trim() || loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5B5BD6] px-4 py-3.5 text-base font-semibold text-white transition hover:bg-[#4A49C2] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1ABC9C] px-4 py-3.5 text-base font-semibold text-white transition hover:bg-[#16A085] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
               {loading ? t("report.checkCase.loading") : t("report.checkCase.submitButton")}
@@ -214,7 +214,7 @@ const CheckCasePage = () => {
               <button
                 type="button"
                 onClick={resetToLookup}
-                className="text-xs font-semibold text-[#0E1224] underline underline-offset-2 hover:text-[#5B5BD6]"
+                className="text-xs font-semibold text-[#2D3E50] underline underline-offset-2 hover:text-[#1ABC9C]"
               >
                 {t("report.checkCase.checkAnother")}
               </button>
@@ -228,14 +228,14 @@ const CheckCasePage = () => {
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 {t("report.checkCase.yourReport")}
               </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-[#0E1224]">{caseData.description}</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-[#2D3E50]">{caseData.description}</p>
             </div>
 
             <CaseTimers timers={caseData.timers} />
 
             {replyError && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#F43F5E]/10 p-3 text-sm text-[#0E1224]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#F43F5E]" aria-hidden="true" />
+              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
                 {t(replyError)}
               </p>
             )}

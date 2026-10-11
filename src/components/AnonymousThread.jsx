@@ -14,9 +14,9 @@ const ANONYMOUS_SECRET =
   import.meta.env.VITE_ANONYMOUS_SECRET || "default-secret-key-change-in-production";
 
 // Brand colors
-const NAVY = "#0E1224";
-const TEAL = "#8B5CF6";
-const CORAL = "#F43F5E";
+const NAVY = "#2D3E50";
+const TEAL = "#00BCD4";
+const CORAL = "#FF6B6B";
 
 const decryptMessage = (encryptedText) => {
   if (!encryptedText || typeof encryptedText !== "string") return "";

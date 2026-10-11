@@ -27,9 +27,9 @@ const ITEMS_PER_PAGE = 50;
 const getActionBadgeStyle = (type) => {
   const statusTypes = ["status_changed", "priority_changed", "resolved", "reopened", "created", "edited", "archived", "unarchived", "post_deleted"];
   const legalTypes = ["identity_disclosure", "court_order", "subpoena", "content_preservation", "legal_disclosure"];
-  if (legalTypes.includes(type)) return "bg-[#F43F5E]/15 text-[#cc3333] border border-[#F43F5E]/30";
-  if (statusTypes.includes(type)) return "bg-[#8B5CF6]/15 text-[#006e7f] border border-[#8B5CF6]/30";
-  return "bg-[#0E1224]/10 text-[#0E1224] border border-[#0E1224]/20";
+  if (legalTypes.includes(type)) return "bg-[#FF6B6B]/15 text-[#cc3333] border border-[#FF6B6B]/30";
+  if (statusTypes.includes(type)) return "bg-[#00BCD4]/15 text-[#006e7f] border border-[#00BCD4]/30";
+  return "bg-[#2D3E50]/10 text-[#2D3E50] border border-[#2D3E50]/20";
 };
 
 // Skeleton row
@@ -52,7 +52,7 @@ const DetailCell = ({ details }) => {
     <div>
       <button
         onClick={() => setOpen((p) => !p)}
-        className="inline-flex items-center gap-1 text-xs text-[#8B5CF6] hover:text-[#7C3AED] transition-colors"
+        className="inline-flex items-center gap-1 text-xs text-[#00BCD4] hover:text-[#0097A7] transition-colors"
       >
         <svg
           className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-90" : ""}`}
@@ -77,13 +77,13 @@ const DetailCell = ({ details }) => {
 const SummaryCard = ({ label, value, highlight, sublabel }) => (
   <div
     className={`bg-white rounded-lg border p-4 shadow-sm ${
-      highlight ? "border-[#F43F5E]/50 bg-[#F43F5E]/5" : "border-slate-200"
+      highlight ? "border-[#FF6B6B]/50 bg-[#FF6B6B]/5" : "border-slate-200"
     }`}
   >
     <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</p>
     <p
       className={`text-3xl font-bold mt-1 ${
-        highlight ? "text-[#F43F5E]" : "text-[#0E1224]"
+        highlight ? "text-[#FF6B6B]" : "text-[#2D3E50]"
       }`}
     >
       {value}
@@ -163,7 +163,7 @@ const AuditExportPage = () => {
       <div className="mb-6 flex items-center gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="text-slate-500 hover:text-[#0E1224] transition-colors"
+          className="text-slate-500 hover:text-[#2D3E50] transition-colors"
           title="Go back"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,7 +171,7 @@ const AuditExportPage = () => {
           </svg>
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-[#0E1224]">Compliance Audit Export</h1>
+          <h1 className="text-2xl font-bold text-[#2D3E50]">Compliance Audit Export</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             Filter, view, and export audit logs for compliance purposes
           </p>
@@ -188,7 +188,7 @@ const AuditExportPage = () => {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/40 focus:border-[#8B5CF6] transition"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]/40 focus:border-[#00BCD4] transition"
             />
           </div>
           {/* To date */}
@@ -198,7 +198,7 @@ const AuditExportPage = () => {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/40 focus:border-[#8B5CF6] transition"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]/40 focus:border-[#00BCD4] transition"
             />
           </div>
           {/* Action type */}
@@ -207,7 +207,7 @@ const AuditExportPage = () => {
             <select
               value={actionType}
               onChange={(e) => setActionType(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/40 focus:border-[#8B5CF6] transition"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]/40 focus:border-[#00BCD4] transition"
             >
               {ACTION_TYPE_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -224,7 +224,7 @@ const AuditExportPage = () => {
               value={actorSearch}
               onChange={(e) => setActorSearch(e.target.value)}
               placeholder="Search by name…"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/40 focus:border-[#8B5CF6] transition"
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00BCD4]/40 focus:border-[#00BCD4] transition"
             />
           </div>
         </div>
@@ -234,21 +234,21 @@ const AuditExportPage = () => {
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="px-4 py-2 bg-[#0E1224] text-white text-sm font-medium rounded-lg hover:bg-[#3a4f63] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-[#2D3E50] text-white text-sm font-medium rounded-lg hover:bg-[#3a4f63] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Generating…" : "Generate Report"}
           </button>
           <button
             onClick={handleExportCSV}
             disabled={!rawLogs.length}
-            className="px-4 py-2 bg-[#8B5CF6] text-white text-sm font-medium rounded-lg hover:bg-[#7C3AED] transition disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-[#00BCD4] text-white text-sm font-medium rounded-lg hover:bg-[#0097A7] transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Export CSV
           </button>
           <button
             onClick={handleExportPDF}
             disabled={!rawLogs.length}
-            className="px-4 py-2 bg-[#0E1224] text-white text-sm font-medium rounded-lg hover:bg-[#1a2633] transition disabled:opacity-40 disabled:cursor-not-allowed border border-[#0E1224]"
+            className="px-4 py-2 bg-[#2D3E50] text-white text-sm font-medium rounded-lg hover:bg-[#1a2633] transition disabled:opacity-40 disabled:cursor-not-allowed border border-[#2D3E50]"
           >
             Export PDF
           </button>
@@ -287,7 +287,7 @@ const AuditExportPage = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#0E1224] text-white">
+              <tr className="bg-[#2D3E50] text-white">
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
                   Timestamp
                 </th>
@@ -347,7 +347,7 @@ const AuditExportPage = () => {
                     <td className="px-4 py-3 text-xs text-slate-600 whitespace-nowrap font-mono">
                       {log.timestampStr}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-[#0E1224] whitespace-nowrap">
+                    <td className="px-4 py-3 text-sm font-medium text-[#2D3E50] whitespace-nowrap">
                       {log.actor}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
