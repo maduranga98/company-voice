@@ -3,8 +3,9 @@
 /* ============================================
    TAILWIND CSS V4 THEME CONFIGURATION
    ============================================
-   In Tailwind v4, custom colors and themes are defined using CSS variables
-   and the @theme directive instead of tailwind.config.js
+   This @theme block is the ONLY source of design tokens. Tailwind v4 does
+   not read tailwind.config.js unless an `@config` directive is present, and
+   this project has none, so do not re-add a JS theme config.
 */
 
 @theme {
@@ -76,15 +77,18 @@
   --color-gray-200: #e2e8f0;
   --color-gray-300: #cbd5e0;
   --color-gray-400: #a0aec0;
-  --color-gray-500: #718096;
+  --color-gray-500: #5f6d82; /* darkened from #718096 for >=4.5:1 on the warm page background */
   --color-gray-600: #4a5568;
   --color-gray-700: #2d3748;
   --color-gray-800: #232f3e;
   --color-gray-900: #1a1f2e;
 
-  /* Surfaces */
+  /* Surfaces
+     page   = default page background (warm off-white, easier on eyes) -> bg-background-page
+     white  = cards / panels sitting on the page background, kept pure white for contrast */
+  --color-background-page: #faf9f7;
   --color-background-white: #ffffff;
-  --color-background-cream: #faf9f7;
+  --color-background-cream: var(--color-background-page);
   --color-background-softGray: #f7f9fc;
   --color-background-lightMist: #eef2f7;
   --color-background-offWhite: #f8f9fc;
@@ -92,7 +96,7 @@
   /* Text */
   --color-text-primary: #1a1f2e;
   --color-text-secondary: #4a5568;
-  --color-text-tertiary: #718096;
+  --color-text-tertiary: #5f6d82;
   --color-text-onDark: #ffffff;
 
   /* Borders */
@@ -196,7 +200,7 @@
 
   body {
     @apply antialiased font-sans;
-    background-color: var(--color-background-softGray);
+    background-color: var(--color-background-page);
     color: var(--color-text-primary);
     font-feature-settings: "cv11", "ss01";
   }

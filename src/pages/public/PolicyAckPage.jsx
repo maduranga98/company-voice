@@ -174,7 +174,7 @@ const PolicyAckPage = () => {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background-softGray">
+      <div className="flex min-h-screen items-center justify-center bg-background-page">
         <Loader2 className="h-8 w-8 animate-spin text-[#1ABC9C]" aria-label={t("report.loading")} />
       </div>
     );
@@ -183,10 +183,10 @@ const PolicyAckPage = () => {
   const { policy } = config;
 
   return (
-    <div className="min-h-screen bg-background-softGray">
+    <div className="min-h-screen bg-background-page">
       <PolicyHeader companyName={config.companyName} />
 
-      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-softGray px-4 pb-16 pt-6">
+      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-page px-4 pb-16 pt-6">
         {!online && (
           <p role="status" className="mb-4 flex items-center gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
             <WifiOff className="h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />

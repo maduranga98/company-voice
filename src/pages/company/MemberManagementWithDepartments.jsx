@@ -433,7 +433,7 @@ const MemberManagementWithDepartments = () => {
 
   if (loading && members.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50/50">
+      <div className="flex items-center justify-center min-h-screen bg-background-page">
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#1ABC9C] border-t-transparent"></div>
           <p className="text-sm text-gray-500">Loading members...</p>
@@ -443,7 +443,7 @@ const MemberManagementWithDepartments = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background-page px-4 py-6 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8 w-full">
         <div className="flex items-center justify-between mb-8">

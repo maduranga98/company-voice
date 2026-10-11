@@ -171,17 +171,17 @@ const ReportPage = () => {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background-softGray">
+      <div className="flex min-h-screen items-center justify-center bg-background-page">
         <Loader2 className="h-8 w-8 animate-spin text-[#1ABC9C]" aria-label={t("report.loading")} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-softGray">
+    <div className="min-h-screen bg-background-page">
       <ReportHeader companyName={config.companyName} />
 
-      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-softGray px-4 pb-16 pt-6 print:mt-0 print:bg-white">
+      <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-page px-4 pb-16 pt-6 print:mt-0 print:bg-white">
         {!online && (
           <p
             role="status"

@@ -23,7 +23,7 @@ const Dashboard = () => {
   }, [userData, navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-cream">
+    <div className="flex min-h-screen items-center justify-center bg-background-page">
       <div className="flex flex-col items-center text-center">
         <div className="relative">
           <span className="absolute inset-0 animate-ping rounded-2xl bg-brand-400/30" />
