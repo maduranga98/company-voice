@@ -400,6 +400,64 @@
     "staff": "Personal",
     "statusReadOnly": "El estado cambia mediante las acciones de moderación"
   },
+  "caseDetail": {
+    "back": "Volver",
+    "openFullCase": "Abrir caso completo",
+    "copyLink": "Copiar enlace",
+    "linkCopied": "Enlace copiado",
+    "anonymous": "Anónimo",
+    "due": "Vence {{date}}",
+    "submission": "Envío",
+    "conversation": "Conversación con el informante",
+    "handling": "Gestión del caso",
+    "policyConcern": "Inquietud sobre una política",
+    "employeeId": "ID de empleado",
+    "type": {
+      "post": "Informe",
+      "vendor": "Riesgo de proveedor",
+      "moderation": "Moderación"
+    },
+    "vendor": {
+      "category": "Categoría",
+      "severity": "Gravedad",
+      "corroborations": "Corroboraciones",
+      "earlierNotes": "Notas de revisión anteriores",
+      "evidenceFile": "Archivo de evidencia {{n}}"
+    },
+    "moderation": {
+      "reporterNotes": "Notas del informante",
+      "openActions": "Abrir acciones de moderación"
+    },
+    "notFound": {
+      "title": "Caso no encontrado",
+      "body": "Este caso no existe o el enlace es incorrecto."
+    },
+    "noAccess": {
+      "title": "Sin acceso",
+      "body": "No tienes acceso a este caso."
+    },
+    "error": {
+      "title": "No se pudo cargar el caso",
+      "body": "Algo salió mal. Inténtalo de nuevo."
+    },
+    "timeline": {
+      "title": "Actividad",
+      "empty": "Aún no hay actividad."
+    },
+    "activity": {
+      "someone": "Alguien",
+      "created": "Caso creado",
+      "statusChanged": "{{actor}} cambió el estado de {{from}} a {{to}}",
+      "priorityChanged": "{{actor}} cambió la prioridad de {{from}} a {{to}}",
+      "assigned": "{{actor}} asignó el caso a {{assignee}}",
+      "unassigned": "{{actor}} quitó al responsable",
+      "dueDateSet": "{{actor}} fijó la fecha límite en {{date}}",
+      "dueDateCleared": "{{actor}} eliminó la fecha límite",
+      "noteAdded": "{{actor}} añadió una nota interna",
+      "reviewed": "{{actor}} revisó: {{action}}",
+      "other": "{{actor}}: {{type}}"
+    }
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Estados de Miembros",
