@@ -398,7 +398,12 @@
     "resolved": "Risolto",
     "total": "Totale",
     "empty": "Nessun post HR ancora",
-    "emptyDesc": "I post inviati all'HR appariranno qui"
+    "emptyDesc": "I post inviati all'HR appariranno qui",
+    "filterLabel": "Filtra per stato",
+    "anonymous": "Anonimo",
+    "emptyFiltered": "Nessun risultato",
+    "emptyFilteredDesc": "Al momento nessun post corrisponde a questo stato.",
+    "showAll": "Mostra tutti i post"
   },
   "adminPanel": {
     "title": "Controlli Admin",
@@ -435,7 +440,16 @@
     "remove": "Rimuovi",
     "notePlaceholder": "Aggiungi una nota interna (solo staff)...",
     "staff": "Staff",
-    "statusReadOnly": "Lo stato cambia tramite le azioni di moderazione"
+    "statusReadOnly": "Lo stato cambia tramite le azioni di moderazione",
+    "assignment": "Assegnazione",
+    "change": "Cambia",
+    "clear": "Rimuovi",
+    "noDueDate": "Nessuna scadenza",
+    "notes": "Note interne",
+    "noNotes": "Ancora nessuna nota",
+    "dueOn": "Scade il {{date}}",
+    "dueToday": "Scade oggi",
+    "overdueOn": "In ritardo · {{date}}"
   },
   "guidance": {
     "ui": {
