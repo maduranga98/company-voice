@@ -58,7 +58,8 @@
     "profile": "Profil",
     "notifications": "Notifications",
     "settings": "Paramètres",
-    "home": "Accueil"
+    "home": "Accueil",
+    "caseOverview": "Vue d'ensemble"
   },
   "company": {
     "dashboard": "Tableau de Bord Entreprise",
@@ -456,6 +457,46 @@
       "noteAdded": "{{actor}} a ajouté une note interne",
       "reviewed": "{{actor}} a examiné : {{action}}",
       "other": "{{actor}} : {{type}}"
+    }
+  },
+  "caseOverview": {
+    "title": "Vue d'ensemble des dossiers",
+    "subtitle": "Tout ce qui est ouvert : signalements, risques fournisseurs et modération",
+    "refresh": "Actualiser",
+    "untitled": "Dossier sans titre",
+    "unassigned": "Non assigné",
+    "open": "Ouverts",
+    "overdue": "En retard",
+    "atRisk": "À risque",
+    "allTypes": "Tous",
+    "mine": "Assignés à moi",
+    "view": "Affichage",
+    "list": "Vue liste",
+    "board": "Vue tableau",
+    "emptyTitle": "Rien ne demande votre attention",
+    "emptyBody": "Aucun dossier ouvert ne correspond à ces filtres.",
+    "partialFailure": "Certains dossiers n'ont pas pu être chargés : {{types}}.",
+    "truncated": "Jusqu'à 500 dossiers affichés par source.",
+    "timersMet": "Délais de la directive respectés",
+    "sla": {
+      "dueIn_one": "{{label}} : échéance dans {{count}} jour",
+      "dueIn_other": "{{label}} : échéance dans {{count}} jours",
+      "dueToday": "{{label}} : échéance aujourd'hui",
+      "overdueBy_one": "{{label}} : en retard de {{count}} jour",
+      "overdueBy_other": "{{label}} : en retard de {{count}} jours",
+      "overdue": "{{label}} : en retard",
+      "label": {
+        "acknowledge": "Accusé de réception",
+        "feedback": "Retour d'information"
+      },
+      "assigned": {
+        "dueIn_one": "Échéance dans {{count}} jour",
+        "dueIn_other": "Échéance dans {{count}} jours",
+        "dueToday": "Échéance aujourd'hui",
+        "overdueBy_one": "En retard de {{count}} jour",
+        "overdueBy_other": "En retard de {{count}} jours",
+        "overdue": "En retard"
+      }
     }
   },
   "guidance": {
