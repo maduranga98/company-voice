@@ -6,8 +6,8 @@ import {
 } from "../utils/constants";
 import { createLegalRequest } from "../services/legalRequestService";
 
-const NAVY = "#0E1224";
-const TEAL = "#5B5BD6";
+const NAVY = "#2D3E50";
+const TEAL = "#1ABC9C";
 
 const LegalRequestModal = ({ isOpen, onClose, report, companyId, userData }) => {
   const [requestType, setRequestType] = useState(LegalRequestType.IDENTITY_DISCLOSURE);

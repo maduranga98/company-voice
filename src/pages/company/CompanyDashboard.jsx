@@ -176,13 +176,13 @@ const CompanyDashboard = () => {
       alert: stats.criticalPosts > 0,
     },
     { label: t('company.openIssues'), value: stats.openPosts, icon: Clock, tint: "text-amber-600 bg-amber-50" },
-    { label: t('company.inProgress'), value: inProgressTotal, icon: Zap, tint: "text-violet-600 bg-violet-50" },
+    { label: t('company.inProgress'), value: inProgressTotal, icon: Zap, tint: "text-ink bg-gray-100" },
   ];
 
   const breakdown = [
     { label: "Open", value: stats.openPosts, bar: "bg-amber-400", dot: "bg-amber-400" },
-    { label: t('company.inProgress'), value: inProgressTotal, bar: "bg-brand-500", dot: "bg-brand-500" },
-    { label: "Resolved", value: stats.resolvedPosts, bar: "bg-emerald-500", dot: "bg-emerald-500" },
+    { label: t('company.inProgress'), value: inProgressTotal, bar: "bg-ink", dot: "bg-ink" },
+    { label: "Resolved", value: stats.resolvedPosts, bar: "bg-brand-500", dot: "bg-brand-500" },
     { label: "Other", value: other, bar: "bg-gray-300", dot: "bg-gray-300" },
   ];
 
@@ -228,7 +228,7 @@ const CompanyDashboard = () => {
     <div className="space-y-6 lg:space-y-8">
       {/* Hero */}
       <section className="bg-gradient-ink relative overflow-hidden rounded-2xl p-6 text-white shadow-lg lg:p-8">
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand-500/30 blur-3xl" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand-500/25 blur-3xl" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-medium text-white/60">{today}</p>

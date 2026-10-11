@@ -374,11 +374,11 @@ const MemberManagementWithDepartments = () => {
     const roleConfig = {
       [UserRole.COMPANY_ADMIN]: {
         label: "Admin",
-        className: "bg-blue-50 text-[#0E1224] border border-blue-200",
+        className: "bg-blue-50 text-[#2D3E50] border border-blue-200",
       },
       [UserRole.HR]: {
         label: "HR",
-        className: "bg-teal-50 text-[#5B5BD6] border border-teal-200",
+        className: "bg-teal-50 text-[#1ABC9C] border border-teal-200",
       },
     };
     const config = roleConfig[role] || {
@@ -435,7 +435,7 @@ const MemberManagementWithDepartments = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50/50">
         <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#5B5BD6] border-t-transparent"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#1ABC9C] border-t-transparent"></div>
           <p className="text-sm text-gray-500">Loading members...</p>
         </div>
       </div>
@@ -448,7 +448,7 @@ const MemberManagementWithDepartments = () => {
       <div className="mb-8 w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#0E1224]">
+            <h1 className="text-2xl font-bold text-[#2D3E50]">
               Member Management
             </h1>
             <p className="text-gray-500 mt-1 text-sm">
@@ -459,7 +459,7 @@ const MemberManagementWithDepartments = () => {
             {selectedUsers.length > 0 && (
               <button
                 onClick={handleBulkAssignToDepartment}
-                className="px-4 py-2.5 bg-[#0E1224] text-white rounded-xl hover:bg-[#243242] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
+                className="px-4 py-2.5 bg-[#2D3E50] text-white rounded-xl hover:bg-[#243242] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
               >
                 <UsersRound className="w-4 h-4" />
                 Assign {selectedUsers.length} to Department
@@ -475,7 +475,7 @@ const MemberManagementWithDepartments = () => {
             <AddStaffButton onCreated={loadData} />
             <button
               onClick={() => navigate("/company/departments")}
-              className="px-4 py-2.5 bg-[#5B5BD6] text-white rounded-xl hover:bg-[#4A49C2] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
+              className="px-4 py-2.5 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#16A085] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
             >
               <Building2 className="w-4 h-4" />
               Manage Departments
@@ -487,12 +487,12 @@ const MemberManagementWithDepartments = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0E1224]/5 flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#0E1224]" />
+              <div className="w-10 h-10 rounded-xl bg-[#2D3E50]/5 flex items-center justify-center">
+                <Users className="w-5 h-5 text-[#2D3E50]" />
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total</p>
-                <p className="text-2xl font-bold text-[#0E1224]">{members.length}</p>
+                <p className="text-2xl font-bold text-[#2D3E50]">{members.length}</p>
               </div>
             </div>
           </div>
@@ -524,12 +524,12 @@ const MemberManagementWithDepartments = () => {
           </div>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#5B5BD6]/10 flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-[#5B5BD6]" />
+              <div className="w-10 h-10 rounded-xl bg-[#1ABC9C]/10 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-[#1ABC9C]" />
               </div>
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Depts</p>
-                <p className="text-2xl font-bold text-[#5B5BD6]">
+                <p className="text-2xl font-bold text-[#1ABC9C]">
                   {departments.length}
                 </p>
               </div>
@@ -565,7 +565,7 @@ const MemberManagementWithDepartments = () => {
                   placeholder="Name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] text-sm transition-colors"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors"
                 />
               </div>
             </div>
@@ -578,7 +578,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
               >
                 <option value="all">All Roles</option>
                 <option value={UserRole.COMPANY_ADMIN}>Admin</option>
@@ -594,7 +594,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedTag}
                 onChange={(e) => setSelectedTag(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
               >
                 <option value="all">All Tags</option>
                 <option value="untagged">Untagged</option>
@@ -614,7 +614,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
               >
                 <option value="all">All Departments</option>
                 <option value="unassigned">Unassigned</option>
@@ -634,7 +634,7 @@ const MemberManagementWithDepartments = () => {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5B5BD6]/20 focus:border-[#5B5BD6] text-sm transition-colors appearance-none bg-white"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] text-sm transition-colors appearance-none bg-white"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -661,10 +661,10 @@ const MemberManagementWithDepartments = () => {
           </div>
 
           <div className="mt-3 text-sm text-gray-500">
-            Showing <span className="font-semibold text-[#0E1224]">{filteredMembers.length}</span> of{" "}
-            <span className="font-semibold text-[#0E1224]">{members.length}</span> members
+            Showing <span className="font-semibold text-[#2D3E50]">{filteredMembers.length}</span> of{" "}
+            <span className="font-semibold text-[#2D3E50]">{members.length}</span> members
             {selectedUsers.length > 0 && (
-              <span className="ml-4 text-[#5B5BD6]">
+              <span className="ml-4 text-[#1ABC9C]">
                 &bull; <span className="font-semibold">{selectedUsers.length}</span> selected
               </span>
             )}
@@ -706,12 +706,12 @@ const MemberManagementWithDepartments = () => {
                     <td className="px-4 sm:px-6 py-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#0E1224] to-[#5B5BD6] flex items-center justify-center text-white font-semibold text-sm">
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#2D3E50] to-[#1ABC9C] flex items-center justify-center text-white font-semibold text-sm">
                             {member.displayName?.charAt(0).toUpperCase() || "U"}
                           </div>
                         </div>
                         <div className="ml-3 min-w-0 flex-1">
-                          <div className="text-sm font-semibold text-[#0E1224] truncate">
+                          <div className="text-sm font-semibold text-[#2D3E50] truncate">
                             {member.displayName || "Unknown"}
                           </div>
                           <div className="text-xs text-gray-400 truncate">
@@ -774,7 +774,7 @@ const MemberManagementWithDepartments = () => {
                     <td className="hidden md:table-cell px-4 sm:px-6 py-4 whitespace-nowrap">
                       {member.departmentName ? (
                         <div className="flex items-center gap-1.5">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-[#5B5BD6]/10 text-[#5B5BD6] border border-[#5B5BD6]/20">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-[#1ABC9C]/10 text-[#1ABC9C] border border-[#1ABC9C]/20">
                             <span className="mr-1">{member.departmentIcon}</span>
                             {member.departmentName}
                           </span>
@@ -789,7 +789,7 @@ const MemberManagementWithDepartments = () => {
                       ) : (
                         <button
                           onClick={() => handleAssignToDepartment(member)}
-                          className="text-xs text-[#5B5BD6] hover:text-[#4A49C2] font-medium flex items-center gap-1"
+                          className="text-xs text-[#1ABC9C] hover:text-[#16A085] font-medium flex items-center gap-1"
                         >
                           <UserPlus className="w-3.5 h-3.5" />
                           Assign
@@ -813,7 +813,7 @@ const MemberManagementWithDepartments = () => {
                         <>
                           <button
                             onClick={() => handleViewMemberDetails(member)}
-                            className="p-1.5 text-[#0E1224] hover:bg-[#0E1224]/5 rounded-lg transition-colors"
+                            className="p-1.5 text-[#2D3E50] hover:bg-[#2D3E50]/5 rounded-lg transition-colors"
                             title="View Details"
                           >
                             <Eye className="w-4.5 h-4.5" />
@@ -840,7 +840,7 @@ const MemberManagementWithDepartments = () => {
                           </button>
                           <button
                             onClick={() => handleAssignToDepartment(member)}
-                            className="p-1.5 text-[#5B5BD6] hover:bg-[#5B5BD6]/10 rounded-lg transition-colors"
+                            className="p-1.5 text-[#1ABC9C] hover:bg-[#1ABC9C]/10 rounded-lg transition-colors"
                             title="Change Department"
                           >
                             <Building2 className="w-4.5 h-4.5" />
@@ -870,7 +870,7 @@ const MemberManagementWithDepartments = () => {
                         <>
                           <button
                             onClick={() => handleViewMemberDetails(member)}
-                            className="p-1.5 text-[#0E1224] hover:bg-[#0E1224]/5 rounded-lg transition-colors"
+                            className="p-1.5 text-[#2D3E50] hover:bg-[#2D3E50]/5 rounded-lg transition-colors"
                             title="View Details"
                           >
                             <Eye className="w-4.5 h-4.5" />
@@ -904,7 +904,7 @@ const MemberManagementWithDepartments = () => {
               <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-gray-300" />
               </div>
-              <h3 className="text-sm font-semibold text-[#0E1224]">
+              <h3 className="text-sm font-semibold text-[#2D3E50]">
                 No members found
               </h3>
               <p className="mt-1 text-sm text-gray-400">
@@ -924,7 +924,7 @@ const MemberManagementWithDepartments = () => {
           <div className="mt-8">
             <button
               onClick={() => setShowRemovedSection((prev) => !prev)}
-              className="flex items-center gap-2 text-gray-500 hover:text-[#0E1224] font-medium text-sm mb-4 transition-colors"
+              className="flex items-center gap-2 text-gray-500 hover:text-[#2D3E50] font-medium text-sm mb-4 transition-colors"
             >
               <div
                 className={`transform transition-transform ${
@@ -1052,7 +1052,7 @@ const MemberManagementWithDepartments = () => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-lg font-bold text-[#0E1224]">
+                  <h2 className="text-lg font-bold text-[#2D3E50]">
                     Assign Tag
                   </h2>
                   <p className="text-sm text-gray-400 mt-0.5">
@@ -1106,9 +1106,9 @@ const MemberManagementWithDepartments = () => {
                       <button
                         key={tag.id}
                         onClick={() => handleAssignTag(tag.id, tagAssigningMember)}
-                        className={`w-full p-3 text-left border-2 rounded-xl hover:border-[#0E1224]/30 transition-colors ${
+                        className={`w-full p-3 text-left border-2 rounded-xl hover:border-[#2D3E50]/30 transition-colors ${
                           isActive
-                            ? "border-[#5B5BD6] bg-[#5B5BD6]/5"
+                            ? "border-[#1ABC9C] bg-[#1ABC9C]/5"
                             : "border-gray-100"
                         }`}
                       >
@@ -1121,7 +1121,7 @@ const MemberManagementWithDepartments = () => {
                           </span>
                           <div className="flex items-center gap-2">
                             {isActive && (
-                              <span className="text-xs text-[#5B5BD6] font-medium">Current</span>
+                              <span className="text-xs text-[#1ABC9C] font-medium">Current</span>
                             )}
                             <span className="text-xs text-gray-400">
                               P{tag.priority}
@@ -1162,7 +1162,7 @@ const MemberManagementWithDepartments = () => {
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="text-lg font-bold text-[#0E1224]">
+                  <h2 className="text-lg font-bold text-[#2D3E50]">
                     Change Role
                   </h2>
                   <p className="text-sm text-gray-400 mt-0.5">
@@ -1192,19 +1192,19 @@ const MemberManagementWithDepartments = () => {
                       onClick={() => handleChangeRole(option.role, roleChangingMember)}
                       className={`w-full p-4 text-left border-2 rounded-xl transition-colors ${
                         isActive
-                          ? "border-[#5B5BD6] bg-[#5B5BD6]/5"
+                          ? "border-[#1ABC9C] bg-[#1ABC9C]/5"
                           : `border-gray-100 hover:${option.className}`
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-sm font-semibold text-[#0E1224]">
+                          <span className="text-sm font-semibold text-[#2D3E50]">
                             {option.label}
                           </span>
                           <p className="text-xs text-gray-400 mt-0.5">{option.desc}</p>
                         </div>
                         {isActive && (
-                          <span className="text-xs text-[#5B5BD6] font-medium">Current</span>
+                          <span className="text-xs text-[#1ABC9C] font-medium">Current</span>
                         )}
                       </div>
                     </button>
@@ -1256,11 +1256,11 @@ const MemberManagementWithDepartments = () => {
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#0E1224] to-[#5B5BD6] flex items-center justify-center text-white font-bold text-lg">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#2D3E50] to-[#1ABC9C] flex items-center justify-center text-white font-bold text-lg">
                     {viewingMember.displayName?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-[#0E1224]">Member Details</h2>
+                    <h2 className="text-lg font-bold text-[#2D3E50]">Member Details</h2>
                     <p className="text-sm text-gray-400">{viewingMember.displayName || "Unknown"}</p>
                   </div>
                 </div>
@@ -1283,14 +1283,14 @@ const MemberManagementWithDepartments = () => {
                       <Users className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Display Name</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224]">{viewingMember.displayName || "N/A"}</p>
+                    <p className="text-sm font-medium text-[#2D3E50]">{viewingMember.displayName || "N/A"}</p>
                   </div>
                   <div className="bg-gray-50/80 rounded-xl p-4">
                     <div className="flex items-center gap-2 mb-1">
                       <Mail className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Email</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224]">{viewingMember.email || "N/A"}</p>
+                    <p className="text-sm font-medium text-[#2D3E50]">{viewingMember.email || "N/A"}</p>
                   </div>
                 </div>
 
@@ -1300,7 +1300,7 @@ const MemberManagementWithDepartments = () => {
                       <Shield className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Role</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224] capitalize">{viewingMember.role || "N/A"}</p>
+                    <p className="text-sm font-medium text-[#2D3E50] capitalize">{viewingMember.role || "N/A"}</p>
                   </div>
                   <div className="bg-gray-50/80 rounded-xl p-4">
                     <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block mb-1">Status</label>
@@ -1314,7 +1314,7 @@ const MemberManagementWithDepartments = () => {
                       <Building className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Department</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224]">
+                    <p className="text-sm font-medium text-[#2D3E50]">
                       {viewingMember.departmentIcon && <span className="mr-1">{viewingMember.departmentIcon}</span>}
                       {viewingMember.departmentName || "Not assigned"}
                     </p>
@@ -1324,7 +1324,7 @@ const MemberManagementWithDepartments = () => {
                       <Hash className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Employee ID</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224]">{viewingMember.employeeId || "N/A"}</p>
+                    <p className="text-sm font-medium text-[#2D3E50]">{viewingMember.employeeId || "N/A"}</p>
                   </div>
                 </div>
 
@@ -1345,7 +1345,7 @@ const MemberManagementWithDepartments = () => {
                       <Calendar className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Joined Date</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224]">
+                    <p className="text-sm font-medium text-[#2D3E50]">
                       {viewingMember.createdAt?.toDate
                         ? viewingMember.createdAt.toDate().toLocaleDateString()
                         : "N/A"}
@@ -1356,7 +1356,7 @@ const MemberManagementWithDepartments = () => {
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
                       <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Last Login</label>
                     </div>
-                    <p className="text-sm font-medium text-[#0E1224]">
+                    <p className="text-sm font-medium text-[#2D3E50]">
                       {viewingMember.lastLogin?.toDate
                         ? viewingMember.lastLogin.toDate().toLocaleString()
                         : "Never"}

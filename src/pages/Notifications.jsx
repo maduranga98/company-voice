@@ -131,12 +131,12 @@ const Notifications = () => {
             <div className="flex items-center gap-3">
               <div
                 className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm"
-                style={{ backgroundColor: "#5B5BD6" }}
+                style={{ backgroundColor: "#1ABC9C" }}
               >
                 <Bell className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "#0E1224" }}>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: "#2D3E50" }}>
                   {t('notifications.notifications')}
                 </h1>
                 <p className="mt-0.5 text-sm text-gray-500">
@@ -148,7 +148,7 @@ const Notifications = () => {
               <button
                 onClick={markAllAsRead}
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl text-white shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
-                style={{ backgroundColor: "#5B5BD6" }}
+                style={{ backgroundColor: "#1ABC9C" }}
               >
                 <CheckCheck className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('notifications.markAllAsRead')}</span>
@@ -168,7 +168,7 @@ const Notifications = () => {
                 onClick={() => setFilter(tab.key)}
                 className="px-4 py-2 text-sm font-medium rounded-xl transition-all"
                 style={{
-                  backgroundColor: filter === tab.key ? "#0E1224" : "transparent",
+                  backgroundColor: filter === tab.key ? "#2D3E50" : "transparent",
                   color: filter === tab.key ? "white" : "#6b7280",
                 }}
               >
@@ -189,7 +189,7 @@ const Notifications = () => {
         {/* Notifications List */}
         {loading ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-14 text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 mx-auto" style={{ borderTopColor: "#5B5BD6" }}></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 mx-auto" style={{ borderTopColor: "#1ABC9C" }}></div>
             <p className="mt-4 text-sm text-gray-500">{t('notifications.loading')}</p>
           </div>
         ) : filteredNotifications.length === 0 ? (
@@ -197,7 +197,7 @@ const Notifications = () => {
             <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
               <BellOff className="w-7 h-7 text-gray-300" />
             </div>
-            <h3 className="text-lg font-semibold" style={{ color: "#0E1224" }}>
+            <h3 className="text-lg font-semibold" style={{ color: "#2D3E50" }}>
               {t('notifications.noNotifications')}
             </h3>
             <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
@@ -212,7 +212,7 @@ const Notifications = () => {
               <div
                 key={notification.id}
                 className={`group px-5 py-4 hover:bg-gray-50/50 transition-colors ${
-                  !notification.read ? "bg-[#5B5BD6]/[0.03]" : ""
+                  !notification.read ? "bg-[#1ABC9C]/[0.03]" : ""
                 }`}
               >
                 <div className="flex items-start gap-3.5">
@@ -222,7 +222,7 @@ const Notifications = () => {
                     {!notification.read && (
                       <span
                         className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white"
-                        style={{ backgroundColor: "#5B5BD6" }}
+                        style={{ backgroundColor: "#1ABC9C" }}
                       />
                     )}
                   </div>
@@ -235,7 +235,7 @@ const Notifications = () => {
                               ? "font-semibold"
                               : "text-gray-600"
                           }`}
-                          style={{ color: !notification.read ? "#0E1224" : undefined }}
+                          style={{ color: !notification.read ? "#2D3E50" : undefined }}
                         >
                           {notification.title}
                         </p>
@@ -250,7 +250,7 @@ const Notifications = () => {
                         {!notification.read && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="p-2 rounded-xl text-gray-400 hover:text-[#5B5BD6] hover:bg-[#5B5BD6]/10 transition-colors"
+                            className="p-2 rounded-xl text-gray-400 hover:text-[#1ABC9C] hover:bg-[#1ABC9C]/10 transition-colors"
                             title={t('notifications.markAsReadTitle')}
                           >
                             <Check className="w-4 h-4" />

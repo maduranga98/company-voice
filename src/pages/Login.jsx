@@ -66,8 +66,8 @@ const Login = () => {
     <div className="flex min-h-screen bg-white">
       {/* Brand panel */}
       <aside className="bg-gradient-ink relative hidden overflow-hidden lg:flex lg:w-[46%] xl:w-1/2">
-        <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-brand-500/30 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full bg-violet-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-24 h-96 w-96 rounded-full bg-brand-500/25 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full bg-brand-400/10 blur-3xl" />
 
         <div className="relative z-10 flex w-full flex-col justify-between p-10 xl:p-14">
           <Logo size={34} tone="light" />

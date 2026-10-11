@@ -9,95 +9,96 @@
 
 @theme {
   /* ---------- Brand: Iris ---------- */
-  --color-brand-50: #f5f6ff;
-  --color-brand-100: #ebedff;
-  --color-brand-200: #d9dcff;
-  --color-brand-300: #bbc0fa;
-  --color-brand-400: #9aa0f2;
-  --color-brand-500: #7a7fe6;
-  --color-brand-600: #5b5bd6;
-  --color-brand-700: #4a49c2;
-  --color-brand-800: #3b3aa0;
-  --color-brand-900: #2f2e7c;
-  --color-brand-950: #1c1b4d;
+  --color-brand-50: #eafbf7;
+  --color-brand-100: #cff6ec;
+  --color-brand-200: #a0ebd9;
+  --color-brand-300: #6fddc4;
+  --color-brand-400: #3fcfb0;
+  --color-brand-500: #1abc9c;
+  --color-brand-600: #16a085;
+  --color-brand-700: #11806a;
+  --color-brand-800: #0f6655;
+  --color-brand-900: #0d5245;
+  --color-brand-950: #06302a;
 
   /* ---------- Ink (deep neutral used for text + dark surfaces) ---------- */
-  --color-ink: #0e1224;
-  --color-ink-soft: #1a1f3a;
+  --color-ink: #2d3e50;
+  --color-ink-soft: #24333f;
 
   /* Legacy brand tokens now point at the new identity */
-  --color-primary-navy: #0e1224;
-  --color-primary-teal: #5b5bd6;
-  --color-primary: #5b5bd6;
-  --color-accent-coral: #f43f5e;
-  --color-accent: #f43f5e;
+  --color-primary-navy: #2d3e50;
+  --color-primary-teal: #1abc9c;
+  --color-primary: #1abc9c;
+  --color-accent-coral: #ff6b6b;
+  --color-accent: #ff6b6b;
 
   /* Re-map the old blue / indigo / teal / sky families to Iris so every
      existing screen picks up the new brand without per-file edits. */
-  --color-blue-50: #f5f6ff;
-  --color-blue-100: #ebedff;
-  --color-blue-200: #d9dcff;
-  --color-blue-300: #bbc0fa;
-  --color-blue-400: #9aa0f2;
-  --color-blue-500: #7a7fe6;
-  --color-blue-600: #5b5bd6;
-  --color-blue-700: #4a49c2;
-  --color-blue-800: #3b3aa0;
-  --color-blue-900: #2f2e7c;
-  --color-indigo-50: #f5f6ff;
-  --color-indigo-100: #ebedff;
-  --color-indigo-200: #d9dcff;
-  --color-indigo-300: #bbc0fa;
-  --color-indigo-400: #9aa0f2;
-  --color-indigo-500: #7a7fe6;
-  --color-indigo-600: #5b5bd6;
-  --color-indigo-700: #4a49c2;
-  --color-indigo-800: #3b3aa0;
-  --color-indigo-900: #2f2e7c;
-  --color-teal-50: #f5f6ff;
-  --color-teal-100: #ebedff;
-  --color-teal-200: #d9dcff;
-  --color-teal-300: #bbc0fa;
-  --color-teal-400: #9aa0f2;
-  --color-teal-500: #7a7fe6;
-  --color-teal-600: #5b5bd6;
-  --color-teal-700: #4a49c2;
-  --color-teal-800: #3b3aa0;
-  --color-teal-900: #2f2e7c;
-  --color-sky-50: #f5f6ff;
-  --color-sky-100: #ebedff;
-  --color-sky-500: #7a7fe6;
-  --color-sky-600: #5b5bd6;
+  --color-indigo-50: #eafbf7;
+  --color-indigo-100: #cff6ec;
+  --color-indigo-200: #a0ebd9;
+  --color-indigo-300: #6fddc4;
+  --color-indigo-400: #3fcfb0;
+  --color-indigo-500: #1abc9c;
+  --color-indigo-600: #16a085;
+  --color-indigo-700: #11806a;
+  --color-indigo-800: #0f6655;
+  --color-indigo-900: #0d5245;
+  --color-teal-50: #eafbf7;
+  --color-teal-100: #cff6ec;
+  --color-teal-200: #a0ebd9;
+  --color-teal-300: #6fddc4;
+  --color-teal-400: #3fcfb0;
+  --color-teal-500: #1abc9c;
+  --color-teal-600: #16a085;
+  --color-teal-700: #11806a;
+  --color-teal-800: #0f6655;
+  --color-teal-900: #0d5245;
+  --color-sky-50: #eafbf7;
+  --color-sky-100: #cff6ec;
+  --color-sky-500: #1abc9c;
+  --color-sky-600: #16a085;
+
+
+  /* Coral accent */
+  --color-rose-50: #fff1f0;
+  --color-rose-100: #ffe3e1;
+  --color-rose-200: #ffc9c6;
+  --color-rose-300: #ffa9a8;
+  --color-rose-400: #ff8e8e;
+  --color-rose-500: #ff6b6b;
+  --color-rose-600: #e85555;
+  --color-rose-700: #c93f43;
 
   /* ---------- Neutrals: cool, slightly violet-tinted ---------- */
-  --color-gray-50: #f8f9fc;
-  --color-gray-100: #f1f2f8;
-  --color-gray-200: #e4e6f0;
-  --color-gray-300: #cfd2e0;
-  --color-gray-400: #9a9fb5;
-  --color-gray-500: #6b7088;
-  --color-gray-600: #50546b;
-  --color-gray-700: #3a3d52;
-  --color-gray-800: #232638;
-  --color-gray-900: #0e1224;
+  --color-gray-50: #f7f9fc;
+  --color-gray-100: #eef2f7;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e0;
+  --color-gray-400: #a0aec0;
+  --color-gray-500: #718096;
+  --color-gray-600: #4a5568;
+  --color-gray-700: #2d3748;
+  --color-gray-800: #232f3e;
+  --color-gray-900: #1a1f2e;
 
   /* Surfaces */
   --color-background-white: #ffffff;
-  --color-background-cream: #fafbfe;
-  --color-background-softGray: #f6f7fb;
-  --color-background-lightMist: #eef0f8;
+  --color-background-cream: #faf9f7;
+  --color-background-softGray: #f7f9fc;
+  --color-background-lightMist: #eef2f7;
   --color-background-offWhite: #f8f9fc;
 
   /* Text */
-  --color-text-primary: #0e1224;
-  --color-text-secondary: #50546b;
-  --color-text-tertiary: #6b7088;
+  --color-text-primary: #1a1f2e;
+  --color-text-secondary: #4a5568;
+  --color-text-tertiary: #718096;
   --color-text-onDark: #ffffff;
 
   /* Borders */
-  --color-border-light: #e8eaf3;
-  --color-border-medium: #d3d6e4;
-  --color-border-dark: #9a9fb5;
+  --color-border-light: #e2e8f0;
+  --color-border-medium: #cbd5e0;
+  --color-border-dark: #a0aec0;
 
   /* Status */
   --color-status-success: #10b981;
@@ -109,14 +110,14 @@
   --color-status-error: #ef4444;
   --color-status-error-light: #fee2e2;
   --color-status-error-dark: #b91c1c;
-  --color-status-info: #5b5bd6;
-  --color-status-info-light: #ebedff;
-  --color-status-info-dark: #4a49c2;
+  --color-status-info: #3b82f6;
+  --color-status-info-light: #dbeafe;
+  --color-status-info-dark: #1d4ed8;
 
-  --color-status-open: #6b7088;
-  --color-status-open-bg: #f1f2f8;
-  --color-status-acknowledged: #5b5bd6;
-  --color-status-acknowledged-bg: #ebedff;
+  --color-status-open: #6b7280;
+  --color-status-open-bg: #f3f4f6;
+  --color-status-acknowledged: #3b82f6;
+  --color-status-acknowledged-bg: #dbeafe;
   --color-status-in-progress: #f59e0b;
   --color-status-in-progress-bg: #fef3c7;
   --color-status-under-review: #8b5cf6;
@@ -133,13 +134,13 @@
     "Roboto", "Helvetica Neue", Arial, sans-serif;
 
   /* Softer, layered shadows */
-  --shadow-xs: 0 1px 2px 0 rgb(14 18 36 / 0.04);
-  --shadow-sm: 0 1px 2px 0 rgb(14 18 36 / 0.05), 0 1px 3px 0 rgb(14 18 36 / 0.04);
-  --shadow: 0 2px 6px -1px rgb(14 18 36 / 0.07), 0 1px 3px 0 rgb(14 18 36 / 0.05);
-  --shadow-md: 0 4px 12px -2px rgb(14 18 36 / 0.08), 0 2px 4px -1px rgb(14 18 36 / 0.04);
-  --shadow-lg: 0 12px 24px -6px rgb(14 18 36 / 0.1), 0 4px 8px -2px rgb(14 18 36 / 0.05);
-  --shadow-xl: 0 24px 48px -12px rgb(14 18 36 / 0.16), 0 8px 16px -4px rgb(14 18 36 / 0.06);
-  --shadow-glow: 0 8px 24px -6px rgb(91 91 214 / 0.45);
+  --shadow-xs: 0 1px 2px 0 rgb(45 62 80 / 0.04);
+  --shadow-sm: 0 1px 2px 0 rgb(45 62 80 / 0.05), 0 1px 3px 0 rgb(45 62 80 / 0.04);
+  --shadow: 0 2px 6px -1px rgb(45 62 80 / 0.07), 0 1px 3px 0 rgb(45 62 80 / 0.05);
+  --shadow-md: 0 4px 12px -2px rgb(45 62 80 / 0.08), 0 2px 4px -1px rgb(45 62 80 / 0.04);
+  --shadow-lg: 0 12px 24px -6px rgb(45 62 80 / 0.1), 0 4px 8px -2px rgb(45 62 80 / 0.05);
+  --shadow-xl: 0 24px 48px -12px rgb(45 62 80 / 0.16), 0 8px 16px -4px rgb(45 62 80 / 0.06);
+  --shadow-glow: 0 8px 24px -6px rgb(26 188 156 / 0.4);
 
   --animate-fade-up: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-shake: shake 0.4s ease-in-out;
@@ -161,19 +162,19 @@
    ============================================ */
 @layer utilities {
   .bg-gradient-primary {
-    background-image: linear-gradient(135deg, #7a7fe6 0%, #4a49c2 100%);
+    background-image: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
   }
   .bg-gradient-soft {
-    background-image: linear-gradient(135deg, #f5f6ff 0%, #eef0f8 100%);
+    background-image: linear-gradient(135deg, #ebf8ff 0%, #e0f2f1 100%);
   }
   .bg-gradient-coral {
-    background-image: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+    background-image: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
   }
   .bg-gradient-ink {
-    background-color: #0e1224;
+    background-color: #2d3e50;
     background-image:
       radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
-      radial-gradient(120% 120% at 0% 0%, #2f2e7c 0%, #0e1224 60%);
+      radial-gradient(120% 120% at 0% 0%, #0f6655 0%, #2d3e50 55%, #1b2836 100%);
     background-size: 22px 22px, 100% 100%;
   }
   .tabular { font-variant-numeric: tabular-nums; }

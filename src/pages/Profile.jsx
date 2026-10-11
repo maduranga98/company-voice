@@ -228,13 +228,13 @@ const Profile = () => {
       {/* Profile header card */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
         {/* Gradient banner */}
-        <div className="h-28 relative" style={{ background: "linear-gradient(135deg, #0E1224 0%, #5B5BD6 100%)" }}>
+        <div className="h-28 relative" style={{ background: "linear-gradient(135deg, #2D3E50 0%, #1ABC9C 100%)" }}>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyem0wLTMwVjBoMjR2NEgzNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
         </div>
 
         {/* Avatar */}
         <div className="flex flex-col items-center -mt-12 relative z-10">
-          <div className="w-[88px] h-[88px] rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-white text-3xl font-bold bg-gradient-to-br from-[#5B5BD6] to-[#4A49C2]">
+          <div className="w-[88px] h-[88px] rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-white text-3xl font-bold bg-gradient-to-br from-[#1ABC9C] to-[#16A085]">
             {initial}
           </div>
         </div>
@@ -279,7 +279,7 @@ const Profile = () => {
               <button
                 onClick={handleSave}
                 disabled={loading || logoUploading}
-                className="flex-1 bg-[#5B5BD6] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#4A49C2] disabled:opacity-50 transition-colors"
+                className="flex-1 bg-[#1ABC9C] text-white rounded-xl py-3 text-sm font-semibold hover:bg-[#16A085] disabled:opacity-50 transition-colors"
               >
                 {logoUploading ? t("profile.uploadingLogo", "Uploading...") : loading ? t("profile.saving", "Saving...") : t("profile.saveChanges", "Save")}
               </button>
@@ -302,7 +302,7 @@ const Profile = () => {
                   type={row.type || "text"}
                   value={editData[row.field]}
                   onChange={(e) => setEditData({ ...editData, [row.field]: e.target.value })}
-                  className="text-sm font-medium text-gray-900 text-right border-b-2 border-[#5B5BD6] outline-none bg-transparent flex-1 min-w-0 py-0.5"
+                  className="text-sm font-medium text-gray-900 text-right border-b-2 border-[#1ABC9C] outline-none bg-transparent flex-1 min-w-0 py-0.5"
                 />
               ) : (
                 <span className={`text-sm font-medium text-gray-900 text-right flex-1 min-w-0 truncate ${row.mono ? "font-mono text-xs" : ""}`}>
@@ -360,7 +360,7 @@ const Profile = () => {
                   type="text"
                   value={companyEditData.name}
                   onChange={(e) => setCompanyEditData((prev) => ({ ...prev, name: e.target.value }))}
-                  className="text-sm font-medium text-gray-900 text-right border-b-2 border-[#5B5BD6] outline-none bg-transparent flex-1 min-w-0 py-0.5"
+                  className="text-sm font-medium text-gray-900 text-right border-b-2 border-[#1ABC9C] outline-none bg-transparent flex-1 min-w-0 py-0.5"
                 />
               ) : (
                 <span className="text-sm font-medium text-gray-900 text-right flex-1 min-w-0 truncate">

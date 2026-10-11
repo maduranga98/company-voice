@@ -40,10 +40,10 @@ const CaseAttachments = ({ attachments }) => {
             <button
               type="button"
               onClick={() => open(attachment, index)}
-              className="flex w-full items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 text-left text-sm text-[#0E1224] hover:border-[#5B5BD6]"
+              className="flex w-full items-center gap-2 rounded-lg border border-gray-100 px-3 py-2 text-left text-sm text-[#2D3E50] hover:border-[#1ABC9C]"
             >
               {opening === index ? (
-                <Loader2 size={14} className="animate-spin text-[#5B5BD6]" />
+                <Loader2 size={14} className="animate-spin text-[#1ABC9C]" />
               ) : (
                 <FileText size={14} className="text-gray-400" />
               )}
@@ -52,7 +52,7 @@ const CaseAttachments = ({ attachments }) => {
           </li>
         ))}
       </ul>
-      {failed && <p className="mt-2 text-xs text-[#F43F5E]">Could not open the attachment.</p>}
+      {failed && <p className="mt-2 text-xs text-[#FF6B6B]">Could not open the attachment.</p>}
     </div>
   );
 };

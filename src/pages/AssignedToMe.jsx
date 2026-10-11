@@ -107,7 +107,7 @@ const AssignedToMe = () => {
       <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <div
           className="w-9 h-9 rounded-full border-2 border-gray-200 animate-spin"
-          style={{ borderTopColor: "#5B5BD6" }}
+          style={{ borderTopColor: "#1ABC9C" }}
         />
         <p className="mt-3 text-xs text-gray-400">{t("common.loading")}</p>
       </div>
@@ -154,18 +154,18 @@ const AssignedToMe = () => {
       <div className="flex items-center gap-3 mb-6">
         <div
           className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
-          style={{ backgroundColor: "#0E1224" }}
+          style={{ backgroundColor: "#2D3E50" }}
         >
           <ClipboardCheck className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold tracking-tight" style={{ color: "#0E1224" }}>
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: "#2D3E50" }}>
             {t("assignedToMe.title")}
           </h1>
         </div>
         <span
           className="ml-auto px-2.5 py-1 rounded-xl text-xs font-semibold text-white"
-          style={{ backgroundColor: "#5B5BD6" }}
+          style={{ backgroundColor: "#1ABC9C" }}
         >
           {posts.length}
         </span>
@@ -179,9 +179,9 @@ const AssignedToMe = () => {
             onClick={() => setSelectedStatus(tab.value)}
             className="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm"
             style={{
-              backgroundColor: selectedStatus === tab.value ? "#0E1224" : "white",
+              backgroundColor: selectedStatus === tab.value ? "#2D3E50" : "white",
               color: selectedStatus === tab.value ? "white" : "#4b5563",
-              border: `1px solid ${selectedStatus === tab.value ? "#0E1224" : "#f3f4f6"}`,
+              border: `1px solid ${selectedStatus === tab.value ? "#2D3E50" : "#f3f4f6"}`,
             }}
           >
             {tab.label}
@@ -197,9 +197,9 @@ const AssignedToMe = () => {
             onClick={() => setSelectedPriority(tab.value)}
             className="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm"
             style={{
-              backgroundColor: selectedPriority === tab.value ? "#5B5BD6" : "white",
+              backgroundColor: selectedPriority === tab.value ? "#1ABC9C" : "white",
               color: selectedPriority === tab.value ? "white" : "#4b5563",
-              border: `1px solid ${selectedPriority === tab.value ? "#5B5BD6" : "#f3f4f6"}`,
+              border: `1px solid ${selectedPriority === tab.value ? "#1ABC9C" : "#f3f4f6"}`,
             }}
           >
             {tab.label}
@@ -213,7 +213,7 @@ const AssignedToMe = () => {
           <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-4">
             <Inbox className="w-6 h-6 text-gray-300" />
           </div>
-          <h3 className="text-base font-semibold mb-1" style={{ color: "#0E1224" }}>
+          <h3 className="text-base font-semibold mb-1" style={{ color: "#2D3E50" }}>
             {t("assignedToMe.noPosts")}
           </h3>
           <p className="text-sm text-gray-500 max-w-xs">
@@ -253,7 +253,7 @@ const AssignedToMe = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-sm font-semibold mb-1.5" style={{ color: "#0E1224" }}>
+                    <h3 className="text-sm font-semibold mb-1.5" style={{ color: "#2D3E50" }}>
                       {post.title}
                     </h3>
 
@@ -268,8 +268,8 @@ const AssignedToMe = () => {
                     {/* Expand button */}
                     <button
                       onClick={() => setExpandedPost(post.id)}
-                      className="text-xs font-medium rounded-xl px-3 py-1.5 transition-all hover:bg-[#5B5BD6]/10"
-                      style={{ color: "#5B5BD6" }}
+                      className="text-xs font-medium rounded-xl px-3 py-1.5 transition-all hover:bg-[#1ABC9C]/10"
+                      style={{ color: "#1ABC9C" }}
                     >
                       View details ›
                     </button>
@@ -310,7 +310,7 @@ const AssignedToMe = () => {
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#0E1224" }}>
+                      <h3 className="text-sm font-semibold mb-2" style={{ color: "#2D3E50" }}>
                         {post.title}
                       </h3>
                       {(post.description || post.content) && (

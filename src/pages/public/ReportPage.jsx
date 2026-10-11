@@ -22,7 +22,7 @@ const MAX_DESCRIPTION = 5000;
 const EMPTY_CONTACT = { name: "", email: "", phone: "" };
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 text-sm text-[#0E1224] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
+  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 text-sm text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
 
 // Search engines and referrers must never see report links.
 const useNoIndex = () => {
@@ -177,7 +177,7 @@ const ReportPage = () => {
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background-softGray">
-        <Loader2 className="h-8 w-8 animate-spin text-[#5B5BD6]" aria-label={t("report.loading")} />
+        <Loader2 className="h-8 w-8 animate-spin text-[#1ABC9C]" aria-label={t("report.loading")} />
       </div>
     );
   }
@@ -188,8 +188,8 @@ const ReportPage = () => {
 
       <main className="mx-auto -mt-4 max-w-xl rounded-t-3xl bg-background-softGray px-4 pb-16 pt-6 print:mt-0 print:bg-white">
         {!online && (
-          <p role="status" className="mb-4 flex items-center gap-2 rounded-xl bg-[#F43F5E]/10 p-3 text-sm text-[#0E1224] print:hidden">
-            <WifiOff className="h-4 w-4 shrink-0 text-[#F43F5E]" aria-hidden="true" />
+          <p role="status" className="mb-4 flex items-center gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50] print:hidden">
+            <WifiOff className="h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
             {t("report.submit.offline")}
           </p>
         )}
@@ -206,7 +206,7 @@ const ReportPage = () => {
             <TypeSelector value={type} onChange={setType} />
 
             <div>
-              <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#0E1224]">
+              <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
                 {t("report.category.label")}
               </label>
               <select
@@ -225,7 +225,7 @@ const ReportPage = () => {
             </div>
 
             <div>
-              <label htmlFor="report-description" className="mb-1.5 block text-sm font-semibold text-[#0E1224]">
+              <label htmlFor="report-description" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
                 {t("report.description.label")}
               </label>
               <textarea
@@ -253,10 +253,10 @@ const ReportPage = () => {
                 type="checkbox"
                 checked={involvesHR}
                 onChange={(e) => setInvolvesHR(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#5B5BD6]"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#1ABC9C]"
               />
               <span>
-                <span className="block text-sm font-semibold text-[#0E1224]">{t("report.involvesHR.label")}</span>
+                <span className="block text-sm font-semibold text-[#2D3E50]">{t("report.involvesHR.label")}</span>
                 <span className="mt-0.5 block text-xs text-gray-500">{t("report.involvesHR.helper")}</span>
               </span>
             </label>
@@ -280,8 +280,8 @@ const ReportPage = () => {
             </div>
 
             {error && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#F43F5E]/10 p-3 text-sm text-[#0E1224]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#F43F5E]" aria-hidden="true" />
+              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
                 {t(error)}
               </p>
             )}
