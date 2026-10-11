@@ -83,6 +83,18 @@ service cloud.firestore {
       return isAdminOrHR() && (isSuperAdmin() || getUserCompanyId() == companyId);
     }
 
+    // Shape of the shared case-handling fields (priority / assignedTo / dueDate) on
+    // vendorReports and contentReports. Each is optional; when present it must be well formed.
+    function validCaseFields(data) {
+      return (!('priority' in data) || data.priority in ['critical', 'high', 'medium', 'low'])
+        && (!('assignedTo' in data) || data.assignedTo == null
+            || (data.assignedTo is map
+                && data.assignedTo.get('type', null) in ['user', 'department']
+                && data.assignedTo.get('id', null) is string
+                && data.assignedTo.get('name', null) is string))
+        && (!('dueDate' in data) || data.dueDate == null || data.dueDate is timestamp);
+    }
+
     // ============================================
     // PUBLIC REPORT INTERNALS (Admin SDK only)
     // ============================================
@@ -465,12 +477,37 @@ service cloud.firestore {
             || getUserId() == resource.data.reportedBy);
 
       allow create: if isAuthenticated()
-        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
+        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId)
+        && validCaseFields(request.resource.data);
 
       allow update: if isAdminOrHR()
-        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId)
+        && validCaseFields(request.resource.data);
 
       allow delete: if isSuperAdmin();
+    }
+
+    // ============================================
+    // CASE ACTIVITIES + CASE NOTES (vendorReports / contentReports)
+    // ============================================
+    // Shared case-handling log and internal notes for case types other than posts
+    // (posts keep postActivities and staff-only comments). Staff of the company only.
+    // Append-only: activities and notes are never edited or deleted.
+    match /caseActivities/{activityId} {
+      allow read: if isSuperAdmin() || (isAuthenticated() && getUserCompanyId() == resource.data.companyId);
+      allow create: if isSuperAdmin()
+        || (isAuthenticated() && getUserCompanyId() == request.resource.data.companyId
+            && request.resource.data.caseType in ['vendor', 'moderation']);
+      allow update, delete: if false;
+    }
+
+    match /caseNotes/{noteId} {
+      allow read: if isSuperAdmin() || (isAuthenticated() && getUserCompanyId() == resource.data.companyId);
+      allow create: if isSuperAdmin()
+        || (isAuthenticated() && getUserCompanyId() == request.resource.data.companyId
+            && request.resource.data.caseType in ['vendor', 'moderation']
+            && request.resource.data.authorId == getUserId());
+      allow update, delete: if false;
     }
 
     // ============================================
@@ -693,10 +730,12 @@ service cloud.firestore {
         && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
 
       allow create: if isAuthenticated()
-        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId);
+        && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId)
+        && validCaseFields(request.resource.data);
 
       allow update: if isAuthenticated()
-        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId)
+        && validCaseFields(request.resource.data);
 
       allow delete: if false;
 

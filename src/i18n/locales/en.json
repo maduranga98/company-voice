@@ -417,6 +417,26 @@
     "confirmDelete": "Are you sure you want to delete this post?",
     "saving": "Saving..."
   },
+  "casePanel": {
+    "statusUpdated": "Status updated",
+    "priorityUpdated": "Priority updated",
+    "assigned": "Assigned",
+    "unassigned": "Unassigned",
+    "dueDateSet": "Due date set",
+    "dueDateCleared": "Due date cleared",
+    "noteAdded": "Note added",
+    "failed": "Failed: {{message}}",
+    "selectAssignee": "Select assignee...",
+    "search": "Search...",
+    "unassign": "Unassign",
+    "assignToMe": "Assign to me",
+    "people": "People",
+    "noTaggedMembers": "No tagged members found",
+    "remove": "Remove",
+    "notePlaceholder": "Add an internal note (staff only)...",
+    "staff": "Staff",
+    "statusReadOnly": "Status changes through the moderation actions below"
+  },
   "guidance": {
     "ui": {
       "memberStatuses": "Member Statuses",

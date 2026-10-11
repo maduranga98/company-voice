@@ -32,6 +32,8 @@ import {
 } from "../utils/constants";
 import { downloadEvidencePackageWithFormat } from "../services/legalEvidenceService";
 import LegalRequestModal from "../components/LegalRequestModal";
+import CaseHandlingPanel from "../components/case/CaseHandlingPanel";
+import { CaseType } from "../utils/caseTypes";
 import { showSuccess, showError, showWarning } from "../services/toastService";
 
 const ACTION_STYLES = {
@@ -377,6 +379,14 @@ const ReportDetailView = () => {
               )}
             </div>
           </div>
+
+          {/* Case handling: priority, assignment, due date, internal notes */}
+          <CaseHandlingPanel
+            caseType={CaseType.MODERATION}
+            caseData={report}
+            currentUser={userData}
+            onUpdate={fetchReport}
+          />
 
           {/* Moderator Actions */}
           {!isActioned && (
