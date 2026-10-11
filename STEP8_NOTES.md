@@ -50,10 +50,16 @@ This re-applies the earlier stranded `rework/case-overview` (PR #202) on current
   assigned-due-tomorrow, internal post, vendor report); results matched expectations. No
   frontend test runner exists in the repo, so that script is not committed.
 
+- **Overview queries verified against the Firestore rules emulator** (9 extra checks in
+  `scripts/emulator/caseRules.test.mjs`, 42 total): HR inbox and `assignedTo.type in [...]`
+  queries pass with the `involvesHR == false` scope and are denied without it; HR only
+  receives non-`involvesHR` posts; company_admin's unscoped query passes; the
+  `anonymousThreads`, `vendorReports`, `contentReports` company queries pass for HR and are
+  denied cross-company. The emulator does **not** enforce composite indexes, so "no index
+  needed" for these (equality / `in` on separate fields only) is still unconfirmed on a live project.
+
 ### Not verified
-- No emulator or browser run. Untested against real data: the `assignedTo.type in [...]`
-  query (equality-style filters, no composite index expected, unconfirmed), the
-  `anonymousThreads` company query under HR rules, the board layout on narrow screens.
+- No browser run. Untested: the board layout on narrow screens, real-data timer display.
 - Board is read-only: no drag-and-drop status change (status is changed on the case page).
   Moderation cards are in the board but their status only moves via moderation actions.
 - Overdue/at-risk is computed in the browser at load time and does not tick live; use Refresh.
