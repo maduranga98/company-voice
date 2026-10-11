@@ -4,9 +4,9 @@ import { CaseType } from "../utils/caseTypes";
 
 // Post-specific wrapper around the shared case-handling panel: the generic controls
 // live in CaseHandlingPanel; only the anonymous reporter thread is post-only.
-const AdminActionPanel = ({ post, currentUser, onUpdate }) => (
+const AdminActionPanel = ({ post, currentUser, onUpdate, showThread = true }) => (
   <CaseHandlingPanel caseType={CaseType.POST} caseData={post} currentUser={currentUser} onUpdate={onUpdate}>
-    {post.isAnonymous && (
+    {showThread && post.isAnonymous && (
       <AnonymousThread
         postId={post.id}
         companyId={post.companyId || currentUser.companyId}

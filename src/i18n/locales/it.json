@@ -403,7 +403,14 @@
     "anonymous": "Anonimo",
     "emptyFiltered": "Nessun risultato",
     "emptyFilteredDesc": "Al momento nessun post corrisponde a questo stato.",
-    "showAll": "Mostra tutti i post"
+    "showAll": "Mostra tutti i post",
+    "tabDetails": "Dettagli",
+    "tabConversation": "Conversazione",
+    "tabHandle": "Gestisci",
+    "exportPdf": "Esporta PDF",
+    "exportingPdf": "Esportazione...",
+    "pdfExported": "Caso esportato in PDF",
+    "pdfFailed": "Impossibile esportare il caso"
   },
   "adminPanel": {
     "title": "Controlli Admin",

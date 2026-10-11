@@ -403,7 +403,14 @@
     "anonymous": "Anonymous",
     "emptyFiltered": "Nothing here",
     "emptyFilteredDesc": "No posts match this status right now.",
-    "showAll": "Show all posts"
+    "showAll": "Show all posts",
+    "tabDetails": "Details",
+    "tabConversation": "Conversation",
+    "tabHandle": "Handle",
+    "exportPdf": "Export PDF",
+    "exportingPdf": "Exporting...",
+    "pdfExported": "Case exported as PDF",
+    "pdfFailed": "Could not export the case"
   },
   "adminPanel": {
     "title": "Admin Controls",

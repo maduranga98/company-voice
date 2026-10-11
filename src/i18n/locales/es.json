@@ -393,7 +393,14 @@
     "anonymous": "Anónimo",
     "emptyFiltered": "Nada por aquí",
     "emptyFilteredDesc": "Ninguna publicación coincide con este estado por ahora.",
-    "showAll": "Ver todas las publicaciones"
+    "showAll": "Ver todas las publicaciones",
+    "tabDetails": "Detalles",
+    "tabConversation": "Conversación",
+    "tabHandle": "Gestionar",
+    "exportPdf": "Exportar PDF",
+    "exportingPdf": "Exportando...",
+    "pdfExported": "Caso exportado en PDF",
+    "pdfFailed": "No se pudo exportar el caso"
   },
   "casePanel": {
     "statusUpdated": "Estado actualizado",
