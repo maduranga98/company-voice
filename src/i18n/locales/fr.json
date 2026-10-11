@@ -1045,6 +1045,123 @@
         "send": "Envoyer"
       }
     },
+    "policy": {
+      "eyebrow": "Prise de connaissance de la politique",
+      "version": "Version {{version}}",
+      "effective": "En vigueur le {{date}}",
+      "categories": {
+        "code_of_conduct": "Code de conduite",
+        "anti_harassment": "Lutte contre le harcèlement",
+        "data_privacy": "Confidentialité des données",
+        "whistleblower": "Protection des lanceurs d'alerte",
+        "safety": "Sécurité au travail",
+        "gdpr": "Information RGPD",
+        "other": "Autre"
+      },
+      "documentOnly": "Le texte complet de cette politique figure dans le document joint.",
+      "openDocument": "Ouvrir le document de la politique ({{name}})",
+      "form": {
+        "employeeIdLabel": "Identifiant employé",
+        "employeeNameLabel": "Votre nom complet"
+      },
+      "mode": {
+        "label": "Votre réponse",
+        "acknowledge": "Confirmer",
+        "concern": "Signaler une préoccupation"
+      },
+      "acknowledge": {
+        "checkbox": "J'ai lu et compris cette politique.",
+        "button": "Confirmer la politique"
+      },
+      "concern": {
+        "label": "Quelle est votre préoccupation ?",
+        "placeholder": "Dites aux RH ce qui n'est pas clair ou ce avec quoi vous n'êtes pas d'accord, et pourquoi.",
+        "minHint": "Veuillez écrire au moins {{min}} caractères.",
+        "counter": "{{count}} / {{max}}",
+        "note": "Ceci est transmis aux RH avec votre nom et votre identifiant employé. Ce n'est pas anonyme. Pour signaler quelque chose anonymement, utilisez plutôt le lien de signalement de votre organisation.",
+        "button": "Envoyer la préoccupation"
+      },
+      "sending": "Envoi…",
+      "success": {
+        "acknowledgedTitle": "Merci, {{name}}",
+        "acknowledgedBody": "Votre confirmation de « {{policy}} » (version {{version}}) a été enregistrée.",
+        "alreadyTitle": "Déjà enregistré",
+        "alreadyBody": "Vous avez déjà confirmé « {{policy}} » (version {{version}}). Rien d'autre à faire.",
+        "concernTitle": "Préoccupation reçue",
+        "concernBody": "Les RH ont reçu votre préoccupation concernant « {{policy}} » et peuvent vous contacter avec les coordonnées indiquées.",
+        "another": "Répondre pour un autre employé"
+      },
+      "errors": {
+        "invalid": "Vérifiez votre identifiant employé, votre nom et votre réponse, puis réessayez.",
+        "notOnRoster": "Cet identifiant employé n'est pas reconnu. Vérifiez-le ou demandez de l'aide aux RH.",
+        "updated": "Cette politique vient d'être mise à jour. Lisez la nouvelle version et répondez à nouveau.",
+        "rateLimited": "Trop de tentatives. Veuillez réessayer plus tard.",
+        "network": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+        "inactive": "Ce lien de politique n'est plus actif.",
+        "generic": "Une erreur est survenue. Veuillez réessayer."
+      },
+      "inactive": {
+        "title": "Ce lien de politique n'est pas actif",
+        "body": "Vérifiez le lien ou demandez-en un nouveau à votre organisation."
+      }
+    },
+    "policyLink": {
+      "title": "Lien de prise de connaissance de la politique",
+      "back": "Retour aux politiques",
+      "intro": "Partagez ce lien ou ce code QR. Les employés l'ouvrent sans se connecter, lisent la politique et la confirment ou signalent une préoccupation.",
+      "linkLabel": "Lien public",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "open": "Ouvrir la page",
+      "active": "Le lien est actif",
+      "paused": "Le lien est suspendu",
+      "activeHelp": "Suspendu, le lien affiche une page « non actif ».",
+      "qrAlt": "Code QR du lien de prise de connaissance de la politique",
+      "downloadQr": "Télécharger le QR",
+      "loadError": "Impossible de charger ce lien de politique. Veuillez réessayer.",
+      "saveError": "Impossible d'enregistrer la modification. Veuillez réessayer.",
+      "notPublished": "Seules les politiques publiées peuvent être partagées. Publiez d'abord cette politique.",
+      "roster": {
+        "title": "Liste des employés (facultatif)",
+        "help": "Collez un employé par ligne sous la forme « ID, Nom ». Cela ajoute la liste de ceux qui n'ont pas encore confirmé.",
+        "placeholder": "EMP-001, Ada Lovelace\nEMP-002, Grace Hopper",
+        "require": "N'accepter que les identifiants de cette liste",
+        "requireHelp": "Rejette les identifiants inconnus : seuls de vrais employés sont enregistrés et comptés.",
+        "save": "Enregistrer la liste",
+        "saved": "Liste enregistrée : {{count}} employés.",
+        "savedWithSkipped": "Liste enregistrée : {{count}} employés. Lignes invalides ignorées : {{lines}}."
+      },
+      "stats": {
+        "acknowledged": "Confirmées",
+        "pending": "En attente",
+        "concerns": "Préoccupations",
+        "outsideRoster": "Hors liste"
+      },
+      "table": {
+        "title": "Confirmations",
+        "version": "Version",
+        "filter": {
+          "all": "Tous",
+          "pending": "En attente",
+          "acknowledged": "Confirmées",
+          "concern": "Préoccupations"
+        },
+        "search": "Rechercher par ID ou nom",
+        "inbox": "Ouvrir la boîte RH",
+        "employeeId": "Identifiant employé",
+        "name": "Nom",
+        "status": "Statut",
+        "date": "Confirmé le",
+        "statuses": {
+          "acknowledged": "Confirmée",
+          "pending": "En attente",
+          "concern": "Préoccupation signalée"
+        },
+        "alsoConcern": "+ {{count}} préoccupation(s)",
+        "notOnRoster": "(hors liste)",
+        "empty": "Personne à afficher pour l'instant."
+      }
+    },
     "inactive": {
       "title": "Ce lien de signalement n'est pas actif",
       "body": "Vérifiez le lien ou demandez-en un nouveau à votre organisation."

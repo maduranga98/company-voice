@@ -348,6 +348,21 @@ const HRInbox = () => {
 
               {/* Scrollable body */}
               <div className="flex-1 overflow-y-auto">
+                {/* Concern raised from a policy acknowledgement link: not anonymous */}
+                {selectedPost.source === "policy_link" && (
+                  <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      Policy concern
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {selectedPost.policyTitle}
+                      {selectedPost.policyVersion ? ` (v${selectedPost.policyVersion})` : ""}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {selectedPost.authorName} · Employee ID {selectedPost.employeeId}
+                    </p>
+                  </div>
+                )}
                 {/* Full post content */}
                 {(selectedPost.description || selectedPost.content) && (
                   <div className="px-6 py-4 border-b border-gray-100">

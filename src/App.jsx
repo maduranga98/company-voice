@@ -57,6 +57,8 @@ import HRInbox from "./pages/hr/HRInbox";
 // Public (no-login) report form
 import ReportPage from "./pages/public/ReportPage";
 import CheckCasePage from "./pages/public/CheckCasePage";
+import PolicyAckPage from "./pages/public/PolicyAckPage";
+import PolicyAckLink from "./pages/company/PolicyAckLink";
 
 const CompanyDashboardGuard = () => {
   const { userData } = useAuth();
@@ -87,6 +89,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/r/:slug" element={<ReportPage />} />
             <Route path="/c" element={<CheckCasePage />} />
+            <Route path="/p/:slug" element={<PolicyAckPage />} />
 
             {/* ── SUPER ADMIN ROUTES ── */}
             <Route
@@ -371,6 +374,16 @@ function App() {
                 <PrivateRoute>
                   <CompanyAdminLayout>
                     <PolicyManagement />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/policies/:policyId/link"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <PolicyAckLink />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }
