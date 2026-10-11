@@ -54,6 +54,7 @@ import VendorRiskDashboard from "./pages/hr/VendorRiskDashboard";
 // HR Pages
 import HRConversations from "./pages/hr/HRConversations";
 import HRInbox from "./pages/hr/HRInbox";
+import CaseOverview from "./pages/hr/CaseOverview";
 
 // Public (no-login) report form
 import ReportPage from "./pages/public/ReportPage";
@@ -401,6 +402,16 @@ function App() {
             />
 
             {/* ── HR ROUTES (with admin sidebar layout) ── */}
+            <Route
+              path="/hr/case-overview"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CaseOverview />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/hr/inbox"
               element={

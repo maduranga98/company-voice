@@ -15,6 +15,8 @@ import CaseHandlingPanel from "../components/case/CaseHandlingPanel";
 import CaseTimeline from "../components/case/CaseTimeline";
 import CaseAttachments from "../components/CaseAttachments";
 import AnonymousThread from "../components/AnonymousThread";
+import CaseSlaBadge from "../components/case/CaseSlaBadge";
+import { getPostTimers } from "../utils/caseOverview";
 
 const STAFF_ROLES = [UserRole.SUPER_ADMIN, UserRole.COMPANY_ADMIN, UserRole.HR];
 
@@ -161,6 +163,7 @@ const CaseDetail = () => {
 
   const [caseData, setCaseData] = useState(null);
   const [timeline, setTimeline] = useState([]);
+  const [thread, setThread] = useState(null);
   const [state, setState] = useState("loading"); // loading | ready | notFound | noAccess | error
 
   const validType = isValidCaseType(caseType);
@@ -187,12 +190,24 @@ const CaseDetail = () => {
         return;
       }
 
+      // Reporter-facing EU deadlines need to know whether an investigator has replied.
+      let threadData = null;
+      if (caseType === CaseType.POST && data.source === "public_link") {
+        try {
+          const threadSnap = await getDoc(doc(db, "anonymousThreads", caseId));
+          threadData = threadSnap.exists() ? threadSnap.data() : null;
+        } catch (error) {
+          console.error("Error loading thread for timers:", error);
+        }
+      }
+
       const history = await getCaseTimeline(caseType, caseId, data.companyId).catch((error) => {
         console.error("Error loading case timeline:", error);
         return [];
       });
       setCaseData(data);
       setTimeline(history);
+      setThread(threadData);
       setState("ready");
     } catch (error) {
       console.error("Error loading case:", error);
@@ -236,6 +251,7 @@ const CaseDetail = () => {
   const priorityCfg = PostPriorityConfig[priority];
   const createdAt = adapter.getCreatedAt(caseData);
   const dueDate = toDate(caseData.dueDate);
+  const timers = caseType === CaseType.POST ? getPostTimers(caseData, thread) : null;
   const title = adapter.getTitle(caseData) || t(`caseDetail.type.${caseType}`);
 
   // Add a synthetic "created" row unless the activity log already has one.
@@ -295,6 +311,15 @@ const CaseDetail = () => {
               </span>
             )}
           </div>
+          {timers && (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {!timers.isAcknowledged && <CaseSlaBadge kind="acknowledge" dueMs={timers.acknowledgeMs} />}
+              {!timers.isFeedbackGiven && <CaseSlaBadge kind="feedback" dueMs={timers.feedbackMs} />}
+              {timers.isAcknowledged && timers.isFeedbackGiven && (
+                <span className="text-[11px] text-gray-400">{t("caseOverview.timersMet")}</span>
+              )}
+            </div>
+          )}
         </div>
         <button
           onClick={copyLink}

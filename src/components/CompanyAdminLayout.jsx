@@ -33,6 +33,7 @@ import {
   ClipboardCheck,
   Inbox,
   HelpCircle,
+  LayoutList,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
@@ -125,6 +126,7 @@ const CompanyAdminLayout = ({ children }) => {
       id: "content",
       title: t("navigation.content", "Content"),
       items: [
+        { label: t("navigation.caseOverview", "Case Overview"), path: "/hr/case-overview", icon: LayoutList },
         { label: t("navigation.hrInbox", "HR Inbox"), path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
         { label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck },
         { label: t("navigation.conversations", "Conversations"), path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
@@ -401,6 +403,7 @@ function getPageTitle(pathname, t) {
     "/company/dashboard": t("navigation.dashboard", "Dashboard"),
     "/company/analytics": t("navigation.analytics", "Analytics"),
     "/assigned-to-me": t("navigation.assignedToMe", "Assigned to Me"),
+    "/hr/case-overview": t("navigation.caseOverview", "Case Overview"),
     "/hr/inbox": t("navigation.hrInbox", "HR Inbox"),
     "/hr/conversations": t("navigation.conversations", "Conversations"),
     "/company/members": t("navigation.members", "Members"),

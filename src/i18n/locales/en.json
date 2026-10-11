@@ -76,7 +76,8 @@
     "qrCode": "QR Code",
     "analytics": "Analytics",
     "content": "Content",
-    "management": "Management"
+    "management": "Management",
+    "caseOverview": "Case Overview"
   },
   "company": {
     "dashboard": "Company Dashboard",
@@ -493,6 +494,46 @@
       "noteAdded": "{{actor}} added an internal note",
       "reviewed": "{{actor}} reviewed: {{action}}",
       "other": "{{actor}}: {{type}}"
+    }
+  },
+  "caseOverview": {
+    "title": "Case Overview",
+    "subtitle": "Everything open across reports, vendor risk and moderation",
+    "refresh": "Refresh",
+    "untitled": "Untitled case",
+    "unassigned": "Unassigned",
+    "open": "Open",
+    "overdue": "Overdue",
+    "atRisk": "At risk",
+    "allTypes": "All",
+    "mine": "Assigned to me",
+    "view": "View",
+    "list": "List view",
+    "board": "Board view",
+    "emptyTitle": "Nothing needs attention",
+    "emptyBody": "No open cases match these filters.",
+    "partialFailure": "Some cases could not be loaded: {{types}}.",
+    "truncated": "Showing up to 500 cases per source.",
+    "timersMet": "Directive deadlines met",
+    "sla": {
+      "dueIn_one": "{{label}} due in {{count}} day",
+      "dueIn_other": "{{label}} due in {{count}} days",
+      "dueToday": "{{label}} due today",
+      "overdueBy_one": "{{label}} overdue by {{count}} day",
+      "overdueBy_other": "{{label}} overdue by {{count}} days",
+      "overdue": "{{label}} overdue",
+      "label": {
+        "acknowledge": "Acknowledge",
+        "feedback": "Feedback"
+      },
+      "assigned": {
+        "dueIn_one": "Due in {{count}} day",
+        "dueIn_other": "Due in {{count}} days",
+        "dueToday": "Due today",
+        "overdueBy_one": "Overdue by {{count}} day",
+        "overdueBy_other": "Overdue by {{count}} days",
+        "overdue": "Overdue"
+      }
     }
   },
   "guidance": {
