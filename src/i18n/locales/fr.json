@@ -1010,6 +1010,21 @@
       "badType": "{{name}} n'est pas un type de fichier pris en charge.",
       "uploadFailed": "Échec de l'envoi. Vérifiez votre connexion et réessayez."
     },
+    "voiceNote": {
+      "prompt": "Ou enregistrez un message vocal",
+      "record": "Enregistrer un message vocal",
+      "max": "{{time}} max.",
+      "requesting": "En attente de l'accès au microphone…",
+      "recording": "Enregistrement",
+      "stop": "Arrêter",
+      "cancel": "Annuler",
+      "preview": "Réécoutez avant de le joindre",
+      "reRecord": "Réenregistrer",
+      "attach": "Joindre",
+      "denied": "L'accès au microphone est désactivé pour cette page. Vous pouvez l'autoriser dans les paramètres du site de votre navigateur, ou ajouter un fichier.",
+      "noMic": "Aucun microphone n'a été trouvé sur cet appareil. Vous pouvez ajouter un fichier.",
+      "failed": "L'enregistrement n'a pas pu démarrer. Réessayez ou ajoutez un fichier."
+    },
     "contact": {
       "toggle": "Souhaitez-vous que nous vous contactions ? (facultatif)",
       "note": "Seules les personnes qui traitent votre signalement peuvent le voir. Laissez vide pour rester totalement anonyme.",

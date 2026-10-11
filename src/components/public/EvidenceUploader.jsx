@@ -12,7 +12,7 @@ const FileIcon = ({ type }) =>
     <FileText className="h-5 w-5 text-[#2D3E50]" aria-hidden="true" />
   );
 
-const EvidenceUploader = ({ uploads, limits }) => {
+const EvidenceUploader = ({ uploads, limits, children }) => {
   const { t } = useTranslation();
   const { items, problem, addFiles, remove, retry } = uploads;
   const [dragging, setDragging] = useState(false);
@@ -84,6 +84,8 @@ const EvidenceUploader = ({ uploads, limits }) => {
           className="hidden"
         />
       </div>
+
+      {children}
 
       {problem && (
         <p role="alert" className="mt-2 flex items-start gap-2 text-sm text-[#FF6B6B]">

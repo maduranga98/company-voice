@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import ReportHeader from "../../components/public/ReportHeader";
 import TypeSelector from "../../components/public/TypeSelector";
 import EvidenceUploader from "../../components/public/EvidenceUploader";
+import VoiceRecorder from "../../components/public/VoiceRecorder";
 import ContactSection from "../../components/public/ContactSection";
 import SuccessScreen from "../../components/public/SuccessScreen";
 import InactiveLink from "../../components/public/InactiveLink";
@@ -273,7 +274,9 @@ const ReportPage = () => {
                 </span>
               </label>
 
-              <EvidenceUploader uploads={uploads} limits={config.limits} />
+              <EvidenceUploader uploads={uploads} limits={config.limits}>
+                <VoiceRecorder uploads={uploads} limits={config.limits} />
+              </EvidenceUploader>
 
               <ContactSection value={contact} onChange={setContact} />
 
