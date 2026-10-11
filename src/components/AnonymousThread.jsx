@@ -62,9 +62,9 @@ const formatTime = (timestamp) => {
  *   currentUserRole  - Role string from UserRole constants, or "reporter"
  *   isAnonymousPost  - Boolean; component renders nothing when false
  */
-const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, defaultOpen }) => {
+const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, defaultOpen, embedded = false }) => {
   const { userData } = useAuth();
-  const [isOpen, setIsOpen] = useState(defaultOpen || false);
+  const [isOpen, setIsOpen] = useState(defaultOpen || embedded);
   const [messages, setMessages] = useState([]);
   const [threadData, setThreadData] = useState(null);
   const [replyText, setReplyText] = useState("");
@@ -126,6 +126,15 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
     }
   }, [messages, isOpen]);
 
+  // Embedded (always-open) mode has no toggle, so make sure the thread exists and mark
+  // it read on mount, as the toggle does when opening.
+  useEffect(() => {
+    if (!embedded || !isAnonymousPost || !postId) return;
+    createThread(postId, companyId, !isInvestigator ? userData?.id : null)
+      .then(() => markThreadRead(postId, senderRole))
+      .catch((error) => console.error("Error opening thread:", error));
+  }, [embedded, isAnonymousPost, postId, companyId, isInvestigator, senderRole, userData?.id]);
+
   if (!isAnonymousPost) return null;
 
   const handleToggle = async () => {
@@ -172,8 +181,9 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
     : "Private Message Thread";
 
   return (
-    <div className="border-t border-gray-200 mt-2">
+    <div className={embedded ? "" : "border-t border-gray-200 mt-2"}>
       {/* Toggle Button */}
+      {!embedded && (
       <button
         onClick={handleToggle}
         className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-gray-50 transition"
@@ -221,10 +231,11 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
           />
         </svg>
       </button>
+      )}
 
       {/* Thread Panel */}
       {isOpen && (
-        <div className="px-4 pb-4">
+        <div className={embedded ? "" : "px-4 pb-4"}>
           <div
             className="border rounded-lg overflow-hidden"
             style={{ borderColor: "#D1D5DB" }}
@@ -245,7 +256,7 @@ const AnonymousThread = ({ postId, companyId, currentUserRole, isAnonymousPost, 
             </div>
 
             {/* Messages */}
-            <div className="max-h-80 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div className={`${embedded ? "max-h-[45vh] min-h-[10rem]" : "max-h-80"} overflow-y-auto p-4 space-y-3 bg-gray-50`}>
               {messages.length === 0 ? (
                 <p className="text-sm text-gray-500 text-center py-8">
                   No messages yet. Start the conversation privately.

@@ -554,7 +554,14 @@
     "anonymous": "නිර්නාමික",
     "emptyFiltered": "මෙහි කිසිවක් නැත",
     "emptyFilteredDesc": "මෙම තත්ත්වයට ගැළපෙන පළ කිරීම් දැනට නැත.",
-    "showAll": "සියලු පළ කිරීම් පෙන්වන්න"
+    "showAll": "සියලු පළ කිරීම් පෙන්වන්න",
+    "tabDetails": "විස්තර",
+    "tabConversation": "සංවාදය",
+    "tabHandle": "කළමනාකරණය",
+    "exportPdf": "PDF ලෙස අපනයනය",
+    "exportingPdf": "අපනයනය කරමින්...",
+    "pdfExported": "නඩුව PDF ලෙස අපනයනය කරන ලදී",
+    "pdfFailed": "නඩුව අපනයනය කළ නොහැකි විය"
   },
   "casePanel": {
     "statusUpdated": "තත්ත්වය යාවත්කාලීන කරන ලදී",

@@ -15,6 +15,8 @@ import { CaseType, getCaseAdapter } from "../../utils/caseTypes";
 import AdminActionPanel from "../../components/AdminActionPanel";
 import CaseAttachments from "../../components/CaseAttachments";
 import Avatar from "../../components/Avatar";
+import AnonymousThread from "../../components/AnonymousThread";
+import ExportCasePdfButton from "../../components/case/ExportCasePdfButton";
 import { StatusBadge, PriorityBadge, DueDateChip } from "../../components/case/CaseBadges";
 import {
   Inbox,
@@ -26,6 +28,9 @@ import {
   Shield,
   User,
   UserRound,
+  FileText,
+  Lock,
+  SlidersHorizontal,
   SearchX,
   X,
 } from "lucide-react";
@@ -140,6 +145,7 @@ const HRInbox = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   // Track the id, not a copy, so the detail panel always reflects the live snapshot.
   const [selectedId, setSelectedId] = useState(null);
+  const [activeTab, setActiveTab] = useState("details");
 
   // Access control
   useEffect(() => {
@@ -204,7 +210,20 @@ const HRInbox = () => {
 
   if (loading) return <InboxSkeleton />;
 
-  const toggleSelected = (id) => setSelectedId((current) => (current === id ? null : id));
+  const toggleSelected = (id) => {
+    setActiveTab("details");
+    setSelectedId((current) => (current === id ? null : id));
+  };
+
+  const tabs = selectedPost
+    ? [
+        { id: "details", label: t("hrInbox.tabDetails", "Details"), icon: <FileText size={14} aria-hidden="true" /> },
+        ...(selectedPost.isAnonymous
+          ? [{ id: "conversation", label: t("hrInbox.tabConversation", "Conversation"), icon: <Lock size={14} aria-hidden="true" /> }]
+          : []),
+        { id: "handle", label: t("hrInbox.tabHandle", "Handle"), icon: <SlidersHorizontal size={14} aria-hidden="true" /> },
+      ]
+    : [];
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -278,7 +297,7 @@ const HRInbox = () => {
       ) : (
         <div className="lg:flex lg:gap-4 lg:items-start">
           {/* Left: post list */}
-          <div className={`space-y-3 ${selectedPost ? "lg:w-2/5" : "w-full"}`}>
+          <div className={`space-y-3 ${selectedPost ? "lg:w-[22rem] xl:w-[26rem] lg:flex-shrink-0" : "w-full"}`}>
             {filteredPosts.map((post) => {
               const priority = post.priority || PostPriority.MEDIUM;
               const strip = PostPriorityConfig[priority]?.badgeBg || "bg-gray-300";
@@ -374,7 +393,8 @@ const HRInbox = () => {
 
                   {/* Mobile inline expansion */}
                   {isSelected && (
-                    <div className="lg:hidden border-t border-gray-100 bg-background-softGray rounded-b-2xl p-3">
+                    <div className="lg:hidden border-t border-gray-100 bg-background-softGray rounded-b-2xl p-3 space-y-3">
+                      <ExportCasePdfButton post={post} currentUser={userData} className="w-full" />
                       <AdminActionPanel post={post} currentUser={userData} />
                     </div>
                   )}
@@ -385,84 +405,162 @@ const HRInbox = () => {
 
           {/* Right: detail panel — desktop only */}
           {selectedPost && (
-            <div className="hidden lg:flex lg:flex-col lg:flex-1 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 max-h-[calc(100vh-160px)] overflow-hidden">
-              {/* Panel header — title + close */}
-              <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-start gap-4 flex-shrink-0">
-                <PostTypeIcon type={selectedPost.type} />
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-[#2D3E50] leading-snug">
-                    {selectedPost.title}
-                  </h3>
-                  {/* Metadata chips */}
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full capitalize">
-                      {(selectedPost.type || "").replace(/_/g, " ")}
-                    </span>
-                    {selectedPost.isAnonymous ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">
-                        <Shield size={10} aria-hidden="true" />
-                        {t("hrInbox.anonymous", "Anonymous")}
+            <div className="hidden lg:flex lg:flex-col lg:flex-1 lg:min-w-0 bg-white rounded-2xl border border-[#1ABC9C] shadow-md sticky top-24 h-[calc(100vh-8rem)] overflow-hidden">
+              {/* Header: title, state at a glance, export + close */}
+              <div className="px-6 pt-5 pb-3 flex-shrink-0">
+                <div className="flex items-start gap-4">
+                  <PostTypeIcon type={selectedPost.type} />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-semibold text-[#2D3E50] leading-snug">
+                      {selectedPost.title}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full capitalize">
+                        {(selectedPost.type || "").replace(/_/g, " ")}
                       </span>
-                    ) : (
-                      selectedPost.authorName && (
-                        <span className="inline-flex items-center gap-1 text-xs font-medium bg-gray-50 text-gray-500 px-2 py-0.5 rounded-full">
-                          <User size={10} aria-hidden="true" />
-                          {selectedPost.authorName}
+                      {selectedPost.isAnonymous ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">
+                          <Shield size={10} aria-hidden="true" />
+                          {t("hrInbox.anonymous", "Anonymous")}
                         </span>
-                      )
-                    )}
-                    <span className="inline-flex items-center gap-1 text-xs text-gray-400 ml-auto">
-                      <Clock size={10} aria-hidden="true" />
-                      {selectedPost.createdAt
-                        ? (selectedPost.createdAt?.toDate
-                            ? selectedPost.createdAt.toDate()
-                            : new Date(selectedPost.createdAt)
-                          ).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
-                        : ""}
-                    </span>
+                      ) : (
+                        selectedPost.authorName && (
+                          <span className="inline-flex items-center gap-1 text-xs font-medium bg-gray-50 text-gray-500 px-2 py-0.5 rounded-full">
+                            <User size={10} aria-hidden="true" />
+                            {selectedPost.authorName}
+                          </span>
+                        )
+                      )}
+                      <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                        <Clock size={10} aria-hidden="true" />
+                        {selectedPost.createdAt
+                          ? (selectedPost.createdAt?.toDate
+                              ? selectedPost.createdAt.toDate()
+                              : new Date(selectedPost.createdAt)
+                            ).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+                          : ""}
+                      </span>
+                    </div>
                   </div>
+                  <ExportCasePdfButton post={selectedPost} currentUser={userData} />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(null)}
+                    aria-label={t("common.close", "Close")}
+                    className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(null)}
-                  aria-label={t("common.close", "Close")}
-                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
-                >
-                  <X size={16} aria-hidden="true" />
-                </button>
+
+                {/* Current state, always visible whichever tab is open */}
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  <StatusBadge status={selectedPost.status} size="md" />
+                  <PriorityBadge priority={selectedPost.priority || PostPriority.MEDIUM} size="md" />
+                  {selectedPost.assignedTo?.name ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2D3E50]">
+                      <Avatar name={selectedPost.assignedTo.name} size="xs" />
+                      {selectedPost.assignedTo.name}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-400">
+                      <UserRound size={14} aria-hidden="true" />
+                      {t("casePanel.unassigned", "Unassigned")}
+                    </span>
+                  )}
+                  <DueDateChip dueDate={selectedPost.dueDate} closed={CLOSED_STATUSES.includes(selectedPost.status)} size="md" />
+                </div>
               </div>
 
-              {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto">
-                {/* Concern raised from a policy acknowledgement link: not anonymous */}
-                {selectedPost.source === "policy_link" && (
-                  <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
-                    <SectionLabel>Policy concern</SectionLabel>
-                    <p className="text-sm text-gray-700">
-                      {selectedPost.policyTitle}
-                      {selectedPost.policyVersion ? ` (v${selectedPost.policyVersion})` : ""}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {selectedPost.authorName} · Employee ID {selectedPost.employeeId}
-                    </p>
-                  </div>
-                )}
-                {/* Full post content */}
-                {(selectedPost.description || selectedPost.content) && (
-                  <div className="px-6 py-4 border-b border-gray-100">
+              {/* Tabs */}
+              <div role="tablist" className="flex gap-1 px-6 border-b border-gray-100 flex-shrink-0">
+                {tabs.map((tab) => {
+                  const active = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      id={`hr-tab-${tab.id}`}
+                      aria-selected={active}
+                      aria-controls={`hr-tabpanel-${tab.id}`}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1ABC9C]/50 ${
+                        active
+                          ? "border-[#1ABC9C] text-[#2D3E50]"
+                          : "border-transparent text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      {tab.icon}
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Tab bodies stay mounted (hidden) so notes drafts and the live thread persist */}
+              <div className="flex-1 overflow-y-auto bg-background-softGray">
+                <div
+                  role="tabpanel"
+                  id="hr-tabpanel-details"
+                  aria-labelledby="hr-tab-details"
+                  hidden={activeTab !== "details"}
+                  className="space-y-3 p-4"
+                >
+                  {selectedPost.source === "policy_link" && (
+                    <div className="rounded-xl border border-gray-100 bg-white p-4">
+                      <SectionLabel>Policy concern</SectionLabel>
+                      <p className="text-sm text-gray-700">
+                        {selectedPost.policyTitle}
+                        {selectedPost.policyVersion ? ` (v${selectedPost.policyVersion})` : ""}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {selectedPost.authorName} · Employee ID {selectedPost.employeeId}
+                      </p>
+                    </div>
+                  )}
+                  <div className="rounded-xl border border-gray-100 bg-white p-4">
                     <SectionLabel>Submission</SectionLabel>
                     <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                      {selectedPost.description || selectedPost.content}
+                      {selectedPost.description || selectedPost.content || "-"}
                     </p>
+                  </div>
+                  {Array.isArray(selectedPost.attachments) && selectedPost.attachments.length > 0 && (
+                    <div className="rounded-xl border border-gray-100 bg-white overflow-hidden">
+                      <CaseAttachments attachments={selectedPost.attachments} />
+                    </div>
+                  )}
+                </div>
+
+                {selectedPost.isAnonymous && (
+                  <div
+                    role="tabpanel"
+                    id="hr-tabpanel-conversation"
+                    aria-labelledby="hr-tab-conversation"
+                    hidden={activeTab !== "conversation"}
+                    className="p-4"
+                  >
+                    <div className="rounded-xl border border-gray-100 bg-white p-3">
+                      <AnonymousThread
+                        key={selectedPost.id}
+                        embedded
+                        postId={selectedPost.id}
+                        companyId={selectedPost.companyId || userData.companyId}
+                        currentUserRole={userData.role}
+                        isAnonymousPost={selectedPost.isAnonymous}
+                      />
+                    </div>
                   </div>
                 )}
 
-                <CaseAttachments attachments={selectedPost.attachments} />
-
-                {/* Admin action panel */}
-                <div className="px-6 py-4 bg-background-softGray">
-                  <SectionLabel>HR Actions</SectionLabel>
-                  <AdminActionPanel post={selectedPost} currentUser={userData} />
+                <div
+                  role="tabpanel"
+                  id="hr-tabpanel-handle"
+                  aria-labelledby="hr-tab-handle"
+                  hidden={activeTab !== "handle"}
+                  className="p-4"
+                >
+                  <AdminActionPanel key={selectedPost.id} post={selectedPost} currentUser={userData} showThread={false} />
                 </div>
               </div>
             </div>

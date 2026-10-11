@@ -393,7 +393,14 @@
     "anonymous": "Anonyme",
     "emptyFiltered": "Rien ici",
     "emptyFilteredDesc": "Aucune publication ne correspond à ce statut pour le moment.",
-    "showAll": "Afficher toutes les publications"
+    "showAll": "Afficher toutes les publications",
+    "tabDetails": "Détails",
+    "tabConversation": "Conversation",
+    "tabHandle": "Traiter",
+    "exportPdf": "Exporter en PDF",
+    "exportingPdf": "Exportation...",
+    "pdfExported": "Dossier exporté en PDF",
+    "pdfFailed": "Impossible d'exporter le dossier"
   },
   "casePanel": {
     "statusUpdated": "Statut mis à jour",
