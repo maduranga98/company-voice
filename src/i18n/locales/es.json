@@ -98,7 +98,7 @@
     "actions": "Acciones",
     "activate": "Activar",
     "suspend": "Suspender",
-    "changeRole": "Cambiar rol",
+    "changeRole": "Rol",
     "assignDepartment": "Asignar departamento",
     "noMembers": "No se encontraron miembros",
     "departmentTitle": "Gestión de departamentos",
@@ -149,7 +149,6 @@
     "failedToAssignTag": "Error al asignar la etiqueta",
     "departmentAssigned": "¡Departamento asignado con éxito!",
     "failedToAssignDepartment": "Error al asignar el departamento",
-    "changeRole": "Rol",
     "changeRoleTitle": "Cambiar Rol",
     "changeRoleFor": "Cambiar rol para este miembro",
     "currentRole": "(Actual)",
@@ -443,15 +442,51 @@
       "title": "Flujo de Estado de Publicaciones",
       "description": "Rastrea y gestiona las publicaciones a través de su ciclo de vida usando estos indicadores de estado.",
       "statuses": {
-        "OPEN": { "label": "Abierto", "description": "Recién creado, esperando revisión del administrador", "whenToUse": "Estado predeterminado para todas las nuevas publicaciones" },
-        "ACKNOWLEDGED": { "label": "Reconocido", "description": "El administrador ha visto y reconocido la publicación", "whenToUse": "Cuando has revisado la publicación y quieres señalar que la has visto" },
-        "IN_PROGRESS": { "label": "En Progreso", "description": "En proceso de trabajo activo", "whenToUse": "Cuando el trabajo ha comenzado para abordar la publicación" },
-        "UNDER_REVIEW": { "label": "En Revisión", "description": "Siendo investigado o evaluado", "whenToUse": "Cuando la publicación requiere investigación o análisis" },
-        "WORKING_ON": { "label": "Trabajando en Ello", "description": "Enviado a departamentos relevantes, esperando respuesta", "whenToUse": "Cuando has delegado a otro equipo y estás esperando actualizaciones" },
-        "RESOLVED": { "label": "Resuelto", "description": "Corregido o completado exitosamente", "whenToUse": "Cuando el problema está completamente resuelto o la idea está implementada" },
-        "CLOSED": { "label": "Cerrado", "description": "No se necesita ni se toma acción", "whenToUse": "Cuando la publicación no requiere ninguna acción" },
-        "REJECTED": { "label": "Rechazado", "description": "No válido, duplicado o fuera de alcance", "whenToUse": "Cuando la publicación es inválida, duplicada o no se alinea con los objetivos de la empresa" },
-        "NOT_A_PROBLEM": { "label": "No es un Problema", "description": "No es un problema real o se resolverá en el futuro", "whenToUse": "Cuando el problema reportado no es realmente un problema o se resolverá por sí solo" }
+        "OPEN": {
+          "label": "Abierto",
+          "description": "Recién creado, esperando revisión del administrador",
+          "whenToUse": "Estado predeterminado para todas las nuevas publicaciones"
+        },
+        "ACKNOWLEDGED": {
+          "label": "Reconocido",
+          "description": "El administrador ha visto y reconocido la publicación",
+          "whenToUse": "Cuando has revisado la publicación y quieres señalar que la has visto"
+        },
+        "IN_PROGRESS": {
+          "label": "En Progreso",
+          "description": "En proceso de trabajo activo",
+          "whenToUse": "Cuando el trabajo ha comenzado para abordar la publicación"
+        },
+        "UNDER_REVIEW": {
+          "label": "En Revisión",
+          "description": "Siendo investigado o evaluado",
+          "whenToUse": "Cuando la publicación requiere investigación o análisis"
+        },
+        "WORKING_ON": {
+          "label": "Trabajando en Ello",
+          "description": "Enviado a departamentos relevantes, esperando respuesta",
+          "whenToUse": "Cuando has delegado a otro equipo y estás esperando actualizaciones"
+        },
+        "RESOLVED": {
+          "label": "Resuelto",
+          "description": "Corregido o completado exitosamente",
+          "whenToUse": "Cuando el problema está completamente resuelto o la idea está implementada"
+        },
+        "CLOSED": {
+          "label": "Cerrado",
+          "description": "No se necesita ni se toma acción",
+          "whenToUse": "Cuando la publicación no requiere ninguna acción"
+        },
+        "REJECTED": {
+          "label": "Rechazado",
+          "description": "No válido, duplicado o fuera de alcance",
+          "whenToUse": "Cuando la publicación es inválida, duplicada o no se alinea con los objetivos de la empresa"
+        },
+        "NOT_A_PROBLEM": {
+          "label": "No es un Problema",
+          "description": "No es un problema real o se resolverá en el futuro",
+          "whenToUse": "Cuando el problema reportado no es realmente un problema o se resolverá por sí solo"
+        }
       },
       "bestPractices": [
         "Siempre agrega un comentario al cambiar el estado para explicar la razón",
@@ -465,10 +500,46 @@
       "title": "Niveles de Prioridad",
       "description": "Asigna prioridad a las publicaciones para indicar urgencia e importancia.",
       "levels": {
-        "CRITICAL": { "label": "Crítico", "description": "Requiere atención inmediata", "criteria": ["Interrupciones del sistema o funcionalidad principal dañada", "Preocupaciones de seguridad o protección", "Problemas legales o de cumplimiento", "Impacto comercial severo"] },
-        "HIGH": { "label": "Alto", "description": "Importante y urgente", "criteria": ["Impacto significativo en múltiples equipos", "Bloqueo de procesos o flujos de trabajo clave", "Problemas orientados al cliente", "Oportunidades urgentes"] },
-        "MEDIUM": { "label": "Medio", "description": "Prioridad normal, debe abordarse", "criteria": ["Problemas operativos estándar", "Mejoras de procesos", "Problemas no bloqueantes", "Solicitudes de características regulares"] },
-        "LOW": { "label": "Bajo", "description": "Deseable, abordar cuando sea posible", "criteria": ["Mejoras menores", "Mejoras opcionales", "Sugerencias de bajo impacto", "Ideas a largo plazo"] }
+        "CRITICAL": {
+          "label": "Crítico",
+          "description": "Requiere atención inmediata",
+          "criteria": [
+            "Interrupciones del sistema o funcionalidad principal dañada",
+            "Preocupaciones de seguridad o protección",
+            "Problemas legales o de cumplimiento",
+            "Impacto comercial severo"
+          ]
+        },
+        "HIGH": {
+          "label": "Alto",
+          "description": "Importante y urgente",
+          "criteria": [
+            "Impacto significativo en múltiples equipos",
+            "Bloqueo de procesos o flujos de trabajo clave",
+            "Problemas orientados al cliente",
+            "Oportunidades urgentes"
+          ]
+        },
+        "MEDIUM": {
+          "label": "Medio",
+          "description": "Prioridad normal, debe abordarse",
+          "criteria": [
+            "Problemas operativos estándar",
+            "Mejoras de procesos",
+            "Problemas no bloqueantes",
+            "Solicitudes de características regulares"
+          ]
+        },
+        "LOW": {
+          "label": "Bajo",
+          "description": "Deseable, abordar cuando sea posible",
+          "criteria": [
+            "Mejoras menores",
+            "Mejoras opcionales",
+            "Sugerencias de bajo impacto",
+            "Ideas a largo plazo"
+          ]
+        }
       },
       "bestPractices": [
         "Establece la prioridad basándote en el impacto comercial, no solo en la urgencia",
@@ -482,11 +553,51 @@
       "description": "Las etiquetas ayudan a clasificar a los usuarios por rol o antigüedad para asignación y filtrado.",
       "purpose": "Las etiquetas habilitan la función 'Asignado a Mí' - cuando se menciona a usuarios con etiquetas en publicaciones, esas publicaciones aparecen en su sección asignada.",
       "items": {
-        "EXECUTIVE": { "label": "Ejecutivo", "description": "Ejecutivos de nivel C y Vicepresidentes", "examples": ["CEO", "CTO", "CFO", "VP de Ingeniería"] },
-        "SENIOR_MANAGER": { "label": "Gerente Senior", "description": "Gerentes senior y directores", "examples": ["Director de RR.HH.", "Gerente Senior de Ingeniería"] },
-        "MANAGER": { "label": "Gerente", "description": "Líderes de equipo y gerentes", "examples": ["Líder de Equipo", "Gerente de Proyecto", "Gerente de Departamento"] },
-        "SPECIALIST": { "label": "Especialista", "description": "Especialistas senior y expertos en la materia", "examples": ["Ingeniero Senior", "Especialista UX", "Experto en Seguridad"] },
-        "STAFF": { "label": "Personal", "description": "Empleados regulares y personal", "examples": ["Ingeniero", "Diseñador", "Analista"] }
+        "EXECUTIVE": {
+          "label": "Ejecutivo",
+          "description": "Ejecutivos de nivel C y Vicepresidentes",
+          "examples": [
+            "CEO",
+            "CTO",
+            "CFO",
+            "VP de Ingeniería"
+          ]
+        },
+        "SENIOR_MANAGER": {
+          "label": "Gerente Senior",
+          "description": "Gerentes senior y directores",
+          "examples": [
+            "Director de RR.HH.",
+            "Gerente Senior de Ingeniería"
+          ]
+        },
+        "MANAGER": {
+          "label": "Gerente",
+          "description": "Líderes de equipo y gerentes",
+          "examples": [
+            "Líder de Equipo",
+            "Gerente de Proyecto",
+            "Gerente de Departamento"
+          ]
+        },
+        "SPECIALIST": {
+          "label": "Especialista",
+          "description": "Especialistas senior y expertos en la materia",
+          "examples": [
+            "Ingeniero Senior",
+            "Especialista UX",
+            "Experto en Seguridad"
+          ]
+        },
+        "STAFF": {
+          "label": "Personal",
+          "description": "Empleados regulares y personal",
+          "examples": [
+            "Ingeniero",
+            "Diseñador",
+            "Analista"
+          ]
+        }
       },
       "howToAssign": [
         "Las etiquetas son opcionales - no todos los usuarios necesitan una etiqueta",
@@ -529,8 +640,14 @@
       "title": "Gestión de Miembros",
       "description": "Gestiona usuarios, asigna roles y controla el acceso.",
       "statuses": {
-        "ACTIVE": { "label": "Activo", "description": "Acceso completo a la plataforma" },
-        "SUSPENDED": { "label": "Suspendido", "description": "Acceso temporalmente revocado" }
+        "ACTIVE": {
+          "label": "Activo",
+          "description": "Acceso completo a la plataforma"
+        },
+        "SUSPENDED": {
+          "label": "Suspendido",
+          "description": "Acceso temporalmente revocado"
+        }
       },
       "howToManage": [
         "Usa filtros para encontrar miembros específicos",
@@ -586,11 +703,31 @@
       "title": "Análisis e Informes",
       "description": "Comprende el compromiso, las tendencias y las métricas de rendimiento.",
       "metrics": {
-        "postsByStatus": { "label": "Publicaciones por Estado", "description": "Distribución actual del estado (Abierto, En Progreso, Resuelto, etc.)", "useCase": "Rastrear el progreso del flujo de trabajo e identificar cuellos de botella" },
-        "postsByPriority": { "label": "Publicaciones por Prioridad", "description": "Distribución entre prioridades Crítico, Alto, Medio, Bajo", "useCase": "Comprender la distribución de urgencia y la carga de trabajo" },
-        "engagementMetrics": { "label": "Compromiso de Usuarios", "description": "Comentarios, reacciones y participación activa", "useCase": "Medir la adopción de la plataforma y la actividad de los usuarios" },
-        "responseTime": { "label": "Tiempo de Respuesta", "description": "Tiempo promedio para reconocer y resolver publicaciones", "useCase": "Rastrear la capacidad de respuesta y eficiencia del administrador" },
-        "departmentPerformance": { "label": "Rendimiento del Departamento", "description": "Actividad y métricas por departamento", "useCase": "Comparar el compromiso del equipo e identificar tendencias" }
+        "postsByStatus": {
+          "label": "Publicaciones por Estado",
+          "description": "Distribución actual del estado (Abierto, En Progreso, Resuelto, etc.)",
+          "useCase": "Rastrear el progreso del flujo de trabajo e identificar cuellos de botella"
+        },
+        "postsByPriority": {
+          "label": "Publicaciones por Prioridad",
+          "description": "Distribución entre prioridades Crítico, Alto, Medio, Bajo",
+          "useCase": "Comprender la distribución de urgencia y la carga de trabajo"
+        },
+        "engagementMetrics": {
+          "label": "Compromiso de Usuarios",
+          "description": "Comentarios, reacciones y participación activa",
+          "useCase": "Medir la adopción de la plataforma y la actividad de los usuarios"
+        },
+        "responseTime": {
+          "label": "Tiempo de Respuesta",
+          "description": "Tiempo promedio para reconocer y resolver publicaciones",
+          "useCase": "Rastrear la capacidad de respuesta y eficiencia del administrador"
+        },
+        "departmentPerformance": {
+          "label": "Rendimiento del Departamento",
+          "description": "Actividad y métricas por departamento",
+          "useCase": "Comparar el compromiso del equipo e identificar tendencias"
+        }
       },
       "howToUse": [
         "Selecciona el período de tiempo (7, 30 o 90 días)",
@@ -611,16 +748,44 @@
       "title": "Moderación de Contenido",
       "description": "Revisa el contenido reportado y mantén los estándares de la comunidad.",
       "reportStatuses": {
-        "PENDING": { "label": "Pendiente", "description": "Nuevo reporte esperando revisión", "action": "Revisa el contenido y toma la acción apropiada" },
-        "UNDER_REVIEW": { "label": "En Revisión", "description": "Siendo investigado", "action": "Continúa la investigación y recopila contexto" },
-        "RESOLVED": { "label": "Resuelto", "description": "Acción tomada, problema resuelto", "action": "Asegúrate de que la resolución esté documentada" },
-        "DISMISSED": { "label": "Desestimado", "description": "No se necesita acción", "action": "Documenta la razón del desestimamiento" }
+        "PENDING": {
+          "label": "Pendiente",
+          "description": "Nuevo reporte esperando revisión",
+          "action": "Revisa el contenido y toma la acción apropiada"
+        },
+        "UNDER_REVIEW": {
+          "label": "En Revisión",
+          "description": "Siendo investigado",
+          "action": "Continúa la investigación y recopila contexto"
+        },
+        "RESOLVED": {
+          "label": "Resuelto",
+          "description": "Acción tomada, problema resuelto",
+          "action": "Asegúrate de que la resolución esté documentada"
+        },
+        "DISMISSED": {
+          "label": "Desestimado",
+          "description": "No se necesita acción",
+          "action": "Documenta la razón del desestimamiento"
+        }
       },
       "actions": [
-        { "action": "Sin Acción", "whenToUse": "El reporte es inválido o el contenido es aceptable" },
-        { "action": "Advertencia", "whenToUse": "Violación menor, el usuario debe ser informado" },
-        { "action": "Eliminar Contenido", "whenToUse": "El contenido viola las políticas y debe ocultarse" },
-        { "action": "Suspender Usuario", "whenToUse": "Violaciones graves o repetidas" }
+        {
+          "action": "Sin Acción",
+          "whenToUse": "El reporte es inválido o el contenido es aceptable"
+        },
+        {
+          "action": "Advertencia",
+          "whenToUse": "Violación menor, el usuario debe ser informado"
+        },
+        {
+          "action": "Eliminar Contenido",
+          "whenToUse": "El contenido viola las políticas y debe ocultarse"
+        },
+        {
+          "action": "Suspender Usuario",
+          "whenToUse": "Violaciones graves o repetidas"
+        }
       ],
       "reviewProcess": [
         "Lee el reporte y el contenido reportado cuidadosamente",
@@ -827,12 +992,58 @@
       "download": "Descargar .txt",
       "print": "Imprimir",
       "warning": "Guárdalos ahora. No podemos recuperarlos. Necesitarás ambos para consultar tu caso.",
-      "comingSoon": "Pronto habrá una página «Consultar mi caso», donde podrás usarlos para ver novedades y responder.",
+      "checkCaseIntro": "Puedes usar tu código de caso y tu clave secreta en cualquier momento para ver novedades y responder en privado.",
+      "checkCaseLink": "Consultar mi caso",
       "confirmSaved": "He guardado mi código de caso y mi clave secreta",
       "done": "Listo",
       "leaveWarning": "No has confirmado que guardaste tu código de caso y tu clave secreta.",
       "fileHeading": "Informe confidencial de VoxWel",
       "fileNote": "Mantén este archivo en privado. Quien tenga ambos valores puede abrir tu caso."
+    },
+    "checkCase": {
+      "heading": "Consultar mi caso",
+      "intro": "Introduce tu código de caso y tu clave secreta para ver novedades y responder en privado.",
+      "caseCodeLabel": "Código de caso",
+      "secretKeyLabel": "Clave secreta",
+      "loading": "Consultando...",
+      "submitButton": "Ver mi caso",
+      "checkAnother": "Consultar otro caso",
+      "submittedOn": "Enviado el {{date}}",
+      "yourReport": "Lo que informaste",
+      "errors": {
+        "invalid": "Ese código de caso o clave secreta no es correcto.",
+        "rateLimited": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+        "network": "No se pudo contactar con el servidor. Comprueba tu conexión e inténtalo de nuevo.",
+        "generic": "Algo salió mal. Inténtalo de nuevo."
+      },
+      "status": {
+        "open": "Abierto",
+        "acknowledged": "Reconocido",
+        "in_progress": "En curso",
+        "under_review": "En revisión",
+        "working_on": "En proceso",
+        "resolved": "Resuelto",
+        "closed": "Cerrado",
+        "rejected": "Rechazado",
+        "not_a_problem": "No es un problema"
+      },
+      "timers": {
+        "acknowledged": "Tu informe ha sido reconocido",
+        "acknowledgePending": "Quedan {{count}} días para que reconozcan tu informe",
+        "acknowledgeOverdue": "El reconocimiento está retrasado",
+        "feedbackGiven": "Has recibido una respuesta sobre este caso",
+        "feedbackPending": "Quedan {{count}} días para recibir una respuesta",
+        "feedbackOverdue": "La respuesta está retrasada"
+      },
+      "thread": {
+        "heading": "Mensajes privados",
+        "empty": "Aún no hay mensajes. Puedes enviar uno abajo.",
+        "unreadable": "[No se pudo leer este mensaje]",
+        "you": "Tú",
+        "them": "La empresa",
+        "placeholder": "Escribe una respuesta privada...",
+        "send": "Enviar"
+      }
     },
     "inactive": {
       "title": "Este enlace de denuncias no está activo",

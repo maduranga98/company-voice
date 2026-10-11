@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Check, Copy, Download, Printer, TriangleAlert } from "lucide-react";
+import { Check, Copy, Download, KeyRound, Printer, TriangleAlert } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 const copyText = async (text) => {
@@ -134,8 +135,16 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, onDone }) => {
         </button>
       </div>
 
-      {/* TODO(step2): link to the "Check my case" page here once it exists. */}
-      <p className="text-sm text-gray-500 print:hidden">{t("report.success.comingSoon")}</p>
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 print:hidden">
+        <p className="text-sm text-gray-600">{t("report.success.checkCaseIntro")}</p>
+        <Link
+          to="/c"
+          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#2D3E50] px-4 py-2 text-sm font-semibold text-[#2D3E50] hover:border-[#1ABC9C] hover:text-[#1ABC9C]"
+        >
+          <KeyRound className="h-4 w-4" aria-hidden="true" />
+          {t("report.success.checkCaseLink")}
+        </Link>
+      </div>
 
       <div className="space-y-3 border-t border-gray-200 pt-5 print:hidden">
         <label className="flex items-start gap-3 text-sm text-[#2D3E50]">

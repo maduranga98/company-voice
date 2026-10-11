@@ -98,7 +98,7 @@
     "actions": "Actions",
     "activate": "Activer",
     "suspend": "Suspendre",
-    "changeRole": "Changer le rôle",
+    "changeRole": "Rôle",
     "assignDepartment": "Assigner un département",
     "noMembers": "Aucun membre trouvé",
     "departmentTitle": "Gestion des départements",
@@ -149,7 +149,6 @@
     "failedToAssignTag": "Échec de l'attribution de l'étiquette",
     "departmentAssigned": "Département assigné avec succès !",
     "failedToAssignDepartment": "Échec de l'attribution du département",
-    "changeRole": "Rôle",
     "changeRoleTitle": "Changer le rôle",
     "changeRoleFor": "Changer le rôle de ce membre",
     "currentRole": "(Actuel)",
@@ -443,15 +442,51 @@
       "title": "Flux de Statut des Publications",
       "description": "Suivez et gérez les publications tout au long de leur cycle de vie grâce à ces indicateurs de statut.",
       "statuses": {
-        "OPEN": { "label": "Ouvert", "description": "Vient d'être créé, en attente de révision par l'administrateur", "whenToUse": "Statut par défaut pour toutes les nouvelles publications" },
-        "ACKNOWLEDGED": { "label": "Accusé de Réception", "description": "L'administrateur a vu et pris en compte la publication", "whenToUse": "Lorsque vous avez examiné la publication et souhaitez signaler votre prise de connaissance" },
-        "IN_PROGRESS": { "label": "En Cours", "description": "Activement en cours de traitement", "whenToUse": "Lorsque le travail a commencé pour traiter la publication" },
-        "UNDER_REVIEW": { "label": "En Révision", "description": "En cours d'investigation ou d'évaluation", "whenToUse": "Lorsque la publication nécessite une investigation ou une analyse" },
-        "WORKING_ON": { "label": "En Traitement", "description": "Transmis aux départements concernés, en attente de réponse", "whenToUse": "Lorsque vous avez délégué à une autre équipe et attendez des mises à jour" },
-        "RESOLVED": { "label": "Résolu", "description": "Corrigé ou complété avec succès", "whenToUse": "Lorsque le problème est entièrement résolu ou l'idée est mise en œuvre" },
-        "CLOSED": { "label": "Fermé", "description": "Aucune action nécessaire ou prise", "whenToUse": "Lorsque la publication ne nécessite aucune action" },
-        "REJECTED": { "label": "Rejeté", "description": "Non valide, doublon ou hors périmètre", "whenToUse": "Lorsque la publication est invalide, en doublon ou ne correspond pas aux objectifs de l'entreprise" },
-        "NOT_A_PROBLEM": { "label": "Pas un Problème", "description": "Pas un vrai problème ou sera résolu à l'avenir", "whenToUse": "Lorsque le problème signalé n'est pas réellement un problème ou se résoudra de lui-même" }
+        "OPEN": {
+          "label": "Ouvert",
+          "description": "Vient d'être créé, en attente de révision par l'administrateur",
+          "whenToUse": "Statut par défaut pour toutes les nouvelles publications"
+        },
+        "ACKNOWLEDGED": {
+          "label": "Accusé de Réception",
+          "description": "L'administrateur a vu et pris en compte la publication",
+          "whenToUse": "Lorsque vous avez examiné la publication et souhaitez signaler votre prise de connaissance"
+        },
+        "IN_PROGRESS": {
+          "label": "En Cours",
+          "description": "Activement en cours de traitement",
+          "whenToUse": "Lorsque le travail a commencé pour traiter la publication"
+        },
+        "UNDER_REVIEW": {
+          "label": "En Révision",
+          "description": "En cours d'investigation ou d'évaluation",
+          "whenToUse": "Lorsque la publication nécessite une investigation ou une analyse"
+        },
+        "WORKING_ON": {
+          "label": "En Traitement",
+          "description": "Transmis aux départements concernés, en attente de réponse",
+          "whenToUse": "Lorsque vous avez délégué à une autre équipe et attendez des mises à jour"
+        },
+        "RESOLVED": {
+          "label": "Résolu",
+          "description": "Corrigé ou complété avec succès",
+          "whenToUse": "Lorsque le problème est entièrement résolu ou l'idée est mise en œuvre"
+        },
+        "CLOSED": {
+          "label": "Fermé",
+          "description": "Aucune action nécessaire ou prise",
+          "whenToUse": "Lorsque la publication ne nécessite aucune action"
+        },
+        "REJECTED": {
+          "label": "Rejeté",
+          "description": "Non valide, doublon ou hors périmètre",
+          "whenToUse": "Lorsque la publication est invalide, en doublon ou ne correspond pas aux objectifs de l'entreprise"
+        },
+        "NOT_A_PROBLEM": {
+          "label": "Pas un Problème",
+          "description": "Pas un vrai problème ou sera résolu à l'avenir",
+          "whenToUse": "Lorsque le problème signalé n'est pas réellement un problème ou se résoudra de lui-même"
+        }
       },
       "bestPractices": [
         "Ajoutez toujours un commentaire lors du changement de statut pour expliquer la raison",
@@ -465,10 +500,46 @@
       "title": "Niveaux de Priorité",
       "description": "Attribuez une priorité aux publications pour indiquer l'urgence et l'importance.",
       "levels": {
-        "CRITICAL": { "label": "Critique", "description": "Nécessite une attention immédiate", "criteria": ["Pannes système ou fonctionnalité principale défaillante", "Préoccupations de sécurité ou de sûreté", "Problèmes juridiques ou de conformité", "Impact commercial grave"] },
-        "HIGH": { "label": "Élevé", "description": "Important et urgent", "criteria": ["Impact significatif sur plusieurs équipes", "Blocage des processus ou flux de travail clés", "Problèmes orientés client", "Opportunités urgentes"] },
-        "MEDIUM": { "label": "Moyen", "description": "Priorité normale, doit être traité", "criteria": ["Problèmes opérationnels standard", "Améliorations des processus", "Problèmes non bloquants", "Demandes de fonctionnalités régulières"] },
-        "LOW": { "label": "Faible", "description": "Souhaitable, à traiter si possible", "criteria": ["Améliorations mineures", "Améliorations optionnelles", "Suggestions à faible impact", "Idées à long terme"] }
+        "CRITICAL": {
+          "label": "Critique",
+          "description": "Nécessite une attention immédiate",
+          "criteria": [
+            "Pannes système ou fonctionnalité principale défaillante",
+            "Préoccupations de sécurité ou de sûreté",
+            "Problèmes juridiques ou de conformité",
+            "Impact commercial grave"
+          ]
+        },
+        "HIGH": {
+          "label": "Élevé",
+          "description": "Important et urgent",
+          "criteria": [
+            "Impact significatif sur plusieurs équipes",
+            "Blocage des processus ou flux de travail clés",
+            "Problèmes orientés client",
+            "Opportunités urgentes"
+          ]
+        },
+        "MEDIUM": {
+          "label": "Moyen",
+          "description": "Priorité normale, doit être traité",
+          "criteria": [
+            "Problèmes opérationnels standard",
+            "Améliorations des processus",
+            "Problèmes non bloquants",
+            "Demandes de fonctionnalités régulières"
+          ]
+        },
+        "LOW": {
+          "label": "Faible",
+          "description": "Souhaitable, à traiter si possible",
+          "criteria": [
+            "Améliorations mineures",
+            "Améliorations optionnelles",
+            "Suggestions à faible impact",
+            "Idées à long terme"
+          ]
+        }
       },
       "bestPractices": [
         "Définissez la priorité en fonction de l'impact commercial, pas seulement de l'urgence",
@@ -482,11 +553,51 @@
       "description": "Les étiquettes aident à classer les utilisateurs par rôle ou ancienneté pour l'assignation et le filtrage.",
       "purpose": "Les étiquettes activent la fonctionnalité 'Assigné à Moi' - lorsque des utilisateurs étiquetés sont mentionnés dans des publications, ces publications apparaissent dans leur section assignée.",
       "items": {
-        "EXECUTIVE": { "label": "Cadre Dirigeant", "description": "Dirigeants de niveau C et Vice-Présidents", "examples": ["PDG", "DSI", "DAF", "VP Ingénierie"] },
-        "SENIOR_MANAGER": { "label": "Directeur Senior", "description": "Directeurs seniors et responsables", "examples": ["Directeur RH", "Responsable Ingénierie Senior"] },
-        "MANAGER": { "label": "Manager", "description": "Chefs d'équipe et managers", "examples": ["Chef d'Équipe", "Chef de Projet", "Responsable de Département"] },
-        "SPECIALIST": { "label": "Spécialiste", "description": "Spécialistes seniors et experts métier", "examples": ["Ingénieur Senior", "Spécialiste UX", "Expert en Sécurité"] },
-        "STAFF": { "label": "Personnel", "description": "Employés et membres du personnel réguliers", "examples": ["Ingénieur", "Designer", "Analyste"] }
+        "EXECUTIVE": {
+          "label": "Cadre Dirigeant",
+          "description": "Dirigeants de niveau C et Vice-Présidents",
+          "examples": [
+            "PDG",
+            "DSI",
+            "DAF",
+            "VP Ingénierie"
+          ]
+        },
+        "SENIOR_MANAGER": {
+          "label": "Directeur Senior",
+          "description": "Directeurs seniors et responsables",
+          "examples": [
+            "Directeur RH",
+            "Responsable Ingénierie Senior"
+          ]
+        },
+        "MANAGER": {
+          "label": "Manager",
+          "description": "Chefs d'équipe et managers",
+          "examples": [
+            "Chef d'Équipe",
+            "Chef de Projet",
+            "Responsable de Département"
+          ]
+        },
+        "SPECIALIST": {
+          "label": "Spécialiste",
+          "description": "Spécialistes seniors et experts métier",
+          "examples": [
+            "Ingénieur Senior",
+            "Spécialiste UX",
+            "Expert en Sécurité"
+          ]
+        },
+        "STAFF": {
+          "label": "Personnel",
+          "description": "Employés et membres du personnel réguliers",
+          "examples": [
+            "Ingénieur",
+            "Designer",
+            "Analyste"
+          ]
+        }
       },
       "howToAssign": [
         "Les étiquettes sont optionnelles - tous les utilisateurs n'ont pas besoin d'une étiquette",
@@ -529,8 +640,14 @@
       "title": "Gestion des Membres",
       "description": "Gérez les utilisateurs, attribuez des rôles et contrôlez l'accès.",
       "statuses": {
-        "ACTIVE": { "label": "Actif", "description": "Accès complet à la plateforme" },
-        "SUSPENDED": { "label": "Suspendu", "description": "Accès temporairement révoqué" }
+        "ACTIVE": {
+          "label": "Actif",
+          "description": "Accès complet à la plateforme"
+        },
+        "SUSPENDED": {
+          "label": "Suspendu",
+          "description": "Accès temporairement révoqué"
+        }
       },
       "howToManage": [
         "Utilisez les filtres pour trouver des membres spécifiques",
@@ -586,11 +703,31 @@
       "title": "Analyses et Rapports",
       "description": "Comprenez l'engagement, les tendances et les indicateurs de performance.",
       "metrics": {
-        "postsByStatus": { "label": "Publications par Statut", "description": "Distribution actuelle des statuts (Ouvert, En Cours, Résolu, etc.)", "useCase": "Suivre la progression du flux de travail et identifier les goulots d'étranglement" },
-        "postsByPriority": { "label": "Publications par Priorité", "description": "Distribution entre les priorités Critique, Élevé, Moyen, Faible", "useCase": "Comprendre la distribution d'urgence et la charge de travail" },
-        "engagementMetrics": { "label": "Engagement des Utilisateurs", "description": "Commentaires, réactions et participation active", "useCase": "Mesurer l'adoption de la plateforme et l'activité des utilisateurs" },
-        "responseTime": { "label": "Temps de Réponse", "description": "Temps moyen pour accuser réception et résoudre les publications", "useCase": "Suivre la réactivité et l'efficacité de l'administrateur" },
-        "departmentPerformance": { "label": "Performance du Département", "description": "Activité et indicateurs par département", "useCase": "Comparer l'engagement des équipes et identifier les tendances" }
+        "postsByStatus": {
+          "label": "Publications par Statut",
+          "description": "Distribution actuelle des statuts (Ouvert, En Cours, Résolu, etc.)",
+          "useCase": "Suivre la progression du flux de travail et identifier les goulots d'étranglement"
+        },
+        "postsByPriority": {
+          "label": "Publications par Priorité",
+          "description": "Distribution entre les priorités Critique, Élevé, Moyen, Faible",
+          "useCase": "Comprendre la distribution d'urgence et la charge de travail"
+        },
+        "engagementMetrics": {
+          "label": "Engagement des Utilisateurs",
+          "description": "Commentaires, réactions et participation active",
+          "useCase": "Mesurer l'adoption de la plateforme et l'activité des utilisateurs"
+        },
+        "responseTime": {
+          "label": "Temps de Réponse",
+          "description": "Temps moyen pour accuser réception et résoudre les publications",
+          "useCase": "Suivre la réactivité et l'efficacité de l'administrateur"
+        },
+        "departmentPerformance": {
+          "label": "Performance du Département",
+          "description": "Activité et indicateurs par département",
+          "useCase": "Comparer l'engagement des équipes et identifier les tendances"
+        }
       },
       "howToUse": [
         "Sélectionnez la période (7, 30 ou 90 jours)",
@@ -611,16 +748,44 @@
       "title": "Modération du Contenu",
       "description": "Examinez le contenu signalé et maintenez les standards de la communauté.",
       "reportStatuses": {
-        "PENDING": { "label": "En Attente", "description": "Nouveau signalement en attente de révision", "action": "Examinez le contenu et prenez les mesures appropriées" },
-        "UNDER_REVIEW": { "label": "En Révision", "description": "En cours d'investigation", "action": "Continuez l'investigation et recueillez le contexte" },
-        "RESOLVED": { "label": "Résolu", "description": "Action prise, problème résolu", "action": "Assurez-vous que la résolution est documentée" },
-        "DISMISSED": { "label": "Rejeté", "description": "Aucune action nécessaire", "action": "Documentez la raison du rejet" }
+        "PENDING": {
+          "label": "En Attente",
+          "description": "Nouveau signalement en attente de révision",
+          "action": "Examinez le contenu et prenez les mesures appropriées"
+        },
+        "UNDER_REVIEW": {
+          "label": "En Révision",
+          "description": "En cours d'investigation",
+          "action": "Continuez l'investigation et recueillez le contexte"
+        },
+        "RESOLVED": {
+          "label": "Résolu",
+          "description": "Action prise, problème résolu",
+          "action": "Assurez-vous que la résolution est documentée"
+        },
+        "DISMISSED": {
+          "label": "Rejeté",
+          "description": "Aucune action nécessaire",
+          "action": "Documentez la raison du rejet"
+        }
       },
       "actions": [
-        { "action": "Aucune Action", "whenToUse": "Le signalement est invalide ou le contenu est acceptable" },
-        { "action": "Avertissement", "whenToUse": "Violation mineure, l'utilisateur doit être informé" },
-        { "action": "Supprimer le Contenu", "whenToUse": "Le contenu viole les politiques et doit être masqué" },
-        { "action": "Suspendre l'Utilisateur", "whenToUse": "Violations graves ou répétées" }
+        {
+          "action": "Aucune Action",
+          "whenToUse": "Le signalement est invalide ou le contenu est acceptable"
+        },
+        {
+          "action": "Avertissement",
+          "whenToUse": "Violation mineure, l'utilisateur doit être informé"
+        },
+        {
+          "action": "Supprimer le Contenu",
+          "whenToUse": "Le contenu viole les politiques et doit être masqué"
+        },
+        {
+          "action": "Suspendre l'Utilisateur",
+          "whenToUse": "Violations graves ou répétées"
+        }
       ],
       "reviewProcess": [
         "Lisez attentivement le signalement et le contenu signalé",
@@ -827,12 +992,58 @@
       "download": "Télécharger .txt",
       "print": "Imprimer",
       "warning": "Enregistrez-les maintenant. Nous ne pouvons pas les récupérer. Vous aurez besoin des deux pour consulter votre dossier.",
-      "comingSoon": "Une page « Suivre mon dossier » arrive bientôt ; vous pourrez y utiliser ces éléments pour voir les mises à jour et répondre.",
+      "checkCaseIntro": "Vous pouvez utiliser à tout moment votre code de dossier et votre clé secrète pour voir les mises à jour et répondre en privé.",
+      "checkCaseLink": "Suivre mon dossier",
       "confirmSaved": "J'ai enregistré mon code de dossier et ma clé secrète",
       "done": "Terminé",
       "leaveWarning": "Vous n'avez pas confirmé avoir enregistré votre code de dossier et votre clé secrète.",
       "fileHeading": "Signalement confidentiel VoxWel",
       "fileNote": "Gardez ce fichier privé. Toute personne possédant les deux valeurs peut ouvrir votre dossier."
+    },
+    "checkCase": {
+      "heading": "Suivre mon dossier",
+      "intro": "Entrez votre code de dossier et votre clé secrète pour voir les mises à jour et répondre en privé.",
+      "caseCodeLabel": "Code de dossier",
+      "secretKeyLabel": "Clé secrète",
+      "loading": "Vérification en cours...",
+      "submitButton": "Voir mon dossier",
+      "checkAnother": "Suivre un autre dossier",
+      "submittedOn": "Envoyé le {{date}}",
+      "yourReport": "Ce que vous avez signalé",
+      "errors": {
+        "invalid": "Ce code de dossier ou cette clé secrète est incorrect.",
+        "rateLimited": "Trop de tentatives. Veuillez réessayer plus tard.",
+        "network": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+        "generic": "Une erreur s'est produite. Veuillez réessayer."
+      },
+      "status": {
+        "open": "Ouvert",
+        "acknowledged": "Pris en compte",
+        "in_progress": "En cours",
+        "under_review": "En cours d'examen",
+        "working_on": "En traitement",
+        "resolved": "Résolu",
+        "closed": "Clos",
+        "rejected": "Rejeté",
+        "not_a_problem": "Pas un problème"
+      },
+      "timers": {
+        "acknowledged": "Votre signalement a été pris en compte",
+        "acknowledgePending": "Il reste {{count}} jours avant la prise en compte de votre signalement",
+        "acknowledgeOverdue": "La prise en compte est en retard",
+        "feedbackGiven": "Vous avez reçu un retour sur ce dossier",
+        "feedbackPending": "Il reste {{count}} jours pour recevoir un retour",
+        "feedbackOverdue": "Le retour est en retard"
+      },
+      "thread": {
+        "heading": "Messages privés",
+        "empty": "Pas encore de message. Vous pouvez en envoyer un ci-dessous.",
+        "unreadable": "[Impossible de lire ce message]",
+        "you": "Vous",
+        "them": "L'entreprise",
+        "placeholder": "Écrivez une réponse privée...",
+        "send": "Envoyer"
+      }
     },
     "inactive": {
       "title": "Ce lien de signalement n'est pas actif",

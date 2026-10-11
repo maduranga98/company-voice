@@ -116,7 +116,7 @@
     "actions": "Actions",
     "activate": "Activate",
     "suspend": "Suspend",
-    "changeRole": "Change Role",
+    "changeRole": "Role",
     "assignDepartment": "Assign Department",
     "noMembers": "No members found",
     "departmentTitle": "Department Management",
@@ -167,7 +167,6 @@
     "failedToAssignTag": "Failed to assign tag",
     "departmentAssigned": "Department assigned successfully!",
     "failedToAssignDepartment": "Failed to assign department",
-    "changeRole": "Role",
     "changeRoleTitle": "Change Role",
     "changeRoleFor": "Change role for this member",
     "currentRole": "(Current)",
@@ -1051,12 +1050,58 @@
       "download": "Download .txt",
       "print": "Print",
       "warning": "Save these now. We cannot recover them. You will need both to check your case.",
-      "comingSoon": "A \"Check my case\" page is coming soon, where you will use these to see updates and reply.",
+      "checkCaseIntro": "You can use your case code and secret key at any time to see updates and reply privately.",
+      "checkCaseLink": "Check my case",
       "confirmSaved": "I have saved my case code and secret key",
       "done": "Done",
       "leaveWarning": "You have not confirmed that you saved your case code and secret key.",
       "fileHeading": "VoxWel confidential report",
       "fileNote": "Keep this file private. Anyone with both values can open your case."
+    },
+    "checkCase": {
+      "heading": "Check my case",
+      "intro": "Enter your case code and secret key to see updates and reply privately.",
+      "caseCodeLabel": "Case code",
+      "secretKeyLabel": "Secret key",
+      "loading": "Checking...",
+      "submitButton": "View my case",
+      "checkAnother": "Check another case",
+      "submittedOn": "Submitted on {{date}}",
+      "yourReport": "What you reported",
+      "errors": {
+        "invalid": "That case code or secret key is not correct.",
+        "rateLimited": "Too many attempts. Please try again later.",
+        "network": "Could not reach the server. Check your connection and try again.",
+        "generic": "Something went wrong. Please try again."
+      },
+      "status": {
+        "open": "Open",
+        "acknowledged": "Acknowledged",
+        "in_progress": "In progress",
+        "under_review": "Under review",
+        "working_on": "Being worked on",
+        "resolved": "Resolved",
+        "closed": "Closed",
+        "rejected": "Rejected",
+        "not_a_problem": "Not a problem"
+      },
+      "timers": {
+        "acknowledged": "Your report has been acknowledged",
+        "acknowledgePending": "{{count}} days left for your report to be acknowledged",
+        "acknowledgeOverdue": "Acknowledgement is overdue",
+        "feedbackGiven": "You have received feedback on this case",
+        "feedbackPending": "{{count}} days left to receive feedback",
+        "feedbackOverdue": "Feedback is overdue"
+      },
+      "thread": {
+        "heading": "Private messages",
+        "empty": "No messages yet. You can send one below.",
+        "unreadable": "[Could not read this message]",
+        "you": "You",
+        "them": "The company",
+        "placeholder": "Write a private reply...",
+        "send": "Send"
+      }
     },
     "inactive": {
       "title": "This reporting link is not active",

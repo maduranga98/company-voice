@@ -593,27 +593,47 @@
         "EXECUTIVE": {
           "label": "Esecutivo",
           "description": "Dirigenti di livello C e Vice Presidenti",
-          "examples": ["CEO", "CTO", "CFO", "VP di Ingegneria"]
+          "examples": [
+            "CEO",
+            "CTO",
+            "CFO",
+            "VP di Ingegneria"
+          ]
         },
         "SENIOR_MANAGER": {
           "label": "Senior Manager",
           "description": "Senior manager e direttori",
-          "examples": ["Direttore HR", "Senior Engineering Manager"]
+          "examples": [
+            "Direttore HR",
+            "Senior Engineering Manager"
+          ]
         },
         "MANAGER": {
           "label": "Manager",
           "description": "Team lead e manager",
-          "examples": ["Team Lead", "Project Manager", "Department Manager"]
+          "examples": [
+            "Team Lead",
+            "Project Manager",
+            "Department Manager"
+          ]
         },
         "SPECIALIST": {
           "label": "Specialista",
           "description": "Specialisti senior ed esperti in materia",
-          "examples": ["Senior Engineer", "UX Specialist", "Security Expert"]
+          "examples": [
+            "Senior Engineer",
+            "UX Specialist",
+            "Security Expert"
+          ]
         },
         "STAFF": {
           "label": "Personale",
           "description": "Dipendenti e personale regolare",
-          "examples": ["Engineer", "Designer", "Analyst"]
+          "examples": [
+            "Engineer",
+            "Designer",
+            "Analyst"
+          ]
         }
       },
       "howToAssign": [
@@ -1030,12 +1050,58 @@
       "download": "Scarica .txt",
       "print": "Stampa",
       "warning": "Salvali adesso. Non possiamo recuperarli. Ti serviranno entrambi per controllare il tuo caso.",
-      "comingSoon": "Presto arriverà una pagina «Controlla il mio caso», dove potrai usarli per vedere gli aggiornamenti e rispondere.",
+      "checkCaseIntro": "Puoi usare in qualsiasi momento il codice del caso e la chiave segreta per vedere gli aggiornamenti e rispondere in privato.",
+      "checkCaseLink": "Controlla il mio caso",
       "confirmSaved": "Ho salvato il codice del caso e la chiave segreta",
       "done": "Fatto",
       "leaveWarning": "Non hai confermato di aver salvato il codice del caso e la chiave segreta.",
       "fileHeading": "Segnalazione riservata VoxWel",
       "fileNote": "Tieni questo file privato. Chiunque abbia entrambi i valori può aprire il tuo caso."
+    },
+    "checkCase": {
+      "heading": "Controlla il mio caso",
+      "intro": "Inserisci il codice del caso e la chiave segreta per vedere gli aggiornamenti e rispondere in privato.",
+      "caseCodeLabel": "Codice del caso",
+      "secretKeyLabel": "Chiave segreta",
+      "loading": "Verifica in corso...",
+      "submitButton": "Visualizza il mio caso",
+      "checkAnother": "Controlla un altro caso",
+      "submittedOn": "Inviato il {{date}}",
+      "yourReport": "Cosa hai segnalato",
+      "errors": {
+        "invalid": "Codice del caso o chiave segreta non corretti.",
+        "rateLimited": "Troppi tentativi. Riprova più tardi.",
+        "network": "Impossibile raggiungere il server. Controlla la connessione e riprova.",
+        "generic": "Qualcosa è andato storto. Riprova."
+      },
+      "status": {
+        "open": "Aperto",
+        "acknowledged": "Preso in carico",
+        "in_progress": "In corso",
+        "under_review": "In revisione",
+        "working_on": "In lavorazione",
+        "resolved": "Risolto",
+        "closed": "Chiuso",
+        "rejected": "Respinto",
+        "not_a_problem": "Non è un problema"
+      },
+      "timers": {
+        "acknowledged": "La tua segnalazione è stata presa in carico",
+        "acknowledgePending": "Mancano {{count}} giorni alla presa in carico della tua segnalazione",
+        "acknowledgeOverdue": "La presa in carico è in ritardo",
+        "feedbackGiven": "Hai ricevuto un riscontro su questo caso",
+        "feedbackPending": "Mancano {{count}} giorni per ricevere un riscontro",
+        "feedbackOverdue": "Il riscontro è in ritardo"
+      },
+      "thread": {
+        "heading": "Messaggi privati",
+        "empty": "Nessun messaggio ancora. Puoi inviarne uno qui sotto.",
+        "unreadable": "[Impossibile leggere questo messaggio]",
+        "you": "Tu",
+        "them": "L'azienda",
+        "placeholder": "Scrivi una risposta privata...",
+        "send": "Invia"
+      }
     },
     "inactive": {
       "title": "Questo link di segnalazione non è attivo",
