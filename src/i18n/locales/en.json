@@ -1058,6 +1058,21 @@
       "badType": "{{name}} is not a supported file type.",
       "uploadFailed": "Upload failed. Check your connection and retry."
     },
+    "voiceNote": {
+      "prompt": "Or record a voice message",
+      "record": "Record voice message",
+      "max": "{{time}} max",
+      "requesting": "Waiting for microphone access…",
+      "recording": "Recording",
+      "stop": "Stop",
+      "cancel": "Cancel",
+      "preview": "Listen back before you attach it",
+      "reRecord": "Re-record",
+      "attach": "Attach",
+      "denied": "Microphone access is turned off for this page. You can allow it in your browser's site settings, or add a file instead.",
+      "noMic": "We couldn't find a microphone on this device. You can add a file instead.",
+      "failed": "We couldn't record just now. Please try again, or add a file instead."
+    },
     "contact": {
       "toggle": "Want us to contact you? (optional)",
       "note": "Only the people handling your report can see this. Leave it empty to stay fully anonymous.",

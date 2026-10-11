@@ -1010,6 +1010,21 @@
       "badType": "{{name}} no es un tipo de archivo compatible.",
       "uploadFailed": "Error al subir. Revisa tu conexión y reintenta."
     },
+    "voiceNote": {
+      "prompt": "O graba un mensaje de voz",
+      "record": "Grabar mensaje de voz",
+      "max": "{{time}} máx.",
+      "requesting": "Esperando acceso al micrófono…",
+      "recording": "Grabando",
+      "stop": "Detener",
+      "cancel": "Cancelar",
+      "preview": "Escúchalo antes de adjuntarlo",
+      "reRecord": "Grabar de nuevo",
+      "attach": "Adjuntar",
+      "denied": "El acceso al micrófono está desactivado para esta página. Puedes permitirlo en la configuración del sitio de tu navegador, o añadir un archivo.",
+      "noMic": "No encontramos un micrófono en este dispositivo. Puedes añadir un archivo.",
+      "failed": "No pudimos grabar ahora. Inténtalo de nuevo o añade un archivo."
+    },
     "contact": {
       "toggle": "¿Quieres que te contactemos? (opcional)",
       "note": "Solo lo verán las personas que gestionan tu informe. Déjalo vacío para seguir siendo totalmente anónimo.",

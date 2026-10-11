@@ -1058,6 +1058,21 @@
       "badType": "{{name}} non è un tipo di file supportato.",
       "uploadFailed": "Caricamento non riuscito. Controlla la connessione e riprova."
     },
+    "voiceNote": {
+      "prompt": "Oppure registra un messaggio vocale",
+      "record": "Registra messaggio vocale",
+      "max": "{{time}} max",
+      "requesting": "In attesa dell'accesso al microfono…",
+      "recording": "Registrazione",
+      "stop": "Interrompi",
+      "cancel": "Annulla",
+      "preview": "Riascoltalo prima di allegarlo",
+      "reRecord": "Registra di nuovo",
+      "attach": "Allega",
+      "denied": "L'accesso al microfono è disattivato per questa pagina. Puoi consentirlo nelle impostazioni del sito del browser, oppure aggiungere un file.",
+      "noMic": "Non abbiamo trovato un microfono su questo dispositivo. Puoi aggiungere un file.",
+      "failed": "Non è stato possibile registrare ora. Riprova oppure aggiungi un file."
+    },
     "contact": {
       "toggle": "Vuoi che ti contattiamo? (facoltativo)",
       "note": "Solo le persone che gestiscono la tua segnalazione possono vederlo. Lascia vuoto per restare completamente anonimo.",
