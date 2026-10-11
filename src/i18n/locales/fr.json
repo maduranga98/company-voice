@@ -59,7 +59,8 @@
     "notifications": "Notifications",
     "settings": "Paramètres",
     "home": "Accueil",
-    "caseOverview": "Vue d'ensemble"
+    "caseOverview": "Vue d'ensemble",
+    "routingRules": "Règles d'affectation"
   },
   "company": {
     "dashboard": "Tableau de Bord Entreprise",
@@ -1414,6 +1415,82 @@
       "invalid": "Veuillez vérifier les informations et réessayer.",
       "forbidden": "Vous n'êtes pas autorisé à faire cela.",
       "generic": "Une erreur s'est produite. Veuillez réessayer."
+    }
+  },
+  "routingRules": {
+    "title": "Règles d'affectation",
+    "subtitle": "Affectez automatiquement les nouveaux dossiers. Les règles s'appliquent de haut en bas et la première qui correspond l'emporte. Chacun peut ensuite réaffecter un dossier.",
+    "addRule": "Ajouter une règle",
+    "privacyNote": "Les signalements impliquant les RH ne sont affectés automatiquement qu'aux administrateurs de l'entreprise, jamais au personnel RH.",
+    "newRule": "Nouvelle règle",
+    "editRule": "Modifier la règle",
+    "name": "Nom de la règle",
+    "namePlaceholder": "p. ex. Signalements sécurité vers le juridique",
+    "when": "Lorsqu'un nouveau dossier",
+    "caseTypes": "Type de dossier",
+    "priorities": "Priorité",
+    "categories": "Catégorie",
+    "sources": "Origine",
+    "departments": "Service",
+    "any": "tous",
+    "conditionHint": "Un dossier doit correspondre à chaque groupe choisi ; un seul choix par groupe suffit. Laissez un groupe vide pour l'ignorer.",
+    "assignTo": "Affecter à",
+    "target": "Cible",
+    "chooseTarget": "Choisir…",
+    "everyCase": "Chaque nouveau dossier",
+    "emptyTitle": "Aucune règle d'affectation",
+    "emptyBody": "Les nouveaux dossiers restent non affectés tant que personne ne les prend.",
+    "loadFailed": "Impossible de charger les règles",
+    "saveFailed": "Impossible d'enregistrer la règle",
+    "saved": "Règle enregistrée",
+    "deleted": "Règle supprimée",
+    "confirmDelete": "Supprimer cette règle ? Les dossiers déjà affectés ne changent pas.",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "enabled": "Activée",
+    "caseType": {
+      "post": "Signalements et publications",
+      "vendor": "Risque fournisseurs",
+      "moderation": "Modération"
+    },
+    "priority": {
+      "critical": "Critique",
+      "high": "Élevée",
+      "medium": "Moyenne",
+      "low": "Faible"
+    },
+    "source": {
+      "public_link": "Lien de signalement",
+      "policy_link": "Lien de politique",
+      "internal": "Interne"
+    },
+    "action": {
+      "user": "Personne",
+      "userTag": "Étiquette (rotation)",
+      "department": "Service"
+    },
+    "actionHint": {
+      "user": "Toujours cette personne (RH ou administrateur actif).",
+      "userTag": "Alterne entre les membres RH/administrateurs actifs portant cette étiquette.",
+      "department": "Affecte le service ; quelqu'un de ce service le prend en charge."
+    },
+    "category": {
+      "harassment": "Harcèlement",
+      "discrimination": "Discrimination",
+      "safety": "Sécurité",
+      "fraud_ethics": "Fraude et éthique",
+      "management": "Management",
+      "workplace_conditions": "Conditions de travail",
+      "pay_benefits": "Rémunération et avantages",
+      "labor": "Pratiques de travail",
+      "data_privacy": "Confidentialité des données",
+      "fraud": "Fraude ou corruption",
+      "compliance": "Conformité réglementaire",
+      "inappropriate": "Inapproprié",
+      "spam": "Spam",
+      "false_info": "Fausse information",
+      "violence": "Violence",
+      "other": "Autre"
     }
   }
 }

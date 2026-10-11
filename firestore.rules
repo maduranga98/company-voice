@@ -95,6 +95,27 @@ service cloud.firestore {
         && (!('dueDate' in data) || data.dueDate == null || data.dueDate is timestamp);
     }
 
+    // Shape of a routing rule (companies/{id}/routingRules/{ruleId}). See functions/utils/routingRules.js.
+    // Conditions are optional string lists; the action names who a new case is assigned to.
+    function validRoutingRule(data) {
+      return data.keys().hasOnly(['name', 'enabled', 'order', 'conditions', 'action', 'createdAt', 'updatedAt', 'createdBy'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 80
+        && data.enabled is bool
+        && data.order is number
+        && data.conditions is map
+        && data.conditions.keys().hasOnly(['caseTypes', 'priorities', 'categories', 'sources', 'departmentIds'])
+        && (!('caseTypes' in data.conditions) || (data.conditions.caseTypes is list && data.conditions.caseTypes.size() <= 3))
+        && (!('priorities' in data.conditions) || (data.conditions.priorities is list && data.conditions.priorities.size() <= 4))
+        && (!('categories' in data.conditions) || (data.conditions.categories is list && data.conditions.categories.size() <= 30))
+        && (!('sources' in data.conditions) || (data.conditions.sources is list && data.conditions.sources.size() <= 5))
+        && (!('departmentIds' in data.conditions) || (data.conditions.departmentIds is list && data.conditions.departmentIds.size() <= 50))
+        && data.action is map
+        && data.action.keys().hasOnly(['type', 'id', 'name'])
+        && data.action.type in ['user', 'department', 'userTag']
+        && data.action.id is string && data.action.id.size() > 0
+        && data.action.name is string;
+    }
+
     // ============================================
     // PUBLIC REPORT INTERNALS (Admin SDK only)
     // ============================================
@@ -180,6 +201,20 @@ service cloud.firestore {
       match /policyEmployees/{employeeKey} {
         allow read: if isSuperAdmin() || belongsToCompany(companyId);
         allow write: if false;
+      }
+
+      // Case routing rules: company_admin manages, staff of the company can read.
+      // Applied server-side to new cases by the route* triggers (functions/triggers/caseRoutingTriggers.js).
+      match /routingRules/{ruleId} {
+        allow read: if isSuperAdmin() || belongsToCompany(companyId);
+        allow create, update: if (isSuperAdmin() || (isCompanyAdmin() && belongsToCompany(companyId)))
+          && validRoutingRule(request.resource.data);
+        allow delete: if isSuperAdmin() || (isCompanyAdmin() && belongsToCompany(companyId));
+      }
+
+      // Round-robin cursors for tag rules. Admin SDK only.
+      match /routingState/{ruleId} {
+        allow read, write: if false;
       }
     }
 

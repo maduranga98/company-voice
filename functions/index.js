@@ -179,6 +179,12 @@ exports.setReportingEnabled = setReportingEnabled;
 exports.updateCompanySettings = updateCompanySettings;
 exports.cleanupPublicReports = cleanupPublicReports;
 
+// Case routing rules (assign new cases per company rules)
+const { routeNewPost, routeNewVendorReport, routeNewContentReport } = require('./triggers/caseRoutingTriggers');
+exports.routeNewPost = routeNewPost;
+exports.routeNewVendorReport = routeNewVendorReport;
+exports.routeNewContentReport = routeNewContentReport;
+
 // Export Check My Case Functions
 exports.getCaseStatus = getCaseStatus;
 exports.submitCaseReply = submitCaseReply;

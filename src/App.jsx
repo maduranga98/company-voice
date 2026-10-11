@@ -61,6 +61,7 @@ import ReportPage from "./pages/public/ReportPage";
 import CheckCasePage from "./pages/public/CheckCasePage";
 import PolicyAckPage from "./pages/public/PolicyAckPage";
 import PolicyAckLink from "./pages/company/PolicyAckLink";
+import RoutingRules from "./pages/company/RoutingRules";
 
 const CompanyDashboardGuard = () => {
   const { userData } = useAuth();
@@ -396,6 +397,17 @@ function App() {
                 <PrivateRoute>
                   <CompanyAdminLayout>
                     <PolicyAckLink />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/company/routing-rules"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <RoutingRules />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }

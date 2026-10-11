@@ -34,6 +34,7 @@ import {
   Inbox,
   HelpCircle,
   LayoutList,
+  Route as RouteIcon,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
@@ -159,6 +160,7 @@ const CompanyAdminLayout = ({ children }) => {
       items: [
         ...(!isHR ? [{ label: t("navigation.billing", "Billing"), path: "/company/billing", icon: CreditCard }] : []),
         ...(!isHR ? [{ label: t("navigation.qrCode", "QR Code"), path: "/company/qr-code", icon: QrCode }] : []),
+        ...(!isHR ? [{ label: t("navigation.routingRules", "Routing rules"), path: "/company/routing-rules", icon: RouteIcon }] : []),
         { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
         { label: t("navigation.help", "Help & Instructions"), path: "/help", icon: HelpCircle },
       ],
@@ -416,6 +418,7 @@ function getPageTitle(pathname, t) {
     "/hr/vendor-risk": t("navigation.vendorRisk", "Vendor Risk"),
     "/company/billing": t("navigation.billing", "Billing"),
     "/company/qr-code": t("navigation.qrCode", "QR Code"),
+    "/company/routing-rules": t("navigation.routingRules", "Routing rules"),
     "/company/profile": t("navigation.profile", "Profile"),
     "/help": t("navigation.help", "Help & Instructions"),
   };
