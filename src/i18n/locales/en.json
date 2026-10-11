@@ -1060,6 +1060,10 @@
       "attachmentsMissing": "One of your files was not found. Please remove it and add it again.",
       "inactive": "This reporting link is no longer active."
     },
+    "form": {
+      "checkCaseIntro": "Already submitted a report?",
+      "checkCaseLink": "Check its status"
+    },
     "success": {
       "title": "Your report has been sent",
       "intro": "Thank you for speaking up. Here are your case code and secret key.",

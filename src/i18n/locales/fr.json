@@ -1002,6 +1002,10 @@
       "attachmentsMissing": "L'un de vos fichiers est introuvable. Retirez-le et ajoutez-le à nouveau.",
       "inactive": "Ce lien de signalement n'est plus actif."
     },
+    "form": {
+      "checkCaseIntro": "Vous avez déjà envoyé un signalement ?",
+      "checkCaseLink": "Consulter son statut"
+    },
     "success": {
       "title": "Votre signalement a été envoyé",
       "intro": "Merci d'avoir parlé. Voici votre code de dossier et votre clé secrète.",

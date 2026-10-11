@@ -1060,6 +1060,10 @@
       "attachmentsMissing": "Uno dei tuoi file non è stato trovato. Rimuovilo e aggiungilo di nuovo.",
       "inactive": "Questo link di segnalazione non è più attivo."
     },
+    "form": {
+      "checkCaseIntro": "Hai già inviato una segnalazione?",
+      "checkCaseLink": "Controlla lo stato"
+    },
     "success": {
       "title": "La tua segnalazione è stata inviata",
       "intro": "Grazie per aver parlato. Ecco il codice del caso e la chiave segreta.",
