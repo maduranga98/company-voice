@@ -56,6 +56,7 @@ import HRInbox from "./pages/hr/HRInbox";
 
 // Public (no-login) report form
 import ReportPage from "./pages/public/ReportPage";
+import CheckCasePage from "./pages/public/CheckCasePage";
 
 const CompanyDashboardGuard = () => {
   const { userData } = useAuth();
@@ -85,6 +86,7 @@ function App() {
             {/* ── PUBLIC ROUTES ── */}
             <Route path="/login" element={<Login />} />
             <Route path="/r/:slug" element={<ReportPage />} />
+            <Route path="/c" element={<CheckCasePage />} />
 
             {/* ── SUPER ADMIN ROUTES ── */}
             <Route
