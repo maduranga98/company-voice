@@ -22,6 +22,9 @@ await env.withSecurityRulesDisabled(async (ctx) => {
   await setDoc(doc(d, "vendorReports/v1"), { companyId: "c1", status: "open", severity: "high", title: "V" });
   await setDoc(doc(d, "vendorReports/vLegacy"), { companyId: "c1", status: "open", severity: "high" });
   await setDoc(doc(d, "contentReports/m1"), { companyId: "c1", status: "pending", priority: "medium", reportedBy: "u9" });
+  await setDoc(doc(d, "posts/p1"), { companyId: "c1", privacyLevel: "hr_only", involvesHR: false, status: "open", assignedTo: null });
+  await setDoc(doc(d, "posts/p2"), { companyId: "c1", privacyLevel: "hr_only", involvesHR: true, status: "open", assignedTo: { type: "user", id: "u1", name: "A" } });
+  await setDoc(doc(d, "anonymousThreads/p1"), { companyId: "c1", lastInvestigatorActivity: null });
   await setDoc(doc(d, "moderationActivities/ma1"), { companyId: "c1", reportId: "m1", activityType: "report_reviewed", metadata: { moderatorName: "X" }, createdAt: Timestamp.now() });
 });
 
@@ -61,6 +64,20 @@ await t("timeline: caseActivities other company query rejected", assertFails(get
 await t("timeline: moderationActivities query ok", assertSucceeds(getDocs(query(collection(hr, "moderationActivities"), where("companyId", "==", "c1"), where("reportId", "==", "m1")))));
 await t("notes: caseNotes query ok", assertSucceeds(getDocs(query(collection(hr, "caseNotes"), where("companyId", "==", "c1"), where("caseId", "==", "m1")))));
 await t("caseActivities update rejected (append-only)", assertFails(updateDoc(doc(hr, "caseActivities/x"), { type: "y" })));
+
+// --- phase C overview queries (exactly as caseOverviewService builds them)
+const admin = env.authenticatedContext("ca1", { role: "company_admin", companyId: "c1" }).firestore();
+const P = (db, ...f) => query(collection(db, "posts"), where("companyId", "==", "c1"), ...f);
+const inv = where("privacyLevel", "==", "hr_only"), asg = where("assignedTo.type", "in", ["user", "department"]), noHR = where("involvesHR", "==", false);
+await t("overview: HR inbox query (hr_only + involvesHR==false) ok", assertSucceeds(getDocs(P(hr, inv, noHR))));
+await t("overview: HR assigned query (in + involvesHR==false) ok", assertSucceeds(getDocs(P(hr, asg, noHR))));
+await t("overview: HR query WITHOUT involvesHR scope denied", assertFails(getDocs(P(hr, inv))));
+await t("overview: company_admin unscoped query ok", assertSucceeds(getDocs(P(admin, inv))));
+await t("overview: HR sees only non-involvesHR posts", (async () => { const r = await getDocs(P(hr, inv, noHR)); if (r.size !== 1 || r.docs[0].id !== "p1") throw new Error("got " + r.size); })());
+await t("overview: vendorReports company query ok", assertSucceeds(getDocs(query(collection(hr, "vendorReports"), where("companyId", "==", "c1")))));
+await t("overview: contentReports company query ok", assertSucceeds(getDocs(query(collection(hr, "contentReports"), where("companyId", "==", "c1")))));
+await t("overview: anonymousThreads company query (HR) ok", assertSucceeds(getDocs(query(collection(hr, "anonymousThreads"), where("companyId", "==", "c1")))));
+await t("overview: other company cannot read vendorReports", assertFails(getDocs(query(collection(hrOther, "vendorReports"), where("companyId", "==", "c1")))));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 await env.cleanup();

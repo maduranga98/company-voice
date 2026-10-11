@@ -56,7 +56,8 @@
     "profile": "පැතිකඩ",
     "notifications": "දැනුම්දීම්",
     "settings": "සැකසුම්",
-    "home": "මුල් පිටුව"
+    "home": "මුල් පිටුව",
+    "caseOverview": "අවස්ථා දළ විශ්ලේෂණය"
   },
   "company": {
     "dashboard": "සමාගම් උපකරණ පුවරුව",
@@ -664,6 +665,46 @@
       "noteAdded": "{{actor}} අභ්‍යන්තර සටහනක් එක් කළා",
       "reviewed": "{{actor}} සමාලෝචනය කළා: {{action}}",
       "other": "{{actor}}: {{type}}"
+    }
+  },
+  "caseOverview": {
+    "title": "අවස්ථා දළ විශ්ලේෂණය",
+    "subtitle": "වාර්තා, සැපයුම්කරු අවදානම් සහ මධ්‍යස්ථකරණය හරහා විවෘත සියල්ල",
+    "refresh": "නැවුම් කරන්න",
+    "untitled": "මාතෘකාවක් නැති අවස්ථාව",
+    "unassigned": "නොපවරන ලද",
+    "open": "විවෘත",
+    "overdue": "කල් ඉකුත්",
+    "atRisk": "අවදානමේ",
+    "allTypes": "සියල්ල",
+    "mine": "මට පවරන ලද",
+    "view": "දසුන",
+    "list": "ලැයිස්තු දසුන",
+    "board": "පුවරු දසුන",
+    "emptyTitle": "අවධානය අවශ්‍ය කිසිවක් නැත",
+    "emptyBody": "මෙම පෙරහන්වලට ගැළපෙන විවෘත අවස්ථා නැත.",
+    "partialFailure": "සමහර අවස්ථා පූරණය කළ නොහැකි විය: {{types}}.",
+    "truncated": "මූලාශ්‍රයකට අවස්ථා 500 ක් දක්වා පෙන්වයි.",
+    "timersMet": "විධානයේ නියමිත කාල සීමා සපුරා ඇත",
+    "sla": {
+      "dueIn_one": "{{label}}: දින {{count}} කින් නියමිතයි",
+      "dueIn_other": "{{label}}: දින {{count}} කින් නියමිතයි",
+      "dueToday": "{{label}}: අද නියමිතයි",
+      "overdueBy_one": "{{label}}: දින {{count}} කින් කල් ඉකුත්",
+      "overdueBy_other": "{{label}}: දින {{count}} කින් කල් ඉකුත්",
+      "overdue": "{{label}}: කල් ඉකුත්",
+      "label": {
+        "acknowledge": "පිළිගැනීම",
+        "feedback": "ප්‍රතිචාරය"
+      },
+      "assigned": {
+        "dueIn_one": "දින {{count}} කින් නියමිතයි",
+        "dueIn_other": "දින {{count}} කින් නියමිතයි",
+        "dueToday": "අද නියමිතයි",
+        "overdueBy_one": "දින {{count}} කින් කල් ඉකුත්",
+        "overdueBy_other": "දින {{count}} කින් කල් ඉකුත්",
+        "overdue": "කල් ඉකුත්"
+      }
     }
   }
 }

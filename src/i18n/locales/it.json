@@ -76,7 +76,8 @@
     "qrCode": "Codice QR",
     "analytics": "Analitiche",
     "content": "Contenuto",
-    "management": "Gestione"
+    "management": "Gestione",
+    "caseOverview": "Panoramica casi"
   },
   "company": {
     "dashboard": "Pannello Aziendale",
@@ -514,6 +515,46 @@
       "noteAdded": "{{actor}} ha aggiunto una nota interna",
       "reviewed": "{{actor}} ha esaminato: {{action}}",
       "other": "{{actor}}: {{type}}"
+    }
+  },
+  "caseOverview": {
+    "title": "Panoramica dei casi",
+    "subtitle": "Tutto ciò che è aperto tra segnalazioni, rischio fornitori e moderazione",
+    "refresh": "Aggiorna",
+    "untitled": "Caso senza titolo",
+    "unassigned": "Non assegnato",
+    "open": "Aperti",
+    "overdue": "In ritardo",
+    "atRisk": "A rischio",
+    "allTypes": "Tutti",
+    "mine": "Assegnati a me",
+    "view": "Vista",
+    "list": "Vista elenco",
+    "board": "Vista bacheca",
+    "emptyTitle": "Nulla richiede attenzione",
+    "emptyBody": "Nessun caso aperto corrisponde a questi filtri.",
+    "partialFailure": "Impossibile caricare alcuni casi: {{types}}.",
+    "truncated": "Fino a 500 casi mostrati per origine.",
+    "timersMet": "Scadenze della Direttiva rispettate",
+    "sla": {
+      "dueIn_one": "{{label}}: scade tra {{count}} giorno",
+      "dueIn_other": "{{label}}: scade tra {{count}} giorni",
+      "dueToday": "{{label}}: scade oggi",
+      "overdueBy_one": "{{label}}: in ritardo di {{count}} giorno",
+      "overdueBy_other": "{{label}}: in ritardo di {{count}} giorni",
+      "overdue": "{{label}}: in ritardo",
+      "label": {
+        "acknowledge": "Conferma di ricezione",
+        "feedback": "Riscontro"
+      },
+      "assigned": {
+        "dueIn_one": "Scade tra {{count}} giorno",
+        "dueIn_other": "Scade tra {{count}} giorni",
+        "dueToday": "Scade oggi",
+        "overdueBy_one": "In ritardo di {{count}} giorno",
+        "overdueBy_other": "In ritardo di {{count}} giorni",
+        "overdue": "In ritardo"
+      }
     }
   },
   "guidance": {
