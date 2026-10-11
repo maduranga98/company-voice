@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, KeyRound, Loader2 } from "lucide-react";
+import { AlertTriangle, Info, KeyRound, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Logo from "../../components/brand/Logo";
 import PublicLanguageSwitcher from "../../components/public/PublicLanguageSwitcher";
 import CaseTimers from "../../components/public/CaseTimers";
 import CaseReplyThread from "../../components/public/CaseReplyThread";
-import { caseErrorKey, fetchCaseStatus, sendCaseReply } from "../../services/publicCaseService";
+import { CASE_CHECK_DISABLED_KEY, caseErrorKey, fetchCaseStatus, sendCaseReply } from "../../services/publicCaseService";
 
 const inputClass =
   "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 shadow-xs transition hover:border-gray-300 font-mono text-sm uppercase tracking-wider text-[#2D3E50] focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100";
@@ -56,6 +56,25 @@ const formatDate = (iso, locale) => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleDateString(locale, { year: "numeric", month: "long", day: "numeric" });
+};
+
+// Plain, neutral notice (not an error) for companies that turned case checking off.
+const Notice = ({ messageKey, role = "alert" }) => {
+  const { t } = useTranslation();
+  if (messageKey === CASE_CHECK_DISABLED_KEY) {
+    return (
+      <p role="status" className="flex items-start gap-2 rounded-xl border border-gray-200 bg-white p-3 text-sm text-[#2D3E50]">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#2D3E50]" aria-hidden="true" />
+        {t(messageKey)}
+      </p>
+    );
+  }
+  return (
+    <p role={role} className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
+      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
+      {t(messageKey)}
+    </p>
+  );
 };
 
 const CheckCasePage = () => {
@@ -183,12 +202,7 @@ const CheckCasePage = () => {
               />
             </div>
 
-            {error && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
-                {t(error)}
-              </p>
-            )}
+            {error && <Notice messageKey={error} />}
 
             <button
               type="submit"
@@ -233,12 +247,7 @@ const CheckCasePage = () => {
 
             <CaseTimers timers={caseData.timers} />
 
-            {replyError && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl bg-[#FF6B6B]/10 p-3 text-sm text-[#2D3E50]">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#FF6B6B]" aria-hidden="true" />
-                {t(replyError)}
-              </p>
-            )}
+            {replyError && <Notice messageKey={replyError} />}
 
             <CaseReplyThread messages={caseData.messages} onSend={handleSend} sending={sendingReply} />
           </div>

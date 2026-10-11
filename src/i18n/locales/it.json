@@ -1090,6 +1090,7 @@
       "yourReport": "Cosa hai segnalato",
       "errors": {
         "invalid": "Codice del caso o chiave segreta non corretti.",
+        "disabled": "Il controllo dello stato del caso non è disponibile per questa organizzazione. La tua segnalazione è stata ricevuta ed è in gestione presso l'azienda.",
         "rateLimited": "Troppi tentativi. Riprova più tardi.",
         "network": "Impossibile raggiungere il server. Controlla la connessione e riprova.",
         "generic": "Qualcosa è andato storto. Riprova."
@@ -1263,6 +1264,8 @@
       "reportingOn": "Le segnalazioni sono accettate",
       "reportingOff": "Le segnalazioni sono disattivate",
       "toggleHelp": "Quando è disattivato, il link mostra una pagina non attiva e non è possibile inviare segnalazioni.",
+      "caseCheckLabel": "I dipendenti possono controllare l'avanzamento del caso",
+      "caseCheckHelp": "Se attivo, chi segnala può usare /c con codice caso e chiave segreta per vedere lo stato e scambiare risposte private. Se disattivo, non potrà più vedere lo stato né inviare o ricevere risposte lì; solo le risorse umane potranno continuare a gestire il caso internamente.",
       "scanToReport": "Inquadra per inviare una segnalazione",
       "howTitle": "Come inviare una segnalazione",
       "stepsTitle": "Passaggi",

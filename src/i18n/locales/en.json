@@ -1090,6 +1090,7 @@
       "yourReport": "What you reported",
       "errors": {
         "invalid": "That case code or secret key is not correct.",
+        "disabled": "Case status checking isn't available for this organization. Your report was received and is being handled by the company.",
         "rateLimited": "Too many attempts. Please try again later.",
         "network": "Could not reach the server. Check your connection and try again.",
         "generic": "Something went wrong. Please try again."
@@ -1263,6 +1264,8 @@
       "reportingOn": "Accepting reports",
       "reportingOff": "Reporting is turned off",
       "toggleHelp": "When off, the link shows an inactive page and no reports can be sent.",
+      "caseCheckLabel": "Employees can check case progress",
+      "caseCheckHelp": "When on, reporters can use /c with their case code and secret key to see status and exchange private replies. When off, they can no longer see status or send or receive replies there; only HR can still act on the case internally.",
       "scanToReport": "Scan to Send a Report",
       "howTitle": "How to Send a Report",
       "stepsTitle": "Steps",

@@ -16,6 +16,7 @@ const { db, FieldValue, serverTimestamp } = require('../config/firebase');
 const { verifySecretKey } = require('../utils/caseKeys');
 const { hashKey, consumeRateLimit } = require('../utils/rateLimit');
 const { sanitizeText } = require('../utils/publicReportValidation');
+const { isCaseProgressCheckAllowed } = require('../utils/companySettings');
 const { computeCaseTimers } = require('../utils/caseTimers');
 const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
 const { ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
@@ -29,6 +30,10 @@ const MAX_MESSAGE_LENGTH = 5000;
 
 // One response for every failure so case codes and keys can't be enumerated or timed apart.
 const invalidCredentials = () => new HttpsError('invalid-argument', 'Invalid case code or secret key.');
+// Only ever thrown after the code + key have both been verified, so it tells nobody
+// anything beyond what the holder of a valid pair already knows.
+const featureDisabled = () =>
+  new HttpsError('failed-precondition', 'Case status checking is turned off for this company.');
 const locked = () => new HttpsError('resource-exhausted', 'Too many attempts. Please try again later.');
 const rateLimited = () => new HttpsError('resource-exhausted', 'Too many attempts. Please try again later.');
 
@@ -86,9 +91,25 @@ async function verifyCaseCredentials(request, { caseCode, secretKey }) {
     await caseRef.update({ failedAttempts: 0, lockedUntil: null }).catch(() => {});
   }
 
+  // The case's companyId is already on the caseAccess doc, so the company is fetched in
+  // parallel with the post (field-masked to `settings`): no extra sequential round trip.
   const postRef = db.collection('posts').doc(caseData.postId);
-  const postSnap = await postRef.get();
+  const companyRef = caseData.companyId ? db.collection('companies').doc(caseData.companyId) : null;
+  const [postSnap, companySnap] = await Promise.all([
+    postRef.get(),
+    companyRef ? db.getAll(companyRef, { fieldMask: ['settings'] }).then(([snap]) => snap) : null,
+  ]);
   if (!postSnap.exists) throw invalidCredentials();
+
+  let company = companySnap && companySnap.exists ? companySnap.data() : null;
+  if (!companySnap && postSnap.data().companyId) {
+    // Older caseAccess docs without a companyId.
+    const [snap] = await db.getAll(db.collection('companies').doc(postSnap.data().companyId), {
+      fieldMask: ['settings'],
+    });
+    company = snap.exists ? snap.data() : null;
+  }
+  if (!isCaseProgressCheckAllowed(company)) throw featureDisabled();
 
   return { caseRef, caseData, postRef, postData: postSnap.data() };
 }

@@ -1032,6 +1032,7 @@
       "yourReport": "Lo que informaste",
       "errors": {
         "invalid": "Ese código de caso o clave secreta no es correcto.",
+        "disabled": "La consulta del estado del caso no está disponible para esta organización. Su informe fue recibido y la empresa lo está gestionando.",
         "rateLimited": "Demasiados intentos. Inténtalo de nuevo más tarde.",
         "network": "No se pudo contactar con el servidor. Comprueba tu conexión e inténtalo de nuevo.",
         "generic": "Algo salió mal. Inténtalo de nuevo."
@@ -1205,6 +1206,8 @@
       "reportingOn": "Se aceptan informes",
       "reportingOff": "Los informes están desactivados",
       "toggleHelp": "Si está desactivado, el enlace muestra una página inactiva y no se pueden enviar informes.",
+      "caseCheckLabel": "Los empleados pueden consultar el avance del caso",
+      "caseCheckHelp": "Si está activado, quienes denuncian pueden usar /c con su código de caso y clave secreta para ver el estado e intercambiar respuestas privadas. Si está desactivado, ya no podrán ver el estado ni enviar o recibir respuestas allí; solo RR. HH. podrá seguir actuando internamente sobre el caso.",
       "scanToReport": "Escanea para enviar un informe",
       "howTitle": "Cómo enviar un informe",
       "stepsTitle": "Pasos",
