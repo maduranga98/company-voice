@@ -138,7 +138,7 @@ firebase functions:secrets:set IP_HASH_SALT       # same generator; keep it stab
 Console and deploy order:
 1. Run `scripts/backfillInvolvesHR.js` (dry run, then `--apply`) and `scripts/backfillReportSlugs.js`.
 2. Deploy functions (`getPublicReportConfig`, `submitPublicReport`, `ensureReportSlug`, `setReportingEnabled`, `cleanupPublicReports`), then `firestore.rules` and `storage.rules`, then hosting.
-3. App Check: register the web app with reCAPTCHA v3, set `VITE_APPCHECK_SITE_KEY`, add the debug token for dev. **Enforce App Check for Cloud Functions, Firestore and Cloud Storage in the console.** Storage enforcement matters for the public upload path (the rules allow unauthenticated creates). Enforcing Firestore/Storage affects the rest of the app, so make sure every client has App Check initialised first.
+3. App Check: create a reCAPTCHA Enterprise (score-based) key, register the web app with the "reCAPTCHA Enterprise" provider, set `VITE_APPCHECK_SITE_KEY`, add the debug token for dev. **Enforce App Check for Cloud Functions, Firestore and Cloud Storage in the console.** Storage enforcement matters for the public upload path (the rules allow unauthenticated creates). Enforcing Firestore/Storage affects the rest of the app, so make sure every client has App Check initialised first.
 4. Set `VITE_PUBLIC_APP_URL` (production: `https://portal.voxwel.com`).
 5. TTL: enable a Firestore TTL policy on `rateLimits.expiresAt`: `gcloud firestore fields ttls update expiresAt --collection-group=rateLimits --enable-ttl`. The scheduled job is the fallback. Optionally add a Cloud Storage lifecycle rule (delete objects older than 1 day with prefix `public-reports/pending/`).
 7. Add the new CORS origins if the portal domain differs from `portal.voxwel.com`/`voxwel.com`/`<project>.web.app` (edit `PORTAL_ORIGINS` in `publicReportApi.js`).
@@ -148,7 +148,7 @@ Console and deploy order:
 
 Cloudflare Turnstile is no longer used: no widget, no `VITE_TURNSTILE_SITE_KEY`, no `TURNSTILE_SECRET`, and the form loads no third-party script. Remaining defences, in order of strength:
 
-1. **App Check (reCAPTCHA v3)** on every public callable. This is the main bot filter.
+1. **App Check (reCAPTCHA Enterprise)** on every public callable. This is the main bot filter.
 2. **Rate limits**: 5 submissions per hashed IP per hour, 50 per company per day, single-use idempotency token.
 3. **Honeypot field** (`website`) and a **3 second minimum time on the form** (`elapsedMs`), both checked server-side. A script can forge these, so they only stop casual bots.
 4. Server-side validation, MIME sniffing and a 10 MB, 5-file limit.

@@ -9,7 +9,7 @@ What changes: credentials are checked by the `login` Cloud Function (scrypt, thr
 1. Secrets (all are `firebase functions:secrets:set NAME`): `IP_HASH_SALT` is now also used for login throttling, so it must exist before `login` is deployed. The public-report secrets from step 1 are unchanged.
 2. The Functions runtime service account needs **Service Account Token Creator** on itself (`createCustomToken` signs through IAM). `generateAuthToken` needed the same, so this is probably already granted:
    `gcloud iam service-accounts add-iam-policy-binding <project>@appspot.gserviceaccount.com --member=serviceAccount:<project>@appspot.gserviceaccount.com --role=roles/iam.serviceAccountTokenCreator`
-3. App Check is enforced on `login` and every user-management callable, so the web app needs `VITE_APPCHECK_SITE_KEY` (already required for the public report line) and the portal domain registered in the reCAPTCHA key. Without it staff cannot log in.
+3. App Check is enforced on `login` and every user-management callable, so the web app needs `VITE_APPCHECK_SITE_KEY` (a reCAPTCHA Enterprise key registered in Firebase App Check with the "reCAPTCHA Enterprise" provider) and the portal domain allowed on that key. The key must be present in the build environment: GitHub secret `VITE_APPCHECK_SITE_KEY` for the hosting workflows, or your local `.env` if you build and deploy from your machine. Without it staff cannot log in (the `login` call fails with a bare `Unauthenticated` / HTTP 401).
 4. Make sure Application Default Credentials work for the scripts (`gcloud auth application-default login`) and that you are pointed at the right project (`GOOGLE_CLOUD_PROJECT=<id>`).
 5. Have a way back in: create or confirm a super_admin credential first (see Bootstrap below).
 
