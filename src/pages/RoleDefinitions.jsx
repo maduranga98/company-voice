@@ -37,6 +37,7 @@ const RoleDefinitions = () => {
       'Assign Posts': { super_admin: true, company_admin: true, hr: true },
       'Add Internal Notes': { super_admin: true, company_admin: true, hr: true },
       'Set Due Dates': { super_admin: true, company_admin: true, hr: true },
+      'View Case Queue (all cases)': { super_admin: true, company_admin: true, hr: true },
     },
     'Moderation': {
       'View Reports': { super_admin: true, company_admin: true, hr: true },
@@ -48,6 +49,7 @@ const RoleDefinitions = () => {
       'Manage Members': { super_admin: true, company_admin: true, hr: false },
       'Assign Tags': { super_admin: true, company_admin: true, hr: false },
       'Manage Departments': { super_admin: true, company_admin: true, hr: false },
+      'Manage Routing Rules': { super_admin: true, company_admin: true, hr: false },
     },
     'Templates': {
       'Create Templates': { super_admin: true, company_admin: true, hr: true },

@@ -13,6 +13,10 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { encryptAuthorId } from "./postManagementService";
+import { assignCase } from "./caseService";
+import { CaseType } from "../utils/caseTypes";
+import { findMatchingRule } from "../utils/routingRules";
+import { getRoutingRules } from "./routingRulesService";
 
 const VENDOR_REPORTS_COLLECTION = "vendorReports";
 
@@ -115,7 +119,7 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
   );
 
   // Write document
-  await addDoc(collection(db, VENDOR_REPORTS_COLLECTION), {
+  const reportRef = await addDoc(collection(db, VENDOR_REPORTS_COLLECTION), {
     companyId: userData.companyId,
     referenceCode,
     vendorName,
@@ -137,6 +141,24 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
     reviewNotes: null,
     resolvedAt: null,
   });
+
+  // Auto-routing: assign immediately if an enabled rule matches this report's
+  // category/severity. Best-effort — a lookup failure must not fail the submission,
+  // the report is already saved and can still be claimed manually from the queue.
+  try {
+    const rules = await getRoutingRules(userData.companyId);
+    const rule = findMatchingRule(rules, CaseType.VENDOR, { riskCategory, severity });
+    if (rule?.action?.id) {
+      await assignCase(
+        CaseType.VENDOR,
+        reportRef.id,
+        { type: rule.action.type, id: rule.action.id, name: rule.action.name },
+        userData
+      );
+    }
+  } catch (error) {
+    console.error("Error applying routing rule to vendor report:", error);
+  }
 
   return { success: true, referenceCode, reportId };
 };

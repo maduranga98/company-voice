@@ -25,6 +25,7 @@ const { db, serverTimestamp } = require('../config/firebase');
 const { RATE_LIMITS, LIMITS } = require('../config/policyAck');
 const { LANGUAGES } = require('../config/publicReports');
 const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../utils/rateLimit');
+const { resolveRoutingAssignment } = require('../utils/routingRules');
 const { SLUG_PATTERN, buildSlug } = require('../utils/reportSlugs');
 const { assertRole, assertCompany } = require('../utils/authz');
 const {
@@ -113,8 +114,22 @@ const getPolicyForLink = onCall({ ...BASE_OPTIONS, secrets: [IP_HASH_SALT] }, as
 // B. submitPolicyAcknowledgement
 // ============================================
 
-async function notifyStaffOfConcern(companyId, postId) {
+async function notifyStaffOfConcern(companyId, postId, routingMatch) {
   try {
+    if (routingMatch && routingMatch.assignment.type === 'user') {
+      await db.collection('notifications').add({
+        userId: routingMatch.assignment.id,
+        type: 'assigned',
+        title: 'New case assigned to you',
+        message: 'A policy concern was automatically assigned to you.',
+        companyId,
+        metadata: { postId, ruleId: routingMatch.ruleId },
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+      return;
+    }
+
     const users = await db
       .collection('users')
       .where('companyId', '==', companyId)
@@ -257,6 +272,11 @@ const submitPolicyAcknowledgement = onCall(
 
       // A concern goes to the HR inbox as a normal (non-anonymous) case.
       const postRef = db.collection('posts').doc();
+      const routingMatch = await resolveRoutingAssignment(db, companyId, 'post', {
+        type: 'problem_report',
+        category: 'policy_concern',
+        involvesHR: false,
+      });
       const batch = db.batch();
       batch.set(postRef, {
         companyId,
@@ -286,6 +306,18 @@ const submitPolicyAcknowledgement = onCall(
         comments: 0,
         views: 0,
         departmentId: null,
+        ...(routingMatch
+          ? {
+              assignedTo: {
+                type: routingMatch.assignment.type,
+                id: routingMatch.assignment.id,
+                name: routingMatch.assignment.name,
+                assignedAt: serverTimestamp(),
+                assignedBy: 'Routing rule',
+                assignedById: null,
+              },
+            }
+          : {}),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -299,12 +331,21 @@ const submitPolicyAcknowledgement = onCall(
         companyId,
         type: 'created',
         actor: 'policy_link_employee',
-        metadata: { source: 'policy_link', actor: 'policy_link_employee' },
+        metadata: routingMatch
+          ? {
+              source: 'policy_link',
+              actor: 'policy_link_employee',
+              autoAssigned: true,
+              ruleId: routingMatch.ruleId,
+              ruleName: routingMatch.ruleName,
+              assignedToName: routingMatch.assignment.name,
+            }
+          : { source: 'policy_link', actor: 'policy_link_employee' },
         createdAt: serverTimestamp(),
       });
       await batch.commit();
 
-      await notifyStaffOfConcern(companyId, postRef.id);
+      await notifyStaffOfConcern(companyId, postRef.id, routingMatch);
       return { status: 'concern_received' };
     } catch (error) {
       // Let the employee retry with the same token if nothing was saved.
