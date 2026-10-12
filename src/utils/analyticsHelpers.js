@@ -1,167 +1,220 @@
 /**
  * Analytics Helper Functions
- * Provides utility functions for calculating various analytics metrics
+ * Pure metric calculations for the company Analytics & Insights page.
  */
 
-/**
- * Calculate average response time from post creation to first status change
- * @param {Array} posts - Array of post objects
- * @param {Array} postActivities - Array of post activity objects
- * @returns {number} Average response time in hours
- */
-export const calculateAverageResponseTime = (posts, postActivities) => {
-  let totalResponseTime = 0;
-  let postsWithResponse = 0;
+import { PostType, PostStatus, PostPriority } from "./constants";
 
-  posts.forEach((post) => {
-    // Find first activity that changed status from 'open'
-    const postActivitiesForPost = postActivities.filter(
-      (activity) => activity.postId === post.id && activity.type === "status_changed"
-    );
+const HOUR = 1000 * 60 * 60;
+const DAY = 24 * HOUR;
 
-    if (postActivitiesForPost.length > 0 && post.createdAt) {
-      // Sort by timestamp and get the first one
-      const firstResponse = postActivitiesForPost.sort(
-        (a, b) => (a.timestamp?.toDate?.() || new Date(a.timestamp)) -
-                  (b.timestamp?.toDate?.() || new Date(b.timestamp))
-      )[0];
+export const PERIOD_OPTIONS = [7, 30, 90];
 
-      const createdAt = post.createdAt.toDate ? post.createdAt.toDate() : new Date(post.createdAt);
-      const respondedAt = firstResponse.timestamp?.toDate?.() || new Date(firstResponse.timestamp);
+// Statuses that count as "resolved" for resolution rate
+const RESOLVED_STATUSES = [PostStatus.RESOLVED, PostStatus.CLOSED];
 
-      const responseTime = (respondedAt - createdAt) / (1000 * 60 * 60); // Convert to hours
+export const toDate = (value) => {
+  if (!value) return null;
+  const d = value.toDate ? value.toDate() : new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
 
-      if (responseTime >= 0) {
-        totalResponseTime += responseTime;
-        postsWithResponse++;
-      }
-    }
-  });
+const pct = (n, d) => (d > 0 ? (n / d) * 100 : 0);
+const round1 = (n) => Math.round(n * 10) / 10;
 
-  return postsWithResponse > 0 ? totalResponseTime / postsWithResponse : 0;
+// Count reactions on a post regardless of storage shape
+// ({emoji: [uids]}, {emoji: count}, {uid: emoji}) plus a legacy `likes` array.
+export const countReactions = (post) => {
+  let total = Array.isArray(post.likes) ? post.likes.length : 0;
+  const r = post.reactions;
+  if (r && typeof r === "object") {
+    Object.values(r).forEach((v) => {
+      if (Array.isArray(v)) total += v.length;
+      else if (typeof v === "number") total += v;
+      else if (v) total += 1;
+    });
+  }
+  return total;
 };
 
 /**
- * Calculate user engagement statistics
- * @param {Array} posts - Array of post objects
- * @param {Array} comments - Array of comment objects
- * @param {Array} users - Array of user objects
- * @returns {Object} User engagement statistics
+ * Hours from post creation to the first admin response, i.e. the earlier of
+ * the first staff comment or the first status change by staff.
  */
-export const calculateUserEngagement = (posts, comments, users) => {
-  const userStats = users.map((user) => {
-    const userPosts = posts.filter((p) => p.authorId === user.id);
-    const userComments = comments.filter((c) => c.authorId === user.id);
-    const userLikes = posts.reduce((sum, post) => {
-      return sum + (post.likes?.includes(user.id) ? 1 : 0);
-    }, 0);
+const firstResponseHours = (post, adminCommentTimes, statusTimes) => {
+  const created = toDate(post.createdAt);
+  if (!created) return null;
+  const candidates = [...(adminCommentTimes.get(post.id) || []), ...(statusTimes.get(post.id) || [])]
+    .filter((t) => t >= created);
+  if (candidates.length === 0) return null;
+  return (Math.min(...candidates) - created) / HOUR;
+};
 
-    return {
-      userId: user.id,
-      displayName: user.displayName || "Unknown",
-      email: user.email,
-      postsCount: userPosts.length,
-      commentsCount: userComments.length,
-      likesGiven: userLikes,
-      totalEngagement: userPosts.length + userComments.length + userLikes,
-    };
+/**
+ * Compute every metric on the Analytics page from raw collections.
+ *
+ * @param {{posts, comments, users, departments, activities}} data
+ * @param {{days?: number, start?: Date, end?: Date, now?: Date}} range
+ *   Either a rolling `days` window or an explicit start/end range.
+ */
+export const computeAnalytics = (data, range = {}) => {
+  const { posts = [], comments = [], users = [], departments = [], activities = [] } = data;
+  const now = range.now || new Date();
+  const end = range.end || now;
+  const start = range.start || new Date(end.getTime() - (range.days || 30) * DAY);
+
+  const inRange = (d) => d && d >= start && d <= end;
+  const scoped = posts.filter((p) => inRange(toDate(p.createdAt)));
+  const scopedIds = new Set(scoped.map((p) => p.id));
+  const scopedComments = comments.filter((c) => scopedIds.has(c.postId));
+
+  // Response-time inputs
+  const adminCommentTimes = new Map();
+  scopedComments.forEach((c) => {
+    if (!c.isAdminComment) return;
+    const t = toDate(c.createdAt);
+    if (t) adminCommentTimes.set(c.postId, [...(adminCommentTimes.get(c.postId) || []), t]);
+  });
+  const statusTimes = new Map();
+  activities.forEach((a) => {
+    if (a.type !== "status_changed" || !scopedIds.has(a.postId)) return;
+    const t = toDate(a.createdAt || a.timestamp);
+    if (t) statusTimes.set(a.postId, [...(statusTimes.get(a.postId) || []), t]);
   });
 
-  // Sort by total engagement
-  userStats.sort((a, b) => b.totalEngagement - a.totalEngagement);
+  const responseHours = scoped
+    .map((p) => firstResponseHours(p, adminCommentTimes, statusTimes))
+    .filter((h) => h !== null);
+  const avgResponseHours = responseHours.length
+    ? responseHours.reduce((a, b) => a + b, 0) / responseHours.length
+    : 0;
 
-  // Calculate engagement rates
-  const totalUsers = users.filter(u => u.status === "active").length;
-  const activeEngagers = userStats.filter(u => u.totalEngagement > 0).length;
-  const engagementRate = totalUsers > 0 ? (activeEngagers / totalUsers) * 100 : 0;
+  // Distributions
+  const countBy = (values, key) =>
+    Object.fromEntries(values.map((v) => [v, scoped.filter((p) => p[key] === v).length]));
+  const postsByType = countBy(Object.values(PostType), "type");
+  const postsByStatus = countBy(Object.values(PostStatus), "status");
+  const postsByPriority = countBy(Object.values(PostPriority), "priority");
+
+  // Resolution
+  const resolved = scoped.filter((p) => RESOLVED_STATUSES.includes(p.status)).length;
+  const resolutionRate = pct(resolved, scoped.length);
+
+  // Engagement
+  const reactionsTotal = scoped.reduce((sum, p) => sum + countReactions(p), 0);
+  const commentsPerPost = scoped.length ? scopedComments.length / scoped.length : 0;
+  // 0-10 index: 5+ comments per post maxes it out
+  const engagementScore = Math.min(10, commentsPerPost * 2);
+  const participants = new Set();
+  scoped.forEach((p) => !p.isAnonymous && p.authorId && participants.add(p.authorId));
+  scopedComments.forEach((c) => c.authorId && participants.add(c.authorId));
+  const activeUsers = users.filter((u) => u.status === "active").length;
+
+  const topPosts = scoped
+    .map((p) => ({
+      id: p.id,
+      title: p.title || "Untitled",
+      comments: scopedComments.filter((c) => c.postId === p.id).length,
+      reactions: countReactions(p),
+    }))
+    .map((p) => ({ ...p, total: p.comments + p.reactions }))
+    .filter((p) => p.total > 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5);
+
+  // Happiness: resolution 40% + engagement 30% + responsiveness 30%.
+  // Responsiveness is 100 within 4h, falling linearly to 0 at 72h; neutral
+  // (50) when nothing has been responded to yet.
+  const responseScore = responseHours.length
+    ? Math.max(0, Math.min(100, 100 - ((avgResponseHours - 4) / 68) * 100))
+    : 50;
+  const happinessScore = scoped.length
+    ? resolutionRate * 0.4 + engagementScore * 10 * 0.3 + responseScore * 0.3
+    : 0;
+
+  // Department performance (by post.departmentId or department assignment)
+  const departmentStats = departments
+    .map((dept) => {
+      const dp = scoped.filter(
+        (p) =>
+          p.departmentId === dept.id ||
+          (p.assignedTo?.type === "department" && p.assignedTo?.id === dept.id)
+      );
+      const ids = new Set(dp.map((p) => p.id));
+      const dc = scopedComments.filter((c) => ids.has(c.postId)).length;
+      const dr = dp.filter((p) => RESOLVED_STATUSES.includes(p.status)).length;
+      const hrs = dp
+        .map((p) => firstResponseHours(p, adminCommentTimes, statusTimes))
+        .filter((h) => h !== null);
+      return {
+        id: dept.id,
+        name: dept.name,
+        icon: dept.icon || "🏢",
+        memberCount: dept.memberCount || 0,
+        totalPosts: dp.length,
+        resolved: dr,
+        pending: dp.length - dr,
+        comments: dc,
+        reactions: dp.reduce((s, p) => s + countReactions(p), 0),
+        resolutionRate: round1(pct(dr, dp.length)),
+        avgResponseHours: hrs.length ? round1(hrs.reduce((a, b) => a + b, 0) / hrs.length) : 0,
+      };
+    })
+    .sort((a, b) => b.totalPosts - a.totalPosts);
+
+  // Daily trend over local calendar days
+  const dayKey = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const trendMap = new Map();
+  for (
+    let t = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    t <= end && trendMap.size < 400;
+    t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1)
+  ) {
+    trendMap.set(dayKey(t), 0);
+  }
+  scoped.forEach((p) => {
+    const k = dayKey(toDate(p.createdAt));
+    if (trendMap.has(k)) trendMap.set(k, trendMap.get(k) + 1);
+  });
+  const trend = [...trendMap].map(([date, count]) => ({ date, count }));
+
+  // Top contributors (non-anonymous authors + commenters)
+  const contrib = new Map(users.map((u) => [u.id, { id: u.id, name: u.displayName || "Unknown", posts: 0, comments: 0 }]));
+  scoped.forEach((p) => !p.isAnonymous && contrib.get(p.authorId) && contrib.get(p.authorId).posts++);
+  scopedComments.forEach((c) => contrib.get(c.authorId) && contrib.get(c.authorId).comments++);
+  const userEngagement = [...contrib.values()]
+    .map((u) => ({ ...u, total: u.posts + u.comments }))
+    .filter((u) => u.total > 0)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10);
 
   return {
-    topUsers: userStats.slice(0, 10), // Top 10 most engaged users
-    engagementRate: engagementRate.toFixed(1),
-    averagePostsPerUser: totalUsers > 0 ? (posts.length / totalUsers).toFixed(2) : 0,
-    averageCommentsPerUser: totalUsers > 0 ? (comments.length / totalUsers).toFixed(2) : 0,
+    range: { start, end },
+    overview: {
+      totalPosts: scoped.length,
+      totalComments: scopedComments.length,
+      totalReactions: reactionsTotal,
+      totalUsers: users.length,
+      activeUsers,
+      participants: participants.size,
+      participationRate: round1(pct(participants.size, activeUsers)),
+    },
+    postsByType,
+    postsByStatus,
+    postsByPriority,
+    resolutionRate: round1(resolutionRate),
+    avgResponseHours: round1(avgResponseHours),
+    respondedPosts: responseHours.length,
+    commentsPerPost: round1(commentsPerPost),
+    reactionsPerPost: round1(scoped.length ? reactionsTotal / scoped.length : 0),
+    engagementScore: round1(engagementScore),
+    happinessScore: round1(happinessScore),
+    departmentStats,
+    topPosts,
+    userEngagement,
+    trend,
   };
-};
-
-/**
- * Calculate department performance metrics
- * @param {Array} posts - Array of post objects
- * @param {Array} departments - Array of department objects
- * @param {Array} postActivities - Array of post activity objects
- * @returns {Array} Department performance metrics
- */
-export const calculateDepartmentPerformance = (posts, departments, postActivities) => {
-  return departments.map((dept) => {
-    // Posts assigned to this department
-    const deptPosts = posts.filter(
-      (p) => p.assignedTo?.type === "department" && p.assignedTo?.id === dept.id
-    );
-
-    // Resolved posts
-    const resolvedPosts = deptPosts.filter(
-      (p) => p.status === "resolved" || p.status === "closed"
-    );
-
-    // Calculate average resolution time
-    let totalResolutionTime = 0;
-    let postsWithResolutionTime = 0;
-
-    resolvedPosts.forEach((post) => {
-      if (post.createdAt) {
-        // Find when it was resolved
-        const resolutionActivity = postActivities
-          .filter(
-            (activity) =>
-              activity.postId === post.id &&
-              activity.type === "status_changed" &&
-              (activity.newStatus === "resolved" || activity.newStatus === "closed")
-          )
-          .sort(
-            (a, b) =>
-              (a.timestamp?.toDate?.() || new Date(a.timestamp)) -
-              (b.timestamp?.toDate?.() || new Date(b.timestamp))
-          )[0];
-
-        if (resolutionActivity) {
-          const createdAt = post.createdAt.toDate
-            ? post.createdAt.toDate()
-            : new Date(post.createdAt);
-          const resolvedAt = resolutionActivity.timestamp?.toDate?.()
-            ? resolutionActivity.timestamp.toDate()
-            : new Date(resolutionActivity.timestamp);
-
-          const resolutionTime = (resolvedAt - createdAt) / (1000 * 60 * 60); // Hours
-
-          if (resolutionTime >= 0) {
-            totalResolutionTime += resolutionTime;
-            postsWithResolutionTime++;
-          }
-        }
-      }
-    });
-
-    const avgResolutionTime =
-      postsWithResolutionTime > 0
-        ? totalResolutionTime / postsWithResolutionTime
-        : 0;
-
-    const resolutionRate =
-      deptPosts.length > 0 ? (resolvedPosts.length / deptPosts.length) * 100 : 0;
-
-    return {
-      id: dept.id,
-      name: dept.name,
-      icon: dept.icon,
-      totalAssigned: deptPosts.length,
-      resolved: resolvedPosts.length,
-      inProgress: deptPosts.filter(
-        (p) => p.status === "in_progress" || p.status === "working_on"
-      ).length,
-      open: deptPosts.filter((p) => p.status === "open").length,
-      resolutionRate: resolutionRate.toFixed(1),
-      avgResolutionTime: avgResolutionTime.toFixed(1),
-    };
-  });
 };
 
 /**
@@ -183,70 +236,62 @@ export const filterPostsByDateRange = (posts, startDate, endDate) => {
   });
 };
 
+const csvCell = (v) => {
+  let str = String(v ?? "");
+  // Neutralise spreadsheet formula injection from user-supplied names/titles
+  if (/^[=+\-@\t\r]/.test(str)) str = `'${str}`;
+  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+};
+const csvRows = (rows) => rows.map((r) => r.map(csvCell).join(",")).join("\n");
+
 /**
  * Export analytics data to CSV format
- * @param {Object} analyticsData - Analytics data object
- * @param {string} reportType - Type of report (overview, engagement, departments)
- * @returns {string} CSV string
+ * @param {Object} a - result of computeAnalytics
+ * @param {string} reportType - overview | departments | engagement | full
  */
-export const exportToCSV = (analyticsData, reportType) => {
-  let csvContent = "";
-
-  switch (reportType) {
-    case "overview":
-      csvContent = "Metric,Value\n";
-      csvContent += `Total Posts,${analyticsData.overview.totalPosts}\n`;
-      csvContent += `Total Comments,${analyticsData.overview.totalComments}\n`;
-      csvContent += `Total Users,${analyticsData.overview.totalUsers}\n`;
-      csvContent += `Active Users,${analyticsData.overview.activeUsers}\n`;
-      csvContent += `Average Response Time (hours),${analyticsData.responseTimeAvg}\n`;
-      csvContent += `Resolution Rate (%),${analyticsData.resolutionRate}\n`;
-      break;
-
-    case "engagement":
-      csvContent = "User,Email,Posts,Comments,Likes Given,Total Engagement\n";
-      analyticsData.userEngagement.topUsers?.forEach((user) => {
-        csvContent += `"${user.displayName}","${user.email}",${user.postsCount},${user.commentsCount},${user.likesGiven},${user.totalEngagement}\n`;
-      });
-      break;
-
-    case "departments":
-      csvContent =
-        "Department,Total Assigned,Resolved,In Progress,Open,Resolution Rate (%),Avg Resolution Time (hours)\n";
-      analyticsData.departmentStats?.forEach((dept) => {
-        csvContent += `"${dept.name}",${dept.totalAssigned},${dept.resolved},${dept.inProgress},${dept.open},${dept.resolutionRate},${dept.avgResolutionTime}\n`;
-      });
-      break;
-
-    case "full":
-      // Combined export with all data
-      csvContent = "===== OVERVIEW =====\n";
-      csvContent += "Metric,Value\n";
-      csvContent += `Total Posts,${analyticsData.overview.totalPosts}\n`;
-      csvContent += `Total Comments,${analyticsData.overview.totalComments}\n`;
-      csvContent += `Total Users,${analyticsData.overview.totalUsers}\n`;
-      csvContent += `Active Users,${analyticsData.overview.activeUsers}\n`;
-      csvContent += `Average Response Time (hours),${analyticsData.responseTimeAvg}\n\n`;
-
-      csvContent += "===== USER ENGAGEMENT =====\n";
-      csvContent += "User,Email,Posts,Comments,Likes Given,Total Engagement\n";
-      analyticsData.userEngagement.topUsers?.forEach((user) => {
-        csvContent += `"${user.displayName}","${user.email}",${user.postsCount},${user.commentsCount},${user.likesGiven},${user.totalEngagement}\n`;
-      });
-
-      csvContent += "\n===== DEPARTMENT PERFORMANCE =====\n";
-      csvContent +=
-        "Department,Total Assigned,Resolved,In Progress,Open,Resolution Rate (%),Avg Resolution Time (hours)\n";
-      analyticsData.departmentStats?.forEach((dept) => {
-        csvContent += `"${dept.name}",${dept.totalAssigned},${dept.resolved},${dept.inProgress},${dept.open},${dept.resolutionRate},${dept.avgResolutionTime}\n`;
-      });
-      break;
-
-    default:
-      csvContent = "Invalid report type";
+export const exportToCSV = (a, reportType) => {
+  const period = `${a.range.start.toISOString().slice(0, 10)} to ${a.range.end.toISOString().slice(0, 10)}`;
+  const sections = {
+    overview: () =>
+      csvRows([
+        ["Metric", "Value"],
+        ["Period", period],
+        ["Total posts", a.overview.totalPosts],
+        ["Total comments", a.overview.totalComments],
+        ["Total reactions", a.overview.totalReactions],
+        ["Active users", a.overview.activeUsers],
+        ["Participation rate (%)", a.overview.participationRate],
+        ["Average first response (hours)", a.avgResponseHours],
+        ["Resolution rate (%)", a.resolutionRate],
+        ["Engagement score (0-10)", a.engagementScore],
+        ["Company happiness score (0-100)", a.happinessScore],
+        [],
+        ["Posts by type", "Count"],
+        ...Object.entries(a.postsByType),
+        [],
+        ["Posts by status", "Count"],
+        ...Object.entries(a.postsByStatus).filter(([, n]) => n > 0),
+        [],
+        ["Posts by priority", "Count"],
+        ...Object.entries(a.postsByPriority),
+      ]),
+    departments: () =>
+      csvRows([
+        ["Department", "Posts", "Resolved", "Pending", "Comments", "Reactions", "Resolution rate (%)", "Avg first response (hours)"],
+        ...a.departmentStats.map((d) => [d.name, d.totalPosts, d.resolved, d.pending, d.comments, d.reactions, d.resolutionRate, d.avgResponseHours]),
+      ]),
+    engagement: () =>
+      csvRows([
+        ["User", "Posts", "Comments", "Total"],
+        ...a.userEngagement.map((u) => [u.name, u.posts, u.comments, u.total]),
+      ]),
+  };
+  if (reportType === "full") {
+    return ["overview", "departments", "engagement"]
+      .map((k) => `===== ${k.toUpperCase()} =====\n${sections[k]()}`)
+      .join("\n\n");
   }
-
-  return csvContent;
+  return sections[reportType] ? sections[reportType]() : "Invalid report type";
 };
 
 /**
@@ -255,7 +300,7 @@ export const exportToCSV = (analyticsData, reportType) => {
  * @param {string} filename - Filename for download
  */
 export const downloadCSV = (csvContent, filename) => {
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob(["\uFEFF", csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
 
@@ -266,4 +311,5 @@ export const downloadCSV = (csvContent, filename) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
