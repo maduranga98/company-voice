@@ -11,6 +11,8 @@ import {
   limit,
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { computeAnalytics } from "../../utils/analyticsHelpers";
+import { fetchAnalyticsData } from "../../services/analyticsService";
 import {
   PostStatus,
   PostStatusConfig,
@@ -57,6 +59,7 @@ const CompanyDashboard = () => {
     highPriorityPosts: 0,
   });
   const [recentPosts, setRecentPosts] = useState([]);
+  const [happiness, setHappiness] = useState(null);
 
   useEffect(() => {
     if (userData?.companyId) {
@@ -94,6 +97,14 @@ const CompanyDashboard = () => {
       };
 
       setStats(stats);
+
+      // Happiness is a nice-to-have: never let it break the dashboard
+      try {
+        const data = await fetchAnalyticsData(userData.companyId, userData.role);
+        setHappiness(computeAnalytics(data, { days: 30 }).happinessScore);
+      } catch (err) {
+        console.warn("Happiness score unavailable:", err);
+      }
 
       const recentQuery = query(
         postsRef,
@@ -280,6 +291,24 @@ const CompanyDashboard = () => {
           );
         })}
       </section>
+
+      {happiness !== null && (
+        <button
+          onClick={() => navigate("/company/analytics")}
+          className="flex w-full items-center justify-between gap-4 rounded-2xl border border-gray-200/70 bg-background-white p-5 text-left shadow-xs transition-shadow hover:shadow-md"
+        >
+          <div>
+            <p className="text-[13px] font-medium text-gray-500">Company happiness · last 30 days</p>
+            <p className="tabular mt-1 text-3xl font-semibold tracking-tight text-ink">
+              {happiness}
+              <span className="ml-1 text-base font-normal text-gray-400">/ 100</span>
+            </p>
+          </div>
+          <div className="h-2 w-32 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:w-56">
+            <div className="h-2 rounded-full bg-brand-500" style={{ width: `${happiness}%` }} />
+          </div>
+        </button>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Attention queue */}
