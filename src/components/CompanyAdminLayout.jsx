@@ -33,6 +33,8 @@ import {
   ClipboardCheck,
   Inbox,
   HelpCircle,
+  LayoutGrid,
+  Route as RouteIcon,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
@@ -125,6 +127,7 @@ const CompanyAdminLayout = ({ children }) => {
       id: "content",
       title: t("navigation.content", "Content"),
       items: [
+        { label: t("navigation.caseQueue", "Case Queue"), path: "/company/cases", icon: LayoutGrid },
         { label: t("navigation.hrInbox", "HR Inbox"), path: "/hr/inbox", icon: Inbox, badge: hasUnreadHRPosts },
         { label: t("navigation.assignedToMe", "Assigned"), path: "/assigned-to-me", icon: ClipboardCheck },
         { label: t("navigation.conversations", "Conversations"), path: "/hr/conversations", icon: MessagesSquare, badge: hasUnreadThreads },
@@ -138,6 +141,7 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.members", "Members"), path: "/company/members", icon: Users },
         { label: t("navigation.departments", "Departments"), path: "/company/departments", icon: Building2 },
         { label: t("navigation.tags", "Tags"), path: "/company/tag-management", icon: Tags },
+        { label: t("navigation.routingRules", "Routing Rules"), path: "/company/routing-rules", icon: RouteIcon },
       ],
     }] : []),
     {

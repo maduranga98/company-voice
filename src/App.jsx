@@ -21,6 +21,8 @@ import DepartmentDetails from "./pages/company/DepartmentDetails";
 import MemberManagementWithDepartments from "./pages/company/MemberManagementWithDepartments";
 import AuditLog from "./pages/admin/AuditLog";
 import AuditExportPage from "./pages/company/AuditExportPage";
+import CaseQueue from "./pages/company/CaseQueue";
+import RoutingRules from "./pages/company/RoutingRules";
 import TemplatesPage from "./pages/TemplatesPage";
 import RoleDefinitions from "./pages/RoleDefinitions";
 import HelpCenter from "./pages/HelpCenter";
@@ -290,6 +292,16 @@ function App() {
               }
             />
             <Route
+              path="/company/routing-rules"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <RoutingRules />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/company/member-management"
               element={
                 <PrivateRoute>
@@ -407,6 +419,16 @@ function App() {
                 <PrivateRoute>
                   <CompanyAdminLayout>
                     <HRInbox />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/cases"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CaseQueue />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }

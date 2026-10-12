@@ -800,6 +800,27 @@ service cloud.firestore {
     }
 
     // ============================================
+    // ROUTING RULES COLLECTION
+    // ============================================
+    // Auto-assignment rules for new posts/vendor reports (Case Queue → Routing Rules).
+    // - Any staff in the company can read, so the Case Queue can explain an assignment
+    // - Only company_admin / super_admin can create, edit, reorder or delete rules
+    //   (same as Manage Departments / Assign Tags — HR does not configure routing)
+    match /routingRules/{ruleId} {
+      allow read: if isAuthenticated()
+        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+
+      allow create: if isAuthenticated()
+        && (isSuperAdmin() || (isCompanyAdmin() && getUserCompanyId() == request.resource.data.companyId));
+
+      allow update: if isAuthenticated()
+        && (isSuperAdmin() || (isCompanyAdmin() && getUserCompanyId() == resource.data.companyId));
+
+      allow delete: if isAuthenticated()
+        && (isSuperAdmin() || (isCompanyAdmin() && getUserCompanyId() == resource.data.companyId));
+    }
+
+    // ============================================
     // POST EDIT HISTORY COLLECTION
     // ============================================
     // - Users in the same company can read edit history

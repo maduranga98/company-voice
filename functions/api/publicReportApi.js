@@ -32,6 +32,7 @@ const {
   randomChars,
 } = require('../utils/caseKeys');
 const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../utils/rateLimit');
+const { resolveRoutingAssignment } = require('../utils/routingRules');
 const { SLUG_PATTERN, issueReportSlug } = require('../utils/reportSlugs');
 const { assertRole, assertCompany } = require('../utils/authz');
 const { isCaseProgressCheckAllowed, buildSettingsUpdate } = require('../utils/companySettings');
@@ -167,8 +168,25 @@ async function createCase({ postRef, postData, caseData, activityData }) {
   throw new HttpsError('internal', 'Could not complete submission.');
 }
 
-async function notifyStaff(companyId, postId, involvesHR) {
+// routingMatch: the result of resolveRoutingAssignment(), or null. When a rule matched,
+// only the assignee is notified (so a routed company doesn't also broadcast to everyone);
+// otherwise every eligible company_admin/hr user is notified, as before.
+async function notifyStaff(companyId, postId, involvesHR, routingMatch) {
   try {
+    if (routingMatch && routingMatch.assignment.type === 'user') {
+      await db.collection('notifications').add({
+        userId: routingMatch.assignment.id,
+        type: 'assigned',
+        title: 'New case assigned to you',
+        message: 'A new report was automatically assigned to you.',
+        companyId,
+        metadata: { postId, ruleId: routingMatch.ruleId },
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+      return;
+    }
+
     const roles = involvesHR ? ['company_admin'] : ['company_admin', 'hr'];
     const users = await db
       .collection('users')
@@ -287,6 +305,20 @@ const submitPublicReport = onCall(
         ).toString();
       }
 
+      // Auto-routing: a matching rule assigns the case immediately, so staff see it
+      // already owned instead of everyone getting a broadcast notification for it.
+      const routingMatch = await resolveRoutingAssignment(db, companyId, 'post', postData);
+      if (routingMatch) {
+        postData.assignedTo = {
+          type: routingMatch.assignment.type,
+          id: routingMatch.assignment.id,
+          name: routingMatch.assignment.name,
+          assignedAt: serverTimestamp(),
+          assignedBy: 'Routing rule',
+          assignedById: null,
+        };
+      }
+
       let caseCode;
       try {
         caseCode = await createCase({
@@ -305,7 +337,16 @@ const submitPublicReport = onCall(
             companyId,
             type: 'created',
             actor: 'public_reporter',
-            metadata: { source: 'public_link', actor: 'public_reporter' },
+            metadata: routingMatch
+              ? {
+                  source: 'public_link',
+                  actor: 'public_reporter',
+                  autoAssigned: true,
+                  ruleId: routingMatch.ruleId,
+                  ruleName: routingMatch.ruleName,
+                  assignedToName: routingMatch.assignment.name,
+                }
+              : { source: 'public_link', actor: 'public_reporter' },
             createdAt: serverTimestamp(),
           },
         });
@@ -314,7 +355,7 @@ const submitPublicReport = onCall(
         throw error;
       }
 
-      await notifyStaff(companyId, postRef.id, input.involvesHR);
+      await notifyStaff(companyId, postRef.id, input.involvesHR, routingMatch);
 
       return { caseCode, secretKey };
     } catch (error) {
