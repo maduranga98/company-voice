@@ -2,55 +2,35 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../../config/firebase";
-import { hrCaseScope } from "../../utils/caseVisibility";
-import { PostPriorityConfig, PostType } from "../../utils/constants";
-import { getDepartments } from "../../services/departmentservice";
+import { PostPriorityConfig } from "../../utils/constants";
+import { CaseType } from "../../utils/caseTypes";
+import { fetchAnalyticsData } from "../../services/analyticsService";
 import {
   PERIOD_OPTIONS,
+  ACK_WINDOW_DAYS,
+  FEEDBACK_WINDOW_DAYS,
+  CASE_TYPE_LABELS,
+  REPORT_TYPE_LABELS,
+  CATEGORY_LABELS,
   computeAnalytics,
   exportToCSV,
   downloadCSV,
 } from "../../utils/analyticsHelpers";
-import { StatusBadge, PriorityBadge } from "../../components/case/CaseBadges";
+import { PriorityBadge } from "../../components/case/CaseBadges";
 import {
   ArrowLeft,
   FileText,
-  MessagesSquare,
-  Users,
   Download,
   ChevronDown,
   TrendingUp,
-  Trophy,
   Clock,
-  Heart,
-  Gauge,
+  Timer,
+  ShieldCheck,
+  AlertTriangle,
+  Users,
 } from "lucide-react";
 
-const TYPE_LABELS = {
-  [PostType.PROBLEM_REPORT]: "Problem reports",
-  [PostType.IDEA_SUGGESTION]: "Ideas & suggestions",
-  [PostType.CREATIVE_CONTENT]: "Creative content",
-  [PostType.TEAM_DISCUSSION]: "Discussions",
-};
-
 const card = "rounded-2xl border border-gray-200/70 bg-background-white p-5 shadow-xs lg:p-6";
-
-const fetchCompany = async (companyId, role) => {
-  const load = async (name, ...extra) =>
-    (await getDocs(query(collection(db, name), where("companyId", "==", companyId), ...extra))).docs.map(
-      (d) => ({ id: d.id, ...d.data() })
-    );
-  const [posts, comments, users, activities, departments] = await Promise.all([
-    load("posts", ...hrCaseScope(role)),
-    load("comments"),
-    load("users"),
-    load("postActivities"),
-    getDepartments(companyId, false),
-  ]);
-  return { posts, comments, users, activities, departments };
-};
 
 const happiness = (score) => {
   if (score >= 80) return { emoji: "😊", text: "text-emerald-600", bar: "bg-emerald-500" };
@@ -83,6 +63,38 @@ const BarRow = ({ left, count, total, barClass = "bg-brand-500" }) => (
   </div>
 );
 
+const labelFor = (labels, key) => labels[key] || key.replace(/_/g, " ");
+
+const Breakdown = ({ title, entries, total, empty = "No data in this period" }) => (
+  <div className={card}>
+    <h3 className="mb-4 text-base font-semibold text-ink">{title}</h3>
+    <div className="space-y-3">
+      {entries.map(([label, count]) => (
+        <BarRow key={label} left={label} count={count} total={total} />
+      ))}
+      {entries.length === 0 && <p className="text-sm text-gray-400">{empty}</p>}
+    </div>
+  </div>
+);
+
+const Compliance = ({ title, window, data }) => (
+  <div className={card}>
+    <h3 className="flex items-center gap-2 text-base font-semibold text-ink">
+      <ShieldCheck size={16} className="text-gray-400" /> {title}
+    </h3>
+    <div className="mt-3 flex items-baseline">
+      <p className="tabular text-4xl font-semibold text-ink">{data.rate === null ? "–" : `${data.rate}%`}</p>
+    </div>
+    <p className="mt-2 text-[13px] text-gray-500">
+      {data.rate === null
+        ? `No cases have reached the ${window}-day mark yet`
+        : `${data.onTime} of ${data.judged} cases within ${window} days`}
+    </p>
+  </div>
+);
+
+const SCOPES = [["", "All cases"], ...Object.values(CaseType).map((t) => [t, CASE_TYPE_LABELS[t]])];
+
 const CompanyAnalytics = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
@@ -91,6 +103,7 @@ const CompanyAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [days, setDays] = useState(30);
+  const [scope, setScope] = useState("");
   const [custom, setCustom] = useState({ start: "", end: "" });
   const [useCustom, setUseCustom] = useState(false);
   const [showExport, setShowExport] = useState(false);
@@ -99,7 +112,7 @@ const CompanyAnalytics = () => {
     if (!userData?.companyId) return;
     let cancelled = false;
     setLoading(true);
-    fetchCompany(userData.companyId, userData.role)
+    fetchAnalyticsData(userData.companyId, userData.role)
       .then((d) => !cancelled && setRaw(d))
       .catch((e) => {
         console.error("Error fetching analytics:", e);
@@ -113,15 +126,16 @@ const CompanyAnalytics = () => {
 
   const a = useMemo(() => {
     if (!raw) return null;
+    const caseType = scope || undefined;
     if (useCustom && custom.start && custom.end) {
       const start = new Date(custom.start);
       start.setHours(0, 0, 0, 0);
       const end = new Date(custom.end);
       end.setHours(23, 59, 59, 999);
-      return computeAnalytics(raw, { start, end });
+      return computeAnalytics(raw, { start, end, caseType });
     }
-    return computeAnalytics(raw, { days });
-  }, [raw, days, useCustom, custom]);
+    return computeAnalytics(raw, { days, caseType });
+  }, [raw, days, scope, useCustom, custom]);
 
   if (loading) {
     return (
@@ -143,11 +157,12 @@ const CompanyAnalytics = () => {
   }
 
   const h = happiness(a.happinessScore);
-  const total = a.overview.totalPosts;
+  const total = a.overview.total;
   const maxTrend = Math.max(...a.trend.map((d) => d.count), 1);
+  const maxAge = Math.max(...a.backlog.age.map((b) => b.count), 1);
   const periodLabel = useCustom
     ? `${new Date(custom.start).toLocaleDateString()} – ${new Date(custom.end).toLocaleDateString()}`
-    : `last ${days} days`;
+    : `the last ${days} days`;
   const stamp = new Date().toISOString().slice(0, 10);
   const exportAs = (type, name) => {
     downloadCSV(exportToCSV(a, type), `${name}-${stamp}.csv`);
@@ -157,6 +172,11 @@ const CompanyAnalytics = () => {
     `rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${
       active ? "bg-brand-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
     }`;
+  const sorted = (obj, labels) =>
+    Object.entries(obj)
+      .filter(([, n]) => n > 0)
+      .sort((x, y) => y[1] - x[1])
+      .map(([k, n]) => [labelFor(labels, k), n]);
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -169,7 +189,7 @@ const CompanyAnalytics = () => {
           {t("common.back")}
         </button>
         <h1 className="text-2xl font-semibold tracking-tight text-ink lg:text-3xl">Analytics</h1>
-        <p className="mt-1 text-sm text-gray-500">Engagement and performance across your company</p>
+        <p className="mt-1 text-sm text-gray-500">How your company handles reports and concerns</p>
       </div>
 
       {/* Controls */}
@@ -187,6 +207,12 @@ const CompanyAnalytics = () => {
                   className={segBtn(!useCustom && days === d)}
                 >
                   {d} days
+                </button>
+              ))}
+              <span className="mx-1 hidden h-6 w-px bg-gray-200 sm:block" />
+              {SCOPES.map(([value, label]) => (
+                <button key={value} onClick={() => setScope(value)} className={segBtn(scope === value)}>
+                  {label}
                 </button>
               ))}
             </div>
@@ -240,7 +266,7 @@ const CompanyAnalytics = () => {
                   {[
                     ["overview", "overview", "Export overview"],
                     ["departments", "departments", "Export departments"],
-                    ["engagement", "user-engagement", "Export contributors"],
+                    ["handlers", "handlers", "Export handler workload"],
                   ].map(([type, name, label]) => (
                     <button
                       key={type}
@@ -255,32 +281,17 @@ const CompanyAnalytics = () => {
             </div>
           </div>
         </div>
-        <p className="mt-4 text-[13px] font-medium text-brand-700">Showing {periodLabel}</p>
+        <p className="mt-4 text-[13px] font-medium text-brand-700">
+          Showing {SCOPES.find(([v]) => v === scope)[1].toLowerCase()} received {useCustom ? "between" : "in"} {periodLabel}
+        </p>
       </section>
 
       {/* KPIs */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-        <Stat icon={<FileText size={18} />} tone="bg-brand-50 text-brand-600" value={total} label="Posts" />
-        <Stat
-          icon={<MessagesSquare size={18} />}
-          tone="bg-violet-50 text-violet-600"
-          value={a.overview.totalComments}
-          label="Comments"
-          hint={`${a.overview.totalReactions} reactions`}
-        />
-        <Stat
-          icon={<Users size={18} />}
-          tone="bg-emerald-50 text-emerald-600"
-          value={`${a.overview.participationRate}%`}
-          label="Participation"
-          hint={`${a.overview.participants} of ${a.overview.activeUsers} active users`}
-        />
-        <Stat
-          icon={<TrendingUp size={18} />}
-          tone="bg-amber-50 text-amber-600"
-          value={`${a.resolutionRate}%`}
-          label="Resolution rate"
-        />
+        <Stat icon={<FileText size={18} />} tone="bg-brand-50 text-brand-600" value={total} label="Cases received" hint={`${a.overview.open} still open`} />
+        <Stat icon={<TrendingUp size={18} />} tone="bg-emerald-50 text-emerald-600" value={`${a.resolutionRate}%`} label="Resolution rate" hint={`${a.overview.resolved} resolved or closed`} />
+        <Stat icon={<Clock size={18} />} tone="bg-violet-50 text-violet-600" value={`${a.avgResponseHours}h`} label="Avg first response" hint={`${a.respondedCount} of ${total} answered`} />
+        <Stat icon={<Timer size={18} />} tone="bg-amber-50 text-amber-600" value={a.avgResolutionDays} label="Avg days to resolve" />
       </section>
 
       {/* Happiness */}
@@ -289,7 +300,7 @@ const CompanyAnalytics = () => {
           <div>
             <h3 className="text-base font-semibold text-ink">Company happiness score</h3>
             <p className="mt-0.5 text-[13px] text-gray-500">
-              Resolution rate (40%), engagement (30%) and response speed (30%)
+              Resolution rate (40%), acknowledgement within {ACK_WINDOW_DAYS} days (30%) and response speed (30%)
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -305,59 +316,58 @@ const CompanyAnalytics = () => {
         </div>
       </section>
 
-      {/* Response + engagement */}
+      {/* Compliance */}
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
-        <div className={card}>
-          <h3 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <Clock size={16} className="text-gray-400" /> Average response time
-          </h3>
-          <div className="mt-3 flex items-baseline">
-            <p className="tabular text-4xl font-semibold text-ink">{a.avgResponseHours}</p>
-            <span className="ml-2 text-gray-500">hours</span>
+        <Compliance title="Acknowledged on time" window={ACK_WINDOW_DAYS} data={a.ack} />
+        <Compliance title="Closed with feedback on time" window={FEEDBACK_WINDOW_DAYS} data={a.feedback} />
+      </section>
+
+      {/* Backlog */}
+      <section className={card}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold text-ink">Open backlog</h3>
+            <p className="mt-0.5 text-[13px] text-gray-500">All currently open cases, regardless of period</p>
           </div>
-          <p className="mt-2 text-[13px] text-gray-500">
-            To first admin response · {a.respondedPosts} of {total} posts answered
-          </p>
+          <div className="flex gap-6">
+            {[
+              [a.backlog.total, "Open"],
+              [a.backlog.overdue, "Overdue", a.backlog.overdue > 0],
+              [a.backlog.unassigned, "Unassigned"],
+            ].map(([n, label, alert]) => (
+              <div key={label} className="text-right">
+                <p className={`tabular text-2xl font-semibold ${alert ? "text-rose-600" : "text-ink"}`}>{n}</p>
+                <p className="flex items-center justify-end gap-1 text-xs text-gray-500">
+                  {alert && <AlertTriangle size={12} />} {label}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={card}>
-          <h3 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <Gauge size={16} className="text-gray-400" /> Engagement score
-          </h3>
-          <div className="mt-3 flex items-baseline">
-            <p className="tabular text-4xl font-semibold text-ink">{a.engagementScore}</p>
-            <span className="ml-2 text-gray-500">/ 10</span>
-          </div>
-          <p className="mt-2 text-[13px] text-gray-500">
-            {a.commentsPerPost} comments and {a.reactionsPerPost} reactions per post
-          </p>
+        <div className="mt-5 grid grid-cols-4 items-end gap-3">
+          {a.backlog.age.map((b) => (
+            <div key={b.key} className="flex flex-col items-center gap-2">
+              <span className="tabular text-sm font-semibold text-ink">{b.count}</span>
+              <div
+                className={`w-full rounded-t ${b.key === "gt90" ? "bg-rose-400" : "bg-brand-500"}`}
+                style={{ height: `${(b.count / maxAge) * 80}px`, minHeight: b.count > 0 ? 4 : 0 }}
+              />
+              <span className="text-center text-xs text-gray-500">{b.label}</span>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Breakdowns */}
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:gap-6">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+        <Breakdown title="Cases by source" entries={sorted(a.byCaseType, CASE_TYPE_LABELS)} total={total} />
+        <Breakdown title="Reports by type" entries={sorted(a.byReportType, REPORT_TYPE_LABELS)} total={total} />
+        <Breakdown title="Reports by category" entries={sorted(a.byCategory, CATEGORY_LABELS)} total={total} />
+        <Breakdown title="Cases by status" entries={sorted(a.byStatus, a.statusLabels)} total={total} />
         <div className={card}>
-          <h3 className="mb-4 text-base font-semibold text-ink">Posts by type</h3>
+          <h3 className="mb-4 text-base font-semibold text-ink">Cases by priority</h3>
           <div className="space-y-3">
-            {Object.entries(a.postsByType).map(([type, count]) => (
-              <BarRow key={type} left={TYPE_LABELS[type] || type} count={count} total={total} />
-            ))}
-          </div>
-        </div>
-        <div className={card}>
-          <h3 className="mb-4 text-base font-semibold text-ink">Posts by status</h3>
-          <div className="space-y-3">
-            {Object.entries(a.postsByStatus)
-              .filter(([, n]) => n > 0)
-              .map(([status, count]) => (
-                <BarRow key={status} left={<StatusBadge status={status} />} count={count} total={total} />
-              ))}
-            {total === 0 && <p className="text-sm text-gray-400">No posts in this period</p>}
-          </div>
-        </div>
-        <div className={card}>
-          <h3 className="mb-4 text-base font-semibold text-ink">Posts by priority</h3>
-          <div className="space-y-3">
-            {Object.entries(a.postsByPriority).map(([priority, count]) => (
+            {Object.entries(a.byPriority).map(([priority, count]) => (
               <BarRow
                 key={priority}
                 left={<PriorityBadge priority={priority} />}
@@ -368,15 +378,31 @@ const CompanyAnalytics = () => {
             ))}
           </div>
         </div>
+        <div className={card}>
+          <h3 className="mb-4 text-base font-semibold text-ink">How reports arrive</h3>
+          <div className="space-y-3 text-sm">
+            {[
+              ["Public report link", a.intake.publicLink],
+              ["Signed-in employees", a.intake.signedIn],
+              ["Submitted anonymously", `${a.intake.anonymous} (${a.intake.anonymousRate}%)`],
+              ["Involving HR", a.intake.involvesHR],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between gap-3">
+                <span className="text-gray-700">{label}</span>
+                <span className="tabular font-semibold text-ink">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Trend */}
       <section className={card}>
-        <h3 className="text-base font-semibold text-ink">Post activity</h3>
+        <h3 className="text-base font-semibold text-ink">Cases received</h3>
         <p className="mt-0.5 text-[13px] text-gray-500">
-          {total} posts · {(total / Math.max(a.trend.length, 1)).toFixed(1)} per day
+          {total} cases · {(total / Math.max(a.trend.length, 1)).toFixed(1)} per day
         </p>
-        <div className="mt-5 flex h-56 items-end gap-px" role="img" aria-label="Posts per day">
+        <div className="mt-5 flex h-56 items-end gap-px" role="img" aria-label="Cases per day">
           {a.trend.map((d) => (
             <div key={d.date} className="group relative flex h-full flex-1 items-end">
               <div
@@ -400,13 +426,13 @@ const CompanyAnalytics = () => {
         <section className="overflow-hidden rounded-2xl border border-gray-200/70 bg-background-white shadow-xs">
           <div className="border-b border-gray-100 px-5 py-4 lg:px-6">
             <h3 className="text-base font-semibold text-ink">Department performance</h3>
-            <p className="mt-0.5 text-[13px] text-gray-500">Activity and outcomes by department</p>
+            <p className="mt-0.5 text-[13px] text-gray-500">Cases assigned to each department</p>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
               <thead className="bg-gray-50/80">
                 <tr>
-                  {["Department", "Posts", "Comments", "Reactions", "Resolved", "Pending", "Response (h)", "Resolution"].map((c) => (
+                  {["Department", "Cases", "Resolved", "Pending", "Overdue", "Response (h)", "Resolution"].map((c) => (
                     <th key={c} className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 lg:px-6">
                       {c}
                     </th>
@@ -420,14 +446,15 @@ const CompanyAnalytics = () => {
                       <span className="mr-2 text-lg">{d.icon}</span>
                       <span className="text-sm font-semibold text-ink">{d.name}</span>
                     </td>
-                    <td className="tabular px-5 py-4 text-sm text-gray-600 lg:px-6">{d.totalPosts}</td>
-                    <td className="tabular px-5 py-4 text-sm text-gray-600 lg:px-6">{d.comments}</td>
-                    <td className="tabular px-5 py-4 text-sm text-gray-600 lg:px-6">{d.reactions}</td>
+                    <td className="tabular px-5 py-4 text-sm text-gray-600 lg:px-6">{d.total}</td>
                     <td className="px-5 py-4 lg:px-6">
                       <span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">{d.resolved}</span>
                     </td>
                     <td className="px-5 py-4 lg:px-6">
                       <span className="rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700">{d.pending}</span>
+                    </td>
+                    <td className="px-5 py-4 lg:px-6">
+                      <span className={`rounded-full px-2 py-1 text-xs font-semibold ${d.overdue ? "bg-rose-50 text-rose-700" : "bg-gray-50 text-gray-500"}`}>{d.overdue}</span>
                     </td>
                     <td className="tabular px-5 py-4 text-sm text-gray-600 lg:px-6">{d.avgResponseHours}</td>
                     <td className="whitespace-nowrap px-5 py-4 lg:px-6">
@@ -446,45 +473,27 @@ const CompanyAnalytics = () => {
         </section>
       )}
 
-      {/* Top posts + contributors */}
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
-        <div className={card}>
-          <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-ink">
-            <Heart size={16} className="text-rose-500" /> Most engaging posts
-          </h3>
-          <div className="space-y-2">
-            {a.topPosts.map((p) => (
-              <div key={p.id} className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 p-3">
-                <p className="truncate text-sm font-semibold text-ink">{p.title}</p>
-                <p className="shrink-0 text-xs text-gray-500">
-                  {p.comments} comments · {p.reactions} reactions
-                </p>
-              </div>
-            ))}
-            {a.topPosts.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No engagement yet</p>}
-          </div>
-        </div>
-        <div className={card}>
-          <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-ink">
-            <Trophy size={16} className="text-amber-500" /> Top contributors
-          </h3>
-          <div className="space-y-2">
-            {a.userEngagement.map((u, i) => (
-              <div key={u.id} className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-bold text-white">{i + 1}</div>
-                  <div>
-                    <p className="text-sm font-semibold text-ink">{u.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {u.posts} posts · {u.comments} comments
-                    </p>
-                  </div>
+      {/* Handler workload */}
+      <section className={card}>
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-ink">
+          <Users size={16} className="text-gray-400" /> Handler workload
+        </h3>
+        <div className="space-y-2">
+          {a.handlers.map((u, i) => (
+            <div key={u.id} className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-bold text-white">{i + 1}</div>
+                <div>
+                  <p className="text-sm font-semibold text-ink">{u.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {u.resolved} resolved · {u.open} open
+                  </p>
                 </div>
-                <p className="tabular text-lg font-semibold text-brand-600">{u.total}</p>
               </div>
-            ))}
-            {a.userEngagement.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No activity in this period</p>}
-          </div>
+              <p className="tabular text-lg font-semibold text-brand-600">{u.assigned}</p>
+            </div>
+          ))}
+          {a.handlers.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No cases assigned to individuals in this period</p>}
         </div>
       </section>
     </div>

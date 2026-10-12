@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { computeAnalytics } from "../../utils/analyticsHelpers";
+import { fetchAnalyticsData } from "../../services/analyticsService";
 import {
   PostStatus,
   PostStatusConfig,
@@ -99,12 +100,8 @@ const CompanyDashboard = () => {
 
       // Happiness is a nice-to-have: never let it break the dashboard
       try {
-        const load = async (name) =>
-          (await getDocs(query(collection(db, name), where("companyId", "==", userData.companyId)))).docs.map(
-            (d) => ({ id: d.id, ...d.data() })
-          );
-        const [comments, activities] = await Promise.all([load("comments"), load("postActivities")]);
-        setHappiness(computeAnalytics({ posts, comments, activities }, { days: 30 }).happinessScore);
+        const data = await fetchAnalyticsData(userData.companyId, userData.role);
+        setHappiness(computeAnalytics(data, { days: 30 }).happinessScore);
       } catch (err) {
         console.warn("Happiness score unavailable:", err);
       }
