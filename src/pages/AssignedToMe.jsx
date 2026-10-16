@@ -5,9 +5,10 @@ import { hrCaseScope, sortByCreatedAtDesc } from "../utils/caseVisibility";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AdminActionPanel from "../components/AdminActionPanel";
+import CaseHandlingPanel from "../components/case/CaseHandlingPanel";
 import OpenCaseLink from "../components/case/OpenCaseLink";
-import { PostStatusConfig, PostPriorityConfig } from "../utils/constants";
-import { CaseType, getCaseAdapter } from "../utils/caseTypes";
+import { PostPriorityConfig } from "../utils/constants";
+import { CaseType, getCaseAdapter, toDate } from "../utils/caseTypes";
 import { StatusBadge, PriorityBadge, DueDateChip } from "../components/case/CaseBadges";
 import PageHeader, { PageContainer } from "../components/PageHeader";
 import {
@@ -17,7 +18,19 @@ import {
   Inbox,
 } from "lucide-react";
 
-const CLOSED_STATUSES = getCaseAdapter(CaseType.POST).closedStatuses;
+// Reports and vendor-risk cases share this list; each keeps its own status vocabulary.
+const withMeta = (caseType, id, data) => {
+  const adapter = getCaseAdapter(caseType);
+  return {
+    id,
+    caseType,
+    ...data,
+    _title: adapter.getTitle(data) || "Untitled",
+    _priority: adapter.getPriority(data),
+    createdAt: adapter.getCreatedAt(data),
+    dueDate: toDate(data.dueDate),
+  };
+};
 
 const getTimeAgo = (date) => {
   if (!date) return "";
@@ -32,7 +45,7 @@ const getTimeAgo = (date) => {
 const AssignedToMe = () => {
   const { userData } = useAuth();
   const { t } = useTranslation();
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([]); // all my cases (reports + vendor risk)
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -58,33 +71,33 @@ const AssignedToMe = () => {
     }
     try {
       setLoading(true);
-      const postsRef = collection(db, "posts");
-      const q = query(
-        postsRef,
-        where("companyId", "==", userData.companyId),
-        where("assignedTo.id", "==", userData.id),
-        ...hrCaseScope(userData.role)
-      );
-      const snapshot = await getDocs(q);
-      const postsData = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        postsData.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate(),
-          updatedAt: data.updatedAt?.toDate(),
-          dueDate: data.dueDate?.toDate(),
-        });
-      });
-      setPosts(sortByCreatedAtDesc(postsData));
+      const mine = [where("companyId", "==", userData.companyId), where("assignedTo.id", "==", userData.id)];
+
+      const loadPosts = async () => {
+        const snapshot = await getDocs(query(collection(db, "posts"), ...mine, ...hrCaseScope(userData.role)));
+        return snapshot.docs.map((d) => withMeta(CaseType.POST, d.id, d.data()));
+      };
+      // HR can't read restricted vendor reports, and a query must prove it can't return
+      // one, so HR asks for the "standard" tier explicitly (reports that predate the
+      // visibility field are matched by the unfiltered query for other roles only).
+      const loadVendor = async () => {
+        const extra = userData.role === "hr" ? [where("visibility", "==", "standard")] : [];
+        const snapshot = await getDocs(query(collection(db, "vendorReports"), ...mine, ...extra));
+        return snapshot.docs.map((d) => withMeta(CaseType.VENDOR, d.id, d.data()));
+      };
+
+      const [postCases, vendorCases] = await Promise.all([
+        loadPosts(),
+        loadVendor().catch((error) => {
+          console.error("Error loading assigned vendor reports:", error);
+          return [];
+        }),
+      ]);
+      setPosts(sortByCreatedAtDesc([...postCases, ...vendorCases]));
     } catch (error) {
       console.error("Error loading assigned posts:", error);
       if (error.code === "failed-precondition") {
         console.error("Index may be missing. Check Firebase Console.");
-      }
-      if (posts.length > 0) {
-        alert("Failed to load assigned posts. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -97,7 +110,7 @@ const AssignedToMe = () => {
       filtered = filtered.filter((post) => post.status === selectedStatus);
     }
     if (selectedPriority !== "all") {
-      filtered = filtered.filter((post) => post.priority === selectedPriority);
+      filtered = filtered.filter((post) => post._priority === selectedPriority);
     }
     setFilteredPosts(filtered);
   };
@@ -136,10 +149,10 @@ const AssignedToMe = () => {
 
   const statusTabs = [
     { value: "all", label: t("assignedToMe.allStatus", "All Status") },
-    ...Object.entries(PostStatusConfig).map(([key, config]) => ({
-      value: key,
-      label: config.label,
-    })),
+    ...[...new Set(posts.map((c) => `${c.caseType}:${c.status || "open"}`))].map((key) => {
+      const [caseType, status] = key.split(":");
+      return { value: status, label: getCaseAdapter(caseType).statusConfig[status]?.label || status };
+    }).filter((tab, i, all) => all.findIndex((x) => x.value === tab.value) === i),
   ];
 
   const priorityTabs = [
@@ -226,8 +239,11 @@ const AssignedToMe = () => {
                   <div className="p-4">
                     {/* Top row: type + time */}
                     <div className="flex items-center gap-2 mb-2.5">
-                      {post.status && PostStatusConfig[post.status] && <StatusBadge status={post.status} />}
-                      {post.priority && PostPriorityConfig[post.priority] && <PriorityBadge priority={post.priority} />}
+                      <StatusBadge status={post.status} config={getCaseAdapter(post.caseType).statusConfig} />
+                      {post._priority && PostPriorityConfig[post._priority] && <PriorityBadge priority={post._priority} />}
+                      {post.caseType === CaseType.VENDOR && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-600">Vendor risk</span>
+                      )}
                       <span className="text-[10px] text-gray-400 ml-auto">
                         {getTimeAgo(post.createdAt)}
                       </span>
@@ -235,13 +251,13 @@ const AssignedToMe = () => {
 
                     {/* Title */}
                     <h3 className="text-sm font-semibold mb-1.5" style={{ color: "#2D3E50" }}>
-                      {post.title}
+                      {post._title}
                     </h3>
 
                     {/* Due date if present */}
                     {post.dueDate && (
                       <div className="mb-2.5">
-                        <DueDateChip dueDate={post.dueDate} closed={CLOSED_STATUSES.includes(post.status)} />
+                        <DueDateChip dueDate={post.dueDate} closed={getCaseAdapter(post.caseType).closedStatuses.includes(post.status)} />
                       </div>
                     )}
 
@@ -259,10 +275,10 @@ const AssignedToMe = () => {
                     {/* Collapse header */}
                     <div className="px-4 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
                       <div className="flex items-center gap-2 flex-wrap">
-                        {post.status && PostStatusConfig[post.status] && <StatusBadge status={post.status} />}
-                        {post.priority && PostPriorityConfig[post.priority] && <PriorityBadge priority={post.priority} />}
+                        <StatusBadge status={post.status} config={getCaseAdapter(post.caseType).statusConfig} />
+                        {post._priority && PostPriorityConfig[post._priority] && <PriorityBadge priority={post._priority} />}
                       </div>
-                      <OpenCaseLink caseType={CaseType.POST} caseId={post.id} className="ml-auto mr-2" />
+                      <OpenCaseLink caseType={post.caseType} caseId={post.id} className="ml-auto mr-2" />
                       <button
                         onClick={() => setExpandedPost(null)}
                         className="p-1.5 rounded-xl hover:bg-gray-200 transition-colors"
@@ -272,15 +288,15 @@ const AssignedToMe = () => {
                     </div>
 
                     <div className="p-4 pb-0">
-                      <AdminActionPanel
-                        post={post}
-                        currentUser={userData}
-                        onUpdate={handlePostUpdate}
-                      />
+                      {post.caseType === CaseType.VENDOR ? (
+                        <CaseHandlingPanel caseType={post.caseType} caseData={post} currentUser={userData} onUpdate={handlePostUpdate} />
+                      ) : (
+                        <AdminActionPanel post={post} currentUser={userData} onUpdate={handlePostUpdate} />
+                      )}
                     </div>
                     <div className="p-4">
                       <h3 className="text-sm font-semibold mb-2" style={{ color: "#2D3E50" }}>
-                        {post.title}
+                        {post._title}
                       </h3>
                       {(post.description || post.content) && (
                         <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
