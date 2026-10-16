@@ -2,6 +2,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  doc,
   query,
   where,
   orderBy,
@@ -9,7 +11,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import { SystemActivityType } from "../utils/constants";
 import CryptoJS from "crypto-js";
 
@@ -27,6 +29,13 @@ const lastAuditHashCache = {};
  * @param {string} timestamp - Timestamp
  * @returns {string} SHA256 hash
  */
+// End date from a date input ("YYYY-MM-DD") covers the whole selected day
+const endOfDay = (value) => {
+  const d = new Date(value);
+  d.setHours(23, 59, 59, 999);
+  return Timestamp.fromDate(d);
+};
+
 const calculateAuditHash = (activityData, previousHash, timestamp) => {
   try {
     const dataString = JSON.stringify({
@@ -253,7 +262,7 @@ export const getPostActivities = async (companyId, options = {}) => {
     }
 
     if (endDate) {
-      constraints.push(where("createdAt", "<=", Timestamp.fromDate(new Date(endDate))));
+      constraints.push(where("createdAt", "<=", endOfDay(endDate)));
     }
 
     // Always order by creation time (descending)
@@ -303,9 +312,9 @@ export const getSystemActivities = async (companyId, options = {}) => {
       constraints.push(where("type", "==", activityType));
     }
 
-    // Filter by user (who performed the action or was affected)
+    // Filter by the user who performed the action
     if (userId) {
-      constraints.push(where("metadata.userId", "==", userId));
+      constraints.push(where("metadata.adminId", "==", userId));
     }
 
     // Filter by date range
@@ -314,7 +323,7 @@ export const getSystemActivities = async (companyId, options = {}) => {
     }
 
     if (endDate) {
-      constraints.push(where("createdAt", "<=", Timestamp.fromDate(new Date(endDate))));
+      constraints.push(where("createdAt", "<=", endOfDay(endDate)));
     }
 
     // Always order by creation time (descending)
@@ -348,6 +357,8 @@ export const getSystemActivities = async (companyId, options = {}) => {
  */
 export const logUserLogin = async (companyId, userData) => {
   return logSystemActivity(companyId, SystemActivityType.USER_LOGIN, {
+    adminId: userData.id,
+    adminName: userData.displayName || userData.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     userRole: userData.role,
@@ -363,6 +374,8 @@ export const logUserLogin = async (companyId, userData) => {
  */
 export const logUserLogout = async (companyId, userData) => {
   return logSystemActivity(companyId, SystemActivityType.USER_LOGOUT, {
+    adminId: userData.id,
+    adminName: userData.displayName || userData.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     userRole: userData.role,
@@ -379,6 +392,8 @@ export const logUserLogout = async (companyId, userData) => {
  */
 export const logUserCreated = async (companyId, newUserData, createdBy) => {
   return logSystemActivity(companyId, SystemActivityType.USER_CREATED, {
+    adminId: createdBy.id,
+    adminName: createdBy.displayName || createdBy.username,
     userId: newUserData.id,
     userName: newUserData.displayName || newUserData.username,
     userRole: newUserData.role,
@@ -399,6 +414,8 @@ export const logUserCreated = async (companyId, newUserData, createdBy) => {
  */
 export const logUserUpdated = async (companyId, userData, updatedBy, changes = {}) => {
   return logSystemActivity(companyId, SystemActivityType.USER_UPDATED, {
+    adminId: updatedBy.id,
+    adminName: updatedBy.displayName || updatedBy.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     updatedById: updatedBy.id,
@@ -417,6 +434,8 @@ export const logUserUpdated = async (companyId, userData, updatedBy, changes = {
  */
 export const logUserDeleted = async (companyId, userData, deletedBy) => {
   return logSystemActivity(companyId, SystemActivityType.USER_DELETED, {
+    adminId: deletedBy.id,
+    adminName: deletedBy.displayName || deletedBy.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     userRole: userData.role,
@@ -436,6 +455,8 @@ export const logUserDeleted = async (companyId, userData, deletedBy) => {
  */
 export const logUserSuspended = async (companyId, userData, suspendedBy, reason = "") => {
   return logSystemActivity(companyId, SystemActivityType.USER_SUSPENDED, {
+    adminId: suspendedBy.id,
+    adminName: suspendedBy.displayName || suspendedBy.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     suspendedById: suspendedBy.id,
@@ -454,6 +475,8 @@ export const logUserSuspended = async (companyId, userData, suspendedBy, reason 
  */
 export const logUserActivated = async (companyId, userData, activatedBy) => {
   return logSystemActivity(companyId, SystemActivityType.USER_ACTIVATED, {
+    adminId: activatedBy.id,
+    adminName: activatedBy.displayName || activatedBy.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     activatedById: activatedBy.id,
@@ -473,6 +496,8 @@ export const logUserActivated = async (companyId, userData, activatedBy) => {
  */
 export const logRoleChanged = async (companyId, userData, oldRole, newRole, changedBy) => {
   return logSystemActivity(companyId, SystemActivityType.ROLE_CHANGED, {
+    adminId: changedBy.id,
+    adminName: changedBy.displayName || changedBy.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     oldRole,
@@ -492,6 +517,8 @@ export const logRoleChanged = async (companyId, userData, oldRole, newRole, chan
  */
 export const logDepartmentCreated = async (companyId, departmentData, createdBy) => {
   return logSystemActivity(companyId, SystemActivityType.DEPARTMENT_CREATED, {
+    adminId: createdBy.id,
+    adminName: createdBy.displayName || createdBy.username,
     departmentId: departmentData.id,
     departmentName: departmentData.name,
     createdById: createdBy.id,
@@ -510,6 +537,8 @@ export const logDepartmentCreated = async (companyId, departmentData, createdBy)
  */
 export const logDepartmentUpdated = async (companyId, departmentData, updatedBy, changes = {}) => {
   return logSystemActivity(companyId, SystemActivityType.DEPARTMENT_UPDATED, {
+    adminId: updatedBy.id,
+    adminName: updatedBy.displayName || updatedBy.username,
     departmentId: departmentData.id,
     departmentName: departmentData.name,
     updatedById: updatedBy.id,
@@ -528,6 +557,8 @@ export const logDepartmentUpdated = async (companyId, departmentData, updatedBy,
  */
 export const logDepartmentDeleted = async (companyId, departmentData, deletedBy) => {
   return logSystemActivity(companyId, SystemActivityType.DEPARTMENT_DELETED, {
+    adminId: deletedBy.id,
+    adminName: deletedBy.displayName || deletedBy.username,
     departmentId: departmentData.id,
     departmentName: departmentData.name,
     deletedById: deletedBy.id,
@@ -545,6 +576,8 @@ export const logDepartmentDeleted = async (companyId, departmentData, deletedBy)
  */
 export const logPasswordChanged = async (companyId, userData, changedBy) => {
   return logSystemActivity(companyId, SystemActivityType.PASSWORD_CHANGED, {
+    adminId: changedBy.id,
+    adminName: changedBy.displayName || changedBy.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     changedById: changedBy.id,
@@ -563,11 +596,38 @@ export const logPasswordChanged = async (companyId, userData, changedBy) => {
  */
 export const logProfileUpdated = async (companyId, userData, changes = {}) => {
   return logSystemActivity(companyId, SystemActivityType.PROFILE_UPDATED, {
+    adminId: userData.id,
+    adminName: userData.displayName || userData.username,
     userId: userData.id,
     userName: userData.displayName || userData.username,
     changes: JSON.stringify(changes),
     timestamp: new Date().toISOString(),
   });
+};
+
+/**
+ * Log an admin action performed by the signed-in user. The actor and company come from the
+ * verified ID token and the users/{uid} document, so callers only describe the target.
+ * @param {string} activityType - SystemActivityType value
+ * @param {object} metadata - Target details (userId, userName, oldRole, ...)
+ * @returns {Promise<object>}
+ */
+export const logAdminAction = async (activityType, metadata = {}) => {
+  try {
+    const current = auth.currentUser;
+    if (!current) return { success: false, error: "Not signed in" };
+    const snap = await getDoc(doc(db, "users", current.uid));
+    const actor = snap.exists() ? snap.data() : {};
+    if (!actor.companyId) return { success: false, error: "No company for actor" };
+    return logSystemActivity(actor.companyId, activityType, {
+      adminId: current.uid,
+      adminName: actor.displayName || actor.username || "Unknown",
+      ...metadata,
+    });
+  } catch (error) {
+    console.error("Error logging admin action:", error);
+    return { success: false, error: error.message };
+  }
 };
 
 // ============================================
@@ -581,10 +641,10 @@ export const logProfileUpdated = async (companyId, userData, changes = {}) => {
  * @param {number} limit - Result limit
  * @returns {Promise<Array>}
  */
-export const searchAuditLogs = async (companyId, searchQuery, limit = 50) => {
+export const searchAuditLogs = async (companyId, searchQuery, limit = 50, options = {}) => {
   try {
     // Get all activities and filter client-side (Firestore doesn't support full-text search)
-    const activities = await getCompanyAuditLog(companyId, { limit: 500 });
+    const activities = await getCompanyAuditLog(companyId, { ...options, limit: 500 });
 
     const searchLower = searchQuery.toLowerCase();
 

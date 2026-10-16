@@ -4,6 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import { loginWithUsernamePassword } from "../services/authService";
 import { isPublicReportRoute } from "../utils/publicRoute";
+import { logUserLogin, logUserLogout } from "../services/auditService";
 
 const AuthContext = createContext();
 
@@ -107,10 +108,13 @@ export const AuthProvider = ({ children }) => {
     setInactiveAccount(false);
     const profile = await hydrate(auth.currentUser);
     if (!profile) throw new Error("Could not start your session. Please try again.");
+    if (profile.companyId) logUserLogin(profile.companyId, profile);
     return profile;
   };
 
   const logout = async () => {
+    // Log before sign-out: the audit write needs the live session
+    if (userData?.companyId) await logUserLogout(userData.companyId, userData);
     await signOut(auth);
     applyProfile(null);
   };
