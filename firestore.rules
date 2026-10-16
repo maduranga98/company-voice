@@ -70,6 +70,16 @@ service cloud.firestore {
       return data.involvesHR == false;
     }
 
+    // Vendor Risk's own visibility tier (separate from the post privacy levels
+    // above). Unlike isHRVisibleCase this defaults a missing field to 'standard'
+    // (via .get(), not a direct comparison): vendor reports predate this field,
+    // and failing them closed for HR the way posts do would silently cut HR off
+    // from every existing report until a backfill runs. Only 'restricted' narrows
+    // a report to company_admin/super_admin.
+    function isHRVisibleVendorReport(data) {
+      return data.get('visibility', 'standard') != 'restricted';
+    }
+
     // Check if the user may read a post document (staff only: super_admin, company_admin, hr)
     function canReadPost(data) {
       return isSuperAdmin()
@@ -83,10 +93,12 @@ service cloud.firestore {
       return isAdminOrHR() && (isSuperAdmin() || getUserCompanyId() == companyId);
     }
 
-    // Shape of the shared case-handling fields (priority / assignedTo / dueDate) on
-    // vendorReports and contentReports. Each is optional; when present it must be well formed.
+    // Shape of the shared case-handling fields (priority / assignedTo / dueDate /
+    // visibility) on vendorReports and contentReports. Each is optional; when
+    // present it must be well formed.
     function validCaseFields(data) {
       return (!('priority' in data) || data.priority in ['critical', 'high', 'medium', 'low'])
+        && (!('visibility' in data) || data.visibility in ['standard', 'restricted'])
         && (!('assignedTo' in data) || data.assignedTo == null
             || (data.assignedTo is map
                 && data.assignedTo.get('type', null) in ['user', 'department']
@@ -726,16 +738,23 @@ service cloud.firestore {
     //    and corroboration count increments / auto-escalation)
     // - Never deleted (audit trail)
     match /vendorReports/{reportId} {
-      allow read: if isAuthenticated()
-        && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId);
+      allow read: if isSuperAdmin()
+        || (isAuthenticated()
+            && getUserCompanyId() == resource.data.companyId
+            && (getUserRole() != 'hr' || isHRVisibleVendorReport(resource.data)));
 
       allow create: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == request.resource.data.companyId)
         && validCaseFields(request.resource.data);
 
+      // Changing visibility is restricted to company_admin/super_admin — HR
+      // shouldn't be able to un-restrict a report that was deliberately hidden
+      // from HR (and in practice can't even see it to try, once restricted).
       allow update: if isAuthenticated()
         && (isSuperAdmin() || getUserCompanyId() == resource.data.companyId)
-        && validCaseFields(request.resource.data);
+        && validCaseFields(request.resource.data)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['visibility'])
+            || isSuperAdmin() || isCompanyAdmin());
 
       allow delete: if false;
 

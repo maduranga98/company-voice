@@ -31,6 +31,7 @@ const VendorRiskReport = () => {
   const [riskCategory, setRiskCategory] = useState("");
   const [severity, setSeverity] = useState("medium");
   const [description, setDescription] = useState("");
+  const [visibility, setVisibility] = useState("standard");
 
   // Corroboration form
   const [relationship, setRelationship] = useState("");
@@ -43,6 +44,7 @@ const VendorRiskReport = () => {
     setRiskCategory("");
     setSeverity("medium");
     setDescription("");
+    setVisibility("standard");
     setSelectedFiles([]);
     setUploadProgress(0);
   };
@@ -110,7 +112,7 @@ const VendorRiskReport = () => {
     setUploadProgress(0);
     try {
       const result = await submitVendorReport(
-        { vendorName, riskCategory, severity, description },
+        { vendorName, riskCategory, severity, description, visibility },
         selectedFiles,
         userData,
         setUploadProgress
@@ -316,6 +318,38 @@ const VendorRiskReport = () => {
           <div>
             <label className="block text-sm font-semibold text-[#2D3E50] mb-2">Severity Level</label>
             <SeverityPills value={severity} onChange={setSeverity} />
+          </div>
+
+          {/* Visibility */}
+          <div>
+            <label className="block text-sm font-semibold text-[#2D3E50] mb-2">Who can see this report</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setVisibility("standard")}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${
+                  visibility === "standard"
+                    ? "bg-teal-50 text-teal-700 border-teal-200"
+                    : "bg-background-white text-gray-400 border-gray-100 hover:border-gray-200"
+                }`}
+              >
+                Standard
+                <span className="block font-normal text-[11px] mt-0.5 opacity-80">Company Admin and HR</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibility("restricted")}
+                className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-all border ${
+                  visibility === "restricted"
+                    ? "bg-purple-50 text-purple-700 border-purple-200"
+                    : "bg-background-white text-gray-400 border-gray-100 hover:border-gray-200"
+                }`}
+              >
+                Restricted
+                <span className="block font-normal text-[11px] mt-0.5 opacity-80">Company Admin only</span>
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-1.5">Use Restricted if the concern involves someone in HR.</p>
           </div>
 
           {/* Description */}

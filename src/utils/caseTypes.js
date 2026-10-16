@@ -29,6 +29,35 @@ export const VendorStatus = {
   CLOSED: "closed",
 };
 
+// Vendor Risk's own visibility tier — deliberately separate from PrivacyLevel
+// (company_public / department_only / hr_only), which is a posts-only vocabulary.
+// A vendor report is "standard" by default (readable by any staff member, as
+// before); "restricted" narrows it to company_admin/super_admin only, mirroring
+// how involvesHR keeps a post out of HR's hands. Enforced in firestore.rules
+// (isHRVisibleVendorReport) — HR's list queries simply omit restricted docs
+// rather than erroring.
+export const VendorVisibility = {
+  STANDARD: "standard",
+  RESTRICTED: "restricted",
+};
+
+export const VendorVisibilityConfig = {
+  [VendorVisibility.STANDARD]: {
+    label: "Standard",
+    description: "Visible to Company Admin and HR",
+    bgColor: "bg-gray-100",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-300",
+  },
+  [VendorVisibility.RESTRICTED]: {
+    label: "Restricted",
+    description: "Visible to Company Admin only — hidden from HR",
+    bgColor: "bg-purple-100",
+    textColor: "text-purple-800",
+    borderColor: "border-purple-300",
+  },
+};
+
 export const VendorStatusConfig = {
   [VendorStatus.OPEN]: { label: "Open", bgColor: "bg-blue-100", textColor: "text-blue-800", borderColor: "border-blue-300" },
   [VendorStatus.INVESTIGATING]: { label: "Investigating", bgColor: "bg-amber-100", textColor: "text-amber-800", borderColor: "border-amber-300" },

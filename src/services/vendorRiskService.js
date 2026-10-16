@@ -14,7 +14,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { encryptAuthorId } from "./postManagementService";
 import { assignCase } from "./caseService";
-import { CaseType } from "../utils/caseTypes";
+import { CaseType, VendorVisibility } from "../utils/caseTypes";
 import { resolveRoutingAssignment } from "./routingRulesService";
 
 const VENDOR_REPORTS_COLLECTION = "vendorReports";
@@ -93,7 +93,7 @@ const uploadFilesWithProgress = async (files, companyId, reportId, prefix = "", 
 // ── SUBMIT VENDOR REPORT ─────────────────────────────────────────────────────
 
 export const submitVendorReport = async (reportData, files, userData, onProgress) => {
-  const { vendorName, riskCategory, severity, description } = reportData;
+  const { vendorName, riskCategory, severity, description, visibility } = reportData;
 
   // Validate files
   const validFiles = (files || []).slice(0, 5).filter((f) => {
@@ -126,6 +126,7 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
     severity,
     status: "open",
     priority: severity,
+    visibility: visibility === VendorVisibility.RESTRICTED ? VendorVisibility.RESTRICTED : VendorVisibility.STANDARD,
     assignedTo: null,
     dueDate: null,
     description,
@@ -287,6 +288,25 @@ export const updateVendorReportStatus = async (reportId, status, reviewedBy, rev
     updates.resolvedAt = serverTimestamp();
   }
   await updateDoc(doc(db, VENDOR_REPORTS_COLLECTION, reportId), updates);
+  return { success: true };
+};
+
+// ── UPDATE VENDOR REPORT VISIBILITY ──────────────────────────────────────────
+// App-level gate matching the Firestore rule: only company_admin/super_admin may
+// change visibility. HR can't be trusted to self-restrict-then-unrestrict (and in
+// practice can't see a restricted report to try), so this isn't exposed to them.
+
+export const updateVendorReportVisibility = async (reportId, visibility, user) => {
+  if (!["company_admin", "super_admin"].includes(user?.role)) {
+    throw new Error("Only a company admin can change a vendor report's visibility");
+  }
+  if (!Object.values(VendorVisibility).includes(visibility)) {
+    throw new Error("Invalid visibility value");
+  }
+  await updateDoc(doc(db, VENDOR_REPORTS_COLLECTION, reportId), {
+    visibility,
+    updatedAt: serverTimestamp(),
+  });
   return { success: true };
 };
 
