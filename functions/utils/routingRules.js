@@ -54,10 +54,57 @@ function findMatchingRule(rules, caseType, caseData) {
 }
 
 /**
+ * A "department" rule action names a department, not a person — nothing downstream
+ * (assignee notifications, "Assigned to Me") understands that type, so it must be
+ * resolved to a real user before resolveRoutingAssignment returns. Resolves to the
+ * department's headUserId when one is set and still active; otherwise null so the
+ * caller falls back to resolveFallbackAssignee.
+ */
+async function resolveDepartmentHead(db, companyId, departmentId) {
+  const deptSnap = await db.collection('departments').doc(departmentId).get();
+  if (!deptSnap.exists) return null;
+  const dept = deptSnap.data();
+  if (dept.companyId !== companyId || !dept.headUserId) return null;
+
+  const headSnap = await db.collection('users').doc(dept.headUserId).get();
+  if (!headSnap.exists) return null;
+  const head = headSnap.data();
+  if (head.status !== undefined && head.status !== 'active') return null;
+
+  return {
+    id: dept.headUserId,
+    name: head.displayName || '',
+    departmentId,
+    departmentName: dept.name || '',
+  };
+}
+
+/**
+ * Fallback assignee when a rule can't be resolved to a specific person (e.g. a
+ * department with no head set): the company's first active company_admin, so the
+ * case still lands on someone and they're notified, instead of sitting assigned
+ * to a department id that nothing can act on.
+ */
+async function resolveFallbackAssignee(db, companyId) {
+  const snap = await db
+    .collection('users')
+    .where('companyId', '==', companyId)
+    .where('role', '==', 'company_admin')
+    .limit(5)
+    .get();
+  const active = snap.docs.find((d) => {
+    const data = d.data();
+    return data.status === undefined || data.status === 'active';
+  });
+  if (!active) return null;
+  return { id: active.id, name: active.data().displayName || '' };
+}
+
+/**
  * Loads a company's enabled routing rules and returns the first match for a
- * freshly-created case, or null. Never throws: a routing-rule lookup failure
- * must not block case creation, so callers get null and fall back to the
- * un-routed (broadcast-to-staff) behaviour.
+ * freshly-created case, resolved to a concrete user assignment, or null. Never
+ * throws: a routing-rule lookup failure must not block case creation, so callers
+ * get null and fall back to the un-routed (broadcast-to-staff) behaviour.
  */
 async function resolveRoutingAssignment(db, companyId, caseType, caseData) {
   try {
@@ -69,6 +116,29 @@ async function resolveRoutingAssignment(db, companyId, caseType, caseData) {
     const rules = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     const rule = findMatchingRule(rules, caseType, caseData);
     if (!rule || !rule.action || !rule.action.id) return null;
+
+    if (rule.action.type === 'department') {
+      const head = await resolveDepartmentHead(db, companyId, rule.action.id);
+      if (head) {
+        return {
+          ruleId: rule.id,
+          ruleName: rule.name || '',
+          assignment: { type: 'user', id: head.id, name: head.name },
+          routedViaDepartment: { id: head.departmentId, name: head.departmentName },
+        };
+      }
+      const fallback = await resolveFallbackAssignee(db, companyId);
+      if (fallback) {
+        return {
+          ruleId: rule.id,
+          ruleName: rule.name || '',
+          assignment: { type: 'user', id: fallback.id, name: fallback.name },
+          fallbackReason: 'department_no_head',
+        };
+      }
+      return null;
+    }
+
     return {
       ruleId: rule.id,
       ruleName: rule.name || '',
@@ -85,4 +155,10 @@ async function resolveRoutingAssignment(db, companyId, caseType, caseData) {
   }
 }
 
-module.exports = { matchRule, findMatchingRule, resolveRoutingAssignment };
+module.exports = {
+  matchRule,
+  findMatchingRule,
+  resolveDepartmentHead,
+  resolveFallbackAssignee,
+  resolveRoutingAssignment,
+};
