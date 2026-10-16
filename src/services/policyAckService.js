@@ -1,6 +1,7 @@
 import { httpsCallable } from "firebase/functions";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db, functions } from "../config/firebase";
+import { buildAckReport } from "../utils/policyAckReport";
 
 // Public (no-login) policy acknowledgement line. The employee gives their name and
 // employee ID on purpose, so nothing here is anonymous, and nothing is persisted.
@@ -57,12 +58,49 @@ export const ensurePolicyBundleLink = async (policyIds, title) => {
   return response.data;
 };
 
-export const getPolicyBundles = async (companyId) => {
+const isBundleLink = (link) => Array.isArray(link.policyIds);
+
+const getPolicyLinks = async (companyId) => {
   const snap = await getDocs(query(collection(db, "policyLinks"), where("companyId", "==", companyId)));
-  return snap.docs
-    .map((d) => ({ slug: d.id, ...d.data() }))
-    .filter((link) => Array.isArray(link.policyIds))
+  return snap.docs.map((d) => ({ slug: d.id, ...d.data() }));
+};
+
+export const getPolicyBundles = async (companyId) =>
+  (await getPolicyLinks(companyId))
+    .filter(isBundleLink)
     .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+
+/**
+ * Public-link acknowledgements of one policy: every link that carries it (its own link and any
+ * pack) counts, for the policy's current version. The roster is the union of those links' rosters.
+ */
+export const getPolicyLinkStats = async (policy, companyId) => {
+  const [links, responseSnap] = await Promise.all([
+    getPolicyLinks(companyId),
+    getDocs(
+      query(collection(db, "companies", companyId, "policyResponses"), where("policyId", "==", policy.id))
+    ),
+  ]);
+  const mine = links.filter((l) => l.policyId === policy.id || (isBundleLink(l) && l.policyIds.includes(policy.id)));
+  const rosterSnaps = await Promise.all(
+    mine.map((l) => getDoc(doc(db, "policyLinkRosters", l.slug)).catch(() => null))
+  );
+  const roster = new Map();
+  rosterSnaps.forEach((snap) =>
+    (snap?.exists() ? snap.data().employees || [] : []).forEach((e) => roster.set(e.employeeKey, e))
+  );
+
+  const { rows, summary } = buildAckReport({
+    roster: [...roster.values()],
+    responses: responseSnap.docs.map((d) => d.data()),
+    version: String(policy.version || "1.0"),
+  });
+  return {
+    summary,
+    pending: rows.filter((r) => r.status === "pending"),
+    linkCount: mine.length,
+    bundleCount: mine.filter(isBundleLink).length,
+  };
 };
 
 export const setPolicyLinkActive = async (slug, active) => {

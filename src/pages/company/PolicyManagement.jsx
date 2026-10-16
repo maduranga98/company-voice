@@ -31,7 +31,7 @@ import {
   getPolicyAcknowledgementStats,
   uploadPolicyFileWithProgress,
 } from "../../services/policyService";
-import { ensurePolicyBundleLink, getPolicyBundles } from "../../services/policyAckService";
+import { ensurePolicyBundleLink, getPolicyBundles, getPolicyLinkStats } from "../../services/policyAckService";
 
 const MIN_BUNDLE = 2;
 const MAX_BUNDLE = 20;
@@ -100,6 +100,7 @@ const PolicyManagement = () => {
   const [statsAcks, setStatsAcks] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [linkStats, setLinkStats] = useState(null);
 
   // Bundles: several policies shared (and acknowledged) through one link
   const [selectedIds, setSelectedIds] = useState([]);
@@ -345,7 +346,7 @@ const PolicyManagement = () => {
     setShowStatsModal(true);
     setStatsLoading(true);
     try {
-      const [sd, acks, usersSnap] = await Promise.all([
+      const [sd, acks, usersSnap, ls] = await Promise.all([
         getPolicyAcknowledgementStats(policy.id, userData.companyId),
         getPolicyAcknowledgements(policy.id, userData.companyId),
         getDocs(
@@ -355,7 +356,12 @@ const PolicyManagement = () => {
             where("status", "==", "active")
           )
         ),
+        getPolicyLinkStats(policy, userData.companyId).catch((err) => {
+          console.error("Link stats error:", err);
+          return null;
+        }),
       ]);
+      setLinkStats(ls);
       setStatsData(sd);
       setStatsAcks(acks);
       const users = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -887,7 +893,7 @@ const PolicyManagement = () => {
                 </p>
               </div>
               <button
-                onClick={() => { setShowStatsModal(false); setStatsPolicy(null); setStatsData(null); }}
+                onClick={() => { setShowStatsModal(false); setStatsPolicy(null); setStatsData(null); setLinkStats(null); }}
                 className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
@@ -915,6 +921,57 @@ const PolicyManagement = () => {
                       />
                     </div>
                   </div>
+
+                  {/* Public link + packs */}
+                  {linkStats && (linkStats.linkCount > 0 || linkStats.summary.acknowledged > 0) && (
+                    <div className="mb-6 rounded-2xl border border-gray-100 p-5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h3 className="text-sm font-semibold text-gray-900">Public link acknowledgements</h3>
+                        <span className="text-xs text-gray-500">
+                          v{statsPolicy.version}
+                          {linkStats.bundleCount > 0 &&
+                            ` · in ${linkStats.bundleCount} pack${linkStats.bundleCount > 1 ? "s" : ""}`}
+                        </span>
+                      </div>
+                      <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
+                        {[
+                          ["Acknowledged", linkStats.summary.acknowledged, "text-green-700"],
+                          ["Not yet", linkStats.summary.rosterTotal > 0 ? linkStats.summary.pending : "–", "text-amber-700"],
+                          ["Concerns", linkStats.summary.concerns, "text-red-700"],
+                        ].map(([label, value, color]) => (
+                          <div key={label} className="rounded-xl bg-gray-50 p-3">
+                            <dt className="text-xs text-gray-500">{label}</dt>
+                            <dd className={`mt-0.5 text-2xl font-bold ${color}`}>{value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      {linkStats.summary.rosterTotal > 0 && (
+                        <div className="mt-3 h-2 rounded-full bg-gray-100">
+                          <div
+                            className="h-2 rounded-full bg-teal-500 transition-all"
+                            style={{
+                              width: `${Math.min(100, Math.round((linkStats.summary.acknowledged / linkStats.summary.rosterTotal) * 100))}%`,
+                            }}
+                          />
+                        </div>
+                      )}
+                      {linkStats.pending.length > 0 && (
+                        <div className="mt-4">
+                          <p className="mb-2 text-xs font-semibold text-gray-700">
+                            Roster employees yet to acknowledge ({linkStats.pending.length})
+                          </p>
+                          <div className="max-h-40 space-y-1.5 overflow-y-auto">
+                            {linkStats.pending.map((row) => (
+                              <div key={row.employeeKey} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm">
+                                <span className="text-gray-900">{row.name || row.employeeId}</span>
+                                <span className="font-mono text-xs text-gray-400">{row.employeeId}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Pending list */}
                   {allUsers.length > 0 ? (
