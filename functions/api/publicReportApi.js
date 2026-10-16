@@ -380,6 +380,16 @@ const submitPublicReport = onCall(
           postData.assignedToName = routingMatch.assignment.name;
         }
       }
+      if (!isVendor) {
+        // The HR inbox only lists cases that are for HR: nothing matched a routing rule,
+        // or the rule assigned it to an HR user. Anything routed to someone else lives
+        // in that person's "Assigned to Me" and the case queue instead.
+        postData.hrInbox = true;
+        if (routingMatch) {
+          const assignee = await db.collection('users').doc(routingMatch.assignment.id).get();
+          postData.hrInbox = assignee.exists && assignee.data().role === 'hr';
+        }
+      }
 
       let caseCode;
       try {

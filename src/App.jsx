@@ -59,6 +59,7 @@ import HRInbox from "./pages/hr/HRInbox";
 
 // Public (no-login) report form
 import ReportPage from "./pages/public/ReportPage";
+import SharedCasePage from "./pages/public/SharedCasePage";
 import CheckCasePage from "./pages/public/CheckCasePage";
 import PolicyAckPage from "./pages/public/PolicyAckPage";
 import PolicyAckLink from "./pages/company/PolicyAckLink";
@@ -92,6 +93,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/r/:slug" element={<ReportPage />} />
             <Route path="/c" element={<CheckCasePage />} />
+            <Route path="/shared/:shareId" element={<SharedCasePage />} />
             <Route path="/p/:slug" element={<PolicyAckPage />} />
 
             {/* ── SUPER ADMIN ROUTES ── */}

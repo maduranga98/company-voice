@@ -13,8 +13,9 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { encryptAuthorId } from "./postManagementService";
-import { assignCase } from "./caseService";
+import { logCaseActivity } from "./caseService";
 import { CaseType, VendorVisibility } from "../utils/caseTypes";
+import { PostActivityType } from "../utils/constants";
 import { resolveRoutingAssignment } from "./routingRulesService";
 
 const VENDOR_REPORTS_COLLECTION = "vendorReports";
@@ -117,6 +118,22 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
     onProgress
   );
 
+  // Auto-routing: resolve the matching rule first and save the assignment with the
+  // report. Assigning afterwards via assignCase doesn't work here: it requires staff, and
+  // the submitter is an ordinary employee, so the assignment used to fail silently. A
+  // department-action rule is resolved to the department's head (falling back to a company
+  // admin). A lookup failure must not fail the submission; the report can still be claimed
+  // manually from the queue.
+  let routingMatch = null;
+  try {
+    routingMatch = await resolveRoutingAssignment(userData.companyId, CaseType.VENDOR, {
+      riskCategory,
+      severity,
+    });
+  } catch (error) {
+    console.error("Error resolving routing rule for vendor report:", error);
+  }
+
   // Write document
   const reportRef = await addDoc(collection(db, VENDOR_REPORTS_COLLECTION), {
     companyId: userData.companyId,
@@ -127,7 +144,16 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
     status: "open",
     priority: severity,
     visibility: visibility === VendorVisibility.RESTRICTED ? VendorVisibility.RESTRICTED : VendorVisibility.STANDARD,
-    assignedTo: null,
+    assignedTo: routingMatch
+      ? {
+          type: routingMatch.assignment.type,
+          id: routingMatch.assignment.id,
+          name: routingMatch.assignment.name,
+          assignedAt: serverTimestamp(),
+          assignedBy: "Routing rule",
+          assignedById: null,
+        }
+      : null,
     dueDate: null,
     description,
     attachmentUrls,
@@ -142,22 +168,37 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
     resolvedAt: null,
   });
 
-  // Auto-routing: assign immediately if an enabled rule matches this report's
-  // category/severity. A department-action rule is resolved to the department's
-  // head (falling back to a company admin if no head is set) so the case always
-  // lands on an actual person and that person is notified. Best-effort — a lookup
-  // failure must not fail the submission, the report is already saved and can
-  // still be claimed manually from the queue.
-  try {
-    const routingMatch = await resolveRoutingAssignment(userData.companyId, CaseType.VENDOR, {
-      riskCategory,
-      severity,
-    });
-    if (routingMatch) {
-      await assignCase(CaseType.VENDOR, reportRef.id, routingMatch.assignment, userData);
+  if (routingMatch) {
+    try {
+      await logCaseActivity(
+        CaseType.VENDOR,
+        reportRef.id,
+        PostActivityType.ASSIGNED,
+        {
+          autoAssigned: true,
+          ruleId: routingMatch.ruleId,
+          ruleName: routingMatch.ruleName,
+          assignmentType: routingMatch.assignment.type,
+          assignedToId: routingMatch.assignment.id,
+          assignedToName: routingMatch.assignment.name,
+        },
+        userData.companyId
+      );
+      if (routingMatch.assignment.type === "user") {
+        await addDoc(collection(db, "notifications"), {
+          userId: routingMatch.assignment.id,
+          type: "assigned",
+          title: "New case assigned to you",
+          message: `A new vendor report (${referenceCode}) was automatically assigned to you.`,
+          companyId: userData.companyId,
+          metadata: { postId: reportRef.id, caseType: CaseType.VENDOR, ruleId: routingMatch.ruleId },
+          read: false,
+          createdAt: serverTimestamp(),
+        });
+      }
+    } catch (error) {
+      console.error("Error logging vendor report auto-assignment:", error);
     }
-  } catch (error) {
-    console.error("Error applying routing rule to vendor report:", error);
   }
 
   return { success: true, referenceCode, reportId };
