@@ -54,7 +54,8 @@ const PolicyBundleLink = () => {
       try {
         const [linkSnap, rosterSnap] = await Promise.all([
           getDoc(doc(db, "policyLinks", slug)),
-          getDoc(doc(db, "policyLinkRosters", slug)),
+          // The roster is optional; a missing or unreadable one must not block the page.
+          getDoc(doc(db, "policyLinkRosters", slug)).catch(() => null),
         ]);
         const linkData = linkSnap.data();
         if (!linkData || linkData.companyId !== userData.companyId || !Array.isArray(linkData.policyIds)) {
@@ -72,7 +73,7 @@ const PolicyBundleLink = () => {
         if (cancelled) return;
         setLink(linkData);
         setPolicies(linkData.policyIds.map((id) => allPolicies.find((p) => p.id === id)).filter(Boolean));
-        setRoster(rosterSnap.exists() ? rosterSnap.data().employees || [] : []);
+        setRoster(rosterSnap?.exists() ? rosterSnap.data().employees || [] : []);
         setResponses(responseSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (err) {
         console.error("Error loading policy bundle:", err);
