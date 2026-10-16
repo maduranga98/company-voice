@@ -10,6 +10,7 @@ import { CaseType, getCaseAdapter } from "../../utils/caseTypes";
 import CaseHandlingPanel from "../../components/case/CaseHandlingPanel";
 import CaseAttachments from "../../components/CaseAttachments";
 import ExportCasePdfButton from "../../components/case/ExportCasePdfButton";
+import ShareWithCounselButton from "../../components/case/ShareWithCounselButton";
 import AnonymousThread from "../../components/AnonymousThread";
 import Avatar from "../../components/Avatar";
 import OpenCaseLink from "../../components/case/OpenCaseLink";
@@ -369,6 +370,9 @@ const CaseQueue = () => {
                   </div>
                   <OpenCaseLink caseType={selectedCase.caseType} caseId={selectedCase.id} className="flex-shrink-0" />
                   {selectedCase.caseType === CaseType.POST && <ExportCasePdfButton post={selectedCase} currentUser={userData} />}
+                  {(selectedCase.caseType === CaseType.POST || selectedCase.caseType === CaseType.VENDOR) && (
+                    <ShareWithCounselButton caseType={selectedCase.caseType} caseId={selectedCase.id} caseTitle={selectedCase.title || selectedCase.vendorName} currentUser={userData} />
+                  )}
                   <button
                     type="button"
                     onClick={() => setSelectedId(null)}

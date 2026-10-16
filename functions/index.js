@@ -78,6 +78,9 @@ const {
 
 const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
 
+// Case sharing with outside counsel (private read-only link, no login for the lawyer)
+const { createCaseShare, revokeCaseShare, getSharedCase } = require('./api/caseShareApi');
+
 // Check My Case API (no-login case status and private replies)
 const { getCaseStatus, submitCaseReply } = require('./api/caseAccessApi');
 
@@ -142,6 +145,10 @@ exports.dailyEmailDigestJob = dailyEmailDigestJob;
 exports.weeklyEmailDigestJob = weeklyEmailDigestJob;
 
 // Export Search Functions
+exports.createCaseShare = createCaseShare;
+exports.revokeCaseShare = revokeCaseShare;
+exports.getSharedCase = getSharedCase;
+
 exports.advancedSearch = advancedSearch;
 exports.saveSearch = saveSearch;
 exports.getSavedSearches = getSavedSearches;

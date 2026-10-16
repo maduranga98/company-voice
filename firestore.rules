@@ -125,6 +125,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Case shares with outside counsel. Staff of the company can list the metadata
+    // (who it was sent to, expiry, views); everything is written by Cloud Functions.
+    // caseShareSnapshots (the frozen case + token hash) is Admin SDK only and falls
+    // through to the catch-all deny.
+    match /caseShares/{shareId} {
+      allow read: if isSuperAdmin()
+        || (isAdminOrHR() && getUserCompanyId() == resource.data.companyId);
+      allow write: if false;
+    }
+
     // ============================================
     // AUTH SESSIONS / USER CREDENTIALS (retired / server-only)
     // ============================================

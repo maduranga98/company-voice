@@ -1026,6 +1026,10 @@
       "question": {
         "title": "Poser une question aux RH",
         "description": "Obtenir une réponse en toute confidentialité"
+      },
+      "vendor": {
+        "title": "Signaler un risque fournisseur",
+        "description": "Un problème avec un fournisseur ou partenaire"
       }
     },
     "category": {
@@ -1337,6 +1341,25 @@
       "bestPracticeRotate": "Régénérez le lien s'il est divulgué",
       "shareTitle": "Envoyer un signalement confidentiel à {{company}}",
       "shareText": "Scannez le code QR ou ouvrez le lien pour envoyer un signalement. Sans compte, anonyme par défaut."
+    },
+    "vendor": {
+      "nameLabel": "Nom du fournisseur",
+      "namePlaceholder": "p. ex. ABC Logistique SARL",
+      "categoryLabel": "Catégorie de risque",
+      "categories": {
+        "labor": "Pratiques de travail",
+        "data_privacy": "Confidentialité des données",
+        "safety": "Santé et sécurité",
+        "fraud": "Fraude ou corruption",
+        "compliance": "Non-conformité réglementaire",
+        "other": "Autre"
+      },
+      "severityLabel": "Gravité",
+      "severity": {
+        "low": "Faible",
+        "medium": "Moyenne",
+        "high": "Élevée"
+      }
     }
   },
   "staff": {

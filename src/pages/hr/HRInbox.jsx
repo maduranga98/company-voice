@@ -17,6 +17,7 @@ import CaseAttachments from "../../components/CaseAttachments";
 import Avatar from "../../components/Avatar";
 import AnonymousThread from "../../components/AnonymousThread";
 import ExportCasePdfButton from "../../components/case/ExportCasePdfButton";
+import ShareWithCounselButton from "../../components/case/ShareWithCounselButton";
 import { StatusBadge, PriorityBadge, DueDateChip } from "../../components/case/CaseBadges";
 import OpenCaseLink from "../../components/case/OpenCaseLink";
 import {
@@ -173,7 +174,9 @@ const HRInbox = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      setPosts(sortByCreatedAtDesc(hrPosts));
+      // Cases a routing rule sent to a non-HR person are flagged hrInbox: false (older
+      // cases have no flag and stay visible).
+      setPosts(sortByCreatedAtDesc(hrPosts.filter((post) => post.hrInbox !== false)));
       setLoading(false);
     }, (error) => {
       console.error("Error fetching HR inbox posts:", error);
@@ -388,6 +391,7 @@ const HRInbox = () => {
                   {isSelected && (
                     <div className="lg:hidden border-t border-gray-100 bg-background-softGray rounded-b-2xl p-3 space-y-3" onClick={(e) => e.stopPropagation()}>
                       <ExportCasePdfButton post={post} currentUser={userData} className="w-full" />
+                      <ShareWithCounselButton caseType={CaseType.POST} caseId={post.id} caseTitle={post.title} currentUser={userData} className="w-full" />
                       <OpenCaseLink caseType={CaseType.POST} caseId={post.id} className="w-full" />
                       <AdminActionPanel post={post} currentUser={userData} />
                     </div>
@@ -438,6 +442,7 @@ const HRInbox = () => {
                   </div>
                   <OpenCaseLink caseType={CaseType.POST} caseId={selectedPost.id} className="flex-shrink-0" />
                   <ExportCasePdfButton post={selectedPost} currentUser={userData} />
+                  <ShareWithCounselButton caseType={CaseType.POST} caseId={selectedPost.id} caseTitle={selectedPost.title} currentUser={userData} />
                   <button
                     type="button"
                     onClick={() => setSelectedId(null)}

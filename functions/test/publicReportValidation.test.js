@@ -102,3 +102,27 @@ test('sniffMime recognises allowed signatures and rejects others', () => {
   assert.strictEqual(sniffMime(Buffer.from('....ftypM4A ....')), 'audio/mp4');
   assert.strictEqual(sniffMime(Buffer.from('MZ\x90\x00 not allowed....')), null);
 });
+
+const vendor = () => ({
+  ...valid(),
+  type: 'vendor',
+  category: 'labor',
+  vendorName: '  ABC Logistics Pvt Ltd ',
+  severity: 'high',
+});
+
+test('accepts a vendor report with its own category list and severity', () => {
+  const out = validateSubmission(vendor());
+  assert.deepStrictEqual(out.vendor, { vendorName: 'ABC Logistics Pvt Ltd', severity: 'high' });
+  assert.strictEqual(out.category, 'labor');
+  assert.strictEqual(validateSubmission(valid()).vendor, null);
+});
+
+test('rejects invalid vendor fields and mixed category lists', () => {
+  rejects({ ...vendor(), vendorName: '' }, 'vendorName');
+  rejects({ ...vendor(), vendorName: 'x'.repeat(151) }, 'vendorName');
+  rejects({ ...vendor(), category: 'harassment' }, 'category');
+  rejects({ ...vendor(), severity: 'critical' }, 'severity');
+  rejects({ ...vendor(), severity: undefined }, 'severity');
+  rejects({ category: 'labor' }, 'category'); // vendor-only category on a normal report
+});

@@ -1074,6 +1074,10 @@
       "question": {
         "title": "Ask HR a question",
         "description": "Get an answer in confidence"
+      },
+      "vendor": {
+        "title": "Report a vendor risk",
+        "description": "A supplier or partner problem"
       }
     },
     "category": {
@@ -1385,6 +1389,25 @@
       "bestPracticeRotate": "Regenerate the link if it is leaked",
       "shareTitle": "Send a confidential report to {{company}}",
       "shareText": "Scan the QR code or open the link to send a report. No account needed, anonymous by default."
+    },
+    "vendor": {
+      "nameLabel": "Vendor or supplier name",
+      "namePlaceholder": "e.g. ABC Logistics Ltd",
+      "categoryLabel": "Risk category",
+      "categories": {
+        "labor": "Labor practices",
+        "data_privacy": "Data privacy",
+        "safety": "Health and safety",
+        "fraud": "Fraud or corruption",
+        "compliance": "Regulatory non-compliance",
+        "other": "Something else"
+      },
+      "severityLabel": "Severity",
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
     }
   },
   "staff": {
