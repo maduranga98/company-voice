@@ -187,8 +187,30 @@ service cloud.firestore {
       allow create: if false;
       allow update: if isSuperAdmin()
         || (isCompanyAdmin() && belongsToCompany(companyId)
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isActive', 'reportSlug', 'reportingEnabled', 'settings']));
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+                 'isActive', 'reportSlug', 'reportingEnabled', 'settings',
+                 // Category routing: written only by the category/routing callables, which check
+                 // that the assignee is an active member of this company.
+                 'defaultRoutingAssigneeId', 'defaultRoutingAssigneeType',
+                 'defaultRoutingUpdatedAt', 'defaultRoutingUpdatedBy', 'categoriesSeededAt']));
       allow delete: if false;
+
+      // Submission categories. company_admin and hr of THIS company read them (super_admin reads
+      // any company, for support). No client write: createCategory / updateCategory /
+      // reorderCategories enforce name uniqueness and the "keep one active" rule server-side.
+      // Employees have no Firestore access at all; the no-login form gets the active names
+      // through the getPublicReportConfig callable.
+      match /categories/{categoryId} {
+        allow read: if isSuperAdmin() || (isAdminOrHR() && getUserCompanyId() == companyId);
+        allow write: if false;
+      }
+
+      // Category -> assignee rules (doc id == categoryId). Same read scope as categories; never
+      // readable by anyone outside the company's staff, since it shows who handles what.
+      match /routingRules/{ruleId} {
+        allow read: if isSuperAdmin() || (isAdminOrHR() && getUserCompanyId() == companyId);
+        allow write: if false;
+      }
 
       // Public policy acknowledgements (/p/:slug). Written only by Cloud Functions (Admin SDK);
       // admin/HR of the company read them for the acknowledgement table.

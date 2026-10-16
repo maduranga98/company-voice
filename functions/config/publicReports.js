@@ -14,17 +14,6 @@ const VENDOR_REPORT_TYPE = 'vendor';
 const VENDOR_CATEGORIES = ['labor', 'data_privacy', 'safety', 'fraud', 'compliance', 'other'];
 const VENDOR_SEVERITIES = ['low', 'medium', 'high'];
 
-const CATEGORIES = [
-  'harassment',
-  'discrimination',
-  'safety',
-  'fraud_ethics',
-  'management',
-  'workplace_conditions',
-  'pay_benefits',
-  'other',
-];
-
 const LANGUAGES = ['en', 'es', 'fr', 'it', 'si'];
 
 const LIMITS = {
@@ -65,7 +54,6 @@ module.exports = {
   VENDOR_REPORT_TYPE,
   VENDOR_CATEGORIES,
   VENDOR_SEVERITIES,
-  CATEGORIES,
   LANGUAGES,
   LIMITS,
   MIME_EXTENSIONS,

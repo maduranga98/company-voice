@@ -5,7 +5,6 @@
 
 const {
   REPORT_TYPES,
-  CATEGORIES,
   VENDOR_REPORT_TYPE,
   VENDOR_CATEGORIES,
   VENDOR_SEVERITIES,
@@ -19,6 +18,8 @@ const { SLUG_PATTERN } = require('./reportSlugs');
 // Minimum time a person needs on the form before submitting.
 const MIN_FILL_MS = 3000;
 
+// Firestore auto ids and the seeded legacy ids (e.g. fraud_ethics).
+const CATEGORY_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{16,64}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HTML_TAG = /<\/?[a-zA-Z!][^>]*>/g;
@@ -109,7 +110,9 @@ function validateSubmission(data) {
     if (!VENDOR_CATEGORIES.includes(data.category)) throw new ValidationError('category');
     if (!VENDOR_SEVERITIES.includes(data.severity)) throw new ValidationError('severity');
     vendor = { vendorName, severity: data.severity };
-  } else if (!CATEGORIES.includes(data.category)) {
+  } else if (typeof data.category !== 'string' || !CATEGORY_ID_PATTERN.test(data.category)) {
+    // Categories are per company and live in Firestore; whether this id is an active
+    // category of the company is checked by submitPublicReport, which has the company.
     throw new ValidationError('category');
   }
 

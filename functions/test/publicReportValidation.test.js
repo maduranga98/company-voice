@@ -47,7 +47,14 @@ test('rejects a filled honeypot and a form submitted too fast', () => {
 test('rejects bad enums, short and long descriptions', () => {
   rejects({ type: 'complaint' }, 'type');
   rejects({ type: '__proto__' }, 'type');
-  rejects({ category: 'nope' }, 'category');
+  // Category ids are per company and checked against Firestore by submitPublicReport; here
+  // only the id format is validated, so nothing path-like or oversized gets through.
+  rejects({ category: 'bad id!' }, 'category');
+  rejects({ category: '../users/x' }, 'category');
+  rejects({ category: 'a'.repeat(65) }, 'category');
+  rejects({ category: '' }, 'category');
+  rejects({ category: 7 }, 'category');
+  assert.doesNotThrow(() => validateSubmission({ ...valid(), category: 'Xk3_9-fraud_ethics' }));
   rejects({ description: 'too short' }, 'description');
   rejects({ description: 'x'.repeat(5001) }, 'description');
   rejects({ description: '<b>   </b>' + ' '.repeat(30) }, 'description');
@@ -118,11 +125,10 @@ test('accepts a vendor report with its own category list and severity', () => {
   assert.strictEqual(validateSubmission(valid()).vendor, null);
 });
 
-test('rejects invalid vendor fields and mixed category lists', () => {
+test('rejects invalid vendor fields', () => {
   rejects({ ...vendor(), vendorName: '' }, 'vendorName');
   rejects({ ...vendor(), vendorName: 'x'.repeat(151) }, 'vendorName');
   rejects({ ...vendor(), category: 'harassment' }, 'category');
   rejects({ ...vendor(), severity: 'critical' }, 'severity');
   rejects({ ...vendor(), severity: undefined }, 'severity');
-  rejects({ category: 'labor' }, 'category'); // vendor-only category on a normal report
 });
