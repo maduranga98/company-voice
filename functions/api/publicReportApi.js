@@ -14,7 +14,6 @@ const CryptoJS = require('crypto-js');
 const { admin, db, serverTimestamp } = require('../config/firebase');
 const {
   REPORT_TYPES,
-  CATEGORIES,
   VENDOR_REPORT_TYPE,
   VENDOR_CATEGORIES,
   VENDOR_SEVERITIES,
@@ -37,6 +36,13 @@ const {
 } = require('../utils/caseKeys');
 const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../utils/rateLimit');
 const { resolveRoutingAssignment } = require('../utils/routingRules');
+const { SYSTEM_CATEGORY_ID } = require('../config/categoryRouting');
+const {
+  getActiveCategories,
+  getSubmittableCategory,
+  resolveCategoryRouting,
+} = require('../utils/categoryRouting');
+const { ensureSeeded } = require('../utils/categorySeed');
 const { SLUG_PATTERN, issueReportSlug } = require('../utils/reportSlugs');
 const { assertRole, assertCompany } = require('../utils/authz');
 const { isCaseProgressCheckAllowed, isVendorRiskAllowed, buildSettingsUpdate } = require('../utils/companySettings');
@@ -77,13 +83,17 @@ const getPublicReportConfig = onCall(BASE_OPTIONS, async (request) => {
   const resolved = await resolveActiveCompany(request.data && request.data.slug);
   if (!resolved) throw notFound();
 
-  const { company } = resolved;
+  const { companyId, company } = resolved;
+  // Companies created after the category migration are seeded on first use.
+  await ensureSeeded(db, companyId, company, serverTimestamp()).catch(() => {
+    logger.warn('getPublicReportConfig: category seeding failed');
+  });
   return {
     companyName: company.name || '',
     defaultLanguage: ['en', 'es', 'fr', 'it', 'si'].includes(company.defaultLanguage)
       ? company.defaultLanguage
       : 'en',
-    categories: CATEGORIES,
+    categories: await getActiveCategories(db, companyId),
     vendorCategories: VENDOR_CATEGORIES,
     vendorSeverities: VENDOR_SEVERITIES,
     allowCaseProgressCheck: isCaseProgressCheckAllowed(company),
@@ -200,7 +210,26 @@ async function createCase({ postRef, postData, caseData, activityData, activityC
 // otherwise every eligible company_admin/hr user is notified, as before.
 async function notifyStaff(companyId, postId, involvesHR, routingMatch, isVendor = false) {
   try {
-    if (routingMatch && routingMatch.assignment.type === 'user') {
+    if (routingMatch && routingMatch.roleAssignment) {
+      // Routed to a role: every active member of it is told (resolved server-side).
+      const batch = db.batch();
+      routingMatch.roleAssignment.userIds.forEach((userId) => {
+        batch.set(db.collection('notifications').doc(), {
+          userId,
+          type: 'new_case',
+          title: 'New report for your team',
+          message: 'A new report was routed to your team.',
+          companyId,
+          metadata: { postId, ruleId: routingMatch.ruleId, ...(isVendor ? { caseType: 'vendor' } : {}) },
+          read: false,
+          createdAt: serverTimestamp(),
+        });
+      });
+      await batch.commit();
+      return;
+    }
+
+    if (routingMatch && routingMatch.assignment) {
       await db.collection('notifications').add({
         userId: routingMatch.assignment.id,
         type: 'assigned',
@@ -267,6 +296,15 @@ const submitPublicReport = onCall(
     const { companyId, company } = resolved;
     if (input.type === VENDOR_REPORT_TYPE && !isVendorRiskAllowed(company)) {
       throw new HttpsError('invalid-argument', 'Invalid submission.');
+    }
+
+    // The category list is per company and editable, so the id is checked against the
+    // company's active categories here, not against a fixed list.
+    let category = null;
+    if (input.type !== VENDOR_REPORT_TYPE) {
+      await ensureSeeded(db, companyId, company, serverTimestamp()).catch(() => {});
+      category = await getSubmittableCategory(db, companyId, input.category);
+      if (!category) throw new HttpsError('invalid-argument', 'Invalid submission.');
     }
 
     const bucket = admin.storage().bucket();
@@ -342,6 +380,9 @@ const submitPublicReport = onCall(
             privacyLevel: 'hr_only',
             involvesHR: input.involvesHR,
             category: input.category,
+            // Denormalised so the case still reads correctly after the category is renamed
+            // or deactivated; the id stays the stable reference.
+            categoryName: category.name,
             title: deriveTitle(input.description),
             description: input.description,
             content: input.description,
@@ -364,13 +405,23 @@ const submitPublicReport = onCall(
 
       // Auto-routing: a matching rule assigns the case immediately, so staff see it
       // already owned instead of everyone getting a broadcast notification for it.
-      const routingMatch = await resolveRoutingAssignment(
+      // Precedence: an admin's condition-based rule (Case Queue -> Routing Rules) wins, then
+      // the category's own rule, then the company default, then the first company admin.
+      // The assignee is always resolved here from Firestore; nothing from the client is trusted.
+      const advancedMatch = await resolveRoutingAssignment(
         db,
         companyId,
         isVendor ? 'vendor' : 'post',
         isVendor ? { riskCategory: postData.riskCategory, severity: postData.severity } : postData
       );
-      if (routingMatch) {
+      const routingMatch =
+        advancedMatch ||
+        (await resolveCategoryRouting(db, companyId, {
+          categoryId: isVendor ? SYSTEM_CATEGORY_ID : input.category,
+          categoryName: isVendor ? 'Vendor Risk' : category.name,
+          involvesHR: input.involvesHR,
+        }));
+      if (routingMatch && routingMatch.assignment) {
         postData.assignedTo = {
           type: routingMatch.assignment.type,
           id: routingMatch.assignment.id,
@@ -384,12 +435,19 @@ const submitPublicReport = onCall(
           postData.assignedToName = routingMatch.assignment.name;
         }
       }
+      if (routingMatch && routingMatch.roleAssignment) {
+        // Routed to a whole role (e.g. all HR): nobody owns it yet, the role's members share it.
+        postData.routedToRole = routingMatch.roleAssignment.role;
+      }
       if (!isVendor) {
         // The HR inbox only lists cases that are for HR: nothing matched a routing rule,
-        // or the rule assigned it to an HR user. Anything routed to someone else lives
-        // in that person's "Assigned to Me" and the case queue instead.
+        // or the rule assigned it to HR (a user with the hr role, or the whole hr role).
+        // Anything routed to someone else lives in that person's "Assigned to Me" and the
+        // case queue instead.
         postData.hrInbox = true;
-        if (routingMatch) {
+        if (routingMatch && routingMatch.roleAssignment) {
+          postData.hrInbox = routingMatch.roleAssignment.role === 'hr';
+        } else if (routingMatch) {
           const assignee = await db.collection('users').doc(routingMatch.assignment.id).get();
           postData.hrInbox = assignee.exists && assignee.data().role === 'hr';
         }
@@ -422,7 +480,9 @@ const submitPublicReport = onCall(
                   autoAssigned: true,
                   ruleId: routingMatch.ruleId,
                   ruleName: routingMatch.ruleName,
-                  assignedToName: routingMatch.assignment.name,
+                  ...(routingMatch.assignment
+                    ? { assignedToName: routingMatch.assignment.name }
+                    : { routedToRole: routingMatch.roleAssignment.role }),
                 }
               : { source: 'public_link', actor: 'public_reporter' },
             createdAt: serverTimestamp(),

@@ -35,6 +35,7 @@ import {
   HelpCircle,
   LayoutGrid,
   Route as RouteIcon,
+  Layers,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
@@ -161,6 +162,7 @@ const CompanyAdminLayout = ({ children }) => {
       items: [
         ...(!isHR ? [{ label: t("navigation.billing", "Billing"), path: "/company/billing", icon: CreditCard }] : []),
         ...(!isHR ? [{ label: t("navigation.qrCode", "QR Code"), path: "/company/qr-code", icon: QrCode }] : []),
+        { label: t("navigation.categoriesRouting", "Categories & Routing"), path: "/company/categories-routing", icon: Layers },
         { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
         { label: t("navigation.help", "Help & Instructions"), path: "/help", icon: HelpCircle },
       ],

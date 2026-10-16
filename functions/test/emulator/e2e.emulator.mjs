@@ -146,7 +146,9 @@ check("pending original deleted and file moved", !pendingExists && movedExists);
 const acts = await db.collection("postActivities").where("postId", "==", post.id).get();
 check("CREATED activity by public_reporter", acts.size === 1 && acts.docs[0].data().actor === "public_reporter" && acts.docs[0].data().type === "created");
 const notes = await db.collection("notifications").where("metadata.postId", "==", post.id).get();
-check("admin and HR of the company notified (other company not)", notes.docs.map((d) => d.data().userId).sort().join() === "admin1,hr1");
+// With no category rule the case goes to the company default, which seeding sets to the HR role
+// when the company has HR staff (it used to broadcast to every admin and HR user).
+check("default assignee (the company's HR) notified, not other companies", notes.docs.map((d) => d.data().userId).sort().join() === "hr1");
 
 // duplicate token
 const dupToken = rid(24);

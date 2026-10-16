@@ -125,11 +125,18 @@ const ReportPage = () => {
   useEffect(() => () => setCredentials(null), []);
 
   const isVendor = type === "vendor";
-  const categoryIds = isVendor
-    ? config?.vendorCategories?.length
-      ? config.vendorCategories
-      : DEFAULT_VENDOR_CATEGORIES
-    : config?.categories || [];
+  // Concern categories come from the company's own list ({ id, name, i18nKey }); the vendor
+  // list is the fixed Vendor Risk structure. A seeded category keeps its translated label
+  // until an admin renames it; custom ones show the name exactly as typed.
+  const categoryOptions = isVendor
+    ? (config?.vendorCategories?.length ? config.vendorCategories : DEFAULT_VENDOR_CATEGORIES).map((id) => ({
+        id,
+        label: t(`report.vendor.categories.${id}`),
+      }))
+    : (config?.categories || []).map((c) => ({
+        id: c.id,
+        label: c.i18nKey ? t(`report.category.options.${c.i18nKey}`, { defaultValue: c.name }) : c.name,
+      }));
   const trimmedLength = description.trim().length;
   const canSubmit =
     !!type &&
@@ -270,9 +277,9 @@ const ReportPage = () => {
                   className={inputClass}
                 >
                   <option value="">{t("report.category.placeholder")}</option>
-                  {categoryIds.map((id) => (
-                    <option key={id} value={id}>
-                      {t(isVendor ? `report.vendor.categories.${id}` : `report.category.options.${id}`)}
+                  {categoryOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label}
                     </option>
                   ))}
                 </select>

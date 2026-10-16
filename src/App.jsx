@@ -23,6 +23,7 @@ import AuditLog from "./pages/admin/AuditLog";
 import AuditExportPage from "./pages/company/AuditExportPage";
 import CaseQueue from "./pages/company/CaseQueue";
 import RoutingRules from "./pages/company/RoutingRules";
+import CategoriesRouting from "./pages/company/CategoriesRouting";
 import TemplatesPage from "./pages/TemplatesPage";
 import RoleDefinitions from "./pages/RoleDefinitions";
 import HelpCenter from "./pages/HelpCenter";
@@ -300,6 +301,16 @@ function App() {
                 <PrivateRoute>
                   <CompanyAdminLayout>
                     <RoutingRules />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/company/categories-routing"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <CategoriesRouting />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }

@@ -6,13 +6,13 @@ import { useAuth } from "../../contexts/AuthContext";
 import { PostType, UserRole } from "../../utils/constants";
 import { CaseType } from "../../utils/caseTypes";
 import {
-  ROUTING_CATEGORIES,
   VENDOR_CATEGORIES,
   VENDOR_SEVERITIES,
   emptyRule,
 } from "../../utils/routingRules";
 import { getAssignableUsers } from "../../services/caseService";
 import { getDepartments } from "../../services/departmentservice";
+import { getCategories } from "../../services/categoryRoutingService";
 import {
   getRoutingRules,
   createRoutingRule,
@@ -80,7 +80,7 @@ const ToggleChips = ({ options, labels, value, onChange }) => (
   </div>
 );
 
-const RuleEditor = ({ initial, users, departments, onCancel, onSave, saving }) => {
+const RuleEditor = ({ initial, users, departments, categoryOptions, categoryLabels, onCancel, onSave, saving }) => {
   const [rule, setRule] = useState(initial);
 
   const setField = (patch) => setRule((r) => ({ ...r, ...patch }));
@@ -153,8 +153,8 @@ const RuleEditor = ({ initial, users, departments, onCancel, onSave, saving }) =
               Category (leave empty for any)
             </label>
             <ToggleChips
-              options={ROUTING_CATEGORIES}
-              labels={CATEGORY_LABELS}
+              options={categoryOptions}
+              labels={categoryLabels}
               value={rule.conditions.categories}
               onChange={(v) => setConditions({ categories: v })}
             />
@@ -274,13 +274,13 @@ const RuleEditor = ({ initial, users, departments, onCancel, onSave, saving }) =
   );
 };
 
-const describeConditions = (rule) => {
+const describeConditions = (rule, categoryLabels) => {
   const parts = [];
   if (rule.appliesTo.includes(CaseType.POST)) {
     const c = rule.conditions || {};
     const bits = [];
     if (c.postTypes?.length) bits.push(c.postTypes.map((t) => POST_TYPE_LABELS[t] || t).join(", "));
-    if (c.categories?.length) bits.push(c.categories.map((t) => CATEGORY_LABELS[t] || t).join(", "));
+    if (c.categories?.length) bits.push(c.categories.map((t) => categoryLabels[t] || t).join(", "));
     if (c.involvesHR && c.involvesHR !== "any") {
       bits.push(c.involvesHR === "yes" ? "involves HR" : "doesn't involve HR");
     }
@@ -304,6 +304,7 @@ const RoutingRules = () => {
   const [rules, setRules] = useState([]);
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null); // ruleId | "new" | null
   const [saving, setSaving] = useState(false);
@@ -319,11 +320,13 @@ const RoutingRules = () => {
     if (!userData?.companyId) return;
     setLoading(true);
     try {
-      const [ruleList, userList, deptList] = await Promise.all([
+      const [ruleList, userList, deptList, categories] = await Promise.all([
         getRoutingRules(userData.companyId),
         getAssignableUsers(userData.companyId),
         getDepartments(userData.companyId),
+        getCategories(userData.companyId),
       ]);
+      setCategoryList(categories);
       setRules(ruleList);
       setUsers(userList);
       setDepartments(deptList);
@@ -339,6 +342,26 @@ const RoutingRules = () => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData?.companyId]);
+
+  // Conditions match on the category id stored on each report. The list is the company's own
+  // categories (not the old fixed one), plus policy_concern, which the policy-acknowledgement
+  // flow sets itself, plus any id an existing rule still names so it stays visible.
+  const { categoryOptions, categoryLabels } = useMemo(() => {
+    const labels = { ...CATEGORY_LABELS };
+    const ids = [];
+    categoryList
+      .filter((c) => !c.isSystemDefined && c.isActive)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .forEach((c) => {
+        labels[c.id] = c.name;
+        ids.push(c.id);
+      });
+    categoryList.forEach((c) => { if (!c.isSystemDefined) labels[c.id] = c.name; });
+    ["policy_concern", ...rules.flatMap((r) => r.conditions?.categories || [])].forEach((id) => {
+      if (!ids.includes(id)) ids.push(id);
+    });
+    return { categoryOptions: ids, categoryLabels: labels };
+  }, [categoryList, rules]);
 
   const editingRule = useMemo(() => {
     if (editingId === "new") return emptyRule(userData.companyId, rules.length);
@@ -432,6 +455,8 @@ const RoutingRules = () => {
           initial={editingRule}
           users={users}
           departments={departments}
+          categoryOptions={categoryOptions}
+          categoryLabels={categoryLabels}
           saving={saving}
           onCancel={() => setEditingId(null)}
           onSave={handleSave}
@@ -447,8 +472,8 @@ const RoutingRules = () => {
             No routing rules yet
           </h3>
           <p className="text-sm text-gray-500 max-w-sm">
-            Without a rule, new reports stay unassigned until someone claims them in the Case Queue. Add a
-            rule to route specific categories straight to the right person or department.
+            Reports that match no rule here go to the assignee set for their category, or the company default
+            (see Categories &amp; Routing). Add a rule for conditions a category alone can't express.
           </p>
         </div>
       ) : (
@@ -460,6 +485,8 @@ const RoutingRules = () => {
                 initial={rule}
                 users={users}
                 departments={departments}
+                categoryOptions={categoryOptions}
+                categoryLabels={categoryLabels}
                 saving={saving}
                 onCancel={() => setEditingId(null)}
                 onSave={handleSave}
@@ -504,7 +531,7 @@ const RoutingRules = () => {
                         {rule.enabled ? "On" : "Off"}
                       </button>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">{describeConditions(rule)}</p>
+                    <p className="mt-1 text-xs text-gray-500">{describeConditions(rule, categoryLabels)}</p>
                     <p className="mt-2 text-xs font-medium text-[#2D3E50]">
                       → Assign to {rule.action?.type === "department" ? "department" : ""} {rule.action?.name || "—"}
                     </p>

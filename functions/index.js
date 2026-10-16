@@ -76,6 +76,17 @@ const {
   updateCompanySettings,
 } = require('./api/publicReportApi');
 
+// Category & routing configuration (company_admin / hr), plus the one-time migration (super_admin)
+const {
+  createCategory,
+  updateCategory,
+  reorderCategories,
+  setCategoryRoutingRule,
+  removeCategoryRoutingRule,
+  setDefaultRoutingAssignee,
+  migrateCategoryRouting,
+} = require('./api/categoryRoutingApi');
+
 const { cleanupPublicReports } = require('./scheduled/publicReportJobs');
 
 // Case sharing with outside counsel (private read-only link, no login for the lawyer)
@@ -186,6 +197,15 @@ exports.ensureReportSlug = ensureReportSlug;
 exports.setReportingEnabled = setReportingEnabled;
 exports.updateCompanySettings = updateCompanySettings;
 exports.cleanupPublicReports = cleanupPublicReports;
+
+// Export Category & Routing Functions
+exports.createCategory = createCategory;
+exports.updateCategory = updateCategory;
+exports.reorderCategories = reorderCategories;
+exports.setCategoryRoutingRule = setCategoryRoutingRule;
+exports.removeCategoryRoutingRule = removeCategoryRoutingRule;
+exports.setDefaultRoutingAssignee = setDefaultRoutingAssignee;
+exports.migrateCategoryRouting = migrateCategoryRouting;
 
 // Export Check My Case Functions
 exports.getCaseStatus = getCaseStatus;
