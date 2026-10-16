@@ -84,3 +84,86 @@ export const buildAckReport = ({ roster = [], responses = [], version }) => {
   };
   return { rows: list, summary };
 };
+
+/**
+ * Bundle report: one row per employee across every policy in a bundle.
+ *
+ * Only responses to each policy's *current* version count. Row status: "acknowledged" when the
+ * employee acknowledged every policy, "partial" when some, "concern" when none but they raised
+ * one, otherwise "pending" (roster members only). `missing` lists the policy ids still open.
+ *
+ * @param {{roster: Array<object>, responses: Array<object>,
+ *          policies: Array<{id: string, version: string}>}} input
+ */
+export const buildBundleReport = ({ roster = [], responses = [], policies = [] }) => {
+  const currentVersion = new Map(policies.map((p) => [p.id, String(p.version)]));
+  const rows = new Map();
+  const ensure = (employeeKey, employeeId, name, onRoster) => {
+    if (!rows.has(employeeKey)) {
+      rows.set(employeeKey, {
+        employeeKey,
+        employeeId,
+        name: name || "",
+        onRoster,
+        acknowledged: new Set(),
+        status: "pending",
+        acknowledgedAt: 0,
+        concerns: 0,
+        postIds: [],
+        missing: [],
+      });
+    }
+    return rows.get(employeeKey);
+  };
+
+  roster.forEach((e) => ensure(e.employeeKey, e.employeeId, e.name, true));
+
+  responses
+    .filter((r) => currentVersion.get(r.policyId) === r.policyVersion)
+    .forEach((r) => {
+      const row = ensure(r.employeeKey, r.employeeId, r.employeeName, false);
+      if (r.employeeName) row.name = r.employeeName;
+      if (r.response === "acknowledged") {
+        row.acknowledged.add(r.policyId);
+        row.acknowledgedAt = Math.max(row.acknowledgedAt, toMillis(r.createdAt));
+      } else if (r.response === "concern") {
+        row.concerns += 1;
+        if (r.postId) row.postIds.push(r.postId);
+      }
+    });
+
+  const total = policies.length;
+  const perPolicy = new Map(policies.map((p) => [p.id, 0]));
+  rows.forEach((row) => {
+    row.acknowledged.forEach((id) => perPolicy.set(id, perPolicy.get(id) + 1));
+    row.acknowledgedCount = row.acknowledged.size;
+    row.total = total;
+    row.missing = policies.filter((p) => !row.acknowledged.has(p.id)).map((p) => p.id);
+    if (total > 0 && row.acknowledgedCount === total) row.status = "acknowledged";
+    else if (row.acknowledgedCount > 0) row.status = "partial";
+    else if (row.concerns > 0) row.status = "concern";
+    delete row.acknowledged;
+  });
+
+  const order = { pending: 0, partial: 1, concern: 2, acknowledged: 3 };
+  const list = [...rows.values()].sort(
+    (a, b) =>
+      order[a.status] - order[b.status] ||
+      (a.status === "acknowledged" ? b.acknowledgedAt - a.acknowledgedAt : 0) ||
+      a.employeeId.localeCompare(b.employeeId, undefined, { numeric: true })
+  );
+
+  const count = (status) => list.filter((r) => r.status === status).length;
+  return {
+    rows: list,
+    perPolicy: policies.map((p) => ({ id: p.id, acknowledged: perPolicy.get(p.id) })),
+    summary: {
+      rosterTotal: roster.length,
+      acknowledged: count("acknowledged"),
+      partial: count("partial"),
+      pending: count("pending"),
+      concerns: list.reduce((sum, r) => sum + r.concerns, 0),
+      offRoster: roster.length ? list.filter((r) => !r.onRoster).length : 0,
+    },
+  };
+};

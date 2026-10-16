@@ -28,12 +28,13 @@ const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../util
 const { resolveRoutingAssignment } = require('../utils/routingRules');
 const { SLUG_PATTERN, buildSlug } = require('../utils/reportSlugs');
 const { assertRole, assertCompany } = require('../utils/authz');
+const { sanitizeText } = require('../utils/publicReportValidation');
 const {
   PolicyAckValidationError,
   validateAckSubmission,
   parseRosterText,
   ackDocId,
-  recordAcknowledgement,
+  recordAcknowledgements,
 } = require('../utils/policyAck');
 const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
 const { IP_HASH_SALT } = require('../config/secrets');
@@ -60,15 +61,42 @@ async function resolveActiveLink(slug) {
   if (!linkSnap.exists || linkSnap.data().active !== true) return null;
   const link = linkSnap.data();
 
-  const [policySnap, companySnap] = await Promise.all([
-    db.collection('policies').doc(link.policyId).get(),
-    db.collection('companies').doc(link.companyId).get(),
-  ]);
-  if (!policySnap.exists || !companySnap.exists) return null;
-  const policy = policySnap.data();
-  if (policy.companyId !== link.companyId || policy.status !== 'published') return null;
+  // A bundle link lists several policies; a single link names one.
+  const isBundle = Array.isArray(link.policyIds);
+  const policyIds = isBundle ? link.policyIds : [link.policyId];
+  if (policyIds.length === 0 || policyIds.some((id) => typeof id !== 'string' || !id || id.includes('/'))) {
+    return null;
+  }
 
-  return { slug, link, policyId: policySnap.id, policy, companyId: link.companyId, company: companySnap.data() };
+  const [companySnap, ...policySnaps] = await Promise.all([
+    db.collection('companies').doc(link.companyId).get(),
+    ...policyIds.map((id) => db.collection('policies').doc(id).get()),
+  ]);
+  if (!companySnap.exists) return null;
+
+  // Archived, deleted or foreign policies drop out of a bundle instead of breaking it.
+  const policies = policySnaps
+    .filter((s) => s.exists && s.data().companyId === link.companyId && s.data().status === 'published')
+    .map((s) => ({ id: s.id, policy: s.data() }));
+  if (policies.length === 0 || (!isBundle && policies.length !== 1)) return null;
+
+  return { slug, link, isBundle, policies, companyId: link.companyId, company: companySnap.data() };
+}
+
+const versionOf = (policy) => String(policy.version || '1.0');
+
+function serializePolicy({ id, policy }) {
+  return {
+    id,
+    title: policy.title || '',
+    category: policy.category || 'other',
+    version: versionOf(policy),
+    effectiveDate: toIso(policy.effectiveDate),
+    content: typeof policy.content === 'string' ? policy.content : '',
+    fileName: policy.fileName || null,
+    fileUrl:
+      typeof policy.fileUrl === 'string' && policy.fileUrl.startsWith(STORAGE_URL_PREFIX) ? policy.fileUrl : null,
+  };
 }
 
 // ============================================
@@ -89,25 +117,16 @@ const getPolicyForLink = onCall({ ...BASE_OPTIONS, secrets: [IP_HASH_SALT] }, as
   const resolved = await resolveActiveLink(slug);
   if (!resolved) throw notFound();
 
-  const { policy, company, link } = resolved;
-  const effective = policy.effectiveDate;
-  return {
+  const { policies, company, link, isBundle } = resolved;
+  const common = {
     companyName: company.name || '',
     defaultLanguage: LANGUAGES.includes(company.defaultLanguage) ? company.defaultLanguage : 'en',
     requireRoster: link.requireRoster === true,
-    policy: {
-      title: policy.title || '',
-      category: policy.category || 'other',
-      version: String(policy.version || '1.0'),
-      effectiveDate: toIso(effective),
-      content: typeof policy.content === 'string' ? policy.content : '',
-      fileName: policy.fileName || null,
-      fileUrl:
-        typeof policy.fileUrl === 'string' && policy.fileUrl.startsWith(STORAGE_URL_PREFIX)
-          ? policy.fileUrl
-          : null,
-    },
   };
+  if (isBundle) {
+    return { ...common, bundle: { title: link.title || '' }, policies: policies.map(serializePolicy) };
+  }
+  return { ...common, policy: serializePolicy(policies[0]) };
 });
 
 // ============================================
@@ -186,14 +205,27 @@ const submitPolicyAcknowledgement = onCall(
 
     const resolved = await resolveActiveLink(input.slug);
     if (!resolved) throw notFound();
-    const { slug, link, policyId, policy, companyId } = resolved;
+    const { slug, link, isBundle, policies, companyId } = resolved;
 
-    // The employee must acknowledge the version they actually read.
-    if (String(policy.version || '1.0') !== input.policyVersion) {
-      throw new HttpsError('failed-precondition', 'This policy was updated. Please reload the page.', {
+    // What the employee read: a bundle link sends every policy + version, a single link one version.
+    if (isBundle !== (input.items !== null)) throw new HttpsError('invalid-argument', 'Invalid submission.');
+    const requested = isBundle
+      ? input.items
+      : [{ policyId: policies[0].id, policyVersion: input.policyVersion }];
+    const live = new Map(policies.map((p) => [p.id, p]));
+    const policyUpdated = () =>
+      new HttpsError('failed-precondition', 'This policy was updated. Please reload the page.', {
         reason: 'policy_updated',
       });
-    }
+    // They must acknowledge the versions they actually read, and a bundle acknowledgement must
+    // cover every policy currently in it (a policy added or removed meanwhile means reload).
+    const targets = requested.map(({ policyId, policyVersion }) => {
+      const target = live.get(policyId);
+      if (!target || versionOf(target.policy) !== policyVersion) throw policyUpdated();
+      return target;
+    });
+    if (input.response === 'acknowledged' && targets.length !== live.size) throw policyUpdated();
+    const { id: policyId, policy } = targets[0];
 
     const salt = IP_HASH_SALT.value();
     const isConcern = input.response === 'concern';
@@ -236,28 +268,34 @@ const submitPolicyAcknowledgement = onCall(
       }
 
       const company = db.collection('companies').doc(companyId);
-      const base = {
-        policyId,
-        policyTitle: policy.title || '',
-        policyVersion: input.policyVersion,
+      const baseFor = ({ id, policy: p }) => ({
+        policyId: id,
+        policyTitle: p.title || '',
+        policyVersion: versionOf(p),
         employeeId: input.employeeId,
         employeeKey: input.employeeKey,
         employeeName: input.employeeName,
         linkSlug: slug,
         clientLang: input.clientLang,
         createdAt: serverTimestamp(),
-      };
+      });
+      const base = baseFor(targets[0]);
 
       if (!isConcern) {
-        const ackRef = company.collection('policyResponses').doc(
-          ackDocId({ policyId, policyVersion: input.policyVersion, employeeKey: input.employeeKey })
-        );
         const employeeRef = company.collection('policyEmployees').doc(input.employeeKey);
-        const { created } = await db.runTransaction((tx) =>
-          recordAcknowledgement(tx, {
-            ackRef,
+        const { createdCount, total } = await db.runTransaction((tx) =>
+          recordAcknowledgements(tx, {
             employeeRef,
-            ack: { ...base, response: 'acknowledged', onRoster },
+            items: targets.map((target) => ({
+              ackRef: company.collection('policyResponses').doc(
+                ackDocId({
+                  policyId: target.id,
+                  policyVersion: versionOf(target.policy),
+                  employeeKey: input.employeeKey,
+                })
+              ),
+              ack: { ...baseFor(target), response: 'acknowledged', onRoster },
+            })),
             employee: {
               employeeKey: input.employeeKey,
               employeeId: input.employeeId,
@@ -267,7 +305,7 @@ const submitPolicyAcknowledgement = onCall(
             now: serverTimestamp(),
           })
         );
-        return { status: created ? 'acknowledged' : 'already_acknowledged' };
+        return { status: createdCount > 0 ? 'acknowledged' : 'already_acknowledged', count: total };
       }
 
       // A concern goes to the HR inbox as a normal (non-anonymous) case.
@@ -297,7 +335,7 @@ const submitPolicyAcknowledgement = onCall(
         content: input.concernText,
         attachments: [],
         policyId,
-        policyVersion: input.policyVersion,
+        policyVersion: versionOf(policy),
         policyTitle: policy.title || '',
         employeeId: input.employeeId,
         reportLang: input.clientLang,
@@ -414,6 +452,68 @@ const ensurePolicyLink = onCall(BASE_OPTIONS, async (request) => {
   }
 });
 
+/**
+ * Create one link that carries several published policies, so employees read and acknowledge
+ * them all in a single visit. Every call makes a new link (a company can run several bundles).
+ */
+const ensurePolicyBundleLink = onCall(BASE_OPTIONS, async (request) => {
+  assertRole(request, STAFF_POLICY_ROLES);
+  const { policyIds, title } = request.data || {};
+  if (
+    !Array.isArray(policyIds) ||
+    policyIds.length < LIMITS.minBundle ||
+    policyIds.length > LIMITS.maxBundle ||
+    new Set(policyIds).size !== policyIds.length ||
+    policyIds.some((id) => typeof id !== 'string' || !id || id.length > LIMITS.maxPolicyId || id.includes('/'))
+  ) {
+    throw new HttpsError('invalid-argument', `Choose between ${LIMITS.minBundle} and ${LIMITS.maxBundle} policies.`);
+  }
+  const cleanTitle = sanitizeText(title);
+  if (cleanTitle.length > LIMITS.maxBundleTitle) throw new HttpsError('invalid-argument', 'Title is too long.');
+
+  try {
+    const policySnaps = await db.getAll(...policyIds.map((id) => db.collection('policies').doc(id)));
+    let companyId = null;
+    policySnaps.forEach((snap) => {
+      if (!snap.exists) throw new HttpsError('not-found', 'Policy not found.');
+      assertCompany(request, snap.data().companyId);
+      companyId = snap.data().companyId;
+      if (snap.data().status !== 'published') {
+        throw new HttpsError('failed-precondition', 'Only published policies can be shared.');
+      }
+    });
+
+    return await db.runTransaction(async (tx) => {
+      const companySnap = await tx.get(db.collection('companies').doc(companyId));
+      if (!companySnap.exists) throw new HttpsError('not-found', 'Company not found.');
+
+      let slug = null;
+      for (let i = 0; i < MAX_SLUG_ATTEMPTS && !slug; i++) {
+        const candidate = buildSlug(companySnap.data().name);
+        if (!(await tx.get(db.collection('policyLinks').doc(candidate))).exists) slug = candidate;
+      }
+      if (!slug) throw new HttpsError('internal', 'Could not create the link.');
+
+      tx.set(db.collection('policyLinks').doc(slug), {
+        companyId,
+        policyId: null,
+        policyIds,
+        title: cleanTitle,
+        active: true,
+        requireRoster: false,
+        rosterCount: 0,
+        createdBy: request.auth.uid,
+        createdAt: serverTimestamp(),
+      });
+      return { slug };
+    });
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    logger.error('ensurePolicyBundleLink: failed', { code: error && error.code });
+    throw new HttpsError('internal', 'Could not create the link.');
+  }
+});
+
 async function loadOwnedLink(request, slug) {
   assertRole(request, STAFF_POLICY_ROLES);
   if (typeof slug !== 'string' || !SLUG_PATTERN.test(slug)) {
@@ -475,6 +575,7 @@ module.exports = {
   getPolicyForLink,
   submitPolicyAcknowledgement,
   ensurePolicyLink,
+  ensurePolicyBundleLink,
   setPolicyLinkActive,
   setPolicyLinkRoster,
 };

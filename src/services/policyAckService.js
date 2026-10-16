@@ -1,5 +1,6 @@
 import { httpsCallable } from "firebase/functions";
-import { functions } from "../config/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db, functions } from "../config/firebase";
 
 // Public (no-login) policy acknowledgement line. The employee gives their name and
 // employee ID on purpose, so nothing here is anonymous, and nothing is persisted.
@@ -48,6 +49,20 @@ export const policyErrorKey = (error) => {
 export const ensurePolicyLink = async (policyId) => {
   const response = await httpsCallable(functions, "ensurePolicyLink")({ policyId });
   return response.data;
+};
+
+// One link that carries several published policies (acknowledged together in one visit).
+export const ensurePolicyBundleLink = async (policyIds, title) => {
+  const response = await httpsCallable(functions, "ensurePolicyBundleLink")({ policyIds, title });
+  return response.data;
+};
+
+export const getPolicyBundles = async (companyId) => {
+  const snap = await getDocs(query(collection(db, "policyLinks"), where("companyId", "==", companyId)));
+  return snap.docs
+    .map((d) => ({ slug: d.id, ...d.data() }))
+    .filter((link) => Array.isArray(link.policyIds))
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
 };
 
 export const setPolicyLinkActive = async (slug, active) => {
