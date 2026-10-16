@@ -208,6 +208,10 @@
       "question": {
         "title": "මානව සම්පත් අංශයෙන් ප්‍රශ්නයක් අහන්න",
         "description": "රහසිගතව පිළිතුරක් ලබාගන්න"
+      },
+      "vendor": {
+        "title": "වෙළෙන්දෙකු පිළිබඳ ගැටලුවක් වාර්තා කරන්න",
+        "description": "සැපයුම්කරුවෙකු හෝ වෙළෙන්දෙකු සම්බන්ධ ගැටලුවක්"
       }
     },
     "category": {
@@ -336,7 +340,9 @@
         "resolved": "විසඳා ඇත",
         "closed": "වසා ඇත",
         "rejected": "ප්‍රතික්ෂේප කර ඇත",
-        "not_a_problem": "ගැටලුවක් නොවේ"
+        "not_a_problem": "ගැටලුවක් නොවේ",
+        "investigating": "විමර්ශනය කරමින්",
+        "escalated": "උසස් කරන ලදී"
       },
       "timers": {
         "acknowledged": "ඔබේ වාර්තාව පිළිගෙන ඇත",
@@ -519,6 +525,34 @@
       "bestPracticeRotate": "සබැඳිය කාන්දු වුවහොත් නැවත සාදන්න",
       "shareTitle": "{{company}} වෙත රහසිගත වාර්තාවක් යවන්න",
       "shareText": "වාර්තාවක් යැවීමට QR කේතය ස්කෑන් කරන්න හෝ සබැඳිය විවෘත කරන්න. ගිණුමක් අවශ්‍ය නැත, පෙරනිමියෙන් නිර්නාමික."
+    },
+    "vendor": {
+      "nameLabel": "වෙළෙන්දාගේ හෝ සැපයුම්කරුගේ නම",
+      "namePlaceholder": "උදා: Acme Logistics Ltd",
+      "categoryLabel": "අවදානම් කාණ්ඩය",
+      "categoryPlaceholder": "කාණ්ඩයක් තෝරන්න",
+      "category": {
+        "labor": "කම්කරු පිළිවෙත්",
+        "data_privacy": "දත්ත පුද්ගලිකත්වය",
+        "safety": "සෞඛ්‍යය සහ ආරක්ෂාව",
+        "fraud": "වංචාව හෝ දූෂණය",
+        "compliance": "නියාමන අනුකූලතා අඩුපාඩු",
+        "other": "වෙනත් දෙයක්"
+      },
+      "severityLabel": "බරපතලකම",
+      "severity": {
+        "low": "අඩු",
+        "medium": "මධ්‍යම",
+        "high": "ඉහළ"
+      },
+      "visibilityLabel": "මෙම වාර්තාව කාට පෙනේද",
+      "visibilityHelper": "මානව සම්පත් අංශයේ කෙනෙකු සම්බන්ධ නම් 'සීමාසහිත' තෝරන්න",
+      "visibility": {
+        "standard": "සාමාන්‍ය",
+        "standardHelper": "සමාගම් පාලක සහ මානව සම්පත්",
+        "restricted": "සීමාසහිත",
+        "restrictedHelper": "සමාගම් පාලක පමණක්"
+      }
     }
   },
   "staff": {

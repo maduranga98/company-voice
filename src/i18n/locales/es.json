@@ -1026,6 +1026,10 @@
       "question": {
         "title": "Preguntar a RR. HH.",
         "description": "Obtén una respuesta con confidencialidad"
+      },
+      "vendor": {
+        "title": "Reportar una preocupación sobre un proveedor",
+        "description": "Señala un problema con un proveedor"
       }
     },
     "category": {
@@ -1154,7 +1158,9 @@
         "resolved": "Resuelto",
         "closed": "Cerrado",
         "rejected": "Rechazado",
-        "not_a_problem": "No es un problema"
+        "not_a_problem": "No es un problema",
+        "investigating": "En investigación",
+        "escalated": "Escalado"
       },
       "timers": {
         "acknowledged": "Tu informe ha sido reconocido",
@@ -1337,6 +1343,34 @@
       "bestPracticeRotate": "Regenera el enlace si se filtra",
       "shareTitle": "Envía un informe confidencial a {{company}}",
       "shareText": "Escanea el código QR o abre el enlace para enviar un informe. Sin cuenta, anónimo por defecto."
+    },
+    "vendor": {
+      "nameLabel": "Nombre del proveedor",
+      "namePlaceholder": "p. ej. Acme Logistics Ltd",
+      "categoryLabel": "Categoría de riesgo",
+      "categoryPlaceholder": "Elige una categoría",
+      "category": {
+        "labor": "Prácticas laborales",
+        "data_privacy": "Privacidad de datos",
+        "safety": "Salud y seguridad",
+        "fraud": "Fraude o corrupción",
+        "compliance": "Incumplimiento normativo",
+        "other": "Otra cosa"
+      },
+      "severityLabel": "Gravedad",
+      "severity": {
+        "low": "Baja",
+        "medium": "Media",
+        "high": "Alta"
+      },
+      "visibilityLabel": "Quién puede ver este informe",
+      "visibilityHelper": "Usa Restringido si la preocupación involucra a alguien de RR. HH.",
+      "visibility": {
+        "standard": "Estándar",
+        "standardHelper": "Administrador de la empresa y RR. HH.",
+        "restricted": "Restringido",
+        "restrictedHelper": "Solo el administrador de la empresa"
+      }
     }
   },
   "staff": {

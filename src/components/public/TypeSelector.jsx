@@ -1,10 +1,11 @@
-import { CircleHelp, Lightbulb, ShieldAlert } from "lucide-react";
+import { Building2, CircleHelp, Lightbulb, ShieldAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const TYPES = [
   { id: "concern", icon: ShieldAlert },
   { id: "idea", icon: Lightbulb },
   { id: "question", icon: CircleHelp },
+  { id: "vendor", icon: Building2 },
 ];
 
 const TypeSelector = ({ value, onChange }) => {
@@ -13,7 +14,7 @@ const TypeSelector = ({ value, onChange }) => {
   return (
     <fieldset>
       <legend className="mb-3 text-base font-semibold text-[#2D3E50]">{t("report.type.heading")}</legend>
-      <div className="grid gap-3 sm:grid-cols-3" role="radiogroup">
+      <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
         {TYPES.map(({ id, icon }) => {
           const Icon = icon;
           const selected = value === id;

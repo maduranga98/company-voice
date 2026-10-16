@@ -92,7 +92,10 @@ async function verifyCaseCredentials(request, { caseCode, secretKey }) {
 
   // The case's companyId is already on the caseAccess doc, so the company is fetched in
   // parallel with the post (field-masked to `settings`): no extra sequential round trip.
-  const postRef = db.collection('posts').doc(caseData.postId);
+  // `collection` marks a vendor-risk report created through the public link (see
+  // publicReportApi.js); its absence (older/ordinary docs) means the regular `posts`.
+  const targetCollection = caseData.collection === 'vendorReports' ? 'vendorReports' : 'posts';
+  const postRef = db.collection(targetCollection).doc(caseData.postId);
   const companyRef = caseData.companyId ? db.collection('companies').doc(caseData.companyId) : null;
   const [postSnap, companySnap] = await Promise.all([
     postRef.get(),
@@ -122,7 +125,8 @@ const getCaseStatus = onCall(
   async (request) => {
     const { caseCode, secretKey } = request.data || {};
     try {
-      const { postData, postRef } = await verifyCaseCredentials(request, { caseCode, secretKey });
+      const { caseData, postData, postRef } = await verifyCaseCredentials(request, { caseCode, secretKey });
+      const isVendor = caseData.collection === 'vendorReports';
 
       const threadSnap = await db.collection('anonymousThreads').doc(postRef.id).get();
       const threadData = threadSnap.exists ? threadSnap.data() : null;
@@ -130,9 +134,9 @@ const getCaseStatus = onCall(
       return {
         status: postData.status || 'open',
         priority: postData.priority || 'medium',
-        category: postData.category || 'other',
-        type: postData.type || 'problem_report',
-        involvesHR: postData.involvesHR === true,
+        category: isVendor ? postData.riskCategory || 'other' : postData.category || 'other',
+        type: isVendor ? 'vendor_risk' : postData.type || 'problem_report',
+        involvesHR: isVendor ? postData.visibility === 'restricted' : postData.involvesHR === true,
         description: postData.description || '',
         createdAt: toIso(postData.createdAt),
         timers: computeCaseTimers(
@@ -209,7 +213,9 @@ const submitCaseReply = onCall(
     }
 
     try {
-      const { postRef, postData } = await verifyCaseCredentials(request, { caseCode, secretKey });
+      const { caseData, postRef, postData } = await verifyCaseCredentials(request, { caseCode, secretKey });
+      const keepFromHR =
+        caseData.collection === 'vendorReports' ? postData.visibility === 'restricted' : postData.involvesHR === true;
 
       const salt = IP_HASH_SALT.value();
       const allowed = await consumeRateLimit(db, {
@@ -246,7 +252,7 @@ const submitCaseReply = onCall(
         });
       }
 
-      await notifyReplyStaff(postData.companyId, postRef.id, postData.involvesHR === true);
+      await notifyReplyStaff(postData.companyId, postRef.id, keepFromHR);
 
       return { success: true };
     } catch (error) {

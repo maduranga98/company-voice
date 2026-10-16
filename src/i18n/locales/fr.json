@@ -1026,6 +1026,10 @@
       "question": {
         "title": "Poser une question aux RH",
         "description": "Obtenir une réponse en toute confidentialité"
+      },
+      "vendor": {
+        "title": "Signaler une préoccupation concernant un fournisseur",
+        "description": "Signalez un problème avec un fournisseur"
       }
     },
     "category": {
@@ -1154,7 +1158,9 @@
         "resolved": "Résolu",
         "closed": "Clos",
         "rejected": "Rejeté",
-        "not_a_problem": "Pas un problème"
+        "not_a_problem": "Pas un problème",
+        "investigating": "En cours d'investigation",
+        "escalated": "Escaladé"
       },
       "timers": {
         "acknowledged": "Votre signalement a été pris en compte",
@@ -1337,6 +1343,34 @@
       "bestPracticeRotate": "Régénérez le lien s'il est divulgué",
       "shareTitle": "Envoyer un signalement confidentiel à {{company}}",
       "shareText": "Scannez le code QR ou ouvrez le lien pour envoyer un signalement. Sans compte, anonyme par défaut."
+    },
+    "vendor": {
+      "nameLabel": "Nom du fournisseur",
+      "namePlaceholder": "p. ex. Acme Logistics Ltd",
+      "categoryLabel": "Catégorie de risque",
+      "categoryPlaceholder": "Choisissez une catégorie",
+      "category": {
+        "labor": "Pratiques de travail",
+        "data_privacy": "Confidentialité des données",
+        "safety": "Santé et sécurité",
+        "fraud": "Fraude ou corruption",
+        "compliance": "Non-conformité réglementaire",
+        "other": "Autre chose"
+      },
+      "severityLabel": "Gravité",
+      "severity": {
+        "low": "Faible",
+        "medium": "Moyenne",
+        "high": "Élevée"
+      },
+      "visibilityLabel": "Qui peut voir ce signalement",
+      "visibilityHelper": "Utilisez Restreint si la préoccupation concerne quelqu'un des RH",
+      "visibility": {
+        "standard": "Standard",
+        "standardHelper": "Administrateur de l'entreprise et RH",
+        "restricted": "Restreint",
+        "restrictedHelper": "Administrateur de l'entreprise uniquement"
+      }
     }
   },
   "staff": {

@@ -6,11 +6,17 @@
 const {
   REPORT_TYPES,
   CATEGORIES,
+  VENDOR_RISK_CATEGORIES,
+  VENDOR_SEVERITIES,
+  VENDOR_VISIBILITIES,
   LANGUAGES,
   LIMITS,
   MIME_EXTENSIONS,
   PENDING_PREFIX,
 } = require('../config/publicReports');
+
+const VENDOR_TYPE = 'vendor';
+const MAX_VENDOR_NAME = 150;
 const { SLUG_PATTERN } = require('./reportSlugs');
 
 // Minimum time a person needs on the form before submitting.
@@ -93,10 +99,32 @@ function validateSubmission(data) {
   if (typeof data.slug !== 'string' || !SLUG_PATTERN.test(data.slug)) {
     throw new ValidationError('slug');
   }
-  if (!Object.prototype.hasOwnProperty.call(REPORT_TYPES, data.type)) {
+
+  const isVendor = data.type === VENDOR_TYPE;
+  if (!isVendor && !Object.prototype.hasOwnProperty.call(REPORT_TYPES, data.type)) {
     throw new ValidationError('type');
   }
-  if (!CATEGORIES.includes(data.category)) throw new ValidationError('category');
+
+  // Vendor-risk reports describe a third party, not an employee-conduct issue, so they
+  // use their own category list, a severity, and a visibility tier (mirrors the
+  // logged-in staff form at src/pages/VendorRiskReport.jsx) instead of the general
+  // `category` field.
+  let category = null;
+  let vendorName = null;
+  let riskCategory = null;
+  let severity = null;
+  let visibility = null;
+  if (isVendor) {
+    vendorName = sanitizeText(data.vendorName);
+    if (!vendorName || vendorName.length > MAX_VENDOR_NAME) throw new ValidationError('vendorName');
+    if (!VENDOR_RISK_CATEGORIES.includes(data.riskCategory)) throw new ValidationError('riskCategory');
+    riskCategory = data.riskCategory;
+    severity = VENDOR_SEVERITIES.includes(data.severity) ? data.severity : 'medium';
+    visibility = VENDOR_VISIBILITIES.includes(data.visibility) ? data.visibility : 'standard';
+  } else {
+    if (!CATEGORIES.includes(data.category)) throw new ValidationError('category');
+    category = data.category;
+  }
 
   const description = sanitizeText(data.description, { multiline: true });
   if (description.length < LIMITS.minDescription || description.length > LIMITS.maxDescription) {
@@ -124,7 +152,12 @@ function validateSubmission(data) {
   return {
     slug: data.slug,
     type: data.type,
-    category: data.category,
+    isVendor,
+    category,
+    vendorName,
+    riskCategory,
+    severity,
+    visibility,
     description,
     involvesHR: data.involvesHR === true,
     contact: validateContact(data.contact),

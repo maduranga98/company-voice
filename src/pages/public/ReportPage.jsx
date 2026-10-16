@@ -66,6 +66,10 @@ const ReportPage = () => {
 
   const [type, setType] = useState("");
   const [category, setCategory] = useState("");
+  const [vendorName, setVendorName] = useState("");
+  const [riskCategory, setRiskCategory] = useState("");
+  const [severity, setSeverity] = useState("medium");
+  const [visibility, setVisibility] = useState("standard");
   const [description, setDescription] = useState("");
   const [involvesHR, setInvolvesHR] = useState(false);
   const [contact, setContact] = useState(EMPTY_CONTACT);
@@ -100,6 +104,10 @@ const ReportPage = () => {
   const clearForm = useCallback(() => {
     setType("");
     setCategory("");
+    setVendorName("");
+    setRiskCategory("");
+    setSeverity("medium");
+    setVisibility("standard");
     setDescription("");
     setInvolvesHR(false);
     setContact(EMPTY_CONTACT);
@@ -117,10 +125,11 @@ const ReportPage = () => {
 
   useEffect(() => () => setCredentials(null), []);
 
+  const isVendor = type === "vendor";
   const trimmedLength = description.trim().length;
   const canSubmit =
     !!type &&
-    !!category &&
+    (isVendor ? !!vendorName.trim() && !!riskCategory : !!category) &&
     trimmedLength >= MIN_DESCRIPTION &&
     trimmedLength <= MAX_DESCRIPTION &&
     !uploads.uploading &&
@@ -144,9 +153,10 @@ const ReportPage = () => {
       const result = await submitReport({
         slug,
         type,
-        category,
+        ...(isVendor
+          ? { vendorName: vendorName.trim(), riskCategory, severity, visibility }
+          : { category, involvesHR }),
         description: description.trim(),
-        involvesHR,
         ...(hasContact ? { contact } : {}),
         attachments: paths,
         ...(paths.length > 0 ? { uploadId } : {}),
@@ -218,24 +228,111 @@ const ReportPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <TypeSelector value={type} onChange={setType} />
 
-              <div>
-                <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
-                  {t("report.category.label")}
-                </label>
-                <select
-                  id="report-category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">{t("report.category.placeholder")}</option>
-                  {config.categories.map((id) => (
-                    <option key={id} value={id}>
-                      {t(`report.category.options.${id}`)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {isVendor ? (
+                <>
+                  <div>
+                    <label htmlFor="report-vendor-name" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                      {t("report.vendor.nameLabel")}
+                    </label>
+                    <input
+                      id="report-vendor-name"
+                      type="text"
+                      autoComplete="off"
+                      value={vendorName}
+                      onChange={(e) => setVendorName(e.target.value)}
+                      placeholder={t("report.vendor.namePlaceholder")}
+                      maxLength={150}
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="report-risk-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                      {t("report.vendor.categoryLabel")}
+                    </label>
+                    <select
+                      id="report-risk-category"
+                      value={riskCategory}
+                      onChange={(e) => setRiskCategory(e.target.value)}
+                      className={inputClass}
+                    >
+                      <option value="">{t("report.vendor.categoryPlaceholder")}</option>
+                      {(config.vendorRiskCategories || []).map((id) => (
+                        <option key={id} value={id}>
+                          {t(`report.vendor.category.${id}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <fieldset>
+                    <legend className="mb-2 text-sm font-semibold text-[#2D3E50]">{t("report.vendor.severityLabel")}</legend>
+                    <div className="flex gap-2" role="radiogroup">
+                      {["low", "medium", "high"].map((level) => (
+                        <button
+                          key={level}
+                          type="button"
+                          role="radio"
+                          aria-checked={severity === level}
+                          onClick={() => setSeverity(level)}
+                          className={`flex-1 rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${
+                            severity === level
+                              ? "border-[#1ABC9C] bg-[#1ABC9C]/10 text-[#2D3E50]"
+                              : "border-gray-200 bg-background-white text-gray-500 hover:border-[#1ABC9C]/50"
+                          }`}
+                        >
+                          {t(`report.vendor.severity.${level}`)}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <fieldset>
+                    <legend className="mb-2 text-sm font-semibold text-[#2D3E50]">{t("report.vendor.visibilityLabel")}</legend>
+                    <div className="flex gap-2" role="radiogroup">
+                      {["standard", "restricted"].map((tier) => (
+                        <button
+                          key={tier}
+                          type="button"
+                          role="radio"
+                          aria-checked={visibility === tier}
+                          onClick={() => setVisibility(tier)}
+                          className={`flex-1 rounded-xl border p-3 text-left text-xs font-semibold transition ${
+                            visibility === tier
+                              ? "border-[#1ABC9C] bg-[#1ABC9C]/10 text-[#2D3E50]"
+                              : "border-gray-200 bg-background-white text-gray-500 hover:border-[#1ABC9C]/50"
+                          }`}
+                        >
+                          {t(`report.vendor.visibility.${tier}`)}
+                          <span className="mt-0.5 block text-[11px] font-normal opacity-80">
+                            {t(`report.vendor.visibility.${tier}Helper`)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mt-1.5 text-xs text-gray-400">{t("report.vendor.visibilityHelper")}</p>
+                  </fieldset>
+                </>
+              ) : (
+                <div>
+                  <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                    {t("report.category.label")}
+                  </label>
+                  <select
+                    id="report-category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="">{t("report.category.placeholder")}</option>
+                    {config.categories.map((id) => (
+                      <option key={id} value={id}>
+                        {t(`report.category.options.${id}`)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label htmlFor="report-description" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
@@ -261,6 +358,7 @@ const ReportPage = () => {
                 </div>
               </div>
 
+              {!isVendor && (
               <label className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-background-white p-4">
                 <input
                   type="checkbox"
@@ -273,6 +371,7 @@ const ReportPage = () => {
                   <span className="mt-0.5 block text-xs text-gray-500">{t("report.involvesHR.helper")}</span>
                 </span>
               </label>
+              )}
 
               <EvidenceUploader uploads={uploads} limits={config.limits}>
                 <VoiceRecorder uploads={uploads} limits={config.limits} />

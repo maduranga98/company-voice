@@ -19,6 +19,13 @@ const CATEGORIES = [
   'other',
 ];
 
+// The "vendor" report type bypasses CATEGORIES (those are employee-conduct categories,
+// not vendor risk ones) and uses this list instead. Keep in sync with the risk category
+// options on the logged-in staff form (src/pages/VendorRiskReport.jsx).
+const VENDOR_RISK_CATEGORIES = ['labor', 'data_privacy', 'safety', 'fraud', 'compliance', 'other'];
+const VENDOR_SEVERITIES = ['low', 'medium', 'high'];
+const VENDOR_VISIBILITIES = ['standard', 'restricted'];
+
 const LANGUAGES = ['en', 'es', 'fr', 'it', 'si'];
 
 const LIMITS = {
@@ -56,6 +63,9 @@ const PENDING_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 module.exports = {
   REPORT_TYPES,
   CATEGORIES,
+  VENDOR_RISK_CATEGORIES,
+  VENDOR_SEVERITIES,
+  VENDOR_VISIBILITIES,
   LANGUAGES,
   LIMITS,
   MIME_EXTENSIONS,

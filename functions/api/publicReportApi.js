@@ -7,6 +7,7 @@
  * - Errors are logged by code only.
  */
 
+const crypto = require('crypto');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const logger = require('firebase-functions/logger');
 const CryptoJS = require('crypto-js');
@@ -14,6 +15,7 @@ const { admin, db, serverTimestamp } = require('../config/firebase');
 const {
   REPORT_TYPES,
   CATEGORIES,
+  VENDOR_RISK_CATEGORIES,
   LIMITS,
   MIME_EXTENSIONS,
   SUBMISSION_LIMITS,
@@ -80,6 +82,7 @@ const getPublicReportConfig = onCall(BASE_OPTIONS, async (request) => {
       ? company.defaultLanguage
       : 'en',
     categories: CATEGORIES,
+    vendorRiskCategories: VENDOR_RISK_CATEGORIES,
     allowCaseProgressCheck: isCaseProgressCheckAllowed(company),
     limits: {
       maxFiles: LIMITS.maxFiles,
@@ -148,7 +151,48 @@ async function moveToCase(bucket, companyId, postId, checked) {
   return moved;
 }
 
-async function createCase({ postRef, postData, caseData, activityData }) {
+// Same destination convention the logged-in staff vendor-report form uses
+// (vendorEvidence/{companyId}/{reportId}/...), so the existing storage rule already
+// covers it. Unlike posts' attachments (resolved to a URL on click, client-side),
+// every vendor-report view renders `attachmentUrls` as ready-to-use strings, so a
+// long-lived download token is minted here instead of storing bare paths.
+async function moveToVendorCase(bucket, companyId, reportId, checked) {
+  // Returns [{ url, path }]: `url` is what's stored on the report (every vendor-report
+  // view renders attachmentUrls as ready-to-use strings), `path` is kept only so a
+  // failed submission can clean the moved files back up.
+  const moved = [];
+  try {
+    for (let i = 0; i < checked.length; i++) {
+      const { path, type } = checked[i];
+      const ext = MIME_EXTENSIONS[type];
+      const destination = `vendorEvidence/${companyId}/${reportId}/${i + 1}-${randomChars(6).toLowerCase()}.${ext}`;
+      await bucket.file(path).move(destination);
+      const token = crypto.randomUUID();
+      await bucket.file(destination).setMetadata({ metadata: { firebaseStorageDownloadTokens: token } });
+      moved.push({
+        path: destination,
+        url: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(destination)}?alt=media&token=${token}`,
+      });
+    }
+  } catch (error) {
+    await Promise.allSettled(moved.map((m) => bucket.file(m.path).delete()));
+    throw error;
+  }
+  return moved;
+}
+
+// Mirrors the client's generateReferenceCode (src/services/vendorRiskService.js) so
+// anonymously- and staff-submitted vendor reports share the same code format.
+async function generateVendorReferenceCode(companyId) {
+  const snap = await db.collection('vendorReports').where('companyId', '==', companyId).get();
+  const padded = String(snap.size + 1).padStart(4, '0');
+  return `VXW-${new Date().getFullYear()}-${padded}`;
+}
+
+// activityRef: the "created" log entry's destination — postActivities for a post,
+// caseActivities for a vendor report (caseTimelineService reads each case type from a
+// different collection; see src/services/caseTimelineService.js).
+async function createCase({ postRef, postData, caseData, activityRef, activityData }) {
   for (let attempt = 0; attempt < MAX_CASE_CODE_ATTEMPTS; attempt++) {
     const caseCode = generateCaseCode();
     const caseRef = db.collection('caseAccess').doc(caseCode);
@@ -158,7 +202,7 @@ async function createCase({ postRef, postData, caseData, activityData }) {
         if (existing.exists) throw COLLISION;
         tx.set(postRef, { ...postData, caseCode });
         tx.set(caseRef, caseData);
-        tx.set(db.collection('postActivities').doc(), activityData);
+        tx.set(activityRef, activityData);
       });
       return caseCode;
     } catch (error) {
@@ -265,11 +309,112 @@ const submitPublicReport = onCall(
         throw new HttpsError('resource-exhausted', 'Too many submissions. Please try again later.');
       }
 
-      const postRef = db.collection('posts').doc();
-      const attachments = await moveToCase(bucket, companyId, postRef.id, checkedFiles);
-
       const secretKey = generateSecretKey();
       const keyHash = hashSecretKey(secretKey, CASE_KEY_PEPPER.value());
+      let caseCode;
+
+      if (input.isVendor) {
+        const reportRef = db.collection('vendorReports').doc();
+        const moved = await moveToVendorCase(bucket, companyId, reportRef.id, checkedFiles);
+        const referenceCode = await generateVendorReferenceCode(companyId);
+
+        const reportData = {
+          companyId,
+          referenceCode,
+          source: 'public_link',
+          vendorName: input.vendorName,
+          riskCategory: input.riskCategory,
+          severity: input.severity,
+          status: 'open',
+          priority: input.severity,
+          visibility: input.visibility,
+          assignedTo: null,
+          dueDate: null,
+          description: input.description,
+          attachmentUrls: moved.map((m) => m.url),
+          authorId: null,
+          isAnonymous: true,
+          corroborationCount: 0,
+          autoEscalated: false,
+          submittedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          reviewedBy: null,
+          reviewNotes: null,
+          resolvedAt: null,
+        };
+        if (input.contact) {
+          reportData.reporterContactEncrypted = CryptoJS.AES.encrypt(
+            JSON.stringify(input.contact),
+            ANONYMOUS_SECRET.value()
+          ).toString();
+        }
+
+        // Auto-routing: same resolver the vendor dashboard's own submission path uses
+        // (src/services/routingRulesService.js), so a matching rule assigns the case
+        // immediately regardless of how it was reported.
+        const routingMatch = await resolveRoutingAssignment(db, companyId, 'vendor', {
+          riskCategory: input.riskCategory,
+          severity: input.severity,
+        });
+        if (routingMatch) {
+          reportData.assignedTo = {
+            type: routingMatch.assignment.type,
+            id: routingMatch.assignment.id,
+            name: routingMatch.assignment.name,
+            assignedAt: serverTimestamp(),
+            assignedBy: 'Routing rule',
+            assignedById: null,
+          };
+        }
+
+        try {
+          caseCode = await createCase({
+            postRef: reportRef,
+            postData: reportData,
+            caseData: {
+              postId: reportRef.id,
+              companyId,
+              // Marks which collection `postId` resolves in, for the "Check My Case"
+              // flow (functions/api/caseAccessApi.js). Absent/other value means `posts`.
+              collection: 'vendorReports',
+              keyHash,
+              failedAttempts: 0,
+              lockedUntil: null,
+              createdAt: serverTimestamp(),
+            },
+            activityRef: db.collection('caseActivities').doc(),
+            activityData: {
+              caseType: 'vendor',
+              caseId: reportRef.id,
+              companyId,
+              type: 'created',
+              metadata: routingMatch
+                ? {
+                    source: 'public_link',
+                    actor: 'public_reporter',
+                    autoAssigned: true,
+                    ruleId: routingMatch.ruleId,
+                    ruleName: routingMatch.ruleName,
+                    assignedToName: routingMatch.assignment.name,
+                  }
+                : { source: 'public_link', actor: 'public_reporter' },
+              createdAt: serverTimestamp(),
+            },
+          });
+        } catch (error) {
+          await Promise.allSettled(moved.map((m) => bucket.file(m.path).delete()));
+          throw error;
+        }
+
+        // Visibility stands in for involvesHR here: a restricted vendor report is kept
+        // out of HR's queue exactly like an HR-involving post is.
+        await notifyStaff(companyId, reportRef.id, input.visibility === 'restricted', routingMatch);
+
+        return { caseCode, secretKey };
+      }
+
+      const postRef = db.collection('posts').doc();
+      const attachments = await moveToCase(bucket, companyId, postRef.id, checkedFiles);
 
       const postData = {
         companyId,
@@ -319,7 +464,6 @@ const submitPublicReport = onCall(
         };
       }
 
-      let caseCode;
       try {
         caseCode = await createCase({
           postRef,
@@ -332,6 +476,7 @@ const submitPublicReport = onCall(
             lockedUntil: null,
             createdAt: serverTimestamp(),
           },
+          activityRef: db.collection('postActivities').doc(),
           activityData: {
             postId: postRef.id,
             companyId,

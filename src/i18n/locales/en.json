@@ -1074,6 +1074,10 @@
       "question": {
         "title": "Ask HR a question",
         "description": "Get an answer in confidence"
+      },
+      "vendor": {
+        "title": "Report a vendor concern",
+        "description": "Flag an issue with a supplier or vendor"
       }
     },
     "category": {
@@ -1202,7 +1206,9 @@
         "resolved": "Resolved",
         "closed": "Closed",
         "rejected": "Rejected",
-        "not_a_problem": "Not a problem"
+        "not_a_problem": "Not a problem",
+        "investigating": "Investigating",
+        "escalated": "Escalated"
       },
       "timers": {
         "acknowledged": "Your report has been acknowledged",
@@ -1385,6 +1391,34 @@
       "bestPracticeRotate": "Regenerate the link if it is leaked",
       "shareTitle": "Send a confidential report to {{company}}",
       "shareText": "Scan the QR code or open the link to send a report. No account needed, anonymous by default."
+    },
+    "vendor": {
+      "nameLabel": "Vendor or supplier name",
+      "namePlaceholder": "e.g. Acme Logistics Ltd",
+      "categoryLabel": "Risk category",
+      "categoryPlaceholder": "Choose a category",
+      "category": {
+        "labor": "Labor practices",
+        "data_privacy": "Data privacy",
+        "safety": "Health & safety",
+        "fraud": "Fraud or corruption",
+        "compliance": "Regulatory non-compliance",
+        "other": "Something else"
+      },
+      "severityLabel": "Severity",
+      "severity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "visibilityLabel": "Who can see this report",
+      "visibilityHelper": "Use Restricted if the concern involves someone in HR",
+      "visibility": {
+        "standard": "Standard",
+        "standardHelper": "Company Admin and HR",
+        "restricted": "Restricted",
+        "restrictedHelper": "Company Admin only"
+      }
     }
   },
   "staff": {

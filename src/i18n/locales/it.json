@@ -1074,6 +1074,10 @@
       "question": {
         "title": "Fai una domanda alle RU",
         "description": "Ricevi una risposta in modo riservato"
+      },
+      "vendor": {
+        "title": "Segnala una preoccupazione su un fornitore",
+        "description": "Segnala un problema con un fornitore"
       }
     },
     "category": {
@@ -1202,7 +1206,9 @@
         "resolved": "Risolto",
         "closed": "Chiuso",
         "rejected": "Respinto",
-        "not_a_problem": "Non è un problema"
+        "not_a_problem": "Non è un problema",
+        "investigating": "In corso di verifica",
+        "escalated": "Escalato"
       },
       "timers": {
         "acknowledged": "La tua segnalazione è stata presa in carico",
@@ -1385,6 +1391,34 @@
       "bestPracticeRotate": "Rigenera il link se viene diffuso",
       "shareTitle": "Invia una segnalazione riservata a {{company}}",
       "shareText": "Inquadra il codice QR o apri il link per inviare una segnalazione. Senza account, anonimo per impostazione predefinita."
+    },
+    "vendor": {
+      "nameLabel": "Nome del fornitore",
+      "namePlaceholder": "es. Acme Logistics Ltd",
+      "categoryLabel": "Categoria di rischio",
+      "categoryPlaceholder": "Scegli una categoria",
+      "category": {
+        "labor": "Pratiche lavorative",
+        "data_privacy": "Privacy dei dati",
+        "safety": "Salute e sicurezza",
+        "fraud": "Frode o corruzione",
+        "compliance": "Non conformità normativa",
+        "other": "Altro"
+      },
+      "severityLabel": "Gravità",
+      "severity": {
+        "low": "Bassa",
+        "medium": "Media",
+        "high": "Alta"
+      },
+      "visibilityLabel": "Chi può vedere questa segnalazione",
+      "visibilityHelper": "Usa Limitato se la questione coinvolge qualcuno delle Risorse Umane",
+      "visibility": {
+        "standard": "Standard",
+        "standardHelper": "Amministratore azienda e Risorse Umane",
+        "restricted": "Limitato",
+        "restrictedHelper": "Solo amministratore azienda"
+      }
     }
   },
   "staff": {
