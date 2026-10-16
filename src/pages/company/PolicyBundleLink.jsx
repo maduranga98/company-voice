@@ -23,6 +23,13 @@ const FILTERS = ["all", "pending", "partial", "acknowledged", "concern"];
 const formatDate = (ms) =>
   ms ? new Date(ms).toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "";
 
+// Tag a failed read so the console says which one was denied.
+const labelled = (label, promise) =>
+  promise.catch((err) => {
+    console.error(`Policy pack read failed: ${label}`, err?.code);
+    throw err;
+  });
+
 const PolicyBundleLink = () => {
   const { t } = useTranslation();
   const { slug } = useParams();
@@ -53,7 +60,7 @@ const PolicyBundleLink = () => {
       setError("");
       try {
         const [linkSnap, rosterSnap] = await Promise.all([
-          getDoc(doc(db, "policyLinks", slug)),
+          labelled("policyLinks", getDoc(doc(db, "policyLinks", slug))),
           // The roster is optional; a missing or unreadable one must not block the page.
           getDoc(doc(db, "policyLinkRosters", slug)).catch(() => null),
         ]);
@@ -62,11 +69,14 @@ const PolicyBundleLink = () => {
           throw new Error("not-found");
         }
         const [allPolicies, responseSnap] = await Promise.all([
-          getPolicies(userData.companyId),
-          getDocs(
-            query(
-              collection(db, "companies", userData.companyId, "policyResponses"),
-              where("policyId", "in", linkData.policyIds)
+          labelled("policies", getPolicies(userData.companyId)),
+          labelled(
+            "policyResponses",
+            getDocs(
+              query(
+                collection(db, "companies", userData.companyId, "policyResponses"),
+                where("policyId", "in", linkData.policyIds)
+              )
             )
           ),
         ]);
