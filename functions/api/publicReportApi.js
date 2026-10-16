@@ -39,7 +39,7 @@ const { hashKey, consumeRateLimit, claimToken, releaseToken } = require('../util
 const { resolveRoutingAssignment } = require('../utils/routingRules');
 const { SLUG_PATTERN, issueReportSlug } = require('../utils/reportSlugs');
 const { assertRole, assertCompany } = require('../utils/authz');
-const { isCaseProgressCheckAllowed, buildSettingsUpdate } = require('../utils/companySettings');
+const { isCaseProgressCheckAllowed, isVendorRiskAllowed, buildSettingsUpdate } = require('../utils/companySettings');
 const { BASE_OPTIONS, clientIp } = require('../config/callableOptions');
 
 const { ANONYMOUS_SECRET, CASE_KEY_PEPPER, IP_HASH_SALT } = require('../config/secrets');
@@ -87,6 +87,7 @@ const getPublicReportConfig = onCall(BASE_OPTIONS, async (request) => {
     vendorCategories: VENDOR_CATEGORIES,
     vendorSeverities: VENDOR_SEVERITIES,
     allowCaseProgressCheck: isCaseProgressCheckAllowed(company),
+    allowVendorRisk: isVendorRiskAllowed(company),
     limits: {
       maxFiles: LIMITS.maxFiles,
       maxFileMB: LIMITS.maxFileMB,
@@ -263,7 +264,10 @@ const submitPublicReport = onCall(
 
     const resolved = await resolveActiveCompany(input.slug);
     if (!resolved) throw notFound();
-    const { companyId } = resolved;
+    const { companyId, company } = resolved;
+    if (input.type === VENDOR_REPORT_TYPE && !isVendorRiskAllowed(company)) {
+      throw new HttpsError('invalid-argument', 'Invalid submission.');
+    }
 
     const bucket = admin.storage().bucket();
     const checkedFiles = await verifyPendingFiles(bucket, input.attachmentPaths);
