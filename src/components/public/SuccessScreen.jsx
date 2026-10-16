@@ -62,14 +62,14 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, allowCaseProgressChec
   const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
-    if (confirmed) return undefined;
+    if (confirmed || !caseCode || !secretKey) return undefined;
     const warn = (event) => {
       event.preventDefault();
       event.returnValue = t("report.success.leaveWarning");
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [confirmed, t]);
+  }, [confirmed, caseCode, secretKey, t]);
 
   const download = () => {
     const lines = [
@@ -92,6 +92,31 @@ const SuccessScreen = ({ companyName, caseCode, secretKey, allowCaseProgressChec
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+
+  if (!caseCode || !secretKey) {
+    return (
+      <div className="space-y-5">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1ABC9C]/15">
+          <Check className="h-6 w-6 text-[#1ABC9C]" aria-hidden="true" />
+        </span>
+        <div>
+          <h2 className="text-2xl font-semibold text-[#2D3E50]">{t("report.success.title")}</h2>
+          <p className="mt-1 text-sm text-gray-600">
+            {t("report.success.introNoTracking", {
+              defaultValue: "Thank you for speaking up. Your report has been received and will be reviewed.",
+            })}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onDone}
+          className="w-full rounded-xl bg-[#1ABC9C] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#16A085]"
+        >
+          {t("report.success.done")}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">

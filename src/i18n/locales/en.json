@@ -1165,6 +1165,7 @@
     "success": {
       "title": "Your report has been sent",
       "intro": "Thank you for speaking up. Here are your case code and secret key.",
+      "introNoTracking": "Thank you for speaking up. Your report has been received and will be reviewed.",
       "caseCode": "Case code",
       "secretKey": "Secret key",
       "copy": "Copy",
