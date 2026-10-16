@@ -1321,6 +1321,8 @@
       "toggleHelp": "Si está desactivado, el enlace muestra una página inactiva y no se pueden enviar informes.",
       "caseCheckLabel": "Los empleados pueden consultar el avance del caso",
       "caseCheckHelp": "Si está activado, quienes denuncian pueden usar /c con su código de caso y clave secreta para ver el estado e intercambiar respuestas privadas. Si está desactivado, ya no podrán ver el estado ni enviar o recibir respuestas allí; solo RR. HH. podrá seguir actuando internamente sobre el caso.",
+      "vendorRiskLabel": "Los empleados pueden reportar riesgos de proveedores",
+      "vendorRiskHelp": "Si está activado, el formulario ofrece la opción Riesgo de proveedor. Si está desactivado, se oculta y ya no se pueden enviar reportes de proveedores con este enlace.",
       "scanToReport": "Escanea para enviar un informe",
       "howTitle": "Cómo enviar un informe",
       "stepsTitle": "Pasos",

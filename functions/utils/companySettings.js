@@ -4,11 +4,16 @@
  * was introduced keep the behaviour they already had.
  */
 
-const DEFAULT_COMPANY_SETTINGS = Object.freeze({ allowCaseProgressCheck: true });
+const DEFAULT_COMPANY_SETTINGS = Object.freeze({ allowCaseProgressCheck: true, allowVendorRisk: true });
 
 /** True unless the company has explicitly turned the /c "check my case" feature off. */
 function isCaseProgressCheckAllowed(company) {
   return !(company && company.settings && company.settings.allowCaseProgressCheck === false);
+}
+
+/** True unless the company has explicitly turned the Vendor Risk report type off. */
+function isVendorRiskAllowed(company) {
+  return !(company && company.settings && company.settings.allowVendorRisk === false);
 }
 
 /**
@@ -33,4 +38,4 @@ function buildSettingsUpdate(input) {
   return updates;
 }
 
-module.exports = { DEFAULT_COMPANY_SETTINGS, isCaseProgressCheckAllowed, buildSettingsUpdate };
+module.exports = { DEFAULT_COMPANY_SETTINGS, isCaseProgressCheckAllowed, isVendorRiskAllowed, buildSettingsUpdate };

@@ -1369,6 +1369,8 @@
       "toggleHelp": "When off, the link shows an inactive page and no reports can be sent.",
       "caseCheckLabel": "Employees can check case progress",
       "caseCheckHelp": "When on, reporters can use /c with their case code and secret key to see status and exchange private replies. When off, they can no longer see status or send or receive replies there; only HR can still act on the case internally.",
+      "vendorRiskLabel": "Employees can report vendor risks",
+      "vendorRiskHelp": "When on, the report form offers a Vendor risk option. When off, it is hidden and vendor reports can no longer be submitted through this link.",
       "scanToReport": "Scan to Send a Report",
       "howTitle": "How to Send a Report",
       "stepsTitle": "Steps",

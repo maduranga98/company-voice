@@ -8,14 +8,14 @@ const TYPES = [
   { id: "vendor", icon: Truck },
 ];
 
-const TypeSelector = ({ value, onChange }) => {
+const TypeSelector = ({ value, onChange, allowVendor = true }) => {
   const { t } = useTranslation();
 
   return (
     <fieldset>
       <legend className="mb-3 text-base font-semibold text-[#2D3E50]">{t("report.type.heading")}</legend>
       <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
-        {TYPES.map(({ id, icon }) => {
+        {TYPES.filter(({ id }) => allowVendor || id !== "vendor").map(({ id, icon }) => {
           const Icon = icon;
           const selected = value === id;
           return (

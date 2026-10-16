@@ -1369,6 +1369,8 @@
       "toggleHelp": "Quando è disattivato, il link mostra una pagina non attiva e non è possibile inviare segnalazioni.",
       "caseCheckLabel": "I dipendenti possono controllare l'avanzamento del caso",
       "caseCheckHelp": "Se attivo, chi segnala può usare /c con codice caso e chiave segreta per vedere lo stato e scambiare risposte private. Se disattivo, non potrà più vedere lo stato né inviare o ricevere risposte lì; solo le risorse umane potranno continuare a gestire il caso internamente.",
+      "vendorRiskLabel": "I dipendenti possono segnalare rischi dei fornitori",
+      "vendorRiskHelp": "Se attivo, il modulo offre l'opzione Rischio fornitore. Se disattivo, è nascosta e non è più possibile inviare segnalazioni sui fornitori da questo link.",
       "scanToReport": "Inquadra per inviare una segnalazione",
       "howTitle": "Come inviare una segnalazione",
       "stepsTitle": "Passaggi",

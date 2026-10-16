@@ -232,6 +232,7 @@ const ReportPage = () => {
             )}
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <TypeSelector
+                allowVendor={config.allowVendorRisk !== false}
                 value={type}
                 onChange={(next) => {
                   setType(next);

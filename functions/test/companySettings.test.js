@@ -29,3 +29,11 @@ test('buildSettingsUpdate rejects bad payloads', () => {
   assert.throws(() => buildSettingsUpdate({ isActive: false }), TypeError);
   assert.throws(() => buildSettingsUpdate({ __proto__: null, constructor: true }), TypeError);
 });
+
+test('vendor risk defaults to on and is off only when explicitly false', () => {
+  const { isVendorRiskAllowed } = require('../utils/companySettings');
+  assert.strictEqual(isVendorRiskAllowed(undefined), true);
+  assert.strictEqual(isVendorRiskAllowed({ settings: {} }), true);
+  assert.strictEqual(isVendorRiskAllowed({ settings: { allowVendorRisk: false } }), false);
+  assert.deepStrictEqual(buildSettingsUpdate({ allowVendorRisk: false }), { 'settings.allowVendorRisk': false });
+});

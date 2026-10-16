@@ -18,6 +18,7 @@ const CompanyQRCode = () => {
   const [reportUrl, setReportUrl] = useState("");
   const [reportingEnabled, setReportingEnabled] = useState(true);
   const [caseCheckEnabled, setCaseCheckEnabled] = useState(true);
+  const [vendorRiskEnabled, setVendorRiskEnabled] = useState(true);
   const [linkBusy, setLinkBusy] = useState(false);
   const [linkError, setLinkError] = useState("");
   const [confirmRegenerate, setConfirmRegenerate] = useState(false);
@@ -46,6 +47,7 @@ const CompanyQRCode = () => {
         setCompany(companyData);
         setReportingEnabled(companyData.reportingEnabled !== false);
         setCaseCheckEnabled(companyData.settings?.allowCaseProgressCheck !== false);
+        setVendorRiskEnabled(companyData.settings?.allowVendorRisk !== false);
 
         let slug = companyData.reportSlug;
         if (!slug) {
@@ -114,6 +116,24 @@ const CompanyQRCode = () => {
       setCaseCheckEnabled(next);
     } catch (error) {
       console.error("Error updating case progress setting:", error);
+      setLinkError(t("report.link.saveError"));
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
+  const toggleVendorRisk = async () => {
+    const next = !vendorRiskEnabled;
+    setLinkBusy(true);
+    setLinkError("");
+    try {
+      await httpsCallable(functions, "updateCompanySettings")({
+        companyId: company.id,
+        settings: { allowVendorRisk: next },
+      });
+      setVendorRiskEnabled(next);
+    } catch (error) {
+      console.error("Error updating vendor risk setting:", error);
       setLinkError(t("report.link.saveError"));
     } finally {
       setLinkBusy(false);
@@ -919,6 +939,16 @@ const CompanyQRCode = () => {
                 <p className="mt-1 text-sm text-gray-500">{t('report.link.caseCheckHelp')}</p>
               </div>
               <Toggle checked={caseCheckEnabled} disabled={disabled} onChange={toggleCaseCheck} labelledBy="case-check-label" />
+            </div>
+
+            <div className="flex items-start justify-between gap-4 p-5">
+              <div>
+                <p id="vendor-risk-label" className="text-sm font-semibold text-gray-900">
+                  {t('report.link.vendorRiskLabel')}
+                </p>
+                <p className="mt-1 text-sm text-gray-500">{t('report.link.vendorRiskHelp')}</p>
+              </div>
+              <Toggle checked={vendorRiskEnabled} disabled={disabled} onChange={toggleVendorRisk} labelledBy="vendor-risk-label" />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 p-5">
