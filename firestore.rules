@@ -216,7 +216,8 @@ service cloud.firestore {
     }
 
     match /policyLinkRosters/{slug} {
-      allow read: if isSuperAdmin() || (isAuthenticated() && getUserCompanyId() == resource.data.companyId);
+      // A roster only exists once saved; reading a missing one must not be an error.
+      allow read: if isSuperAdmin() || (isAuthenticated() && (resource == null || getUserCompanyId() == resource.data.companyId));
       allow write: if false;
     }
 
