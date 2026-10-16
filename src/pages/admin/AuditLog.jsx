@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import PageHeader, { PageContainer, PageLoading } from "../../components/PageHeader";
 import {
   getCompanyAuditLog,
   searchAuditLogs,
@@ -17,7 +18,7 @@ import {
   SystemActivityTypeConfig,
 } from "../../utils/constants";
 import {
-  ArrowLeft,
+  ClipboardList,
   Activity,
   FileText,
   Monitor,
@@ -30,7 +31,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Info,
-  Loader2,
 } from "lucide-react";
 
 const AuditLog = () => {
@@ -256,41 +256,20 @@ const AuditLog = () => {
 
   if (loading && activities.length === 0) {
     return (
-      <div className="min-h-screen bg-background-page flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: "#1ABC9C" }} />
-          <p className="mt-3 text-sm text-gray-500 font-medium">Loading audit logs...</p>
-        </div>
-      </div>
+      <PageLoading label="Loading audit logs..." />
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-page">
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-3">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="p-2 rounded-xl border border-gray-100 bg-background-white shadow-sm text-gray-500 hover:text-[#2D3E50] hover:border-gray-200 transition-all"
-              title="Back to Dashboard"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold" style={{ color: "#2D3E50" }}>
-                Audit Log
-              </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
-                Comprehensive chronological history of all actions in the system
-              </p>
-            </div>
-          </div>
-        </div>
+    <PageContainer>
+      <PageHeader
+        icon={ClipboardList}
+        title="Audit Log"
+        subtitle="Comprehensive chronological history of all actions in the system"
+      />
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-background-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-gray-500">Total Activities</p>
@@ -336,7 +315,7 @@ const AuditLog = () => {
         </div>
 
         {/* Filters Section */}
-        <div className="bg-background-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm">
+        <div className="bg-background-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <div className="flex items-center space-x-2 mb-5">
             <SlidersHorizontal className="w-5 h-5" style={{ color: "#2D3E50" }} />
             <h2 className="text-lg font-semibold" style={{ color: "#2D3E50" }}>
@@ -672,8 +651,7 @@ const AuditLog = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

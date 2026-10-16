@@ -16,6 +16,7 @@ import { AddStaffButton, ResetPasswordButton } from "../../components/StaffAccou
 import { UserRole } from "../../utils/constants";
 import { getDepartments, removeUserFromDepartment } from "../../services/departmentservice";
 import DepartmentAssignment from "../../components/DepartmentAssignment";
+import PageHeader, { PageContainer, PageLoading } from "../../components/PageHeader";
 import {
   Users,
   UserCheck,
@@ -433,29 +434,18 @@ const MemberManagementWithDepartments = () => {
 
   if (loading && members.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background-page">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#1ABC9C] border-t-transparent"></div>
-          <p className="text-sm text-gray-500">Loading members...</p>
-        </div>
-      </div>
+      <PageLoading label="Loading members..." />
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-page px-4 py-6 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="mb-8 w-full">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-[#2D3E50]">
-              Member Management
-            </h1>
-            <p className="text-gray-500 mt-1 text-sm">
-              Manage your team members and department assignments
-            </p>
-          </div>
-          <div className="flex gap-3">
+    <PageContainer>
+      <PageHeader
+        icon={Users}
+        title="Member Management"
+        subtitle="Manage your team members and department assignments"
+        actions={
+          <>
             {selectedUsers.length > 0 && (
               <button
                 onClick={handleBulkAssignToDepartment}
@@ -467,7 +457,7 @@ const MemberManagementWithDepartments = () => {
             )}
             <button
               onClick={() => navigate("/company/tag-management")}
-              className="px-4 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
+              className="px-4 py-2.5 bg-background-white text-[#2D3E50] border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
             >
               <Tag className="w-4 h-4" />
               Manage Tags
@@ -475,16 +465,18 @@ const MemberManagementWithDepartments = () => {
             <AddStaffButton onCreated={loadData} />
             <button
               onClick={() => navigate("/company/departments")}
-              className="px-4 py-2.5 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#16A085] transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
+              className="px-4 py-2.5 bg-background-white text-[#2D3E50] border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm"
             >
               <Building2 className="w-4 h-4" />
               Manage Departments
             </button>
-          </div>
-        </div>
+          </>
+        }
+      />
 
+      <div className="space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#2D3E50]/5 flex items-center justify-center">
@@ -551,7 +543,7 @@ const MemberManagementWithDepartments = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+        <div className="bg-background-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {/* Search */}
             <div>
@@ -921,7 +913,7 @@ const MemberManagementWithDepartments = () => {
 
         {/* Removed Members Section */}
         {removedMembers.length > 0 && (
-          <div className="mt-8">
+          <div>
             <button
               onClick={() => setShowRemovedSection((prev) => !prev)}
               className="flex items-center gap-2 text-gray-500 hover:text-[#2D3E50] font-medium text-sm mb-4 transition-colors"
@@ -1402,7 +1394,7 @@ const MemberManagementWithDepartments = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

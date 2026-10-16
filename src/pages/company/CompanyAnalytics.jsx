@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { PostPriorityConfig } from "../../utils/constants";
 import { CaseType } from "../../utils/caseTypes";
 import { fetchAnalyticsData } from "../../services/analyticsService";
@@ -17,8 +16,9 @@ import {
   downloadCSV,
 } from "../../utils/analyticsHelpers";
 import { PriorityBadge } from "../../components/case/CaseBadges";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 import {
-  ArrowLeft,
+  BarChart3,
   FileText,
   Download,
   ChevronDown,
@@ -98,7 +98,6 @@ const SCOPES = [["", "All cases"], ...Object.values(CaseType).map((t) => [t, CAS
 const CompanyAnalytics = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [raw, setRaw] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -179,18 +178,12 @@ const CompanyAnalytics = () => {
       .map(([k, n]) => [labelFor(labels, k), n]);
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <div>
-        <button
-          onClick={() => navigate("/company/dashboard")}
-          className="mb-2 inline-flex items-center gap-1.5 text-[13px] font-medium text-gray-500 transition hover:text-ink"
-        >
-          <ArrowLeft size={14} />
-          {t("common.back")}
-        </button>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink lg:text-3xl">Analytics</h1>
-        <p className="mt-1 text-sm text-gray-500">How your company handles reports and concerns</p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={BarChart3}
+        title="Analytics"
+        subtitle="How your company handles reports and concerns"
+      />
 
       {/* Controls */}
       <section className={card}>
@@ -496,7 +489,7 @@ const CompanyAnalytics = () => {
           {a.handlers.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No cases assigned to individuals in this period</p>}
         </div>
       </section>
-    </div>
+    </PageContainer>
   );
 };
 

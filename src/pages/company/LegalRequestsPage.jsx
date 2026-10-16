@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Scale,
   Upload,
@@ -24,7 +23,7 @@ import {
   UserRole,
 } from "../../utils/constants";
 import { uploadCourtOrder } from "../../services/legalEvidenceService";
-import BackButton from "../../components/BackButton";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 import DisclosureModal from "../../components/DisclosureModal";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
@@ -32,7 +31,6 @@ import { hrCaseScope, sortByCreatedAtDesc } from "../../utils/caseVisibility";
 
 const LegalRequestsPage = () => {
   const { userData } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [requests, setRequests] = useState([]);
@@ -343,57 +341,43 @@ const LegalRequestsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-page py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Back Button */}
-        <div className="mb-6">
-          <BackButton to="/company/dashboard" label="Back to Dashboard" />
-        </div>
-
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="flex items-center mb-2">
-              <Scale className="w-8 h-8 text-indigo-600 mr-3" />
-              <h1 className="text-3xl font-bold text-gray-900">
-                Legal Disclosure Requests
-              </h1>
-            </div>
-            <p className="text-gray-600">
-              Submit and track court-ordered information disclosure requests
-            </p>
-          </div>
-          <button
-            onClick={() => { setShowCreateModal(true); searchAnonymousPosts(''); }}
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            New Request
-          </button>
-        </div>
+    <PageContainer>
+        <PageHeader
+          icon={Scale}
+          title="Legal Disclosure Requests"
+          subtitle="Submit and track court-ordered information disclosure requests"
+          actions={
+            <button
+              onClick={() => { setShowCreateModal(true); searchAnonymousPosts(''); }}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
+            >
+              <Plus size={16} aria-hidden="true" />
+              New Request
+            </button>
+          }
+        />
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <p className="text-green-800 text-sm">{success}</p>
           </div>
         )}
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
             <p className="text-red-800 text-sm">{error}</p>
           </div>
         )}
 
         {/* Requests List */}
-        <div className="bg-background-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-background-white border border-gray-100 rounded-2xl shadow-sm p-5 lg:p-6">
+          <h2 className="text-lg font-semibold text-[#2D3E50] mb-4">
             Your Legal Requests
           </h2>
           {renderRequestsList()}
         </div>
-      </div>
 
       {/* Disclosure Modal — super_admin split-key identity disclosure */}
       <DisclosureModal
@@ -667,7 +651,7 @@ const LegalRequestsPage = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

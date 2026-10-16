@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
+import { FileDown } from "lucide-react";
 import {
   queryAuditLogs,
   computeSummary,
@@ -97,7 +98,6 @@ const SummaryCard = ({ label, value, highlight, sublabel }) => (
 // ============================================================
 const AuditExportPage = () => {
   const { userData } = useAuth();
-  const navigate = useNavigate();
 
   // Filters
   const [fromDate, setFromDate] = useState("");
@@ -158,28 +158,15 @@ const AuditExportPage = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-      {/* Page header */}
-      <div className="mb-6 flex items-center gap-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-slate-500 hover:text-[#2D3E50] transition-colors"
-          title="Go back"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-[#2D3E50]">Compliance Audit Export</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Filter, view, and export audit logs for compliance purposes
-          </p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={FileDown}
+        title="Compliance Audit Export"
+        subtitle="Filter, view, and export audit logs for compliance purposes"
+      />
 
       {/* ---- STICKY FILTERS BAR ---- */}
-      <div className="sticky top-0 z-20 bg-background-white border border-slate-200 rounded-lg shadow-sm p-4 mb-6">
+      <div className="sticky top-14 z-20 bg-background-white border border-gray-100 rounded-2xl shadow-sm p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
           {/* From date */}
           <div>
@@ -412,7 +399,7 @@ const AuditExportPage = () => {
           the current state of the audit trail and are suitable for compliance purposes.
         </p>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

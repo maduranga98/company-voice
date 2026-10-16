@@ -30,6 +30,7 @@ import {
   SearchX,
   X,
 } from "lucide-react";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 
 const POST_ADAPTER = getCaseAdapter(CaseType.POST);
 const VENDOR_ADAPTER = getCaseAdapter(CaseType.VENDOR);
@@ -195,16 +196,12 @@ const CaseQueue = () => {
     : [];
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <div className="flex items-center gap-3 lg:gap-4">
-        <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#2D3E50] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-          <LayoutGrid size={20} className="text-white" aria-hidden="true" />
-        </div>
-        <div className="min-w-0">
-          <h1 className="text-xl lg:text-2xl font-bold tracking-tight text-[#2D3E50]">Case Queue</h1>
-          <p className="text-sm text-gray-500">All reports and vendor-risk cases, in one place</p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={LayoutGrid}
+        title="Case Queue"
+        subtitle="All reports and vendor-risk cases, in one place"
+      />
 
       {/* Scope tabs — the "who has this" view */}
       <div role="group" aria-label="Filter by assignment" className="grid grid-cols-3 gap-2 lg:gap-4">
@@ -467,7 +464,7 @@ const CaseQueue = () => {
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 
