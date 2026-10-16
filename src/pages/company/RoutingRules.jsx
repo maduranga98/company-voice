@@ -22,6 +22,7 @@ import {
   moveRoutingRule,
 } from "../../services/routingRulesService";
 import { showSuccess, showError } from "../../services/toastService";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 
 const POST_TYPE_LABELS = {
   [PostType.PROBLEM_REPORT]: "Problem Report",
@@ -407,29 +408,24 @@ const RoutingRules = () => {
   }
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      <div className="flex items-center gap-3 lg:gap-4">
-        <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#2D3E50] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-          <Route size={20} className="text-white" aria-hidden="true" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-xl lg:text-2xl font-bold tracking-tight text-[#2D3E50]">Routing Rules</h1>
-          <p className="text-sm text-gray-500">
-            New reports and vendor-risk reports are auto-assigned to the first matching rule, in order below.
-            Anything no rule matches stays unassigned in the Case Queue.
-          </p>
-        </div>
-        {editingId === null && (
-          <button
-            type="button"
-            onClick={() => setEditingId("new")}
-            className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
-          >
-            <Plus size={16} aria-hidden="true" />
-            New rule
-          </button>
-        )}
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={Route}
+        title="Routing Rules"
+        subtitle="Reports are auto-assigned to the first matching rule, in order. Unmatched cases stay unassigned in the Case Queue."
+        actions={
+          editingId === null && (
+            <button
+              type="button"
+              onClick={() => setEditingId("new")}
+              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
+            >
+              <Plus size={16} aria-hidden="true" />
+              New rule
+            </button>
+          )
+        }
+      />
 
       {editingId === "new" && (
         <RuleEditor
@@ -538,7 +534,7 @@ const RoutingRules = () => {
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

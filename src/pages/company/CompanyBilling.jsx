@@ -4,6 +4,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import PageHeader, { PageContainer, PageLoading } from '../../components/PageHeader';
+import { CreditCard } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth, db } from '../../config/firebase';
 import { collection, query, where, getCountFromServer } from 'firebase/firestore';
@@ -170,38 +172,21 @@ function CompanyBillingContent() {
 
   if (loading && !subscription) {
     return (
-      <div className="min-h-screen bg-background-page flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading billing information...</p>
-        </div>
-      </div>
+      <PageLoading label="Loading billing information..." />
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-page py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <button
-              onClick={() => window.history.back()}
-              className="text-gray-600 hover:text-gray-900 transition"
-              title="Back"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <h1 className="text-3xl font-bold text-gray-900">Billing & Subscription</h1>
-          </div>
-          <p className="text-gray-600">Manage your subscription, invoices, and payment methods</p>
-        </div>
+    <PageContainer>
+        <PageHeader
+          icon={CreditCard}
+          title="Billing & Subscription"
+          subtitle="Manage your subscription, invoices, and payment methods"
+        />
 
         {/* Alert Messages */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
             <span className="block sm:inline">{error}</span>
             <button onClick={() => setError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
               <span className="text-xl">&times;</span>
@@ -210,7 +195,7 @@ function CompanyBillingContent() {
         )}
 
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
             <span className="block sm:inline">{success}</span>
             <button onClick={() => setSuccess(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
               <span className="text-xl">&times;</span>
@@ -219,7 +204,7 @@ function CompanyBillingContent() {
         )}
 
         {/* Stat Cards */}
-        <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Active Members */}
           <div className="bg-background-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
@@ -255,7 +240,7 @@ function CompanyBillingContent() {
 
         {/* Subscription Status Banner */}
         {subscription && (
-          <div className="mb-6 bg-background-white rounded-lg shadow-sm p-6">
+          <div className="bg-background-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3">
@@ -371,7 +356,6 @@ function CompanyBillingContent() {
             </div>
           </div>
         )}
-      </div>
 
       {/* Add Payment Method Modal */}
       {showAddPaymentModal && (
@@ -395,7 +379,7 @@ function CompanyBillingContent() {
           onCancel={handleCancelSubscription}
         />
       )}
-    </div>
+    </PageContainer>
   );
 }
 

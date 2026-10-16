@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { showSuccess, showError, showWarning } from "../../services/toastService";
 import {
   collection,
@@ -16,12 +15,13 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import HelpPanel from "../../components/help/HelpPanel";
+import PageHeader, { PageContainer, PageLoading } from "../../components/PageHeader";
+import { Tags, Plus } from "lucide-react";
 import { TAG_SYSTEM_GUIDANCE } from "../../utils/guidanceContent";
 
 const TagManagement = () => {
   const { t } = useTranslation();
   const { userData } = useAuth();
-  const navigate = useNavigate();
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -152,50 +152,33 @@ const TagManagement = () => {
 
   if (loading && tags.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <PageLoading />
     );
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          {t('common.back')}
-        </button>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('company.tagManagement')}</h1>
-            <p className="text-gray-600">
-              {t('company.tagManagementSubtitle')}
-            </p>
-          </div>
+    <PageContainer>
+      <PageHeader
+        icon={Tags}
+        title={t('company.tagManagement')}
+        subtitle={t('company.tagManagementSubtitle')}
+        actions={
           <button
             onClick={() => {
               setEditingTag(null);
               setFormData({ name: "", description: "", color: "blue", icon: "👤", priority: 1 });
               setShowCreateModal(true);
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus size={16} aria-hidden="true" />
             {t('company.createTag')}
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Help Section */}
-      <div className="mb-6">
+      <div>
         <HelpPanel title="About User Tags" variant="info" defaultExpanded={false}>
           <div className="space-y-3">
             <p className="text-gray-700">{TAG_SYSTEM_GUIDANCE.description}</p>
@@ -427,7 +410,7 @@ const TagManagement = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

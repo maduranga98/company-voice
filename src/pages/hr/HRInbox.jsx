@@ -35,6 +35,7 @@ import {
   SearchX,
   X,
 } from "lucide-react";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 
 const IN_PROGRESS_STATUSES = [
   PostStatus.IN_PROGRESS,
@@ -227,21 +228,12 @@ const HRInbox = () => {
     : [];
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-3 lg:gap-4">
-        <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#2D3E50] rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-          <Inbox size={20} className="text-white" aria-hidden="true" />
-        </div>
-        <div className="min-w-0">
-          <h1 className="text-xl lg:text-2xl font-bold tracking-tight text-[#2D3E50]">
-            {t("navigation.hrInbox", "HR Inbox")}
-          </h1>
-          <p className="text-sm text-gray-500">
-            {t("hrInbox.subtitle", "Posts sent directly to HR")}
-          </p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={Inbox}
+        title={t("navigation.hrInbox", "HR Inbox")}
+        subtitle={t("hrInbox.subtitle", "Posts sent directly to HR")}
+      />
 
       {/* Stat tiles — double as the status filter */}
       <div role="group" aria-label={t("hrInbox.filterLabel", "Filter by status")} className="grid grid-cols-4 gap-2 lg:gap-4">
@@ -570,7 +562,7 @@ const HRInbox = () => {
           )}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

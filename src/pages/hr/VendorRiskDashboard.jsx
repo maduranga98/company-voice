@@ -9,6 +9,7 @@ import {
 } from "../../services/vendorRiskService";
 import CaseHandlingPanel from "../../components/case/CaseHandlingPanel";
 import OpenCaseLink from "../../components/case/OpenCaseLink";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 import { CaseType } from "../../utils/caseTypes";
 import {
   ArrowLeft, FileText, AlertTriangle, ChevronRight, Download, Shield,
@@ -179,23 +180,16 @@ const VendorRiskDashboard = () => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="min-h-screen bg-background-page pb-32">
-      {/* Header */}
-      <div className="bg-[#2D3E50] text-white px-6 py-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-[#1ABC9C]/20 rounded-xl flex items-center justify-center">
-            <Shield className="w-5 h-5 text-[#1ABC9C]" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold">Vendor Risk Reports</h1>
-            <p className="text-sm text-white/50 mt-0.5">Anonymous third-party risk submissions from employees</p>
-          </div>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={Shield}
+        title="Vendor Risk Reports"
+        subtitle="Anonymous third-party risk submissions from employees"
+      />
 
       {/* Stats row */}
       {stats && (
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 p-4">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
           {[
             { label: "Total", value: stats.total, color: "text-[#2D3E50]" },
             { label: "Open", value: stats.open, color: "text-blue-600" },
@@ -213,7 +207,7 @@ const VendorRiskDashboard = () => {
       )}
 
       {/* Filter tabs */}
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -230,7 +224,7 @@ const VendorRiskDashboard = () => {
       </div>
 
       {/* Report list */}
-      <div className="p-4">
+      <div>
         {filteredReports.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -584,7 +578,7 @@ const VendorRiskDashboard = () => {
           </div>
         </>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

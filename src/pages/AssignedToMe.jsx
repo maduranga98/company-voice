@@ -9,6 +9,7 @@ import OpenCaseLink from "../components/case/OpenCaseLink";
 import { PostStatusConfig, PostPriorityConfig } from "../utils/constants";
 import { CaseType, getCaseAdapter } from "../utils/caseTypes";
 import { StatusBadge, PriorityBadge, DueDateChip } from "../components/case/CaseBadges";
+import PageHeader, { PageContainer } from "../components/PageHeader";
 import {
   ClipboardCheck,
   AlertTriangle,
@@ -117,7 +118,7 @@ const AssignedToMe = () => {
 
   if (!userData?.userTagId) {
     return (
-      <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
+      <PageContainer>
         <div className="bg-amber-50 border border-gray-100 rounded-2xl p-6 text-center shadow-sm">
           <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <AlertTriangle className="w-5 h-5 text-amber-600" />
@@ -129,7 +130,7 @@ const AssignedToMe = () => {
             {t("assignedToMe.noTagMessage")}
           </p>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -150,30 +151,20 @@ const AssignedToMe = () => {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pb-24 pt-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div
-          className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
-          style={{ backgroundColor: "#2D3E50" }}
-        >
-          <ClipboardCheck className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight" style={{ color: "#2D3E50" }}>
-            {t("assignedToMe.title")}
-          </h1>
-        </div>
-        <span
-          className="ml-auto px-2.5 py-1 rounded-xl text-xs font-semibold text-white"
-          style={{ backgroundColor: "#1ABC9C" }}
-        >
-          {posts.length}
-        </span>
-      </div>
+    <PageContainer>
+      <PageHeader
+        icon={ClipboardCheck}
+        title={t("assignedToMe.title")}
+        badge={
+          <span className="rounded-xl bg-[#1ABC9C] px-2.5 py-1 text-xs font-semibold text-white">
+            {posts.length}
+          </span>
+        }
+      />
 
+      <div className="space-y-3">
       {/* Status filter pills */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3" style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
         {statusTabs.map((tab) => (
           <button
             key={tab.value}
@@ -191,7 +182,7 @@ const AssignedToMe = () => {
       </div>
 
       {/* Priority filter pills */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 mb-5" style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
         {priorityTabs.map((tab) => (
           <button
             key={tab.value}
@@ -206,6 +197,7 @@ const AssignedToMe = () => {
             {tab.label}
           </button>
         ))}
+      </div>
       </div>
 
       {/* Empty state */}
@@ -303,7 +295,7 @@ const AssignedToMe = () => {
           })}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

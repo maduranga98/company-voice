@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PageHeader, { PageContainer, PageLoading } from "../../components/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -13,7 +14,6 @@ import {
   X,
   Upload,
   FileText,
-  ArrowLeft,
   Bell,
   Trash2,
   Link2,
@@ -316,14 +316,12 @@ const PolicyManagement = () => {
   // ─── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-page flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600" />
-      </div>
+      <PageLoading />
     );
   }
 
   return (
-    <div className="min-h-screen bg-background-page">
+    <PageContainer>
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 right-4 z-50 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
@@ -331,44 +329,24 @@ const PolicyManagement = () => {
         </div>
       )}
 
-      {/* Header */}
-      <header className="bg-background-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate("/company/dashboard")}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <div className="flex items-center space-x-2">
-                <BookOpen className="w-6 h-6 text-teal-600" />
-                <h1 className="text-2xl font-bold text-gray-900">Policy Library</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-700">
-                {userData?.displayName || userData?.username}
-              </span>
-              <span className="px-2 py-1 bg-teal-100 text-teal-800 text-xs font-semibold rounded-full uppercase">
-                {userData?.role === "company_admin" ? "Company Admin" : "HR"}
-              </span>
-              <button
-                onClick={openCreateModal}
-                className="flex items-center space-x-2 px-4 py-2 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 transition"
-              >
-                <Plus className="w-4 h-4" />
-                <span>New Policy</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        icon={BookOpen}
+        title="Policy Library"
+        subtitle="Create, publish and track acknowledgement of company policies"
+        actions={
+          <button
+            onClick={openCreateModal}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
+          >
+            <Plus size={16} aria-hidden="true" />
+            New Policy
+          </button>
+        }
+      />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="space-y-6 lg:space-y-8">
         {/* Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "Total Policies", value: stats.total, color: "text-gray-900", bg: "bg-background-white" },
             { label: "Published", value: stats.published, color: "text-green-700", bg: "bg-green-50" },
@@ -383,7 +361,7 @@ const PolicyManagement = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex space-x-1 mb-6 bg-gray-100 rounded-xl p-1 w-fit">
+        <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 w-fit">
           {["all", "published", "draft", "archived"].map((tab) => (
             <button
               key={tab}
@@ -784,7 +762,7 @@ const PolicyManagement = () => {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

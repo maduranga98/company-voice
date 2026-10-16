@@ -6,6 +6,7 @@ import {
   markThreadRead,
 } from "../../services/anonymousThreadService";
 import AnonymousThread from "../../components/AnonymousThread";
+import PageHeader, { PageContainer } from "../../components/PageHeader";
 import { UserRole, ThreadSender } from "../../utils/constants";
 import {
   ArrowLeft,
@@ -94,9 +95,10 @@ const HRConversations = () => {
   // Thread detail view
   if (selectedPostId !== null) {
     return (
-      <div className="min-h-screen bg-background-page flex flex-col">
+      <PageContainer>
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-background-white shadow-sm">
         {/* Header */}
-        <header className="bg-background-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 sticky top-0 z-10">
+        <header className="bg-background-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => setSelectedPostId(null)}
             className="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-xl flex-shrink-0 hover:bg-gray-200 transition"
@@ -124,7 +126,7 @@ const HRConversations = () => {
         </div>
 
         {/* Thread content */}
-        <div className="flex-1 overflow-y-auto">
+        <div>
           {selectedPostId && (
             <AnonymousThread
               postId={selectedPostId}
@@ -136,31 +138,28 @@ const HRConversations = () => {
           )}
         </div>
       </div>
+      </PageContainer>
     );
   }
 
   // Inbox list view
   return (
-    <div className="min-h-screen bg-background-page flex flex-col">
-      {/* Header */}
-      <div className="bg-background-white border-b border-gray-200 px-4 pt-5 pb-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center">
-            <MessageSquare size={20} className="text-teal-600" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold text-gray-900">Conversations</h1>
-              {totalUnread > 0 && (
-                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg">
-                  {totalUnread}
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-400">{filteredThreads.length} conversation{filteredThreads.length !== 1 ? "s" : ""}</p>
-          </div>
-        </div>
+    <PageContainer>
+      <PageHeader
+        icon={MessageSquare}
+        title="Conversations"
+        subtitle={`${filteredThreads.length} conversation${filteredThreads.length !== 1 ? "s" : ""}`}
+        badge={
+          totalUnread > 0 && (
+            <span className="rounded-lg bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              {totalUnread}
+            </span>
+          )
+        }
+      />
 
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-background-white shadow-sm">
+      <div className="px-4 pt-4 pb-4">
         {/* Search */}
         <div className="relative mb-3">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -187,7 +186,7 @@ const HRConversations = () => {
       </div>
 
       {/* Privacy bar */}
-      <div className="bg-emerald-50 border-b border-emerald-100 px-4 py-2 flex items-center gap-2">
+      <div className="bg-emerald-50 border-y border-emerald-100 px-4 py-2 flex items-center gap-2">
         <Lock size={12} className="text-emerald-600 flex-shrink-0" />
         <p className="text-xs text-emerald-700 font-medium">
           Reporter identities are never visible. All messages are encrypted.
@@ -195,7 +194,7 @@ const HRConversations = () => {
       </div>
 
       {/* Thread list */}
-      <div className="flex-1 overflow-y-auto">
+      <div>
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 rounded-xl border-2 border-[#1ABC9C] border-t-transparent animate-spin" />
@@ -254,7 +253,8 @@ const HRConversations = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 };
 
