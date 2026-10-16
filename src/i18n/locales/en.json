@@ -1271,7 +1271,9 @@
         "alreadyBody": "You have already acknowledged “{{policy}}” (version {{version}}). Nothing more to do.",
         "concernTitle": "Concern received",
         "concernBody": "HR has received your concern about “{{policy}}” and may contact you using the details you gave.",
-        "another": "Respond for another employee"
+        "another": "Respond for another employee",
+        "bundleAcknowledgedBody": "Your acknowledgement of all {{count}} policies has been recorded.",
+        "bundleAlreadyBody": "You have already acknowledged all {{count}} policies. Nothing more to do."
       },
       "errors": {
         "invalid": "Please check your employee ID, name and response, then try again.",
@@ -1285,6 +1287,13 @@
       "inactive": {
         "title": "This policy link is not active",
         "body": "Please check the link, or ask your organisation for a new one."
+      },
+      "bundle": {
+        "defaultTitle": "Policies to acknowledge",
+        "intro": "Please read each of the {{count}} policies below, then acknowledge them all at once.",
+        "checkbox": "I have read and understood all {{count}} policies.",
+        "button": "Acknowledge all {{count}} policies",
+        "concernAbout": "Which policy is your concern about?"
       }
     },
     "policyLink": {
@@ -1410,6 +1419,32 @@
         "medium": "Medium",
         "high": "High"
       }
+    },
+    "policyBundle": {
+      "defaultTitle": "Policy pack",
+      "intro": "One link for {{count}} policies. Employees read them all and acknowledge them in a single step.",
+      "loadError": "Could not load this policy pack. Please try again.",
+      "someInactive": "{{count}} policy(ies) in this pack are no longer published and are hidden from employees.",
+      "included": "Policies in this pack",
+      "acknowledgedBy": "{{count}} acknowledged",
+      "stats": {
+        "acknowledged": "All acknowledged",
+        "partial": "Partly done",
+        "pending": "Not yet",
+        "concerns": "Concerns",
+        "outsideRoster": "Not on roster"
+      },
+      "filter": {
+        "all": "All",
+        "pending": "Not yet",
+        "partial": "Partly done",
+        "acknowledged": "All done",
+        "concern": "Concerns"
+      },
+      "statuses": {
+        "partial": "{{done}} of {{total}}"
+      },
+      "missing": "Still to acknowledge: {{policies}}"
     }
   },
   "staff": {

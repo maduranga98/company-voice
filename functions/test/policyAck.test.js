@@ -7,6 +7,7 @@ const {
   validateAckSubmission,
   parseRosterText,
   recordAcknowledgement,
+  recordAcknowledgements,
   countDistinctAcknowledgedEmployees,
 } = require('../utils/policyAck');
 
@@ -200,4 +201,67 @@ test('countDistinctAcknowledgedEmployees runs one aggregation over the roster co
   assert.strictEqual(calls.length, 0);
   await countDistinctAcknowledgedEmployees(db, 'c1', { sinceMs: 1000 });
   assert.deepStrictEqual(calls[0].slice(0, 5), ['companies', 'c1', 'policyEmployees', 'lastAcknowledgedAt', '>=']);
+});
+
+const bundleItems = [
+  { policyId: 'p1', policyVersion: '1.0' },
+  { policyId: 'p2', policyVersion: '2.1' },
+];
+
+test('validateAckSubmission accepts a bundle submission without policyVersion', () => {
+  const { policyVersion: _omit, ...rest } = valid();
+  const out = validateAckSubmission({ ...rest, items: bundleItems });
+  assert.deepStrictEqual(out.items, bundleItems);
+  assert.strictEqual(out.policyVersion, '');
+  assert.strictEqual(validateAckSubmission(valid()).items, null, 'single links keep items null');
+});
+
+test('validateAckSubmission rejects malformed, repeated, empty or oversized bundles', () => {
+  const { policyVersion: _omit, ...rest } = valid();
+  const bad = (items, extra = {}) => rejectedField({ ...rest, items, ...extra });
+  assert.strictEqual(bad([]), 'items');
+  assert.strictEqual(bad('p1'), 'items');
+  assert.strictEqual(bad([bundleItems[0], bundleItems[0]]), 'items');
+  assert.strictEqual(bad([{ policyId: 'a/b', policyVersion: '1.0' }]), 'items');
+  assert.strictEqual(bad([{ policyId: 'p1' }]), 'items');
+  assert.strictEqual(bad([null]), 'items');
+  assert.strictEqual(
+    bad(Array.from({ length: 21 }, (_, i) => ({ policyId: `p${i}`, policyVersion: '1.0' }))),
+    'items'
+  );
+  // A concern is about exactly one policy.
+  assert.strictEqual(bad(bundleItems, { response: 'concern', concernText: 'x'.repeat(20) }), 'items');
+  assert.strictEqual(bad([bundleItems[0]], { response: 'concern', concernText: 'x'.repeat(20) }), null);
+});
+
+const bundleSubmit = (store, key, policies) =>
+  recordAcknowledgements(fakeTx(store), {
+    employeeRef: { path: `employees/${key}` },
+    items: policies.map(([policyId, version]) => ({
+      ackRef: refs(policyId, version, key).ackRef,
+      ack: { policyId, policyVersion: version, employeeKey: key, response: 'acknowledged' },
+    })),
+    employee: { employeeKey: key, employeeId: key.toUpperCase(), employeeName: 'Ada', onRoster: null },
+    now: 'NOW',
+  });
+
+test('recordAcknowledgements writes every policy once and bumps the employee counter by that many', async () => {
+  const store = new Map();
+  const all = [['p1', '1.0'], ['p2', '1.0'], ['p3', '1.0']];
+  assert.deepStrictEqual(await bundleSubmit(store, 'emp1', all), { createdCount: 3, total: 3 });
+  assert.strictEqual([...store.keys()].filter((k) => k.startsWith('ack/')).length, 3);
+  assert.strictEqual(store.get('employees/emp1').acknowledgementCount, 3);
+  assert.strictEqual(store.get('employees/emp1').lastPolicyId, 'p3');
+});
+
+test('recordAcknowledgements only records what is missing and is a no-op when all exist', async () => {
+  const store = new Map();
+  await submit(store, 'p2', '1.0', 'emp1'); // already acknowledged through its single link
+  const all = [['p1', '1.0'], ['p2', '1.0'], ['p3', '1.0']];
+  assert.deepStrictEqual(await bundleSubmit(store, 'emp1', all), { createdCount: 2, total: 3 });
+  assert.strictEqual(store.get('employees/emp1').acknowledgementCount, 3);
+
+  const before = JSON.stringify([...store]);
+  assert.deepStrictEqual(await bundleSubmit(store, 'emp1', all), { createdCount: 0, total: 3 });
+  assert.strictEqual(JSON.stringify([...store]), before, 'a repeat must not write anything');
 });

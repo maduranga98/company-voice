@@ -89,6 +89,7 @@ const {
   getPolicyForLink,
   submitPolicyAcknowledgement,
   ensurePolicyLink,
+  ensurePolicyBundleLink,
   setPolicyLinkActive,
   setPolicyLinkRoster,
 } = require('./api/policyAckApi');
@@ -194,5 +195,6 @@ exports.submitCaseReply = submitCaseReply;
 exports.getPolicyForLink = getPolicyForLink;
 exports.submitPolicyAcknowledgement = submitPolicyAcknowledgement;
 exports.ensurePolicyLink = ensurePolicyLink;
+exports.ensurePolicyBundleLink = ensurePolicyBundleLink;
 exports.setPolicyLinkActive = setPolicyLinkActive;
 exports.setPolicyLinkRoster = setPolicyLinkRoster;

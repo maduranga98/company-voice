@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AlertTriangle, CheckCircle2, ExternalLink, Info, Loader2, WifiOff } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronDown, ExternalLink, Info, Loader2, WifiOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PolicyHeader from "../../components/public/PolicyHeader";
 import InactiveLink from "../../components/public/InactiveLink";
@@ -49,6 +49,77 @@ const useOnline = () => {
   return online;
 };
 
+// One policy: category, version, text and the optional attached document. In a bundle each
+// policy collapses so a long pack stays scannable.
+const PolicyCard = ({ policy, collapsible, t, locale }) => {
+  const body = (
+    <>
+      {policy.content ? (
+        <div
+          tabIndex={0}
+          aria-label={policy.title}
+          className="mt-4 max-h-[26rem] overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-background-softGray p-4 text-sm leading-relaxed text-[#2D3E50] focus:outline-none focus:ring-4 focus:ring-brand-100"
+        >
+          {policy.content}
+        </div>
+      ) : (
+        <p className="mt-4 text-sm text-gray-500">{t("report.policy.documentOnly")}</p>
+      )}
+
+      {policy.fileUrl && (
+        <a
+          href={policy.fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1ABC9C] hover:text-[#16A085]"
+        >
+          <ExternalLink className="h-4 w-4" aria-hidden="true" />
+          {t("report.policy.openDocument", { name: policy.fileName || policy.title })}
+        </a>
+      )}
+    </>
+  );
+
+  const meta = (
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-[#2D3E50]">
+        {CATEGORIES.includes(policy.category)
+          ? t(`report.policy.categories.${policy.category}`)
+          : t("report.policy.categories.other")}
+      </span>
+      <span className="text-gray-500">{t("report.policy.version", { version: policy.version })}</span>
+      {policy.effectiveDate && (
+        <span className="text-gray-500">
+          {t("report.policy.effective", { date: formatDate(policy.effectiveDate, locale) })}
+        </span>
+      )}
+    </div>
+  );
+
+  if (!collapsible) {
+    return (
+      <article className="rounded-2xl border border-gray-200 bg-background-white p-5">
+        {meta}
+        <h2 className="mt-3 text-lg font-semibold leading-snug text-[#2D3E50]">{policy.title}</h2>
+        {body}
+      </article>
+    );
+  }
+
+  return (
+    <details className="group rounded-2xl border border-gray-200 bg-background-white p-5">
+      <summary className="cursor-pointer list-none">
+        {meta}
+        <span className="mt-3 flex items-start justify-between gap-3">
+          <h2 className="text-base font-semibold leading-snug text-[#2D3E50]">{policy.title}</h2>
+          <ChevronDown className="mt-1 h-4 w-4 shrink-0 text-gray-400 transition group-open:rotate-180" aria-hidden="true" />
+        </span>
+      </summary>
+      {body}
+    </details>
+  );
+};
+
 const PolicyAckPage = () => {
   const { slug } = useParams();
   const { t, i18n } = useTranslation();
@@ -69,7 +140,8 @@ const PolicyAckPage = () => {
   const [website, setWebsite] = useState(""); // honeypot: real people never see or fill this
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState(null); // { status, name, policyTitle, version }
+  const [concernPolicyId, setConcernPolicyId] = useState(""); // bundle: which policy the concern is about
+  const [result, setResult] = useState(null); // { status, name, policyTitle, version, count }
 
   const locale = i18n.resolvedLanguage || i18n.language;
 
@@ -94,6 +166,10 @@ const PolicyAckPage = () => {
     loadPolicy(true);
   }, [loadPolicy]);
 
+  // A single link carries one policy, a bundle link several to acknowledge together.
+  const isBundle = Boolean(config?.bundle);
+  const policies = config ? config.policies || [config.policy] : [];
+
   const trimmedConcern = concernText.trim().length;
   const detailsOk = employeeId.trim().length > 0 && employeeName.trim().length >= 2;
   const canSubmit =
@@ -108,6 +184,7 @@ const PolicyAckPage = () => {
     setMode("acknowledge");
     setConfirmed(false);
     setConcernText("");
+    setConcernPolicyId("");
     setError("");
     idempotencyToken.current = createAckToken();
     openedAt.current = Date.now();
@@ -125,13 +202,18 @@ const PolicyAckPage = () => {
     setBusy(true);
     setError("");
     try {
+      // A bundle acknowledges every policy it shows; a concern is about the one chosen.
+      const concernTarget = policies.find((p) => p.id === concernPolicyId) || policies[0];
+      const targets = mode === "concern" ? [concernTarget] : policies;
       const response = await submitPolicyResponse({
         slug,
         employeeId: employeeId.trim(),
         employeeName: employeeName.trim(),
         response: mode === "acknowledge" ? "acknowledged" : "concern",
         ...(mode === "concern" ? { concernText: concernText.trim() } : {}),
-        policyVersion: config.policy.version,
+        ...(isBundle
+          ? { items: targets.map((p) => ({ policyId: p.id, policyVersion: p.version })) }
+          : { policyVersion: policies[0].version }),
         idempotencyToken: idempotencyToken.current,
         website,
         elapsedMs: Date.now() - openedAt.current,
@@ -140,17 +222,20 @@ const PolicyAckPage = () => {
       setResult({
         status: response.status,
         name: employeeName.trim(),
-        policyTitle: config.policy.title,
-        version: config.policy.version,
+        policyTitle: (mode === "concern" ? concernTarget : policies[0]).title,
+        version: (mode === "concern" ? concernTarget : policies[0]).version,
+        count: policies.length,
       });
     } catch (err) {
       // The first try of a concern may have landed even though the answer was lost.
       if (err?.code === "functions/already-exists") {
+        const target = policies.find((p) => p.id === concernPolicyId) || policies[0];
         setResult({
           status: "concern_received",
           name: employeeName.trim(),
-          policyTitle: config.policy.title,
-          version: config.policy.version,
+          policyTitle: target.title,
+          version: target.version,
+          count: policies.length,
         });
       } else {
         const key = policyErrorKey(err);
@@ -180,8 +265,6 @@ const PolicyAckPage = () => {
     );
   }
 
-  const { policy } = config;
-
   return (
     <div className="min-h-screen bg-background-page">
       <PolicyHeader companyName={config.companyName} />
@@ -209,9 +292,13 @@ const PolicyAckPage = () => {
                 result.status === "concern_received"
                   ? "report.policy.success.concernBody"
                   : result.status === "already_acknowledged"
-                    ? "report.policy.success.alreadyBody"
-                    : "report.policy.success.acknowledgedBody",
-                { policy: result.policyTitle, version: result.version }
+                    ? isBundle
+                      ? "report.policy.success.bundleAlreadyBody"
+                      : "report.policy.success.alreadyBody"
+                    : isBundle
+                      ? "report.policy.success.bundleAcknowledgedBody"
+                      : "report.policy.success.acknowledgedBody",
+                { policy: result.policyTitle, version: result.version, count: result.count }
               )}
             </p>
             <button
@@ -224,46 +311,23 @@ const PolicyAckPage = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <article className="rounded-2xl border border-gray-200 bg-background-white p-5">
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-[#2D3E50]">
-                  {CATEGORIES.includes(policy.category)
-                    ? t(`report.policy.categories.${policy.category}`)
-                    : t("report.policy.categories.other")}
-                </span>
-                <span className="text-gray-500">{t("report.policy.version", { version: policy.version })}</span>
-                {policy.effectiveDate && (
-                  <span className="text-gray-500">
-                    {t("report.policy.effective", { date: formatDate(policy.effectiveDate, locale) })}
-                  </span>
-                )}
-              </div>
-              <h2 className="mt-3 text-lg font-semibold leading-snug text-[#2D3E50]">{policy.title}</h2>
-
-              {policy.content ? (
-                <div
-                  tabIndex={0}
-                  aria-label={policy.title}
-                  className="mt-4 max-h-[26rem] overflow-y-auto whitespace-pre-wrap break-words rounded-xl bg-background-softGray p-4 text-sm leading-relaxed text-[#2D3E50] focus:outline-none focus:ring-4 focus:ring-brand-100"
-                >
-                  {policy.content}
+            {isBundle ? (
+              <section aria-label={config.bundle.title || t("report.policy.bundle.defaultTitle")} className="space-y-3">
+                <div>
+                  <h1 className="text-lg font-semibold text-[#2D3E50]">
+                    {config.bundle.title || t("report.policy.bundle.defaultTitle")}
+                  </h1>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {t("report.policy.bundle.intro", { count: policies.length })}
+                  </p>
                 </div>
-              ) : (
-                <p className="mt-4 text-sm text-gray-500">{t("report.policy.documentOnly")}</p>
-              )}
-
-              {policy.fileUrl && (
-                <a
-                  href={policy.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1ABC9C] hover:text-[#16A085]"
-                >
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                  {t("report.policy.openDocument", { name: policy.fileName || policy.title })}
-                </a>
-              )}
-            </article>
+                {policies.map((policy) => (
+                  <PolicyCard key={policy.id} policy={policy} collapsible t={t} locale={locale} />
+                ))}
+              </section>
+            ) : (
+              <PolicyCard policy={policies[0]} t={t} locale={locale} />
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -321,10 +385,33 @@ const PolicyAckPage = () => {
                     onChange={(e) => setConfirmed(e.target.checked)}
                     className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#1ABC9C]"
                   />
-                  <span className="text-sm font-semibold text-[#2D3E50]">{t("report.policy.acknowledge.checkbox")}</span>
+                  <span className="text-sm font-semibold text-[#2D3E50]">
+                    {isBundle
+                      ? t("report.policy.bundle.checkbox", { count: policies.length })
+                      : t("report.policy.acknowledge.checkbox")}
+                  </span>
                 </label>
               ) : (
                 <div>
+                  {isBundle && (
+                    <div className="mb-4">
+                      <label htmlFor="policy-concern-about" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                        {t("report.policy.bundle.concernAbout")}
+                      </label>
+                      <select
+                        id="policy-concern-about"
+                        value={concernPolicyId || policies[0].id}
+                        onChange={(e) => setConcernPolicyId(e.target.value)}
+                        className={inputClass}
+                      >
+                        {policies.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <label htmlFor="policy-concern" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
                     {t("report.policy.concern.label")}
                   </label>
@@ -385,7 +472,9 @@ const PolicyAckPage = () => {
                 {busy
                   ? t("report.policy.sending")
                   : mode === "acknowledge"
-                    ? t("report.policy.acknowledge.button")
+                    ? isBundle
+                      ? t("report.policy.bundle.button", { count: policies.length })
+                      : t("report.policy.acknowledge.button")
                     : t("report.policy.concern.button")}
               </button>
             </form>

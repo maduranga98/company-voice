@@ -13,6 +13,10 @@ const LIMITS = {
   maxConcern: 2000,
   maxVersion: 30,
   maxRoster: 3000,
+  minBundle: 2,
+  maxBundle: 20,
+  maxBundleTitle: 100,
+  maxPolicyId: 128,
 };
 
 // Minimum time on the page before a submission counts as human (policy text has to be read).

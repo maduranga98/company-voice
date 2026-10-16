@@ -86,3 +86,54 @@ test('listVersions puts the current version first, then the most recent others',
   assert.deepStrictEqual(listVersions(responses, '1.0'), ['1.0', '2.0', '1.5']);
   assert.deepStrictEqual(listVersions([], '1.0'), ['1.0']);
 });
+
+const bundle = [
+  { id: 'p1', version: '1.0' },
+  { id: 'p2', version: '2.0' },
+];
+const bAck = (key, policyId, version, ms) => ({ ...ack(key, version, ms), policyId });
+const bConcern = (key, policyId, version, ms, postId) => ({ ...concern(key, version, ms, postId), policyId });
+
+test('bundle report: complete, partial, concern-only and pending employees', async () => {
+  const { buildBundleReport } = await load();
+  const { rows, summary, perPolicy } = buildBundleReport({
+    roster,
+    policies: bundle,
+    responses: [
+      bAck('e1', 'p1', '1.0', 100),
+      bAck('e1', 'p2', '2.0', 200),
+      bAck('e2', 'p1', '1.0', 150),
+      bConcern('e10', 'p2', '2.0', 160, 'post1'),
+    ],
+  });
+  const byKey = Object.fromEntries(rows.map((r) => [r.employeeKey, r]));
+  assert.strictEqual(byKey.e1.status, 'acknowledged');
+  assert.strictEqual(byKey.e1.acknowledgedAt, 200);
+  assert.strictEqual(byKey.e2.status, 'partial');
+  assert.deepStrictEqual(byKey.e2.missing, ['p2']);
+  assert.strictEqual(byKey.e10.status, 'concern');
+  assert.deepStrictEqual(byKey.e10.postIds, ['post1']);
+  assert.deepStrictEqual(summary, {
+    rosterTotal: 3, acknowledged: 1, partial: 1, pending: 0, concerns: 1, offRoster: 0,
+  });
+  assert.deepStrictEqual(perPolicy, [{ id: 'p1', acknowledged: 2 }, { id: 'p2', acknowledged: 1 }]);
+});
+
+test('bundle report ignores old versions and unrelated policies, and flags off-roster employees', async () => {
+  const { buildBundleReport } = await load();
+  const { rows, summary } = buildBundleReport({
+    roster,
+    policies: bundle,
+    responses: [
+      bAck('e1', 'p1', '0.9', 100), // outdated version
+      bAck('e1', 'p3', '1.0', 100), // not in this bundle
+      bAck('zz', 'p1', '1.0', 100),
+      bAck('zz', 'p2', '2.0', 100),
+    ],
+  });
+  assert.strictEqual(rows.find((r) => r.employeeKey === 'e1').status, 'pending');
+  const outsider = rows.find((r) => r.employeeKey === 'zz');
+  assert.strictEqual(outsider.status, 'acknowledged');
+  assert.strictEqual(outsider.onRoster, false);
+  assert.strictEqual(summary.offRoster, 1);
+});

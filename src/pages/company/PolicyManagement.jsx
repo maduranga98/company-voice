@@ -17,6 +17,8 @@ import {
   Bell,
   Trash2,
   Link2,
+  Layers,
+  Loader2,
 } from "lucide-react";
 import {
   createPolicy,
@@ -29,6 +31,10 @@ import {
   getPolicyAcknowledgementStats,
   uploadPolicyFileWithProgress,
 } from "../../services/policyService";
+import { ensurePolicyBundleLink, getPolicyBundles } from "../../services/policyAckService";
+
+const MIN_BUNDLE = 2;
+const MAX_BUNDLE = 20;
 
 const CATEGORY_LABELS = {
   code_of_conduct: "Code of Conduct",
@@ -67,6 +73,9 @@ const EMPTY_FORM = {
   fileName: null,
 };
 
+// Only live policies that employees must acknowledge can go into a bundle.
+const isShareable = (p) => p.status === "published" && p.requiresAcknowledgement;
+
 const PolicyManagement = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
@@ -92,6 +101,14 @@ const PolicyManagement = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [statsLoading, setStatsLoading] = useState(false);
 
+  // Bundles: several policies shared (and acknowledged) through one link
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bundles, setBundles] = useState([]);
+  const [showBundleModal, setShowBundleModal] = useState(false);
+  const [bundleTitle, setBundleTitle] = useState("");
+  const [bundleBusy, setBundleBusy] = useState(false);
+  const [bundleError, setBundleError] = useState("");
+
   const [toast, setToast] = useState("");
 
   useEffect(() => {
@@ -105,8 +122,15 @@ const PolicyManagement = () => {
   const loadPolicies = async () => {
     setLoading(true);
     try {
-      const data = await getPolicies(userData.companyId);
+      const [data, bundleLinks] = await Promise.all([
+        getPolicies(userData.companyId),
+        getPolicyBundles(userData.companyId).catch(() => []),
+      ]);
       setPolicies(data);
+      setBundles(bundleLinks);
+      // Drop selections that are no longer shareable (archived, deleted, ...).
+      const shareable = new Set(data.filter(isShareable).map((p) => p.id));
+      setSelectedIds((prev) => prev.filter((id) => shareable.has(id)));
     } catch (err) {
       console.error("Error loading policies:", err);
     } finally {
@@ -127,6 +151,50 @@ const PolicyManagement = () => {
     published: policies.filter((p) => p.status === "published").length,
     draft: policies.filter((p) => p.status === "draft").length,
     archived: policies.filter((p) => p.status === "archived").length,
+  };
+
+  // ─── Bundles ────────────────────────────────────────────────────
+  const shareable = filteredPolicies.filter(isShareable);
+  const allShareableSelected = shareable.length > 0 && shareable.every((p) => selectedIds.includes(p.id));
+  const policyTitleById = Object.fromEntries(policies.map((p) => [p.id, p.title]));
+
+  const toggleSelected = (id) =>
+    setSelectedIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= MAX_BUNDLE) {
+        showToast(`You can share up to ${MAX_BUNDLE} policies at once.`);
+        return prev;
+      }
+      return [...prev, id];
+    });
+
+  const toggleAllShareable = () =>
+    setSelectedIds((prev) =>
+      allShareableSelected
+        ? prev.filter((id) => !shareable.some((p) => p.id === id))
+        : [...new Set([...prev, ...shareable.map((p) => p.id)])].slice(0, MAX_BUNDLE)
+    );
+
+  const openBundleModal = () => {
+    setBundleTitle("");
+    setBundleError("");
+    setShowBundleModal(true);
+  };
+
+  const handleCreateBundle = async () => {
+    setBundleBusy(true);
+    setBundleError("");
+    try {
+      const { slug } = await ensurePolicyBundleLink(selectedIds, bundleTitle.trim());
+      setShowBundleModal(false);
+      setSelectedIds([]);
+      navigate(`/company/policy-bundles/${slug}`);
+    } catch (err) {
+      console.error("Bundle error:", err);
+      setBundleError("Could not create the link. Make sure every selected policy is published, then try again.");
+    } finally {
+      setBundleBusy(false);
+    }
   };
 
   // ─── Modal open/close ───────────────────────────────────────────
@@ -334,13 +402,24 @@ const PolicyManagement = () => {
         title="Policy Library"
         subtitle="Create, publish and track acknowledgement of company policies"
         actions={
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
-          >
-            <Plus size={16} aria-hidden="true" />
-            New Policy
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {selectedIds.length >= MIN_BUNDLE && (
+              <button
+                onClick={openBundleModal}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-[#16A085] transition hover:bg-teal-50"
+              >
+                <Layers size={16} aria-hidden="true" />
+                Share {selectedIds.length} together
+              </button>
+            )}
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
+            >
+              <Plus size={16} aria-hidden="true" />
+              New Policy
+            </button>
+          </div>
         }
       />
 
@@ -394,6 +473,16 @@ const PolicyManagement = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="w-10 pl-5 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all shareable policies"
+                        checked={allShareableSelected}
+                        disabled={shareable.length === 0}
+                        onChange={toggleAllShareable}
+                        className="h-4 w-4 rounded border-gray-300 accent-[#1ABC9C] disabled:opacity-30"
+                      />
+                    </th>
                     <th className="text-left px-5 py-3 font-semibold text-gray-700">Title</th>
                     <th className="text-left px-5 py-3 font-semibold text-gray-700">Category</th>
                     <th className="text-left px-4 py-3 font-semibold text-gray-700">Version</th>
@@ -406,6 +495,17 @@ const PolicyManagement = () => {
                 <tbody className="divide-y divide-gray-50">
                   {filteredPolicies.map((policy) => (
                     <tr key={policy.id} className="hover:bg-gray-50 transition">
+                      <td className="w-10 pl-5 py-4">
+                        {isShareable(policy) && (
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${policy.title}`}
+                            checked={selectedIds.includes(policy.id)}
+                            onChange={() => toggleSelected(policy.id)}
+                            className="h-4 w-4 rounded border-gray-300 accent-[#1ABC9C]"
+                          />
+                        )}
+                      </td>
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900">{policy.title}</p>
                         {policy.fileName && (
@@ -493,7 +593,108 @@ const PolicyManagement = () => {
             </div>
           </div>
         )}
+
+        {/* Hint */}
+        {selectedIds.length === 1 && (
+          <p className="text-sm text-gray-500">Select at least one more policy to share them together in one link.</p>
+        )}
+
+        {/* Existing bundles */}
+        {bundles.length > 0 && (
+          <section>
+            <h2 className="mb-3 text-base font-semibold text-gray-900">Shared together</h2>
+            <ul className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-100 bg-background-white shadow-sm">
+              {bundles.map((b) => (
+                <li key={b.slug} className="flex items-center justify-between gap-3 px-5 py-4">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-gray-900">
+                      {b.title || `${b.policyIds.length} policies`}
+                    </p>
+                    <p className="mt-0.5 truncate text-xs text-gray-500">
+                      {b.policyIds.map((id) => policyTitleById[id] || "Deleted policy").join(" · ")}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                        b.active === false ? "bg-gray-100 text-gray-600" : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {b.active === false ? "Paused" : "Active"}
+                    </span>
+                    <button
+                      onClick={() => navigate(`/company/policy-bundles/${b.slug}`)}
+                      className="rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100"
+                    >
+                      Manage
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </main>
+
+      {/* ─── Bundle Modal ────────────────────────────────────────── */}
+      {showBundleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900">Share {selectedIds.length} policies together</h2>
+              <button onClick={() => setShowBundleModal(false)} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-5">
+              <p className="text-sm text-gray-600">
+                Employees open one link, read every policy below and acknowledge them all in one go.
+              </p>
+              <ul className="space-y-1.5 rounded-xl bg-gray-50 p-4 text-sm text-gray-800">
+                {selectedIds.map((id) => (
+                  <li key={id} className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 shrink-0 text-teal-600" />
+                    <span className="truncate">{policyTitleById[id]}</span>
+                  </li>
+                ))}
+              </ul>
+              <div>
+                <label htmlFor="bundle-title" className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Pack name <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <input
+                  id="bundle-title"
+                  type="text"
+                  maxLength={100}
+                  value={bundleTitle}
+                  onChange={(e) => setBundleTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                  placeholder="e.g. 2025 onboarding policies"
+                />
+              </div>
+              {bundleError && (
+                <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-xl">{bundleError}</p>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+              <button
+                onClick={() => setShowBundleModal(false)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-xl transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateBundle}
+                disabled={bundleBusy}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition disabled:opacity-50"
+              >
+                {bundleBusy && <Loader2 className="h-4 w-4 animate-spin" />}
+                Create link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── Create / Edit Modal ─────────────────────────────────── */}
       {showModal && (

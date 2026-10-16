@@ -63,6 +63,7 @@ import SharedCasePage from "./pages/public/SharedCasePage";
 import CheckCasePage from "./pages/public/CheckCasePage";
 import PolicyAckPage from "./pages/public/PolicyAckPage";
 import PolicyAckLink from "./pages/company/PolicyAckLink";
+import PolicyBundleLink from "./pages/company/PolicyBundleLink";
 
 const CompanyDashboardGuard = () => {
   const { userData } = useAuth();
@@ -409,6 +410,17 @@ function App() {
                 <PrivateRoute>
                   <CompanyAdminLayout>
                     <PolicyAckLink />
+                  </CompanyAdminLayout>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/company/policy-bundles/:slug"
+              element={
+                <PrivateRoute>
+                  <CompanyAdminLayout>
+                    <PolicyBundleLink />
                   </CompanyAdminLayout>
                 </PrivateRoute>
               }

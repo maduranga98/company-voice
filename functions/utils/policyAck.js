@@ -52,6 +52,30 @@ function ackDocId({ policyId, policyVersion, employeeKey }) {
     .digest('hex');
 }
 
+/** Validate a bundle submission's `[{ policyId, policyVersion }]`: 1..maxBundle, no repeats. */
+function validateItems(raw) {
+  if (!Array.isArray(raw) || raw.length < 1 || raw.length > LIMITS.maxBundle) {
+    throw new PolicyAckValidationError('items');
+  }
+  const seen = new Set();
+  return raw.map((item) => {
+    const policyId = item && typeof item.policyId === 'string' ? item.policyId : '';
+    const policyVersion = item ? sanitizeText(item.policyVersion) : '';
+    if (
+      !policyId ||
+      policyId.length > LIMITS.maxPolicyId ||
+      policyId.includes('/') ||
+      seen.has(policyId) ||
+      !policyVersion ||
+      policyVersion.length > LIMITS.maxVersion
+    ) {
+      throw new PolicyAckValidationError('items');
+    }
+    seen.add(policyId);
+    return { policyId, policyVersion };
+  });
+}
+
 /**
  * @returns {object} normalized submission
  * @throws {PolicyAckValidationError}
@@ -82,9 +106,17 @@ function validateAckSubmission(data) {
     }
   }
 
-  const policyVersion = sanitizeText(data.policyVersion);
-  if (!policyVersion || policyVersion.length > LIMITS.maxVersion) {
-    throw new PolicyAckValidationError('policyVersion');
+  // A bundle link sends `items` (one entry per policy read); a single link sends `policyVersion`.
+  let items = null;
+  let policyVersion = '';
+  if (data.items !== undefined) {
+    items = validateItems(data.items);
+    if (data.response === 'concern' && items.length !== 1) throw new PolicyAckValidationError('items');
+  } else {
+    policyVersion = sanitizeText(data.policyVersion);
+    if (!policyVersion || policyVersion.length > LIMITS.maxVersion) {
+      throw new PolicyAckValidationError('policyVersion');
+    }
   }
 
   if (typeof data.idempotencyToken !== 'string' || !TOKEN_PATTERN.test(data.idempotencyToken)) {
@@ -109,6 +141,7 @@ function validateAckSubmission(data) {
     response: data.response,
     concernText,
     policyVersion,
+    items,
     idempotencyToken: data.idempotencyToken,
     clientLang: LANGUAGES.includes(data.clientLang) ? data.clientLang : 'en',
   };
@@ -156,17 +189,39 @@ function parseRosterText(text) {
  * @returns {Promise<{created: boolean}>}
  */
 async function recordAcknowledgement(tx, { ackRef, employeeRef, ack, employee, now }) {
-  const [ackSnap, employeeSnap] = await Promise.all([tx.get(ackRef), tx.get(employeeRef)]);
-  if (ackSnap.exists) return { created: false };
+  const { createdCount } = await recordAcknowledgements(tx, {
+    employeeRef,
+    items: [{ ackRef, ack }],
+    employee,
+    now,
+  });
+  return { created: createdCount > 0 };
+}
 
-  tx.set(ackRef, ack);
+/**
+ * Same as recordAcknowledgement for several policies at once (a bundle link): every missing
+ * acknowledgement is written, already recorded ones are skipped, and the employee document is
+ * touched once, so its counter stays right.
+ *
+ * @param {{employeeRef: object, items: Array<{ackRef: object, ack: object}>, employee: object, now: *}} input
+ * @returns {Promise<{createdCount: number, total: number}>}
+ */
+async function recordAcknowledgements(tx, { employeeRef, items, employee, now }) {
+  const [employeeSnap, ...ackSnaps] = await Promise.all([
+    tx.get(employeeRef),
+    ...items.map((item) => tx.get(item.ackRef)),
+  ]);
+  const fresh = items.filter((_, i) => !ackSnaps[i].exists);
+  if (fresh.length === 0) return { createdCount: 0, total: items.length };
+
+  fresh.forEach(({ ackRef, ack }) => tx.set(ackRef, ack));
+  const lastPolicyId = fresh[fresh.length - 1].ack.policyId;
   if (employeeSnap.exists) {
-    const existing = employeeSnap.data();
     tx.update(employeeRef, {
       employeeName: employee.employeeName,
       lastAcknowledgedAt: now,
-      lastPolicyId: ack.policyId,
-      acknowledgementCount: (existing.acknowledgementCount || 0) + 1,
+      lastPolicyId,
+      acknowledgementCount: (employeeSnap.data().acknowledgementCount || 0) + fresh.length,
       onRoster: employee.onRoster,
     });
   } else {
@@ -177,11 +232,11 @@ async function recordAcknowledgement(tx, { ackRef, employeeRef, ack, employee, n
       onRoster: employee.onRoster,
       firstAcknowledgedAt: now,
       lastAcknowledgedAt: now,
-      lastPolicyId: ack.policyId,
-      acknowledgementCount: 1,
+      lastPolicyId,
+      acknowledgementCount: fresh.length,
     });
   }
-  return { created: true };
+  return { createdCount: fresh.length, total: items.length };
 }
 
 /**
@@ -205,5 +260,6 @@ module.exports = {
   validateAckSubmission,
   parseRosterText,
   recordAcknowledgement,
+  recordAcknowledgements,
   countDistinctAcknowledgedEmployees,
 };
