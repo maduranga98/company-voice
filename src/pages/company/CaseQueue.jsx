@@ -307,6 +307,11 @@ const CaseQueue = () => {
                         <div className="flex items-center gap-1.5 flex-wrap mt-3">
                           <StatusBadge status={c.status} config={adapter.statusConfig} />
                           {priority !== PostPriority.MEDIUM && <PriorityBadge priority={priority} />}
+                          {c.caseType === CaseType.VENDOR && c.visibility === "restricted" && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-100">
+                              Restricted
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-gray-50">
                           {c.assignedTo?.name ? (

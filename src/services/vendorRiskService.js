@@ -14,9 +14,8 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
 import { encryptAuthorId } from "./postManagementService";
 import { assignCase } from "./caseService";
-import { CaseType } from "../utils/caseTypes";
-import { findMatchingRule } from "../utils/routingRules";
-import { getRoutingRules } from "./routingRulesService";
+import { CaseType, VendorVisibility } from "../utils/caseTypes";
+import { resolveRoutingAssignment } from "./routingRulesService";
 
 const VENDOR_REPORTS_COLLECTION = "vendorReports";
 
@@ -94,7 +93,7 @@ const uploadFilesWithProgress = async (files, companyId, reportId, prefix = "", 
 // ── SUBMIT VENDOR REPORT ─────────────────────────────────────────────────────
 
 export const submitVendorReport = async (reportData, files, userData, onProgress) => {
-  const { vendorName, riskCategory, severity, description } = reportData;
+  const { vendorName, riskCategory, severity, description, visibility } = reportData;
 
   // Validate files
   const validFiles = (files || []).slice(0, 5).filter((f) => {
@@ -127,6 +126,7 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
     severity,
     status: "open",
     priority: severity,
+    visibility: visibility === VendorVisibility.RESTRICTED ? VendorVisibility.RESTRICTED : VendorVisibility.STANDARD,
     assignedTo: null,
     dueDate: null,
     description,
@@ -143,18 +143,18 @@ export const submitVendorReport = async (reportData, files, userData, onProgress
   });
 
   // Auto-routing: assign immediately if an enabled rule matches this report's
-  // category/severity. Best-effort — a lookup failure must not fail the submission,
-  // the report is already saved and can still be claimed manually from the queue.
+  // category/severity. A department-action rule is resolved to the department's
+  // head (falling back to a company admin if no head is set) so the case always
+  // lands on an actual person and that person is notified. Best-effort — a lookup
+  // failure must not fail the submission, the report is already saved and can
+  // still be claimed manually from the queue.
   try {
-    const rules = await getRoutingRules(userData.companyId);
-    const rule = findMatchingRule(rules, CaseType.VENDOR, { riskCategory, severity });
-    if (rule?.action?.id) {
-      await assignCase(
-        CaseType.VENDOR,
-        reportRef.id,
-        { type: rule.action.type, id: rule.action.id, name: rule.action.name },
-        userData
-      );
+    const routingMatch = await resolveRoutingAssignment(userData.companyId, CaseType.VENDOR, {
+      riskCategory,
+      severity,
+    });
+    if (routingMatch) {
+      await assignCase(CaseType.VENDOR, reportRef.id, routingMatch.assignment, userData);
     }
   } catch (error) {
     console.error("Error applying routing rule to vendor report:", error);
@@ -288,6 +288,25 @@ export const updateVendorReportStatus = async (reportId, status, reviewedBy, rev
     updates.resolvedAt = serverTimestamp();
   }
   await updateDoc(doc(db, VENDOR_REPORTS_COLLECTION, reportId), updates);
+  return { success: true };
+};
+
+// ── UPDATE VENDOR REPORT VISIBILITY ──────────────────────────────────────────
+// App-level gate matching the Firestore rule: only company_admin/super_admin may
+// change visibility. HR can't be trusted to self-restrict-then-unrestrict (and in
+// practice can't see a restricted report to try), so this isn't exposed to them.
+
+export const updateVendorReportVisibility = async (reportId, visibility, user) => {
+  if (!["company_admin", "super_admin"].includes(user?.role)) {
+    throw new Error("Only a company admin can change a vendor report's visibility");
+  }
+  if (!Object.values(VendorVisibility).includes(visibility)) {
+    throw new Error("Invalid visibility value");
+  }
+  await updateDoc(doc(db, VENDOR_REPORTS_COLLECTION, reportId), {
+    visibility,
+    updatedAt: serverTimestamp(),
+  });
   return { success: true };
 };
 

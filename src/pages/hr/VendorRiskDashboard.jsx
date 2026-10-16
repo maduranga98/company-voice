@@ -14,7 +14,10 @@ import { CaseType } from "../../utils/caseTypes";
 import {
   ArrowLeft, FileText, AlertTriangle, ChevronRight, Download, Shield,
   Calendar, User, Clock, CheckCircle, Users, Flag, FileSearch, MessageSquare,
+  Plus, Lock, Eye,
 } from "lucide-react";
+import { VendorVisibility, VendorVisibilityConfig } from "../../utils/caseTypes";
+import { updateVendorReportVisibility } from "../../services/vendorRiskService";
 
 const TABS = ["all", "open", "investigating", "escalated", "resolved", "closed"];
 
@@ -113,6 +116,57 @@ const Badge = ({ className, children }) => (
   </span>
 );
 
+// Visibility control shown in the detail panel. Everyone sees the current tier;
+// only company_admin/super_admin get the toggle (matches the Firestore rule, so
+// an hr user never sees an action that would just be rejected server-side).
+const VisibilityCard = ({ report, canEdit, onChanged }) => {
+  const { userData } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const visibility = report.visibility === VendorVisibility.RESTRICTED ? VendorVisibility.RESTRICTED : VendorVisibility.STANDARD;
+  const config = VendorVisibilityConfig[visibility];
+
+  const handleToggle = async () => {
+    const next = visibility === VendorVisibility.RESTRICTED ? VendorVisibility.STANDARD : VendorVisibility.RESTRICTED;
+    setSaving(true);
+    try {
+      await updateVendorReportVisibility(report.id, next, userData);
+      onChanged(next);
+      toast.success(next === VendorVisibility.RESTRICTED ? "Restricted from HR" : "Visible to HR again");
+    } catch (err) {
+      console.error("Error updating vendor report visibility:", err);
+      toast.error(err.message || "Failed to update visibility");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="bg-background-white mx-4 mt-3 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="px-5 pt-5 pb-4 flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            {visibility === VendorVisibility.RESTRICTED ? <Lock className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+            Visibility
+          </div>
+          <Badge className={`${config.bgColor} ${config.textColor} border ${config.borderColor}`}>
+            {config.label}
+          </Badge>
+          <p className="text-xs text-gray-400 mt-2">{config.description}</p>
+        </div>
+        {canEdit && (
+          <button
+            onClick={handleToggle}
+            disabled={saving}
+            className="flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+          >
+            {saving ? "Saving..." : visibility === VendorVisibility.RESTRICTED ? "Make Standard" : "Restrict from HR"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const VendorRiskDashboard = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
@@ -185,6 +239,15 @@ const VendorRiskDashboard = () => {
         icon={Shield}
         title="Vendor Risk Reports"
         subtitle="Anonymous third-party risk submissions from employees"
+        actions={
+          <button
+            onClick={() => navigate("/vendor-risk")}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#2D3E50] text-white hover:bg-[#24333F] transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Log a Vendor Risk
+          </button>
+        }
       />
 
       {/* Stats row */}
@@ -273,6 +336,12 @@ const VendorRiskDashboard = () => {
                   <Badge className={STATUS_BADGE[report.status] || "bg-gray-50 text-gray-600 border border-gray-100"}>
                     {report.status?.charAt(0).toUpperCase() + report.status?.slice(1)}
                   </Badge>
+                  {report.visibility === VendorVisibility.RESTRICTED && (
+                    <Badge className="bg-purple-50 text-purple-700 border border-purple-100">
+                      <Lock className="w-2.5 h-2.5 inline mr-1 -mt-px" />
+                      Restricted
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Bottom row */}
@@ -557,6 +626,16 @@ const VendorRiskDashboard = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* ── VISIBILITY ── */}
+                  <VisibilityCard
+                    report={selectedReport}
+                    canEdit={userData.role === "company_admin" || userData.role === "super_admin"}
+                    onChanged={(visibility) => {
+                      setSelectedReport((prev) => (prev ? { ...prev, visibility } : prev));
+                      loadData();
+                    }}
+                  />
 
                   {/* ── CASE HANDLING ── */}
                   <div className="bg-background-white mx-4 mt-3 mb-8 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
