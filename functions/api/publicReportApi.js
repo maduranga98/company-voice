@@ -175,7 +175,16 @@ async function nextVendorReferenceCode(companyId) {
   return `VXW-${new Date().getFullYear()}-${String(next).padStart(4, '0')}`;
 }
 
-async function createCase({ postRef, postData, caseData, activityData, activityCollection = 'postActivities' }) {
+async function createCase({ postRef, postData, caseData, activityData, activityCollection = 'postActivities', tracked = true }) {
+  if (!tracked) {
+    // Progress tracking is off for this company: no case code or secret key is issued,
+    // so there is no caseAccess document either.
+    const batch = db.batch();
+    batch.set(postRef, postData);
+    batch.set(db.collection(activityCollection).doc(), activityData);
+    await batch.commit();
+    return null;
+  }
   for (let attempt = 0; attempt < MAX_CASE_CODE_ATTEMPTS; attempt++) {
     const caseCode = generateCaseCode();
     const caseRef = db.collection('caseAccess').doc(caseCode);
@@ -299,8 +308,9 @@ const submitPublicReport = onCall(
       const postRef = db.collection(isVendor ? 'vendorReports' : 'posts').doc();
       const attachments = await moveToCase(bucket, companyId, postRef.id, checkedFiles);
 
-      const secretKey = generateSecretKey();
-      const keyHash = hashSecretKey(secretKey, CASE_KEY_PEPPER.value());
+      const tracked = isCaseProgressCheckAllowed(company);
+      const secretKey = tracked ? generateSecretKey() : null;
+      const keyHash = tracked ? hashSecretKey(secretKey, CASE_KEY_PEPPER.value()) : null;
 
       const postData = isVendor
         ? {
@@ -400,6 +410,7 @@ const submitPublicReport = onCall(
         caseCode = await createCase({
           postRef,
           postData,
+          tracked,
           activityCollection: isVendor ? 'caseActivities' : 'postActivities',
           caseData: {
             postId: postRef.id,

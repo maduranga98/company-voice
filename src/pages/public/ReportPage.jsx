@@ -170,7 +170,7 @@ const ReportPage = () => {
         elapsedMs: Date.now() - openedAt.current,
         clientLang: (i18n.resolvedLanguage || i18n.language || "en").slice(0, 2),
       });
-      setCredentials({ caseCode: result.caseCode, secretKey: result.secretKey });
+      setCredentials({ caseCode: result.caseCode || null, secretKey: result.secretKey || null });
       setDescription("");
       setContact(EMPTY_CONTACT);
     } catch (err) {
