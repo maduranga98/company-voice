@@ -6,6 +6,9 @@
 const {
   REPORT_TYPES,
   CATEGORIES,
+  VENDOR_REPORT_TYPE,
+  VENDOR_CATEGORIES,
+  VENDOR_SEVERITIES,
   LANGUAGES,
   LIMITS,
   MIME_EXTENSIONS,
@@ -96,7 +99,19 @@ function validateSubmission(data) {
   if (!Object.prototype.hasOwnProperty.call(REPORT_TYPES, data.type)) {
     throw new ValidationError('type');
   }
-  if (!CATEGORIES.includes(data.category)) throw new ValidationError('category');
+  const isVendor = data.type === VENDOR_REPORT_TYPE;
+  let vendor = null;
+  if (isVendor) {
+    const vendorName = sanitizeText(data.vendorName);
+    if (vendorName.length < 2 || vendorName.length > LIMITS.maxVendorName) {
+      throw new ValidationError('vendorName');
+    }
+    if (!VENDOR_CATEGORIES.includes(data.category)) throw new ValidationError('category');
+    if (!VENDOR_SEVERITIES.includes(data.severity)) throw new ValidationError('severity');
+    vendor = { vendorName, severity: data.severity };
+  } else if (!CATEGORIES.includes(data.category)) {
+    throw new ValidationError('category');
+  }
 
   const description = sanitizeText(data.description, { multiline: true });
   if (description.length < LIMITS.minDescription || description.length > LIMITS.maxDescription) {
@@ -125,6 +140,7 @@ function validateSubmission(data) {
     slug: data.slug,
     type: data.type,
     category: data.category,
+    vendor,
     description,
     involvesHR: data.involvesHR === true,
     contact: validateContact(data.contact),

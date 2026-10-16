@@ -1026,6 +1026,10 @@
       "question": {
         "title": "Preguntar a RR. HH.",
         "description": "Obtén una respuesta con confidencialidad"
+      },
+      "vendor": {
+        "title": "Informar de un riesgo de proveedor",
+        "description": "Un problema con un proveedor o socio"
       }
     },
     "category": {
@@ -1337,6 +1341,25 @@
       "bestPracticeRotate": "Regenera el enlace si se filtra",
       "shareTitle": "Envía un informe confidencial a {{company}}",
       "shareText": "Escanea el código QR o abre el enlace para enviar un informe. Sin cuenta, anónimo por defecto."
+    },
+    "vendor": {
+      "nameLabel": "Nombre del proveedor",
+      "namePlaceholder": "p. ej. ABC Logística S.L.",
+      "categoryLabel": "Categoría de riesgo",
+      "categories": {
+        "labor": "Prácticas laborales",
+        "data_privacy": "Privacidad de datos",
+        "safety": "Salud y seguridad",
+        "fraud": "Fraude o corrupción",
+        "compliance": "Incumplimiento normativo",
+        "other": "Otro"
+      },
+      "severityLabel": "Gravedad",
+      "severity": {
+        "low": "Baja",
+        "medium": "Media",
+        "high": "Alta"
+      }
     }
   },
   "staff": {

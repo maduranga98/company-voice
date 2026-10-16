@@ -92,7 +92,8 @@ async function verifyCaseCredentials(request, { caseCode, secretKey }) {
 
   // The case's companyId is already on the caseAccess doc, so the company is fetched in
   // parallel with the post (field-masked to `settings`): no extra sequential round trip.
-  const postRef = db.collection('posts').doc(caseData.postId);
+  // Vendor reports submitted through the QR link share the same code + key flow.
+  const postRef = db.collection(caseData.caseType === 'vendor' ? 'vendorReports' : 'posts').doc(caseData.postId);
   const companyRef = caseData.companyId ? db.collection('companies').doc(caseData.companyId) : null;
   const [postSnap, companySnap] = await Promise.all([
     postRef.get(),
@@ -122,7 +123,18 @@ const getCaseStatus = onCall(
   async (request) => {
     const { caseCode, secretKey } = request.data || {};
     try {
-      const { postData, postRef } = await verifyCaseCredentials(request, { caseCode, secretKey });
+      const { postData: rawData, postRef, caseData } = await verifyCaseCredentials(request, { caseCode, secretKey });
+      const isVendor = caseData.caseType === 'vendor';
+      // Present a vendor report in the same shape the case-check page already renders.
+      const postData = isVendor
+        ? {
+            ...rawData,
+            category: rawData.riskCategory,
+            type: 'vendor_report',
+            involvesHR: rawData.visibility === 'restricted',
+            createdAt: rawData.submittedAt,
+          }
+        : rawData;
 
       const threadSnap = await db.collection('anonymousThreads').doc(postRef.id).get();
       const threadData = threadSnap.exists ? threadSnap.data() : null;
@@ -246,7 +258,11 @@ const submitCaseReply = onCall(
         });
       }
 
-      await notifyReplyStaff(postData.companyId, postRef.id, postData.involvesHR === true);
+      await notifyReplyStaff(
+        postData.companyId,
+        postRef.id,
+        postData.involvesHR === true || postData.visibility === 'restricted'
+      );
 
       return { success: true };
     } catch (error) {

@@ -9,11 +9,15 @@
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const logger = require('firebase-functions/logger');
+const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 const { admin, db, serverTimestamp } = require('../config/firebase');
 const {
   REPORT_TYPES,
   CATEGORIES,
+  VENDOR_REPORT_TYPE,
+  VENDOR_CATEGORIES,
+  VENDOR_SEVERITIES,
   LIMITS,
   MIME_EXTENSIONS,
   SUBMISSION_LIMITS,
@@ -80,6 +84,8 @@ const getPublicReportConfig = onCall(BASE_OPTIONS, async (request) => {
       ? company.defaultLanguage
       : 'en',
     categories: CATEGORIES,
+    vendorCategories: VENDOR_CATEGORIES,
+    vendorSeverities: VENDOR_SEVERITIES,
     allowCaseProgressCheck: isCaseProgressCheckAllowed(company),
     limits: {
       maxFiles: LIMITS.maxFiles,
@@ -148,7 +154,27 @@ async function moveToCase(bucket, companyId, postId, checked) {
   return moved;
 }
 
-async function createCase({ postRef, postData, caseData, activityData }) {
+// Vendor reports show evidence through plain download URLs (the same shape the in-app
+// vendor form stores), so each moved file gets a Firebase download token.
+async function addDownloadUrls(bucket, attachments) {
+  return Promise.all(
+    attachments.map(async (a) => {
+      const token = crypto.randomUUID();
+      await bucket.file(a.path).setMetadata({ metadata: { firebaseStorageDownloadTokens: token } });
+      return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(a.path)}?alt=media&token=${token}`;
+    })
+  );
+}
+
+// Reference code shown to staff and used for corroboration: VXW-YYYY-NNNN, same format as
+// the in-app form. The count is a best-effort sequence; uniqueness is not relied on.
+async function nextVendorReferenceCode(companyId) {
+  const countSnap = await db.collection('vendorReports').where('companyId', '==', companyId).count().get();
+  const next = countSnap.data().count + 1;
+  return `VXW-${new Date().getFullYear()}-${String(next).padStart(4, '0')}`;
+}
+
+async function createCase({ postRef, postData, caseData, activityData, activityCollection = 'postActivities' }) {
   for (let attempt = 0; attempt < MAX_CASE_CODE_ATTEMPTS; attempt++) {
     const caseCode = generateCaseCode();
     const caseRef = db.collection('caseAccess').doc(caseCode);
@@ -158,7 +184,7 @@ async function createCase({ postRef, postData, caseData, activityData }) {
         if (existing.exists) throw COLLISION;
         tx.set(postRef, { ...postData, caseCode });
         tx.set(caseRef, caseData);
-        tx.set(db.collection('postActivities').doc(), activityData);
+        tx.set(db.collection(activityCollection).doc(), activityData);
       });
       return caseCode;
     } catch (error) {
@@ -171,7 +197,7 @@ async function createCase({ postRef, postData, caseData, activityData }) {
 // routingMatch: the result of resolveRoutingAssignment(), or null. When a rule matched,
 // only the assignee is notified (so a routed company doesn't also broadcast to everyone);
 // otherwise every eligible company_admin/hr user is notified, as before.
-async function notifyStaff(companyId, postId, involvesHR, routingMatch) {
+async function notifyStaff(companyId, postId, involvesHR, routingMatch, isVendor = false) {
   try {
     if (routingMatch && routingMatch.assignment.type === 'user') {
       await db.collection('notifications').add({
@@ -180,7 +206,7 @@ async function notifyStaff(companyId, postId, involvesHR, routingMatch) {
         title: 'New case assigned to you',
         message: 'A new report was automatically assigned to you.',
         companyId,
-        metadata: { postId, ruleId: routingMatch.ruleId },
+        metadata: { postId, ruleId: routingMatch.ruleId, ...(isVendor ? { caseType: 'vendor' } : {}) },
         read: false,
         createdAt: serverTimestamp(),
       });
@@ -204,7 +230,7 @@ async function notifyStaff(companyId, postId, involvesHR, routingMatch) {
           title: 'New anonymous report',
           message: 'A new report was submitted through your reporting link.',
           companyId,
-          metadata: { postId },
+          metadata: { postId, ...(isVendor ? { caseType: 'vendor' } : {}) },
           read: false,
           createdAt: serverTimestamp(),
         });
@@ -265,39 +291,66 @@ const submitPublicReport = onCall(
         throw new HttpsError('resource-exhausted', 'Too many submissions. Please try again later.');
       }
 
-      const postRef = db.collection('posts').doc();
+      const isVendor = input.type === VENDOR_REPORT_TYPE;
+      const postRef = db.collection(isVendor ? 'vendorReports' : 'posts').doc();
       const attachments = await moveToCase(bucket, companyId, postRef.id, checkedFiles);
 
       const secretKey = generateSecretKey();
       const keyHash = hashSecretKey(secretKey, CASE_KEY_PEPPER.value());
 
-      const postData = {
-        companyId,
-        type: REPORT_TYPES[input.type],
-        source: 'public_link',
-        isAnonymous: true,
-        authorId: null,
-        creatorId: null,
-        authorName: 'Anonymous',
-        authorEmail: '',
-        status: 'open',
-        priority: 'medium',
-        privacyLevel: 'hr_only',
-        involvesHR: input.involvesHR,
-        category: input.category,
-        title: deriveTitle(input.description),
-        description: input.description,
-        content: input.description,
-        attachments,
-        reportLang: input.clientLang,
-        tags: [],
-        likes: [],
-        comments: 0,
-        views: 0,
-        departmentId: null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
+      const postData = isVendor
+        ? {
+            companyId,
+            referenceCode: await nextVendorReferenceCode(companyId),
+            vendorName: input.vendor.vendorName,
+            riskCategory: input.category,
+            severity: input.vendor.severity,
+            status: 'open',
+            priority: input.vendor.severity,
+            // The reporter says if HR is involved; that restricts the report to company admins.
+            visibility: input.involvesHR ? 'restricted' : 'standard',
+            assignedTo: null,
+            dueDate: null,
+            description: input.description,
+            attachmentUrls: await addDownloadUrls(bucket, attachments),
+            source: 'public_link',
+            authorId: null,
+            isAnonymous: true,
+            corroborationCount: 0,
+            autoEscalated: false,
+            submittedAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+            reviewedBy: null,
+            reviewNotes: null,
+            resolvedAt: null,
+          }
+        : {
+            companyId,
+            type: REPORT_TYPES[input.type],
+            source: 'public_link',
+            isAnonymous: true,
+            authorId: null,
+            creatorId: null,
+            authorName: 'Anonymous',
+            authorEmail: '',
+            status: 'open',
+            priority: 'medium',
+            privacyLevel: 'hr_only',
+            involvesHR: input.involvesHR,
+            category: input.category,
+            title: deriveTitle(input.description),
+            description: input.description,
+            content: input.description,
+            attachments,
+            reportLang: input.clientLang,
+            tags: [],
+            likes: [],
+            comments: 0,
+            views: 0,
+            departmentId: null,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          };
       if (input.contact) {
         postData.reporterContactEncrypted = CryptoJS.AES.encrypt(
           JSON.stringify(input.contact),
@@ -307,7 +360,12 @@ const submitPublicReport = onCall(
 
       // Auto-routing: a matching rule assigns the case immediately, so staff see it
       // already owned instead of everyone getting a broadcast notification for it.
-      const routingMatch = await resolveRoutingAssignment(db, companyId, 'post', postData);
+      const routingMatch = await resolveRoutingAssignment(
+        db,
+        companyId,
+        isVendor ? 'vendor' : 'post',
+        isVendor ? { riskCategory: postData.riskCategory, severity: postData.severity } : postData
+      );
       if (routingMatch) {
         postData.assignedTo = {
           type: routingMatch.assignment.type,
@@ -317,6 +375,10 @@ const submitPublicReport = onCall(
           assignedBy: 'Routing rule',
           assignedById: null,
         };
+        if (isVendor) {
+          postData.assignedToId = routingMatch.assignment.id;
+          postData.assignedToName = routingMatch.assignment.name;
+        }
       }
 
       let caseCode;
@@ -324,8 +386,10 @@ const submitPublicReport = onCall(
         caseCode = await createCase({
           postRef,
           postData,
+          activityCollection: isVendor ? 'caseActivities' : 'postActivities',
           caseData: {
             postId: postRef.id,
+            ...(isVendor ? { caseType: 'vendor' } : {}),
             companyId,
             keyHash,
             failedAttempts: 0,
@@ -333,7 +397,7 @@ const submitPublicReport = onCall(
             createdAt: serverTimestamp(),
           },
           activityData: {
-            postId: postRef.id,
+            ...(isVendor ? { caseType: 'vendor', caseId: postRef.id } : { postId: postRef.id }),
             companyId,
             type: 'created',
             actor: 'public_reporter',
@@ -355,7 +419,7 @@ const submitPublicReport = onCall(
         throw error;
       }
 
-      await notifyStaff(companyId, postRef.id, input.involvesHR, routingMatch);
+      await notifyStaff(companyId, postRef.id, input.involvesHR, routingMatch, isVendor);
 
       return { caseCode, secretKey };
     } catch (error) {

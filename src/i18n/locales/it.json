@@ -1074,6 +1074,10 @@
       "question": {
         "title": "Fai una domanda alle RU",
         "description": "Ricevi una risposta in modo riservato"
+      },
+      "vendor": {
+        "title": "Segnala un rischio fornitore",
+        "description": "Un problema con un fornitore o partner"
       }
     },
     "category": {
@@ -1385,6 +1389,25 @@
       "bestPracticeRotate": "Rigenera il link se viene diffuso",
       "shareTitle": "Invia una segnalazione riservata a {{company}}",
       "shareText": "Inquadra il codice QR o apri il link per inviare una segnalazione. Senza account, anonimo per impostazione predefinita."
+    },
+    "vendor": {
+      "nameLabel": "Nome del fornitore",
+      "namePlaceholder": "es. ABC Logistica S.r.l.",
+      "categoryLabel": "Categoria di rischio",
+      "categories": {
+        "labor": "Pratiche di lavoro",
+        "data_privacy": "Privacy dei dati",
+        "safety": "Salute e sicurezza",
+        "fraud": "Frode o corruzione",
+        "compliance": "Non conformità normativa",
+        "other": "Altro"
+      },
+      "severityLabel": "Gravità",
+      "severity": {
+        "low": "Bassa",
+        "medium": "Media",
+        "high": "Alta"
+      }
     }
   },
   "staff": {

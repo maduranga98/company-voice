@@ -6,7 +6,13 @@ const REPORT_TYPES = {
   concern: 'problem_report',
   idea: 'idea_suggestion',
   question: 'team_discussion',
+  // Vendor reports are stored in vendorReports, not posts; the value is only a label.
+  vendor: 'vendor_report',
 };
+
+const VENDOR_REPORT_TYPE = 'vendor';
+const VENDOR_CATEGORIES = ['labor', 'data_privacy', 'safety', 'fraud', 'compliance', 'other'];
+const VENDOR_SEVERITIES = ['low', 'medium', 'high'];
 
 const CATEGORIES = [
   'harassment',
@@ -26,6 +32,7 @@ const LIMITS = {
   maxFileMB: 10,
   minDescription: 20,
   maxDescription: 5000,
+  maxVendorName: 150,
   maxContactName: 100,
   maxContactEmail: 200,
   maxContactPhone: 40,
@@ -55,6 +62,9 @@ const PENDING_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 module.exports = {
   REPORT_TYPES,
+  VENDOR_REPORT_TYPE,
+  VENDOR_CATEGORIES,
+  VENDOR_SEVERITIES,
   CATEGORIES,
   LANGUAGES,
   LIMITS,

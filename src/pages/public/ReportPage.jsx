@@ -15,6 +15,7 @@ import { createReportToken, fetchReportConfig, submitErrorKey, submitReport } fr
 
 const MIN_DESCRIPTION = 20;
 const MAX_DESCRIPTION = 5000;
+const SEVERITIES = ["low", "medium", "high"];
 const EMPTY_CONTACT = { name: "", email: "", phone: "" };
 
 const inputClass =
@@ -66,6 +67,8 @@ const ReportPage = () => {
 
   const [type, setType] = useState("");
   const [category, setCategory] = useState("");
+  const [vendorName, setVendorName] = useState("");
+  const [severity, setSeverity] = useState("medium");
   const [description, setDescription] = useState("");
   const [involvesHR, setInvolvesHR] = useState(false);
   const [contact, setContact] = useState(EMPTY_CONTACT);
@@ -100,6 +103,8 @@ const ReportPage = () => {
   const clearForm = useCallback(() => {
     setType("");
     setCategory("");
+    setVendorName("");
+    setSeverity("medium");
     setDescription("");
     setInvolvesHR(false);
     setContact(EMPTY_CONTACT);
@@ -117,10 +122,13 @@ const ReportPage = () => {
 
   useEffect(() => () => setCredentials(null), []);
 
+  const isVendor = type === "vendor";
+  const categoryIds = isVendor ? config?.vendorCategories || [] : config?.categories || [];
   const trimmedLength = description.trim().length;
   const canSubmit =
     !!type &&
     !!category &&
+    (!isVendor || vendorName.trim().length >= 2) &&
     trimmedLength >= MIN_DESCRIPTION &&
     trimmedLength <= MAX_DESCRIPTION &&
     !uploads.uploading &&
@@ -145,6 +153,7 @@ const ReportPage = () => {
         slug,
         type,
         category,
+        ...(isVendor ? { vendorName: vendorName.trim(), severity } : {}),
         description: description.trim(),
         involvesHR,
         ...(hasContact ? { contact } : {}),
@@ -216,11 +225,36 @@ const ReportPage = () => {
               </p>
             )}
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              <TypeSelector value={type} onChange={setType} />
+              <TypeSelector
+                value={type}
+                onChange={(next) => {
+                  setType(next);
+                  // Concern and vendor categories are different lists.
+                  setCategory("");
+                }}
+              />
+
+              {isVendor && (
+                <div>
+                  <label htmlFor="report-vendor" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
+                    {t("report.vendor.nameLabel")}
+                  </label>
+                  <input
+                    id="report-vendor"
+                    type="text"
+                    value={vendorName}
+                    onChange={(e) => setVendorName(e.target.value)}
+                    maxLength={150}
+                    autoComplete="off"
+                    placeholder={t("report.vendor.namePlaceholder")}
+                    className={inputClass}
+                  />
+                </div>
+              )}
 
               <div>
                 <label htmlFor="report-category" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
-                  {t("report.category.label")}
+                  {isVendor ? t("report.vendor.categoryLabel") : t("report.category.label")}
                 </label>
                 <select
                   id="report-category"
@@ -229,13 +263,37 @@ const ReportPage = () => {
                   className={inputClass}
                 >
                   <option value="">{t("report.category.placeholder")}</option>
-                  {config.categories.map((id) => (
+                  {categoryIds.map((id) => (
                     <option key={id} value={id}>
-                      {t(`report.category.options.${id}`)}
+                      {t(isVendor ? `report.vendor.categories.${id}` : `report.category.options.${id}`)}
                     </option>
                   ))}
                 </select>
               </div>
+
+              {isVendor && (
+                <fieldset>
+                  <legend className="mb-1.5 text-sm font-semibold text-[#2D3E50]">{t("report.vendor.severityLabel")}</legend>
+                  <div className="flex gap-2" role="radiogroup">
+                    {SEVERITIES.map((id) => (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={severity === id}
+                        onClick={() => setSeverity(id)}
+                        className={`flex-1 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold transition ${
+                          severity === id
+                            ? "border-[#1ABC9C] bg-[#1ABC9C]/10 text-[#2D3E50]"
+                            : "border-gray-200 bg-background-white text-gray-500 hover:border-[#1ABC9C]/50"
+                        }`}
+                      >
+                        {t(`report.vendor.severity.${id}`)}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
 
               <div>
                 <label htmlFor="report-description" className="mb-1.5 block text-sm font-semibold text-[#2D3E50]">
