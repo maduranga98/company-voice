@@ -89,7 +89,9 @@ const CaseQueue = () => {
 
   const [posts, setPosts] = useState(null); // null = still loading
   const [vendorReports, setVendorReports] = useState(null);
-  const [scope, setScope] = useState("unassigned"); // unassigned | mine | all
+  const [scope, setScope] = useState("unassigned"); // unassigned | assigned | mine | all
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all"); // all | post | vendor
   const [selectedId, setSelectedId] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
@@ -150,13 +152,32 @@ const CaseQueue = () => {
     let list = allCases;
     if (typeFilter !== "all") list = list.filter((c) => c.caseType === typeFilter);
     if (scope === "unassigned") list = list.filter((c) => !c.assignedTo);
+    if (scope === "assigned") list = list.filter((c) => !!c.assignedTo);
     if (scope === "mine") list = list.filter((c) => c.assignedTo?.id === userData?.id);
+    if (statusFilter !== "all") list = list.filter((c) => (c.status || "open") === statusFilter);
+    if (assigneeFilter !== "all") list = list.filter((c) => c.assignedTo?.id === assigneeFilter);
     return list;
-  }, [allCases, typeFilter, scope, userData?.id]);
+  }, [allCases, typeFilter, scope, statusFilter, assigneeFilter, userData?.id]);
+
+  // Filter options come from the cases themselves, so they only list what exists.
+  const statusOptions = useMemo(() => {
+    const seen = new Map();
+    allCases.forEach((c) => {
+      const status = c.status || "open";
+      if (!seen.has(status)) seen.set(status, getCaseAdapter(c.caseType).statusConfig[status]?.label || status);
+    });
+    return [...seen.entries()];
+  }, [allCases]);
+  const assigneeOptions = useMemo(() => {
+    const seen = new Map();
+    allCases.forEach((c) => c.assignedTo?.id && seen.set(c.assignedTo.id, c.assignedTo.name || "Unknown"));
+    return [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  }, [allCases]);
 
   const counts = useMemo(
     () => ({
       unassigned: allCases.filter((c) => !c.assignedTo).length,
+      assigned: allCases.filter((c) => !!c.assignedTo).length,
       mine: allCases.filter((c) => c.assignedTo?.id === userData?.id).length,
       all: allCases.length,
     }),
@@ -182,6 +203,7 @@ const CaseQueue = () => {
 
   const scopeTabs = [
     { id: "unassigned", label: "Unassigned", count: counts.unassigned },
+    { id: "assigned", label: "Assigned", count: counts.assigned },
     { id: "mine", label: "Assigned to me", count: counts.mine },
     { id: "all", label: "All cases", count: counts.all },
   ];
@@ -205,7 +227,7 @@ const CaseQueue = () => {
       />
 
       {/* Scope tabs — the "who has this" view */}
-      <div role="group" aria-label="Filter by assignment" className="grid grid-cols-3 gap-2 lg:gap-4">
+      <div role="group" aria-label="Filter by assignment" className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:gap-4">
         {scopeTabs.map((tab) => {
           const active = scope === tab.id;
           return (
@@ -249,6 +271,43 @@ const CaseQueue = () => {
             {tab.label}
           </button>
         ))}
+      </div>
+
+      {/* Status and owner filters: see where assigned cases stand and who has them */}
+      <div className="flex flex-wrap gap-2">
+        <label className="sr-only" htmlFor="queue-status">Filter by status</label>
+        <select
+          id="queue-status"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-xl border border-gray-200 bg-background-white px-3 py-2 text-xs font-semibold text-[#4b5563] focus:border-[#1ABC9C] focus:outline-none"
+        >
+          <option value="all">All statuses</option>
+          {statusOptions.map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        <label className="sr-only" htmlFor="queue-assignee">Filter by assignee</label>
+        <select
+          id="queue-assignee"
+          value={assigneeFilter}
+          onChange={(e) => setAssigneeFilter(e.target.value)}
+          className="rounded-xl border border-gray-200 bg-background-white px-3 py-2 text-xs font-semibold text-[#4b5563] focus:border-[#1ABC9C] focus:outline-none"
+        >
+          <option value="all">All assignees</option>
+          {assigneeOptions.map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        {(statusFilter !== "all" || assigneeFilter !== "all") && (
+          <button
+            type="button"
+            onClick={() => { setStatusFilter("all"); setAssigneeFilter("all"); }}
+            className="rounded-xl px-3 py-2 text-xs font-semibold text-gray-500 hover:text-[#2D3E50]"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
       {scoped.length === 0 ? (
@@ -328,6 +387,13 @@ const CaseQueue = () => {
                           )}
                           <DueDateChip dueDate={c.dueDate} closed={isClosed} className="ml-auto" />
                         </div>
+                        {c.assignedTo && (
+                          <p className="mt-2 text-[11px] text-gray-400">
+                            Assigned {formatTimeAgo(c.assignedTo.assignedAt)}
+                            {c.assignedTo.assignedBy ? ` by ${c.assignedTo.assignedBy}` : ""}
+                            {c.updatedAt ? ` · updated ${formatTimeAgo(c.updatedAt)}` : ""}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -393,6 +459,12 @@ const CaseQueue = () => {
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-xs text-gray-400">
                       <UserRound size={14} aria-hidden="true" /> Unassigned
+                    </span>
+                  )}
+                  {selectedCase.assignedTo && (
+                    <span className="text-xs text-gray-400">
+                      Assigned {formatTimeAgo(selectedCase.assignedTo.assignedAt)}
+                      {selectedCase.assignedTo.assignedBy ? ` by ${selectedCase.assignedTo.assignedBy}` : ""}
                     </span>
                   )}
                   <DueDateChip dueDate={selectedCase.dueDate} closed={selectedAdapter.closedStatuses.includes(selectedCase.status)} size="md" />
