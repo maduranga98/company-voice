@@ -25,6 +25,7 @@ import {
 import { uploadCourtOrder } from "../../services/legalEvidenceService";
 import PageHeader, { PageContainer } from "../../components/PageHeader";
 import DisclosureModal from "../../components/DisclosureModal";
+import RequestedSubmission from "../../components/legal/RequestedSubmission";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import { hrCaseScope, sortByCreatedAtDesc } from "../../utils/caseVisibility";
@@ -272,6 +273,9 @@ const LegalRequestsPage = () => {
                   {request.legalJustification}
                 </p>
               </div>
+
+              {/* Submission this request refers to */}
+              {request.reportId && <RequestedSubmission reportId={request.reportId} />}
 
               {/* Review Info */}
               {request.reviewedBy && (
