@@ -16,6 +16,8 @@ import { createReportToken, fetchReportConfig, submitErrorKey, submitReport } fr
 const MIN_DESCRIPTION = 20;
 const MAX_DESCRIPTION = 5000;
 const SEVERITIES = ["low", "medium", "high"];
+// Used when the deployed config function does not send its own vendor list yet.
+const DEFAULT_VENDOR_CATEGORIES = ["labor", "data_privacy", "safety", "fraud", "compliance", "other"];
 const EMPTY_CONTACT = { name: "", email: "", phone: "" };
 
 const inputClass =
@@ -123,7 +125,11 @@ const ReportPage = () => {
   useEffect(() => () => setCredentials(null), []);
 
   const isVendor = type === "vendor";
-  const categoryIds = isVendor ? config?.vendorCategories || [] : config?.categories || [];
+  const categoryIds = isVendor
+    ? config?.vendorCategories?.length
+      ? config.vendorCategories
+      : DEFAULT_VENDOR_CATEGORIES
+    : config?.categories || [];
   const trimmedLength = description.trim().length;
   const canSubmit =
     !!type &&
