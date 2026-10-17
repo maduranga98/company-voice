@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import PageHeader, { PageContainer, PageLoading } from "../../components/PageHeader";
 import {
   getCompanyAuditLog,
@@ -10,6 +10,7 @@ import {
   exportAuditLogsToCSV,
 } from "../../services/auditService";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { caseHref, CaseType } from "../../utils/caseTypes";
 import { db } from "../../config/firebase";
 import {
   PostActivityType,
@@ -32,6 +33,11 @@ import {
   ChevronRight,
   Info,
 } from "lucide-react";
+
+const postTypes = new Set(Object.values(PostActivityType));
+const systemTypes = new Set(Object.values(SystemActivityType));
+const sourceOfType = (type) =>
+  postTypes.has(type) ? "post" : systemTypes.has(type) ? "system" : null;
 
 const AuditLog = () => {
   const { userData } = useAuth();
@@ -95,41 +101,40 @@ const AuditLog = () => {
     }
   };
 
-  const fetchActivities = async () => {
+  const currentFilters = () => ({
+    filterType,
+    filterUser,
+    filterSource,
+    searchQuery,
+    startDate,
+    endDate,
+  });
+
+  // Query options shared by the list and both exports
+  const buildOptions = (f) => {
+    const options = {};
+    if (f.filterType !== "all") options.activityType = f.filterType;
+    if (f.filterUser !== "all") options.userId = f.filterUser;
+    if (f.startDate) options.startDate = f.startDate;
+    if (f.endDate) options.endDate = f.endDate;
+
+    // A specific type only exists in one collection, so it decides the source
+    const typeSource = f.filterType === "all" ? null : sourceOfType(f.filterType);
+    const source = typeSource || (f.filterSource === "all" ? null : f.filterSource);
+    if (source === "post") options.includeSystemActivities = false;
+    if (source === "system") options.includePostActivities = false;
+    return options;
+  };
+
+  const fetchActivities = async (filters = currentFilters()) => {
     try {
       setLoading(true);
 
-      const options = {
-        limit: 500,
-      };
-
-      // Apply filters
-      if (filterType !== "all") {
-        options.activityType = filterType;
-      }
-
-      if (filterUser !== "all") {
-        options.userId = filterUser;
-      }
-
-      if (startDate) {
-        options.startDate = startDate;
-      }
-
-      if (endDate) {
-        options.endDate = endDate;
-      }
-
-      // Apply source filter
-      if (filterSource === "post") {
-        options.includeSystemActivities = false;
-      } else if (filterSource === "system") {
-        options.includePostActivities = false;
-      }
+      const options = { ...buildOptions(filters), limit: 500 };
 
       let data;
-      if (searchQuery.trim()) {
-        data = await searchAuditLogs(userData.companyId, searchQuery, 500);
+      if (filters.searchQuery.trim()) {
+        data = await searchAuditLogs(userData.companyId, filters.searchQuery, 500, options);
       } else {
         data = await getCompanyAuditLog(userData.companyId, options);
       }
@@ -163,12 +168,7 @@ const AuditLog = () => {
 
   const handleExportJSON = async () => {
     try {
-      const json = await exportAuditLogsToJSON(userData.companyId, {
-        activityType: filterType !== "all" ? filterType : null,
-        userId: filterUser !== "all" ? filterUser : null,
-        startDate: startDate || null,
-        endDate: endDate || null,
-      });
+      const json = await exportAuditLogsToJSON(userData.companyId, buildOptions(currentFilters()));
 
       const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -185,12 +185,7 @@ const AuditLog = () => {
 
   const handleExportCSV = async () => {
     try {
-      const csv = await exportAuditLogsToCSV(userData.companyId, {
-        activityType: filterType !== "all" ? filterType : null,
-        userId: filterUser !== "all" ? filterUser : null,
-        startDate: startDate || null,
-        endDate: endDate || null,
-      });
+      const csv = await exportAuditLogsToCSV(userData.companyId, buildOptions(currentFilters()));
 
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
@@ -212,36 +207,15 @@ const AuditLog = () => {
   };
 
   const getActivityConfig = (activityType, source) => {
-    if (source === "system") {
-      return (
-        SystemActivityTypeConfig[activityType] || {
-          label: activityType,
-          icon: "📋",
-          color: "gray",
-        }
-      );
-    }
+    const table = source === "system" ? SystemActivityTypeConfig : PostActivityTypeConfig;
     return (
-      PostActivityTypeConfig[activityType] || {
+      table[activityType] || {
         label: activityType,
-        icon: "📋",
-        color: "gray",
+        bgColor: "bg-gray-100",
+        textColor: "text-gray-800",
       }
     );
   };
-
-  const allActivityTypes = [
-    ...Object.entries(PostActivityType).map(([key, value]) => ({
-      value,
-      label: PostActivityTypeConfig[value]?.label || value,
-      source: "post",
-    })),
-    ...Object.entries(SystemActivityType).map(([key, value]) => ({
-      value,
-      label: SystemActivityTypeConfig[value]?.label || value,
-      source: "system",
-    })),
-  ];
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -455,7 +429,14 @@ const AuditLog = () => {
                 setStartDate("");
                 setEndDate("");
                 setCurrentPage(1);
-                setTimeout(fetchActivities, 100);
+                fetchActivities({
+                  filterType: "all",
+                  filterUser: "all",
+                  filterSource: "all",
+                  searchQuery: "",
+                  startDate: "",
+                  endDate: "",
+                });
               }}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
             >
@@ -515,7 +496,18 @@ const AuditLog = () => {
                       const config = getActivityConfig(activity.type, activity.source);
                       const meta = activity.metadata || {};
                       const userName =
-                        meta.adminName || meta.userName || meta.createdByName || "Unknown";
+                        meta.adminName ||
+                        meta.userName ||
+                        meta.createdByName ||
+                        meta.requestedBy ||
+                        "Unknown";
+                      const userId =
+                        meta.adminId || meta.userId || meta.requestedByUserId || null;
+                      // Target of the action, when it differs from who performed it
+                      const targetName =
+                        meta.adminName && meta.userName && meta.userId !== meta.adminId
+                          ? meta.userName
+                          : meta.departmentName || null;
 
                       return (
                         <tr key={activity.id} className="hover:bg-gray-50/50 transition-colors">
@@ -523,14 +515,11 @@ const AuditLog = () => {
                             {formatDate(activity.createdAt)}
                           </td>
                           <td className="px-6 py-4 text-sm whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className="mr-2 text-lg">{config.icon}</span>
-                              <span
-                                className={`px-2.5 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.textColor}`}
-                              >
-                                {config.label}
-                              </span>
-                            </div>
+                            <span
+                              className={`px-2.5 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.textColor}`}
+                            >
+                              {config.label}
+                            </span>
                           </td>
                           <td className="px-6 py-4 text-sm whitespace-nowrap">
                             <span
@@ -547,12 +536,17 @@ const AuditLog = () => {
                             <div>
                               <p className="font-medium" style={{ color: "#2D3E50" }}>{userName}</p>
                               <p className="text-xs text-gray-400 mt-0.5">
-                                {meta.adminId || meta.userId || "N/A"}
+                                {userId || "N/A"}
                               </p>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
                             <div className="space-y-1">
+                              {targetName && (
+                                <p>
+                                  Target: <span className="font-medium text-gray-600">{targetName}</span>
+                                </p>
+                              )}
                               {meta.oldStatus && meta.newStatus && (
                                 <p>
                                   Status: <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">{meta.oldStatus}</span> → <span className="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">{meta.newStatus}</span>
@@ -568,8 +562,16 @@ const AuditLog = () => {
                               )}
                               {meta.reason && <p className="italic text-gray-400">Reason: {meta.reason}</p>}
                               {activity.postId && (
+                                <Link
+                                  to={caseHref(CaseType.POST, activity.postId)}
+                                  className="text-xs font-medium text-[#1ABC9C] hover:underline"
+                                >
+                                  Post {activity.postId.substring(0, 8)}
+                                </Link>
+                              )}
+                              {meta.reportId && (
                                 <p className="text-xs text-gray-400">
-                                  Post: {activity.postId.substring(0, 8)}...
+                                  Report: {String(meta.reportId).substring(0, 8)}
                                 </p>
                               )}
                             </div>

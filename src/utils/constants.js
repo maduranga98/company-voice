@@ -297,7 +297,6 @@ export const PostActivityType = {
 export const PostActivityTypeConfig = {
   [PostActivityType.CREATED]: {
     label: "Post Created",
-    icon: "📝",
     color: "blue",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800",
@@ -305,7 +304,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.STATUS_CHANGED]: {
     label: "Status Changed",
-    icon: "🔄",
     color: "indigo",
     bgColor: "bg-indigo-100",
     textColor: "text-indigo-800",
@@ -313,7 +311,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.PRIORITY_CHANGED]: {
     label: "Priority Changed",
-    icon: "⚡",
     color: "orange",
     bgColor: "bg-orange-100",
     textColor: "text-orange-800",
@@ -321,7 +318,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.ASSIGNED]: {
     label: "Assigned",
-    icon: "👤",
     color: "purple",
     bgColor: "bg-purple-100",
     textColor: "text-purple-800",
@@ -329,7 +325,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.UNASSIGNED]: {
     label: "Unassigned",
-    icon: "🚫",
     color: "gray",
     bgColor: "bg-gray-100",
     textColor: "text-gray-800",
@@ -337,7 +332,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.DUE_DATE_SET]: {
     label: "Due Date Set",
-    icon: "📅",
     color: "green",
     bgColor: "bg-green-100",
     textColor: "text-green-800",
@@ -345,7 +339,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.DUE_DATE_CHANGED]: {
     label: "Due Date Changed",
-    icon: "📆",
     color: "yellow",
     bgColor: "bg-yellow-100",
     textColor: "text-yellow-800",
@@ -353,7 +346,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.ADMIN_COMMENT]: {
     label: "Admin Comment",
-    icon: "💬",
     color: "blue",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800",
@@ -361,7 +353,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.RESOLVED]: {
     label: "Resolved",
-    icon: "✅",
     color: "green",
     bgColor: "bg-green-100",
     textColor: "text-green-800",
@@ -369,7 +360,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.REOPENED]: {
     label: "Reopened",
-    icon: "🔓",
     color: "red",
     bgColor: "bg-red-100",
     textColor: "text-red-800",
@@ -377,7 +367,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.EDITED]: {
     label: "Edited",
-    icon: "✏️",
     color: "blue",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800",
@@ -385,7 +374,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.PINNED]: {
     label: "Pinned",
-    icon: "📌",
     color: "purple",
     bgColor: "bg-purple-100",
     textColor: "text-purple-800",
@@ -393,7 +381,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.UNPINNED]: {
     label: "Unpinned",
-    icon: "📍",
     color: "gray",
     bgColor: "bg-gray-100",
     textColor: "text-gray-800",
@@ -401,7 +388,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.ARCHIVED]: {
     label: "Archived",
-    icon: "📦",
     color: "slate",
     bgColor: "bg-slate-100",
     textColor: "text-slate-800",
@@ -409,7 +395,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.UNARCHIVED]: {
     label: "Unarchived",
-    icon: "📤",
     color: "green",
     bgColor: "bg-green-100",
     textColor: "text-green-800",
@@ -417,7 +402,6 @@ export const PostActivityTypeConfig = {
   },
   [PostActivityType.POST_DELETED]: {
     label: "Post Deleted",
-    icon: "🗑️",
     color: "red",
     bgColor: "bg-red-100",
     textColor: "text-red-800",
@@ -440,13 +424,19 @@ export const SystemActivityType = {
   DEPARTMENT_DELETED: "department_deleted",
   PASSWORD_CHANGED: "password_changed",
   PROFILE_UPDATED: "profile_updated",
+  LEGAL_REQUEST_CREATED: "legal_request_created",
+  LEGAL_REQUEST_REVIEWED: "legal_request_reviewed",
+  LEGAL_REQUEST_FULFILLED: "legal_request_fulfilled",
+  LEGAL_REQUEST_STATUS_UPDATED: "legal_request_status_updated",
+  EVIDENCE_PACKAGE_GENERATED: "evidence_package_generated",
+  EVIDENCE_PACKAGE_PDF_GENERATED: "evidence_package_pdf_generated",
+  COURT_ORDER_UPLOADED: "court_order_uploaded",
 };
 
 // System activity type display configuration
 export const SystemActivityTypeConfig = {
   [SystemActivityType.USER_LOGIN]: {
     label: "User Login",
-    icon: "🔑",
     color: "green",
     bgColor: "bg-green-100",
     textColor: "text-green-800",
@@ -454,7 +444,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.USER_LOGOUT]: {
     label: "User Logout",
-    icon: "🚪",
     color: "gray",
     bgColor: "bg-gray-100",
     textColor: "text-gray-800",
@@ -462,7 +451,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.USER_CREATED]: {
     label: "User Created",
-    icon: "➕",
     color: "blue",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800",
@@ -470,7 +458,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.USER_UPDATED]: {
     label: "User Updated",
-    icon: "✏️",
     color: "indigo",
     bgColor: "bg-indigo-100",
     textColor: "text-indigo-800",
@@ -478,7 +465,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.USER_DELETED]: {
     label: "User Deleted",
-    icon: "🗑️",
     color: "red",
     bgColor: "bg-red-100",
     textColor: "text-red-800",
@@ -486,7 +472,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.USER_SUSPENDED]: {
     label: "User Suspended",
-    icon: "⛔",
     color: "orange",
     bgColor: "bg-orange-100",
     textColor: "text-orange-800",
@@ -494,7 +479,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.USER_ACTIVATED]: {
     label: "User Activated",
-    icon: "✅",
     color: "green",
     bgColor: "bg-green-100",
     textColor: "text-green-800",
@@ -502,7 +486,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.ROLE_CHANGED]: {
     label: "Role Changed",
-    icon: "🔐",
     color: "purple",
     bgColor: "bg-purple-100",
     textColor: "text-purple-800",
@@ -510,7 +493,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.DEPARTMENT_CREATED]: {
     label: "Department Created",
-    icon: "🏢",
     color: "blue",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800",
@@ -518,7 +500,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.DEPARTMENT_UPDATED]: {
     label: "Department Updated",
-    icon: "📝",
     color: "indigo",
     bgColor: "bg-indigo-100",
     textColor: "text-indigo-800",
@@ -526,7 +507,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.DEPARTMENT_DELETED]: {
     label: "Department Deleted",
-    icon: "🗑️",
     color: "red",
     bgColor: "bg-red-100",
     textColor: "text-red-800",
@@ -534,7 +514,6 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.PASSWORD_CHANGED]: {
     label: "Password Changed",
-    icon: "🔒",
     color: "yellow",
     bgColor: "bg-yellow-100",
     textColor: "text-yellow-800",
@@ -542,11 +521,59 @@ export const SystemActivityTypeConfig = {
   },
   [SystemActivityType.PROFILE_UPDATED]: {
     label: "Profile Updated",
-    icon: "👤",
     color: "blue",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800",
     description: "User profile was updated",
+  },
+  [SystemActivityType.LEGAL_REQUEST_CREATED]: {
+    label: "Legal Request Created",
+    color: "blue",
+    bgColor: "bg-blue-100",
+    textColor: "text-blue-800",
+    description: "A legal request was submitted",
+  },
+  [SystemActivityType.LEGAL_REQUEST_REVIEWED]: {
+    label: "Legal Request Reviewed",
+    color: "indigo",
+    bgColor: "bg-indigo-100",
+    textColor: "text-indigo-800",
+    description: "A legal request was reviewed",
+  },
+  [SystemActivityType.LEGAL_REQUEST_FULFILLED]: {
+    label: "Legal Request Fulfilled",
+    color: "green",
+    bgColor: "bg-green-100",
+    textColor: "text-green-800",
+    description: "A legal request was fulfilled",
+  },
+  [SystemActivityType.LEGAL_REQUEST_STATUS_UPDATED]: {
+    label: "Legal Request Updated",
+    color: "yellow",
+    bgColor: "bg-yellow-100",
+    textColor: "text-yellow-800",
+    description: "A legal request status changed",
+  },
+  [SystemActivityType.EVIDENCE_PACKAGE_GENERATED]: {
+    label: "Evidence Package Generated",
+    color: "purple",
+    bgColor: "bg-purple-100",
+    textColor: "text-purple-800",
+    description: "An evidence package was generated",
+  },
+  [SystemActivityType.EVIDENCE_PACKAGE_PDF_GENERATED]: {
+    label: "Evidence PDF Generated",
+    color: "purple",
+    bgColor: "bg-purple-100",
+    textColor: "text-purple-800",
+    description: "An evidence package PDF was generated",
+  },
+  [SystemActivityType.COURT_ORDER_UPLOADED]: {
+    label: "Court Order Uploaded",
+    color: "orange",
+    bgColor: "bg-orange-100",
+    textColor: "text-orange-800",
+    description: "A court order was uploaded",
   },
 };
 

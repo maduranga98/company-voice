@@ -12,6 +12,8 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import { logAdminAction } from "./auditService";
+import { SystemActivityType } from "../utils/constants";
 
 // ============================================
 // DEPARTMENT CRUD OPERATIONS
@@ -46,6 +48,11 @@ export const createDepartment = async (departmentData, companyId) => {
     };
 
     const docRef = await addDoc(collection(db, "departments"), department);
+
+    logAdminAction(SystemActivityType.DEPARTMENT_CREATED, {
+      departmentId: docRef.id,
+      departmentName: departmentData.name,
+    });
 
     return {
       success: true,
@@ -86,6 +93,12 @@ export const updateDepartment = async (departmentId, updates, companyId) => {
     await updateDoc(departmentRef, {
       ...updates,
       updatedAt: serverTimestamp(),
+    });
+
+    logAdminAction(SystemActivityType.DEPARTMENT_UPDATED, {
+      departmentId,
+      departmentName: updates.name,
+      changes: Object.keys(updates).join(", "),
     });
 
     return {
@@ -136,6 +149,11 @@ export const deleteDepartment = async (
     });
 
     await batch.commit();
+
+    logAdminAction(SystemActivityType.DEPARTMENT_DELETED, {
+      departmentId,
+      reassignedTo: reassignToDeptId,
+    });
 
     return {
       success: true,
