@@ -6,6 +6,8 @@
 // Company Admin API
 const {
   createCompanySubscription,
+  createCompanyCheckoutSession,
+  syncCheckoutSession,
   cancelCompanySubscription,
   reactivateCompanySubscription,
   getCompanySubscription,
@@ -125,6 +127,8 @@ const {
 
 // Export Company Admin Functions
 exports.createCompanySubscription = createCompanySubscription;
+exports.createCompanyCheckoutSession = createCompanyCheckoutSession;
+exports.syncCheckoutSession = syncCheckoutSession;
 exports.cancelCompanySubscription = cancelCompanySubscription;
 exports.reactivateCompanySubscription = reactivateCompanySubscription;
 exports.getCompanySubscription = getCompanySubscription;

@@ -13,7 +13,8 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { loadStripe } from '@stripe/stripe-js/pure';
 import {
   getSubscription,
-  createSubscription,
+  createCheckoutSession,
+  syncCheckoutSession,
   cancelSubscription,
   reactivateSubscription,
   getInvoices,
@@ -73,9 +74,28 @@ function CompanyBillingContent() {
   const pricePerUser = subscription?.pricePerUser || 1.0;
 
   useEffect(() => {
-    if (companyId) {
+    if (!companyId) return;
+
+    // Returning from Stripe Checkout: record the subscription, then load the page data
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    const sessionId = params.get('session_id');
+    if (checkout) window.history.replaceState({}, '', window.location.pathname);
+
+    (async () => {
+      if (checkout === 'success' && sessionId) {
+        try {
+          await syncCheckoutSession(sessionId);
+          setSuccess('Subscription created successfully');
+        } catch (err) {
+          console.error('Error syncing checkout session:', err);
+          setError(err.message);
+        }
+      } else if (checkout === 'canceled') {
+        setError('Checkout was canceled. No subscription was started.');
+      }
       loadBillingData();
-    }
+    })();
   }, [companyId]);
 
   async function loadBillingData() {
@@ -817,13 +837,12 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
-
     const declaredUserCount = Number(employeeCount);
     if (!subscription && (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0)) {
       onError('Number of employees must be a positive whole number');
+      return;
+    }
+    if (subscription && (!stripe || !elements)) {
       return;
     }
 
@@ -835,51 +854,32 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
         await auth.currentUser.getIdToken(true);
       }
 
-      const cardElement = elements.getElement(CardElement);
+      // New subscription: card details are entered on Stripe's hosted Checkout page
+      if (!subscription) {
+        const { url } = await createCheckoutSession({ companyId, declaredUserCount, startTrial });
+        window.location.assign(url);
+        return; // keep the loading state while the browser navigates
+      }
 
-      // Create payment method
+      // Existing subscription: add another card inline
       const { error, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
-        card: cardElement,
+        card: elements.getElement(CardElement),
       });
-
       if (error) {
         throw new Error(error.message);
       }
 
-      if (subscription) {
-        // Add to existing subscription
-        await addPaymentMethod({
-          companyId,
-          stripePaymentMethodId: paymentMethod.id,
-          setAsDefault: true,
-        });
-      } else {
-        // Create new subscription
-        const result = await createSubscription({
-          companyId,
-          paymentMethodId: paymentMethod.id,
-          declaredUserCount,
-          startTrial,
-        });
-
-        // Card needs authentication (3D Secure): Stripe shows its own challenge popup
-        const { requiresAction, clientSecret, isSetupIntent } = result?.data || {};
-        if (requiresAction && clientSecret) {
-          const { error: confirmError } = isSetupIntent
-            ? await stripe.confirmCardSetup(clientSecret)
-            : await stripe.confirmCardPayment(clientSecret);
-          if (confirmError) {
-            throw new Error(confirmError.message);
-          }
-        }
-      }
+      await addPaymentMethod({
+        companyId,
+        stripePaymentMethodId: paymentMethod.id,
+        setAsDefault: true,
+      });
 
       onSuccess();
     } catch (err) {
       console.error('Error adding payment method:', err);
       onError(err.message);
-    } finally {
       setLoading(false);
     }
   }
@@ -897,27 +897,29 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Card Information</label>
-            <div className="border border-gray-300 rounded-md p-3">
-              <CardElement
-                options={{
-                  style: {
-                    base: {
-                      fontSize: '16px',
-                      color: '#424770',
-                      '::placeholder': {
-                        color: '#aab7c4',
+          {subscription && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Card Information</label>
+              <div className="border border-gray-300 rounded-md p-3">
+                <CardElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: '16px',
+                        color: '#424770',
+                        '::placeholder': {
+                          color: '#aab7c4',
+                        },
+                      },
+                      invalid: {
+                        color: '#9e2146',
                       },
                     },
-                    invalid: {
-                      color: '#9e2146',
-                    },
-                  },
-                }}
-              />
+                  }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {!subscription && (
             <div className="mb-4">
@@ -945,8 +947,9 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
                   onChange={(e) => setStartTrial(e.target.checked)}
                   className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <span className="ml-2 text-sm text-gray-700">Start with 7-day free trial</span>
+                <span className="ml-2 text-sm text-gray-700">Start with 14-day free trial</span>
               </label>
+              <p className="text-xs text-gray-500 mt-2">You'll enter your card details securely on Stripe.</p>
             </div>
           )}
 
@@ -960,10 +963,10 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
             </button>
             <button
               type="submit"
-              disabled={loading || !stripe}
+              disabled={loading || (subscription && !stripe)}
               className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
             >
-              {loading ? 'Processing...' : subscription ? 'Add' : 'Subscribe'}
+              {loading ? 'Processing...' : subscription ? 'Add' : 'Continue to Stripe'}
             </button>
           </div>
         </form>
