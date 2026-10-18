@@ -83,7 +83,7 @@ const CompanyManagement = () => {
     setLoading(true);
 
     try {
-      await createCompanyWithAdmin({
+      const result = await createCompanyWithAdmin({
         companyName: formData.companyName,
         industry: formData.industry,
         username: formData.username,
@@ -100,6 +100,7 @@ const CompanyManagement = () => {
         password: formData.password,
         adminName: formData.adminName,
         adminEmail: formData.adminEmail,
+        emailSent: result?.emailSent === true,
       });
 
       setFormData({
@@ -794,7 +795,9 @@ const CompanyManagement = () => {
                 Company Created Successfully!
               </h3>
               <p className="text-sm text-gray-600 text-center mb-6">
-                Please save these credentials securely
+                {newCredentials.emailSent
+                  ? `Login details were emailed to ${newCredentials.adminEmail}.`
+                  : "The email could not be sent. Please share these credentials securely."}
               </p>
 
               <div className="bg-gray-50 rounded-lg p-4 space-y-3 mb-6">

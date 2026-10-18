@@ -18,8 +18,10 @@ const {
   generateTemporaryPassword,
 } = require('../utils/passwords');
 const { sanitizeText } = require('../utils/publicReportValidation');
+const { MAIL_SECRETS, sendCredentialsEmail } = require('../utils/mailer');
 
 const OPTIONS = { ...BASE_OPTIONS, memory: '512MiB', concurrency: 8, timeoutSeconds: 60 };
+const MAIL_OPTIONS = { ...OPTIONS, secrets: MAIL_SECRETS };
 
 const USERNAME_PATTERN = /^[a-z0-9._-]{3,64}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -135,7 +137,7 @@ function resolvePassword(supplied) {
 // createStaffUser
 // ============================================
 
-const createStaffUser = onCall(OPTIONS, async (request) => {
+const createStaffUser = onCall(MAIL_OPTIONS, async (request) => {
   const caller = await loadCaller(request, ['super_admin', 'company_admin']);
   const data = request.data || {};
   const { username, displayName, email } = parseNewUser(data);
@@ -160,17 +162,18 @@ const createStaffUser = onCall(OPTIONS, async (request) => {
   const userId = await createUserWithCredential({
     fields: { username, displayName, email, role, companyId, createdBy: caller.uid },
     password,
-    mustChangePassword: generated,
+    mustChangePassword: generated || Boolean(email),
   });
 
-  return { userId, username, ...(generated ? { temporaryPassword: password } : {}) };
+  const emailSent = await sendCredentialsEmail({ to: email, displayName, username, temporaryPassword: password });
+  return { userId, username, emailSent, ...(generated ? { temporaryPassword: password } : {}) };
 });
 
 // ============================================
 // createCompanyWithAdmin (super admin onboarding)
 // ============================================
 
-const createCompanyWithAdmin = onCall(OPTIONS, async (request) => {
+const createCompanyWithAdmin = onCall(MAIL_OPTIONS, async (request) => {
   const caller = await loadCaller(request, ['super_admin']);
   const data = request.data || {};
   const { username, displayName, email } = parseNewUser({
@@ -178,6 +181,7 @@ const createCompanyWithAdmin = onCall(OPTIONS, async (request) => {
     displayName: data.adminName,
     email: data.adminEmail,
   });
+  if (!email) throw invalid('An admin email is required.');
   const companyName = sanitizeText(data.companyName);
   const industry = sanitizeText(data.industry);
   if (!companyName || companyName.length > 150 || industry.length > 100) throw invalid();
@@ -192,7 +196,7 @@ const createCompanyWithAdmin = onCall(OPTIONS, async (request) => {
   const userId = await createUserWithCredential({
     fields: { username, displayName, email, role: 'company_admin', companyId: companyRef.id, createdBy: caller.uid },
     password,
-    mustChangePassword: generated,
+    mustChangePassword: true,
     extra: [
       [
         companyRef,
@@ -211,7 +215,8 @@ const createCompanyWithAdmin = onCall(OPTIONS, async (request) => {
     ],
   });
 
-  return { companyId: companyRef.id, userId, ...(generated ? { temporaryPassword: password } : {}) };
+  const emailSent = await sendCredentialsEmail({ to: email, displayName, username, temporaryPassword: password, companyName });
+  return { companyId: companyRef.id, userId, emailSent, ...(generated ? { temporaryPassword: password } : {}) };
 });
 
 // ============================================
@@ -292,7 +297,7 @@ const changeUserRole = onCall(OPTIONS, async (request) => {
 // resetStaffPassword
 // ============================================
 
-const resetStaffPassword = onCall(OPTIONS, async (request) => {
+const resetStaffPassword = onCall(MAIL_OPTIONS, async (request) => {
   const caller = await loadCaller(request, ['super_admin', 'company_admin']);
   const target = await loadTarget((request.data || {}).userId);
   assertCanManage(caller, target, { allowAdmins: caller.role === 'super_admin' });
@@ -308,7 +313,14 @@ const resetStaffPassword = onCall(OPTIONS, async (request) => {
   await batch.commit();
 
   await revokeSessions(target.id);
-  return { userId: target.id, temporaryPassword };
+  const emailSent = await sendCredentialsEmail({
+    to: target.email,
+    displayName: target.displayName,
+    username: target.username,
+    temporaryPassword,
+    reset: true,
+  });
+  return { userId: target.id, emailSent, temporaryPassword };
 });
 
 // ============================================
