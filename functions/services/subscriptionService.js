@@ -49,6 +49,14 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
       throw new Error('Company not found');
     }
 
+    // Validate the billable count before touching Stripe so a bad count doesn't leave a card attached
+    const { billableCount: userCount, verifiedCount } = await getBillableUserCount(companyId, declaredUserCount);
+    if (verifiedCount > declaredUserCount) {
+      throw new Error(
+        `Declared count (${declaredUserCount}) cannot be below the verified employee count (${verifiedCount}). Minimum allowed: ${verifiedCount}`
+      );
+    }
+
     const companyData = companyDoc.data();
     let stripeCustomerId = companyData.stripeCustomerId;
 
@@ -76,14 +84,6 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
         default_payment_method: paymentMethodId,
       },
     });
-
-    // Billable quantity = max(declared, verified)
-    const { billableCount: userCount, verifiedCount } = await getBillableUserCount(companyId, declaredUserCount);
-    if (verifiedCount > declaredUserCount) {
-      throw new Error(
-        `Declared count (${declaredUserCount}) cannot be below the verified employee count (${verifiedCount}). Minimum allowed: ${verifiedCount}`
-      );
-    }
 
     // Create or retrieve price in Stripe
     let stripePriceId;
@@ -116,8 +116,10 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
           quantity: userCount,
         },
       ],
-      payment_behavior: 'default_incomplete',
-      expand: ['latest_invoice.payment_intent'],
+      // Charge the saved card right away; if 3DS is needed the subscription stays
+      // `incomplete` and the client confirms the returned clientSecret.
+      payment_behavior: 'allow_incomplete',
+      expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
       metadata: {
         companyId,
       },
@@ -128,6 +130,27 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
     }
 
     const stripeSubscription = await stripe.subscriptions.create(subscriptionParams);
+
+    const paymentIntent = stripeSubscription.latest_invoice?.payment_intent;
+    const setupIntent = stripeSubscription.pending_setup_intent;
+    const pendingIntent = [paymentIntent, setupIntent].find(
+      (intent) => intent && intent.status === 'requires_action'
+    );
+
+    // Card declined outright: roll back instead of storing a subscription that never started
+    if (stripeSubscription.status === 'incomplete' && !pendingIntent) {
+      await stripe.subscriptions.cancel(stripeSubscription.id).catch(() => {});
+      throw new Error(
+        paymentIntent?.last_payment_error?.message || 'Your card was declined. Please try another card.'
+      );
+    }
+
+    const requiresAction = Boolean(pendingIntent);
+    const initialStatus = requiresAction
+      ? 'incomplete'
+      : stripeSubscription.status === 'trialing'
+        ? SUBSCRIPTION_STATUS.TRIAL
+        : SUBSCRIPTION_STATUS.ACTIVE;
 
     // Calculate dates
     const now = new Date();
@@ -141,7 +164,7 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
       stripeCustomerId,
       stripeSubscriptionId: stripeSubscription.id,
       stripePriceId,
-      status: startTrial ? SUBSCRIPTION_STATUS.TRIAL : SUBSCRIPTION_STATUS.ACTIVE,
+      status: initialStatus,
       currentPeriodStart: admin.firestore.Timestamp.fromDate(currentPeriodStart),
       currentPeriodEnd: admin.firestore.Timestamp.fromDate(currentPeriodEnd),
       cancelAtPeriodEnd: false,
@@ -183,7 +206,7 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
       trialEndsAt: startTrial ? admin.firestore.Timestamp.fromDate(currentPeriodEnd) : null,
       lastBillingDate: admin.firestore.Timestamp.fromDate(currentPeriodStart),
       nextBillingDate: admin.firestore.Timestamp.fromDate(nextBillingDate),
-      accountStatus: 'active',
+      accountStatus: requiresAction ? 'pending_payment' : 'active',
       suspendedAt: null,
       suspensionReason: null,
     });
@@ -207,7 +230,9 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
     return {
       subscriptionId: subscriptionRef.id,
       stripeSubscriptionId: stripeSubscription.id,
-      clientSecret: stripeSubscription.latest_invoice?.payment_intent?.client_secret,
+      clientSecret: pendingIntent?.client_secret || null,
+      requiresAction,
+      isSetupIntent: pendingIntent === setupIntent,
       status: subscriptionData.status,
     };
   } catch (error) {

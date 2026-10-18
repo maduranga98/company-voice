@@ -57,7 +57,8 @@ const createCompanySubscription = onCall({
     return { success: true, data: result };
   } catch (error) {
     console.error('Error creating subscription:', error);
-    throw new HttpsError('internal', error.message);
+    // 'internal' hides the message from the client; surface the real reason (e.g. card declined)
+    throw new HttpsError('failed-precondition', error.message);
   }
 });
 

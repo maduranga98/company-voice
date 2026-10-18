@@ -856,12 +856,23 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
         });
       } else {
         // Create new subscription
-        await createSubscription({
+        const result = await createSubscription({
           companyId,
           paymentMethodId: paymentMethod.id,
           declaredUserCount,
           startTrial,
         });
+
+        // Card needs authentication (3D Secure): Stripe shows its own challenge popup
+        const { requiresAction, clientSecret, isSetupIntent } = result?.data || {};
+        if (requiresAction && clientSecret) {
+          const { error: confirmError } = isSetupIntent
+            ? await stripe.confirmCardSetup(clientSecret)
+            : await stripe.confirmCardPayment(clientSecret);
+          if (confirmError) {
+            throw new Error(confirmError.message);
+          }
+        }
       }
 
       onSuccess();
