@@ -1735,10 +1735,6 @@
         "title": "Routing rules",
         "body": "Send new reports to the right person automatically. First matching rule wins."
       },
-      "policies": {
-        "title": "Policies",
-        "body": "Publish policies and share a link or QR code to track who has acknowledged them."
-      },
       "qr": {
         "title": "Report link & QR code",
         "body": "Share this with your team. Anyone can report through it, no account needed."
@@ -1758,6 +1754,30 @@
       "help": {
         "title": "Help & Instructions",
         "body": "Guides for every feature live here. You can also replay this tour from the top of the page."
+      },
+      "policiesNav": {
+        "title": "Start here: add your policies",
+        "body": "Employees acknowledge your policies, so set them up first. We'll open the Policy Library for you."
+      },
+      "policyNew": {
+        "title": "1. Add a policy",
+        "body": "Click New Policy. Enter a title, category and effective date, paste the text or upload the document, and keep Requires Acknowledgement on."
+      },
+      "policyPublish": {
+        "title": "2. Publish it",
+        "body": "New policies start as drafts. Click Publish to make one live. Only published policies can be shared."
+      },
+      "policyLink": {
+        "title": "3. Share the link",
+        "body": "Click the link icon for the public link and QR code. Send it by email or chat, or print the QR code. Employees acknowledge without an account."
+      },
+      "policySelect": {
+        "title": "Share several at once",
+        "body": "Tick the boxes beside published policies, then press Share together to give employees one link for all of them."
+      },
+      "policyStats": {
+        "title": "4. Track acknowledgements",
+        "body": "See who has acknowledged and who hasn't, then follow up with anyone still missing."
       }
     }
   }
