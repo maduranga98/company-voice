@@ -9,9 +9,11 @@ import {
   where,
   orderBy,
   serverTimestamp,
+  writeBatch,
 } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../config/firebase";
+import { DEFAULT_POLICIES } from "../utils/defaultPolicies";
 
 const POLICIES_COLLECTION = "policies";
 const ACKNOWLEDGEMENTS_COLLECTION = "policyAcknowledgements";
@@ -59,6 +61,46 @@ export const deletePolicy = async (policyId, companyId = null) => {
   const deletePromises = acksSnapshot.docs.map((d) => deleteDoc(d.ref));
   await Promise.all(deletePromises);
   return { success: true };
+};
+
+/**
+ * Adds the built-in default policies (privacy notice, anonymous reporting, acceptable use)
+ * to a company as published, acknowledgement-required policies. Defaults the company already
+ * has (matched by templateKey, in any status) are skipped, so this is safe to call repeatedly.
+ * Returns the ids of the policies it created.
+ */
+export const addDefaultPolicies = async (userData) => {
+  const existing = await getPolicies(userData.companyId);
+  const have = new Set(existing.map((p) => p.templateKey).filter(Boolean));
+  const missing = DEFAULT_POLICIES.filter((t) => !have.has(t.key));
+  if (missing.length === 0) return { success: true, createdIds: [] };
+
+  const batch = writeBatch(db);
+  const createdIds = missing.map((t) => {
+    const ref = doc(collection(db, POLICIES_COLLECTION));
+    batch.set(ref, {
+      title: t.title,
+      category: t.category,
+      version: t.version,
+      content: t.content,
+      requiresAcknowledgement: true,
+      isDefault: true,
+      templateKey: t.key,
+      companyId: userData.companyId,
+      status: "published",
+      createdBy: userData.id,
+      createdByName: userData.displayName || userData.username,
+      fileUrl: null,
+      fileName: null,
+      effectiveDate: new Date(),
+      publishedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return ref.id;
+  });
+  await batch.commit();
+  return { success: true, createdIds };
 };
 
 export const archivePolicy = async (policyId) => {

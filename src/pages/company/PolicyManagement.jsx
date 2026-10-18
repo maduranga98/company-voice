@@ -19,6 +19,7 @@ import {
   Link2,
   Layers,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 import {
   createPolicy,
@@ -27,10 +28,12 @@ import {
   archivePolicy,
   deletePolicy,
   getPolicies,
+  addDefaultPolicies,
   getPolicyAcknowledgements,
   getPolicyAcknowledgementStats,
   uploadPolicyFileWithProgress,
 } from "../../services/policyService";
+import { DEFAULT_POLICIES } from "../../utils/defaultPolicies";
 import { ensurePolicyBundleLink, getPolicyBundles, getPolicyLinkStats } from "../../services/policyAckService";
 
 const MIN_BUNDLE = 2;
@@ -109,6 +112,9 @@ const PolicyManagement = () => {
   const [bundleTitle, setBundleTitle] = useState("");
   const [bundleBusy, setBundleBusy] = useState(false);
   const [bundleError, setBundleError] = useState("");
+
+  // Default (VoxWel privacy / reporting / acceptable use) policies
+  const [addingDefaults, setAddingDefaults] = useState(false);
 
   const [toast, setToast] = useState("");
 
@@ -199,6 +205,26 @@ const PolicyManagement = () => {
   };
 
   // ─── Modal open/close ───────────────────────────────────────────
+  const missingDefaults = DEFAULT_POLICIES.filter(
+    (t) => !policies.some((p) => p.templateKey === t.key)
+  );
+
+  const handleAddDefaults = async () => {
+    setAddingDefaults(true);
+    try {
+      const { createdIds } = await addDefaultPolicies(userData);
+      await loadPolicies();
+      // Pre-select the new ones so "Share N together" is one click away.
+      setSelectedIds((prev) => [...new Set([...prev, ...createdIds])]);
+      showToast("Default policies added and published. Share them with your employees.");
+    } catch (err) {
+      console.error("Add defaults error:", err);
+      showToast("Could not add default policies. Please try again.");
+    } finally {
+      setAddingDefaults(false);
+    }
+  };
+
   const openCreateModal = () => {
     setEditingPolicy(null);
     setForm(EMPTY_FORM);
@@ -435,6 +461,33 @@ const PolicyManagement = () => {
       />
 
       <main className="space-y-6 lg:space-y-8">
+        {/* Default policies */}
+        {missingDefaults.length > 0 && (
+          <div className="flex flex-col gap-4 rounded-xl border border-teal-100 bg-teal-50/60 p-5 sm:flex-row sm:items-center">
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white text-[#16A085] shadow-sm">
+              <ShieldCheck size={20} aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-gray-900">
+                Add the default application policies
+              </p>
+              <p className="mt-0.5 text-sm text-gray-600">
+                {missingDefaults.map((t) => t.title).join(", ")}. Published instantly and
+                shared with employees for acknowledgement. Review the wording with your
+                legal counsel before sharing.
+              </p>
+            </div>
+            <button
+              onClick={handleAddDefaults}
+              disabled={addingDefaults}
+              className="inline-flex flex-shrink-0 items-center justify-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085] disabled:opacity-50"
+            >
+              {addingDefaults ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
+              {addingDefaults ? "Adding…" : `Add ${missingDefaults.length === 1 ? "policy" : "defaults"}`}
+            </button>
+          </div>
+        )}
+
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
