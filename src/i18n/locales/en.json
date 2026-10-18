@@ -986,7 +986,8 @@
       "searchPlaceholder": "Search help topics...",
       "viewRolesPermissions": "View Roles & Permissions",
       "topics": "Topics",
-      "noResults": "No help topics match your search."
+      "noResults": "No help topics match your search.",
+      "replayTour": "Replay the tour"
     },
     "sections": {
       "gettingStarted": "Getting Started",
@@ -1055,6 +1056,211 @@
       "criteria": "Criteria",
       "examples": "Examples",
       "tips": "Tips"
+    },
+    "guide": {
+      "sections": {
+        "start": "Getting started",
+        "cases": "Handling reports",
+        "people": "People & rules",
+        "compliance": "Compliance & billing",
+        "account": "Account"
+      },
+      "tourCard": {
+        "title": "Take the guided tour",
+        "body": "A 1-minute walkthrough of the sidebar, inbox and case tools.",
+        "cta": "Start tour"
+      },
+      "open": "Open",
+      "tipLabel": "Tip",
+      "overview": {
+        "title": "How VoxWel works",
+        "sub": "From report to resolution",
+        "intro": "VoxWel lets anyone in your organisation raise a concern without an account, and lets your team handle it safely.",
+        "points": [
+          "Reporters use your company's report link or QR code. No login and no personal details are needed.",
+          "Each report becomes a case. Routing rules or Categories & Routing assign it to the right person.",
+          "Your team works the case: set status, priority and due date, add internal notes and reply to the reporter.",
+          "Reporters get a case code. They use it on the Check a case page to see progress and answer your questions."
+        ],
+        "tip": "Reporter identity is never shown to staff unless the reporter chooses to share contact details."
+      },
+      "navigation": {
+        "title": "Finding your way around",
+        "sub": "Sidebar, header and mobile tabs",
+        "intro": "The sidebar groups every tool by purpose. On mobile, use the bottom tabs and the More button.",
+        "points": [
+          "Content: Case Queue, HR Inbox, Assigned and Conversations.",
+          "Management (admins): Members, Departments, Tags and Routing Rules.",
+          "Compliance: Policies, Audit Log, Audit Export, Legal Requests and Vendor Risk.",
+          "Settings: Billing, QR Code, Categories & Routing, Profile and Help.",
+          "A red dot beside Inbox or Chats means new, unread activity.",
+          "The header has the language switcher and Notifications."
+        ]
+      },
+      "reportLink": {
+        "title": "Report link & QR code",
+        "sub": "Let people report anonymously",
+        "intro": "Your company has a public report page that works without login, on any device.",
+        "points": [
+          "Open Settings → QR Code to copy the link or download a printable poster.",
+          "Reporters choose a type, category and description, and can attach files or record a voice note.",
+          "Reporters can write in their own language using the language switcher on the form.",
+          "After submitting, the reporter is shown a case code. Remind them to keep it safe."
+        ],
+        "tip": "Print the poster for break rooms and add the link to your intranet and onboarding.",
+        "link": "/company/qr-code",
+        "linkLabel": "Open QR Code"
+      },
+      "caseQueue": {
+        "title": "Case Queue",
+        "sub": "Triage everything in one list",
+        "intro": "The Case Queue combines reports and vendor-risk cases so nothing is missed.",
+        "points": [
+          "Use the filters and the Unassigned view to find cases without an owner.",
+          "Open a case to change status, priority, assignee and due date from one panel.",
+          "Add internal notes. Reporters never see them.",
+          "Export a case as PDF or share it securely with outside counsel using a time-limited link.",
+          "Every change is recorded in the case timeline and the audit log."
+        ],
+        "link": "/company/cases",
+        "linkLabel": "Open Case Queue"
+      },
+      "hrInbox": {
+        "title": "HR Inbox",
+        "sub": "Reports that involve HR",
+        "intro": "When a reporter says a report involves HR, it is kept out of the general queue and routed here.",
+        "points": [
+          "Only Company Admins and HR can see these reports.",
+          "A red dot means a report is still Open with no response.",
+          "Acknowledge quickly: changing the status from Open starts counting as acknowledged for the reporter."
+        ],
+        "link": "/hr/inbox",
+        "linkLabel": "Open HR Inbox"
+      },
+      "conversations": {
+        "title": "Anonymous conversations",
+        "sub": "Talk to reporters safely",
+        "intro": "Ask follow-up questions without learning who the reporter is.",
+        "points": [
+          "Open Conversations to see every thread. Unread threads show a dot.",
+          "Your reply appears on the reporter's Check a case page.",
+          "Replies from the reporter arrive in the same thread and notify you.",
+          "Never ask for identifying details unless the reporter offers them."
+        ],
+        "link": "/hr/conversations",
+        "linkLabel": "Open Conversations"
+      },
+      "deadlines": {
+        "title": "Deadlines & reminders",
+        "sub": "Acknowledge and give feedback on time",
+        "intro": "Reporters see countdowns for two commitments, in line with whistleblower regulations such as the EU Directive.",
+        "points": [
+          "Acknowledgement: within 7 days of submission. Moving a case out of Open counts as acknowledging it.",
+          "Feedback: within about 3 months. Replying to the reporter, or resolving or closing the case, counts as giving feedback.",
+          "Reporters see these countdowns on their Check a case page, and overdue items are flagged to them.",
+          "Keep statuses current so the timers reflect reality."
+        ]
+      },
+      "routing": {
+        "title": "Categories & routing rules",
+        "sub": "Send reports to the right person",
+        "intro": "Control which categories people can report under and who receives each one.",
+        "points": [
+          "Settings → Categories & Routing: enable categories and choose a default recipient.",
+          "Management → Routing Rules: add rules in order. The first rule that matches assigns the case.",
+          "Cases that match no rule stay unassigned in the Case Queue.",
+          "Use the up and down arrows to reorder rules. Place specific rules above general ones."
+        ],
+        "link": "/company/routing-rules",
+        "linkLabel": "Open Routing Rules"
+      },
+      "members": {
+        "title": "Members & roles",
+        "sub": "Invite and manage staff",
+        "intro": "Add the people who will handle cases and set what each can see.",
+        "points": [
+          "Management → Members: create an account, choose a role and department.",
+          "Company Admin has full access. HR handles HR cases but cannot manage billing, members or legal requests.",
+          "Deactivate accounts when people leave. Their access ends within minutes.",
+          "Use Departments and Tags to organise people and filter cases."
+        ],
+        "link": "/company/members",
+        "linkLabel": "Open Members"
+      },
+      "policies": {
+        "title": "Policies & acknowledgements",
+        "sub": "Publish and track sign-off",
+        "intro": "Keep policies in one place and prove who has read them.",
+        "points": [
+          "Compliance → Policies: create, publish or archive a policy.",
+          "Share the public link or QR code. Employees acknowledge the policy, or raise a concern, without an account.",
+          "Bundle several policies behind a single link.",
+          "Acknowledgement Stats shows who has signed and when, and can be exported."
+        ],
+        "link": "/company/policies",
+        "linkLabel": "Open Policies"
+      },
+      "vendorRisk": {
+        "title": "Vendor risk reports",
+        "sub": "Third-party concerns",
+        "intro": "Employees can report concerns about suppliers and partners anonymously.",
+        "points": [
+          "Reports appear in Vendor Risk and in the Case Queue.",
+          "Restricted reports are visible to Company Admins only and hidden from HR.",
+          "Use the same status, owner and due-date workflow as other cases."
+        ],
+        "link": "/hr/vendor-risk",
+        "linkLabel": "Open Vendor Risk"
+      },
+      "audit": {
+        "title": "Audit log & export",
+        "sub": "Evidence for compliance reviews",
+        "intro": "Every sensitive action is logged: logins, status changes, assignments and exports.",
+        "points": [
+          "Compliance → Audit Log shows recent activity.",
+          "Audit Export filters by date, user and action, then exports for auditors.",
+          "Audit entries are written by the system, so they are not editable from the app."
+        ],
+        "link": "/company/audit-log",
+        "linkLabel": "Open Audit Log"
+      },
+      "legal": {
+        "title": "Legal requests",
+        "sub": "Court-ordered disclosure",
+        "intro": "Handle formal requests for information through a documented process.",
+        "points": [
+          "Submit the request with supporting documents from Legal Requests.",
+          "Platform administrators review it and track it to completion.",
+          "Reporter identities stay protected by encryption. Disclosure follows a controlled, audited process."
+        ],
+        "link": "/company/legal-requests",
+        "linkLabel": "Open Legal Requests"
+      },
+      "billing": {
+        "title": "Billing & plan",
+        "sub": "Subscription and payments",
+        "intro": "Company Admins manage the subscription under Settings → Billing.",
+        "points": [
+          "Your plan follows your company's employee count.",
+          "Add or update a payment method and download invoices.",
+          "Card checks (such as 3D Secure) open in a secure Stripe window."
+        ],
+        "link": "/company/billing",
+        "linkLabel": "Open Billing"
+      },
+      "profile": {
+        "title": "Profile & language",
+        "sub": "Make VoxWel yours",
+        "intro": "Update your details and choose your language.",
+        "points": [
+          "Settings → Profile: change your name, email, avatar and password.",
+          "Use the globe icon in the header to switch language at any time.",
+          "Notifications (bell icon) collect assignments, replies and reminders."
+        ],
+        "link": "/company/profile",
+        "linkLabel": "Open Profile"
+      },
+      "priorityLevelsSub": "How urgent is it?"
     }
   },
   "report": {
@@ -1482,6 +1688,77 @@
       "invalid": "Please check the details and try again.",
       "forbidden": "You are not allowed to do that.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "tour": {
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip tour",
+    "done": "Finish",
+    "stepOf": "{{current}} of {{total}}",
+    "close": "Close tour",
+    "replay": "Replay the tour",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to VoxWel",
+        "body": "Take a 1-minute tour of where everything lives. You can skip any time and replay it later from Help."
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "body": "Your overview: new reports, open cases and activity at a glance."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "body": "Trends by category, status and department, to spot recurring problems."
+      },
+      "cases": {
+        "title": "Case Queue",
+        "body": "Every report and vendor-risk case in one list. Filter, then open a case to set status, priority, owner and due date."
+      },
+      "inbox": {
+        "title": "HR Inbox",
+        "body": "Reports flagged as involving HR land here first. A dot means something new is waiting."
+      },
+      "assigned": {
+        "title": "Assigned to you",
+        "body": "Cases routed or assigned to you, so you always know what to pick up next."
+      },
+      "conversations": {
+        "title": "Conversations",
+        "body": "Reply to reporters without ever learning who they are. Their identity stays anonymous."
+      },
+      "members": {
+        "title": "Members",
+        "body": "Invite staff, change roles and deactivate accounts."
+      },
+      "routing": {
+        "title": "Routing rules",
+        "body": "Send new reports to the right person automatically. First matching rule wins."
+      },
+      "policies": {
+        "title": "Policies",
+        "body": "Publish policies and share a link or QR code to track who has acknowledged them."
+      },
+      "qr": {
+        "title": "Report link & QR code",
+        "body": "Share this with your team. Anyone can report through it, no account needed."
+      },
+      "audit": {
+        "title": "Audit log",
+        "body": "A tamper-evident record of who did what, ready for compliance reviews."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "body": "Assignments, replies and deadline reminders show up here."
+      },
+      "language": {
+        "title": "Language",
+        "body": "Switch the interface language at any time."
+      },
+      "help": {
+        "title": "Help & Instructions",
+        "body": "Guides for every feature live here. You can also replay this tour from the top of the page."
+      }
     }
   }
 }

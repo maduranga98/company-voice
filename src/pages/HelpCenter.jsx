@@ -4,10 +4,25 @@ import { useTranslation } from "react-i18next";
 import HelpPanel from "../components/help/HelpPanel";
 import { useAuth } from "../contexts/AuthContext";
 import useGuidanceContent from "../hooks/useGuidanceContent";
+import { TOUR_START_EVENT } from "../components/tour/tourSteps";
+import {
+  ArrowRight, BarChart3, BookOpen, Building2, CircleDot, ClipboardCheck, ClipboardList, Clock,
+  Compass, CreditCard, Flag, Inbox, LayoutGrid, MessagesSquare, PlayCircle, QrCode, Route,
+  Scale, ShieldAlert, UserCircle, Users,
+} from "lucide-react";
+
+const TONES = {
+  teal: "bg-teal-100 text-teal-700",
+  blue: "bg-blue-100 text-blue-700",
+  indigo: "bg-indigo-100 text-indigo-700",
+  amber: "bg-amber-100 text-amber-700",
+  rose: "bg-rose-100 text-rose-700",
+  gray: "bg-gray-100 text-gray-600",
+};
 
 const HelpCenter = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { userData } = useAuth();
   const {
     ROLE_DEFINITIONS,
@@ -27,7 +42,9 @@ const HelpCenter = () => {
 
   const userRole = userData?.role;
 
-  const isAdminRole = ["super_admin", "company_admin", "hr"].includes(userRole);
+  const isCompanyAdmin = userRole === "company_admin" || userRole === "super_admin";
+  // The tour runs inside the staff layout, which super admins do not use.
+  const isCompanyStaff = userRole === "company_admin" || userRole === "hr";
 
   // ── renderContent (kept exactly from original) ──────────────────────────
   const renderContent = (contentId) => {
@@ -295,236 +312,102 @@ const HelpCenter = () => {
   };
   // ── end renderContent ───────────────────────────────────────────────────
 
-  // Section definitions for mobile layout
-  const allSections = useMemo(
-    () => [
+  const guideContent = (key) => (
+    <div className="space-y-3">
+      <p className="text-sm text-gray-600">{t(`help.guide.${key}.intro`)}</p>
+      <ul className="space-y-1.5">
+        {t(`help.guide.${key}.points`, { returnObjects: true }).map((point, idx) => (
+          <li key={idx} className="flex items-start gap-2 text-xs leading-relaxed text-gray-700">
+            <span className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-brand-500" />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+      {i18n.exists(`help.guide.${key}.tip`) && (
+        <p className="rounded-lg bg-brand-50 px-3 py-2 text-xs text-brand-800">
+          <strong>{t("help.guide.tipLabel")}:</strong> {t(`help.guide.${key}.tip`)}
+        </p>
+      )}
+      {i18n.exists(`help.guide.${key}.link`) && (
+        <button
+          type="button"
+          onClick={() => navigate(t(`help.guide.${key}.link`))}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700"
+        >
+          {t(`help.guide.${key}.linkLabel`)}
+          <ArrowRight size={13} />
+        </button>
+      )}
+    </div>
+  );
+
+  // `guide` items read help.guide.<id>; `contentId` items reuse the richer role/status renderers above.
+  const allSections = useMemo(() => {
+    const guide = (id, icon, tone) => ({
+      id,
+      icon,
+      tone,
+      title: t(`help.guide.${id}.title`),
+      sub: t(`help.guide.${id}.sub`),
+      guide: id,
+      searchText: t(`help.guide.${id}.intro`),
+    });
+    const content = (id, contentId, icon, tone, title, sub) => ({ id, contentId, icon, tone, title, sub });
+    const when = (cond, items) => (cond ? items : []);
+
+    return [
       {
-        id: "getting-started",
-        label: t("help.sections.gettingStarted", "Getting started"),
+        id: "start",
+        label: t("help.guide.sections.start"),
         items: [
-          {
-            id: "roles",
-            title: t("help.topics.rolesPermissions", "Roles & permissions"),
-            sub: t("help.topics.rolesPermissionsSub", "Who can do what"),
-            contentId: "role-definitions",
-            iconBg: "bg-blue-100",
-            iconStroke: "#2563eb",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            ),
-          },
-          ...(isAdminRole
-            ? [{
-                id: "role-features",
-                title: t("help.topics.roleFeatures", "Role-based features"),
-                sub: t("help.topics.roleFeaturesSub", "What your role can access"),
-                contentId: "role-definitions",
-                iconBg: "bg-purple-100",
-                iconStroke: "#7c3aed",
-                icon: (stroke) => (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                    <rect x="3" y="3" width="7" height="7" />
-                    <rect x="14" y="3" width="7" height="7" />
-                    <rect x="14" y="14" width="7" height="7" />
-                    <rect x="3" y="14" width="7" height="7" />
-                  </svg>
-                ),
-              }]
-            : []),
-          {
-            id: "navigate",
-            title: t("help.topics.navigation", "How to navigate"),
-            sub: t("help.topics.navigationSub", "Getting around the app"),
-            contentId: "role-definitions",
-            iconBg: "bg-gray-100",
-            iconStroke: "#6b7280",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
-              </svg>
-            ),
-          },
+          guide("overview", Compass, "teal"),
+          content("roles", "role-definitions", Users, "blue", t("help.topics.rolesPermissions"), t("help.topics.rolesPermissionsSub")),
+          guide("navigation", LayoutGrid, "gray"),
+          ...when(isCompanyAdmin, [guide("reportLink", QrCode, "teal")]),
         ],
       },
       {
-        id: "posting",
-        label: t("help.sections.postingPrivacy", "Posting & privacy"),
+        id: "cases",
+        label: t("help.guide.sections.cases"),
         items: [
-          ...(isAdminRole
-            ? [{
-                id: "post-status",
-                title: t("help.topics.postStatus", "Post status explained"),
-                sub: t("help.topics.postStatusSub", "Track resolution progress"),
-                contentId: "post-status",
-                iconBg: "bg-amber-100",
-                iconStroke: "#d97706",
-                icon: (stroke) => (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                ),
-              }]
-            : []),
+          guide("caseQueue", LayoutGrid, "blue"),
+          guide("hrInbox", Inbox, "amber"),
+          guide("conversations", MessagesSquare, "teal"),
+          content("assigned", "assigned-to-me", ClipboardCheck, "indigo", t("help.topics.assignedToMe"), t("help.topics.assignedToMeSub")),
+          guide("deadlines", Clock, "rose"),
+          content("post-status", "post-status", CircleDot, "amber", t("help.topics.postStatus"), t("help.topics.postStatusSub")),
+          content("priority", "priority", Flag, "rose", t("help.topics.priorityLevels"), t("help.guide.priorityLevelsSub")),
+          ...when(isCompanyAdmin, [guide("routing", Route, "indigo")]),
+          guide("vendorRisk", ShieldAlert, "gray"),
         ],
       },
+      ...when(isCompanyAdmin, [
+        {
+          id: "people",
+          label: t("help.guide.sections.people"),
+          items: [
+            guide("members", Users, "blue"),
+            content("departments", "departments", Building2, "teal", t("help.topics.departmentManagement"), t("help.topics.departmentManagementSub")),
+            content("analytics", "analytics", BarChart3, "indigo", t("help.topics.analyticsReporting"), t("help.topics.analyticsReportingSub")),
+          ],
+        },
+      ]),
       {
         id: "compliance",
-        label: t("help.sections.messagesCompliance", "Messages & compliance"),
+        label: t("help.guide.sections.compliance"),
         items: [
-          {
-            id: "hr-messages",
-            title: t("help.topics.hrMessages", "Private HR messages"),
-            sub: t("help.topics.hrMessagesSub", "Secure anonymous conversations"),
-            contentId: "assigned-to-me",
-            iconBg: "bg-teal-100",
-            iconStroke: "#0d9488",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            ),
-          },
-          {
-            id: "policy-lib",
-            title: t("help.topics.policyLibrary", "Policy Library"),
-            sub: t("help.topics.policyLibrarySub", "Company guidelines"),
-            contentId: "assigned-to-me",
-            iconBg: "bg-yellow-100",
-            iconStroke: "#ca8a04",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            ),
-          },
-          {
-            id: "training",
-            title: t("help.topics.trainingModules", "Training modules"),
-            sub: t("help.topics.trainingModulesSub", "Learning resources"),
-            contentId: isAdminRole ? "templates" : "assigned-to-me",
-            iconBg: "bg-purple-100",
-            iconStroke: "#7c3aed",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                <path d="M6 12v5c3 3 9 3 12 0v-5" />
-              </svg>
-            ),
-          },
+          guide("policies", BookOpen, "amber"),
+          guide("audit", ClipboardList, "gray"),
+          ...when(isCompanyAdmin, [guide("legal", Scale, "indigo"), guide("billing", CreditCard, "teal")]),
         ],
       },
       {
         id: "account",
-        label: t("help.sections.account", "Account"),
-        items: [
-          {
-            id: "profile-settings",
-            title: t("help.topics.profileSettings", "Profile settings"),
-            sub: t("help.topics.profileSettingsSub", "Edit your account info"),
-            contentId: "role-definitions",
-            iconBg: "bg-gray-100",
-            iconStroke: "#6b7280",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            ),
-          },
-          {
-            id: "language-prefs",
-            title: t("help.topics.languagePrefs", "Language & preferences"),
-            sub: t("help.topics.languagePrefsSub", "Customize your experience"),
-            contentId: "role-definitions",
-            iconBg: "bg-blue-100",
-            iconStroke: "#2563eb",
-            icon: (stroke) => (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-              </svg>
-            ),
-          },
-          ...(isAdminRole
-            ? [{
-                id: "assigned-to-me",
-                title: t("help.topics.assignedToMe", "Assigned to Me"),
-                sub: t("help.topics.assignedToMeSub", "Managing assigned tasks"),
-                contentId: "assigned-to-me",
-                iconBg: "bg-indigo-100",
-                iconStroke: "#4f46e5",
-                icon: (stroke) => (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                ),
-              }]
-            : []),
-        ],
+        label: t("help.guide.sections.account"),
+        items: [guide("profile", UserCircle, "gray")],
       },
-      ...(isAdminRole
-        ? [{
-            id: "admin",
-            label: t("help.sections.adminFeatures", "Admin features"),
-            items: [
-              {
-                id: "members",
-                title: t("help.topics.memberManagement", "Member management"),
-                sub: t("help.topics.memberManagementSub", "Manage users and roles"),
-                contentId: "member-management",
-                iconBg: "bg-blue-100",
-                iconStroke: "#2563eb",
-                icon: (stroke) => (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-                  </svg>
-                ),
-              },
-              {
-                id: "departments",
-                title: t("help.topics.departmentManagement", "Departments"),
-                sub: t("help.topics.departmentManagementSub", "Organize your company"),
-                contentId: "departments",
-                iconBg: "bg-teal-100",
-                iconStroke: "#0d9488",
-                icon: (stroke) => (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <path d="M3 9h18M9 21V9" />
-                  </svg>
-                ),
-              },
-              {
-                id: "analytics",
-                title: t("help.topics.analyticsReporting", "Analytics"),
-                sub: t("help.topics.analyticsReportingSub", "Usage reports and metrics"),
-                contentId: "analytics",
-                iconBg: "bg-indigo-100",
-                iconStroke: "#4f46e5",
-                icon: (stroke) => (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="2">
-                    <line x1="18" y1="20" x2="18" y2="10" />
-                    <line x1="12" y1="20" x2="12" y2="4" />
-                    <line x1="6" y1="20" x2="6" y2="14" />
-                  </svg>
-                ),
-              },
-            ],
-          }]
-        : []),
-    ],
-    [t, isAdminRole]
-  );
+    ];
+  }, [t, isCompanyAdmin]);
 
   // Filter by search
   const filteredSections = useMemo(() => {
@@ -536,7 +419,8 @@ const HelpCenter = () => {
         items: section.items.filter(
           (item) =>
             item.title.toLowerCase().includes(q) ||
-            item.sub.toLowerCase().includes(q)
+            item.sub.toLowerCase().includes(q) ||
+            item.searchText?.toLowerCase().includes(q)
         ),
       }))
       .filter((section) => section.items.length > 0);
@@ -563,6 +447,25 @@ const HelpCenter = () => {
         />
       </div>
 
+      {isCompanyStaff && (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-brand-100 bg-brand-50 p-4">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
+            <PlayCircle size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-ink">{t("help.guide.tourCard.title")}</p>
+            <p className="text-xs text-gray-600">{t("help.guide.tourCard.body")}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event(TOUR_START_EVENT))}
+            className="flex-shrink-0 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-brand-600"
+          >
+            {t("help.guide.tourCard.cta")}
+          </button>
+        </div>
+      )}
+
       {/* Section groups */}
       {filteredSections.map((section) => (
         <div key={section.id} className="mb-6">
@@ -584,8 +487,8 @@ const HelpCenter = () => {
                           : "none",
                     }}
                   >
-                    <div className={`w-7 h-7 ${item.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                      {item.icon(item.iconStroke)}
+                    <div className={`w-7 h-7 ${TONES[item.tone]} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                      <item.icon size={16} strokeWidth={2} />
                     </div>
                     <div className="flex-1 text-left">
                       <div className="text-sm font-semibold text-gray-900">{item.title}</div>
@@ -603,7 +506,7 @@ const HelpCenter = () => {
                       className="px-4 pb-4 pt-2 bg-gray-50"
                       style={{ borderTop: "1px solid #f1f5f9", borderBottom: i < section.items.length - 1 ? "1px solid #f1f5f9" : "none" }}
                     >
-                      {renderContent(item.contentId)}
+                      {item.guide ? guideContent(item.guide) : renderContent(item.contentId)}
                     </div>
                   )}
                 </div>

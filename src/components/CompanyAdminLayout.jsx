@@ -36,9 +36,12 @@ import {
   LayoutGrid,
   Route as RouteIcon,
   Layers,
+  PlayCircle,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
+import ProductTour from "./tour/ProductTour";
+import { TOUR_START_EVENT } from "./tour/tourSteps";
 
 const CompanyAdminLayout = ({ children }) => {
   const { t } = useTranslation();
@@ -165,6 +168,16 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.categoriesRouting", "Categories & Routing"), path: "/company/categories-routing", icon: Layers },
         { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
         { label: t("navigation.help", "Help & Instructions"), path: "/help", icon: HelpCircle },
+        {
+          label: t("tour.replay"),
+          path: "tour",
+          icon: PlayCircle,
+          onSelect: () => {
+            setSidebarOpen(false);
+            // Wait for the mobile drawer to unmount so the tour only sees what stays on screen.
+            setTimeout(() => window.dispatchEvent(new Event(TOUR_START_EVENT)), 0);
+          },
+        },
       ],
     },
   ];
@@ -175,7 +188,8 @@ const CompanyAdminLayout = ({ children }) => {
     return (
       <button
         key={item.path}
-        onClick={() => handleNavigate(item.path)}
+        data-tour={item.onSelect ? undefined : item.path}
+        onClick={() => (item.onSelect ? item.onSelect() : handleNavigate(item.path))}
         aria-current={active ? "page" : undefined}
         className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors duration-150 ${
           active
@@ -329,8 +343,11 @@ const CompanyAdminLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <LanguageSwitcher />
+            <div data-tour="language">
+              <LanguageSwitcher />
+            </div>
             <button
+              data-tour="notifications"
               onClick={() => handleNavigate("/company/notifications")}
               aria-label={t("navigation.notifications", "Notifications")}
               className="relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-ink"
@@ -359,6 +376,8 @@ const CompanyAdminLayout = ({ children }) => {
         </div>
       </main>
 
+      <ProductTour />
+
       {/* ── MOBILE BOTTOM NAV ── */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200/70 bg-white/90 backdrop-blur-md lg:hidden"
@@ -372,6 +391,7 @@ const CompanyAdminLayout = ({ children }) => {
             return (
               <button
                 key={tab.id}
+                data-tour={tab.path || undefined}
                 onClick={() => (tab.action ? tab.action() : handleNavigate(tab.path))}
                 className="relative flex flex-1 flex-col items-center justify-center gap-1"
               >
