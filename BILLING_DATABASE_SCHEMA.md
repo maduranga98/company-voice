@@ -26,7 +26,12 @@ Stores company subscription information and Stripe subscription details.
   currency: "usd",
 
   // Usage tracking
-  currentUserCount: number,         // Current active users
+  declaredUserCount: number,        // Employee count declared by the Company Admin (primary billing basis)
+  verifiedAcknowledgedCount: number, // Distinct employees who acknowledged a policy (billing floor)
+  lastVerifiedAt: Timestamp,        // When verifiedAcknowledgedCount was last computed
+  declaredUserCountUpdatedAt: Timestamp, // When declaredUserCount was last set by an admin
+  declaredUserCountUpdatedBy: "string",  // User ID who last set declaredUserCount
+  currentUserCount: number,         // Billed quantity = max(declaredUserCount, verifiedAcknowledgedCount)
   lastBilledUserCount: number,      // User count from last invoice
 
   // Payment status

@@ -68,8 +68,13 @@ import * as billing from './services/billingService';
 await billing.createSubscription({
   companyId: 'xxx',
   paymentMethodId: 'pm_xxx',
+  declaredUserCount: 50, // required: employees in the company
   startTrial: true
 });
+
+// Update declared employee count (cannot be below the verified count)
+await billing.updateDeclaredEmployeeCount(companyId, 60);
+// Billed quantity = max(declared, verified policy-acknowledgement count)
 
 // Get subscription
 await billing.getSubscription(companyId);

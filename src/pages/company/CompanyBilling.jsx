@@ -20,6 +20,7 @@ import {
   getPaymentMethods,
   addPaymentMethod,
   removePaymentMethod,
+  updateDeclaredEmployeeCount,
   getPaymentHistory,
   getUsageSummary,
   createPaymentMethod as createPaymentMethodUtil,
@@ -56,11 +57,20 @@ function CompanyBillingContent() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showEmployeeCountModal, setShowEmployeeCountModal] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [activeMemberCount, setActiveMemberCount] = useState(null);
 
   const companyId = currentUser?.companyId;
+
+  // Billing basis: declared count, floored by the verified (policy acknowledgement) count
+  const declaredCount = subscription?.declaredUserCount ?? 0;
+  const verifiedCount =
+    subscription?.liveVerifiedAcknowledgedCount ?? subscription?.verifiedAcknowledgedCount ?? 0;
+  const willAutoAdjust = verifiedCount > declaredCount;
+  const billedCount = subscription?.currentUserCount ?? Math.max(declaredCount, verifiedCount);
+  const pricePerUser = subscription?.pricePerUser || 1.0;
 
   useEffect(() => {
     if (companyId) {
@@ -147,6 +157,16 @@ function CompanyBillingContent() {
     }
   }
 
+  async function handleSaveEmployeeCount(count) {
+    if (auth.currentUser) {
+      await auth.currentUser.getIdToken(true);
+    }
+    await updateDeclaredEmployeeCount(companyId, count);
+    setSuccess('Employee count updated successfully');
+    setShowEmployeeCountModal(false);
+    await loadBillingData();
+  }
+
   async function handleReactivateSubscription() {
     if (!subscription) return;
 
@@ -204,24 +224,43 @@ function CompanyBillingContent() {
         )}
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Active Members */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Declared Employees */}
           <div className="bg-background-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
               <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Active Members</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {activeMemberCount !== null ? activeMemberCount : '—'}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">Currently active users</p>
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Declared Employees</p>
+              <p className="text-3xl font-bold text-gray-900">{subscription ? declaredCount : '—'}</p>
+              {subscription && (
+                <button
+                  onClick={() => setShowEmployeeCountModal(true)}
+                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800 mt-0.5"
+                >
+                  Update
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Amount Due */}
+          {/* Verified (Policy Ack) */}
+          <div className="bg-background-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Verified (Policy Ack)</p>
+              <p className="text-3xl font-bold text-gray-900">{subscription ? verifiedCount : '—'}</p>
+              <p className="text-xs text-gray-400 mt-0.5">Billing floor</p>
+            </div>
+          </div>
+
+          {/* Monthly Amount */}
           <div className="bg-background-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,12 +270,31 @@ function CompanyBillingContent() {
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Monthly Amount</p>
               <p className="text-3xl font-bold text-gray-900">
-                {activeMemberCount !== null ? `$${activeMemberCount.toFixed(2)}` : '—'}
+                {subscription ? formatCurrency((subscription.currentUserCount || 0) * pricePerUser) : '—'}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">{activeMemberCount !== null ? `${activeMemberCount} member${activeMemberCount !== 1 ? 's' : ''} × $1.00 / month` : 'Loading...'}</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {subscription ? `${subscription.currentUserCount || 0} × ${formatCurrency(pricePerUser)} / month` : 'No subscription'}
+              </p>
             </div>
           </div>
         </div>
+
+        {/* Auto-adjust Warning */}
+        {subscription && willAutoAdjust && (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start justify-between gap-4">
+            <p className="text-sm text-yellow-800">
+              <span className="font-medium">Verified employees exceed your declared count.</span>{' '}
+              {verifiedCount} employees have acknowledged a policy but you declared {declaredCount}. Your declared
+              count will be automatically increased to {verifiedCount} (it is never lowered automatically).
+            </p>
+            <button
+              onClick={() => setShowEmployeeCountModal(true)}
+              className="text-sm font-medium text-yellow-900 underline whitespace-nowrap"
+            >
+              Update employee count
+            </button>
+          </div>
+        )}
 
         {/* Subscription Status Banner */}
         {subscription && (
@@ -250,9 +308,12 @@ function CompanyBillingContent() {
                   </span>
                 </div>
                 <div className="mt-2 text-sm text-gray-600">
-                  <p>Current Users: <span className="font-medium text-gray-900">{subscription.currentUserCount ?? activeMemberCount ?? '—'}</span></p>
+                  <p>
+                    Current Users: <span className="font-medium text-gray-900">{billedCount}</span> billed
+                    <span className="text-gray-500"> ({declaredCount} declared, {verifiedCount} verified)</span>
+                  </p>
                   <p>Next Billing: <span className="font-medium text-gray-900">{formatDate(subscription.currentPeriodEnd)}</span></p>
-                  <p>Amount: <span className="font-medium text-gray-900">{formatCurrency(((subscription.currentUserCount ?? activeMemberCount) || 0) * (subscription.pricePerUser || 1.00))}</span></p>
+                  <p>Amount: <span className="font-medium text-gray-900">{formatCurrency((billedCount || 0) * pricePerUser)}</span></p>
                 </div>
               </div>
               <div className="flex space-x-3">
@@ -330,7 +391,7 @@ function CompanyBillingContent() {
             </div>
 
             <div className="mt-6">
-              {activeTab === 'overview' && <OverviewTab subscription={subscription} usageSummary={usageSummary} activeMemberCount={activeMemberCount} />}
+              {activeTab === 'overview' && <OverviewTab subscription={subscription} usageSummary={usageSummary} activeMemberCount={activeMemberCount} verifiedCount={verifiedCount} />}
               {activeTab === 'invoices' && <InvoicesTab invoices={invoices} />}
               {activeTab === 'payment-methods' && (
                 <PaymentMethodsTab
@@ -356,6 +417,22 @@ function CompanyBillingContent() {
             </div>
           </div>
         )}
+
+      {subscription && activeMemberCount !== null && (
+        <p className="text-xs text-gray-400">
+          Active platform accounts: {activeMemberCount} (informational, not billed)
+        </p>
+      )}
+
+      {/* Update Employee Count Modal */}
+      {showEmployeeCountModal && (
+        <UpdateEmployeeCountModal
+          currentCount={declaredCount}
+          verifiedCount={verifiedCount}
+          onClose={() => setShowEmployeeCountModal(false)}
+          onSave={handleSaveEmployeeCount}
+        />
+      )}
 
       {/* Add Payment Method Modal */}
       {showAddPaymentModal && (
@@ -385,24 +462,33 @@ function CompanyBillingContent() {
 
 // Tab Components
 
-function OverviewTab({ subscription, usageSummary, activeMemberCount }) {
-  const memberCount = activeMemberCount ?? subscription?.currentUserCount ?? 0;
+function OverviewTab({ subscription, usageSummary, activeMemberCount, verifiedCount }) {
+  const billedCount = subscription?.currentUserCount ?? 0;
+  const declaredCount = subscription?.declaredUserCount ?? 0;
   const pricePerUser = subscription?.pricePerUser || 1.00;
-  const monthlyCost = memberCount * pricePerUser;
+  const monthlyCost = billedCount * pricePerUser;
 
   const kpiCards = [
     {
-      label: "Active Members",
-      value: activeMemberCount != null ? activeMemberCount : (subscription?.currentUserCount ?? "—"),
-      sub: "Verified active accounts",
+      label: "Declared Employees",
+      value: declaredCount,
+      sub: "Set by company admin",
       color: "text-indigo-600",
       bg: "bg-indigo-50",
       border: "border-indigo-100",
     },
     {
+      label: "Verified (Policy Ack)",
+      value: verifiedCount,
+      sub: "Minimum billable seats",
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-100",
+    },
+    {
       label: "Monthly Cost",
       value: formatCurrency(monthlyCost),
-      sub: `${memberCount} × ${formatCurrency(pricePerUser)} per user`,
+      sub: `${billedCount} × ${formatCurrency(pricePerUser)} per user`,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
       border: "border-emerald-100",
@@ -428,7 +514,7 @@ function OverviewTab({ subscription, usageSummary, activeMemberCount }) {
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {kpiCards.map(({ label, value, sub, color, bg, border }) => (
           <div key={label} className={`rounded-xl border ${border} ${bg} p-4`}>
             <p className="text-xs font-medium text-gray-500 mb-1">{label}</p>
@@ -452,8 +538,20 @@ function OverviewTab({ subscription, usageSummary, activeMemberCount }) {
               <span className="font-medium">{formatDate(subscription.currentPeriodEnd)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Active Members:</span>
-              <span className="font-medium">{activeMemberCount != null ? activeMemberCount : (subscription.currentUserCount ?? "—")}</span>
+              <span className="text-gray-600">Declared Employees:</span>
+              <span className="font-medium">{declaredCount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Verified (Policy Ack):</span>
+              <span className="font-medium">{verifiedCount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Billed Seats:</span>
+              <span className="font-medium">{billedCount}</span>
+            </div>
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>Active platform accounts (informational, not billed):</span>
+              <span>{activeMemberCount != null ? activeMemberCount : "—"}</span>
             </div>
             <div className="flex justify-between border-t border-gray-100 pt-3 mt-3">
               <span className="text-gray-600 font-medium">Total Payable:</span>
@@ -714,11 +812,18 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [startTrial, setStartTrial] = useState(false);
+  const [employeeCount, setEmployeeCount] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     if (!stripe || !elements) {
+      return;
+    }
+
+    const declaredUserCount = Number(employeeCount);
+    if (!subscription && (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0)) {
+      onError('Number of employees must be a positive whole number');
       return;
     }
 
@@ -754,6 +859,7 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
         await createSubscription({
           companyId,
           paymentMethodId: paymentMethod.id,
+          declaredUserCount,
           startTrial,
         });
       }
@@ -804,6 +910,23 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
 
           {!subscription && (
             <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                required
+                value={employeeCount}
+                onChange={(e) => setEmployeeCount(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="e.g. 50"
+              />
+              <p className="text-xs text-gray-500 mt-1">Billed at $1 per employee / month. Can be updated later.</p>
+            </div>
+          )}
+
+          {!subscription && (
+            <div className="mb-4">
               <label className="flex items-center">
                 <input
                   type="checkbox"
@@ -830,6 +953,86 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
               className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
             >
               {loading ? 'Processing...' : subscription ? 'Add' : 'Subscribe'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function UpdateEmployeeCountModal({ currentCount, verifiedCount, onClose, onSave }) {
+  const [count, setCount] = useState(String(currentCount || ''));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  const parsed = Number(count);
+  const isInteger = count !== '' && Number.isInteger(parsed) && parsed > 0;
+  const belowMinimum = isInteger && parsed < verifiedCount;
+  const validationError = count === '' ? null
+    : !isInteger ? 'Enter a positive whole number'
+    : belowMinimum ? `Cannot be below the verified count of ${verifiedCount}`
+    : null;
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!isInteger || belowMinimum) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+      await onSave(parsed);
+    } catch (err) {
+      console.error('Error updating employee count:', err);
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-background-white rounded-lg max-w-md w-full p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium text-gray-900">Update Employee Count</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <span className="text-2xl">&times;</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+            <input
+              type="number"
+              min={Math.max(verifiedCount, 1)}
+              step="1"
+              value={count}
+              onChange={(e) => setCount(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">Minimum allowed: {verifiedCount} (employees verified via policy acknowledgement)</p>
+            {validationError && <p className="text-xs text-red-600 mt-1">{validationError}</p>}
+          </div>
+
+          {error && (
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">{error}</div>
+          )}
+
+          <div className="flex space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving || !isInteger || belowMinimum}
+              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>

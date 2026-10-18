@@ -6,8 +6,24 @@
 const admin = require('firebase-admin');
 const { initializeStripe, PRICING, SUBSCRIPTION_STATUS } = require('../config/stripe');
 const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
-const { logBillingEvent, getActiveUserCount, getNextBillingDate, calculateGracePeriodEnd } = require('../utils/helpers');
+const { logBillingEvent, getNextBillingDate, calculateGracePeriodEnd } = require('../utils/helpers');
 const { BILLING_EVENT_TYPE } = require('../config/stripe');
+const { countDistinctAcknowledgedEmployees } = require('../utils/policyAck');
+
+/**
+ * Calculate the billable seat count for a company.
+ * Billable = max(declared, verified) so a company is never billed below its verified floor.
+ * @param {string} companyId - Company ID
+ * @param {number} declaredUserCount - Employee count declared by the Company Admin
+ * @returns {Promise<{billableCount: number, verifiedCount: number}>}
+ */
+async function getBillableUserCount(companyId, declaredUserCount) {
+  const verifiedCount = await countDistinctAcknowledgedEmployees(db, companyId);
+  return {
+    billableCount: Math.max(declaredUserCount || 0, verifiedCount),
+    verifiedCount,
+  };
+}
 
 /**
  * Create a new subscription for a company
@@ -15,13 +31,18 @@ const { BILLING_EVENT_TYPE } = require('../config/stripe');
  * @param {string} params.companyId - Company ID
  * @param {string} params.paymentMethodId - Stripe payment method ID
  * @param {string} params.createdBy - User ID who created subscription
+ * @param {number} params.declaredUserCount - Employee count declared by the Company Admin
  * @param {boolean} params.startTrial - Whether to start with trial period
  * @returns {Promise<Object>} Created subscription data
  */
-async function createSubscription({ companyId, paymentMethodId, createdBy, startTrial = false }) {
+async function createSubscription({ companyId, paymentMethodId, createdBy, declaredUserCount, startTrial = false }) {
   const stripe = initializeStripe();
 
   try {
+    if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
+      throw new Error('declaredUserCount must be a positive integer');
+    }
+
     // Get company data
     const companyDoc = await db.collection(COLLECTIONS.COMPANIES).doc(companyId).get();
     if (!companyDoc.exists) {
@@ -56,8 +77,13 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, start
       },
     });
 
-    // Get current user count
-    const userCount = await getActiveUserCount(companyId);
+    // Billable quantity = max(declared, verified)
+    const { billableCount: userCount, verifiedCount } = await getBillableUserCount(companyId, declaredUserCount);
+    if (verifiedCount > declaredUserCount) {
+      throw new Error(
+        `Declared count (${declaredUserCount}) cannot be below the verified employee count (${verifiedCount}). Minimum allowed: ${verifiedCount}`
+      );
+    }
 
     // Create or retrieve price in Stripe
     let stripePriceId;
@@ -124,6 +150,12 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, start
       pricePerUser: PRICING.PRICE_PER_USER,
       currency: PRICING.CURRENCY,
 
+      declaredUserCount,
+      verifiedAcknowledgedCount: verifiedCount,
+      lastVerifiedAt: serverTimestamp(),
+      declaredUserCountUpdatedAt: serverTimestamp(),
+      declaredUserCountUpdatedBy: createdBy,
+
       currentUserCount: userCount,
       lastBilledUserCount: userCount,
 
@@ -161,9 +193,11 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, start
       companyId,
       subscriptionId: subscriptionRef.id,
       eventType: BILLING_EVENT_TYPE.SUBSCRIPTION_CREATED,
-      description: `Subscription created with ${userCount} users${startTrial ? ' (trial period)' : ''}`,
+      description: `Subscription created with ${userCount} billed users (declared: ${declaredUserCount}, verified: ${verifiedCount})${startTrial ? ' (trial period)' : ''}`,
       eventData: {
         userCount,
+        declaredUserCount,
+        verifiedCount,
         pricePerUser: PRICING.PRICE_PER_USER,
         startTrial,
       },
@@ -183,60 +217,151 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, start
 }
 
 /**
- * Update subscription quantity based on current user count
+ * Update subscription quantity based on declared and verified employee counts.
+ * Billable quantity = max(declared, verified). If verified overtakes declared,
+ * the declared count is bumped up automatically (never down).
  * @param {string} subscriptionId - Subscription ID
- * @returns {Promise<void>}
+ * @param {Object} [options] - Optional parameters
+ * @param {number} [options.declaredUserCount] - New declared count (defaults to stored value)
+ * @param {string} [options.updatedBy] - User ID who explicitly set the declared count
+ * @returns {Promise<Object>} { declaredUserCount, verifiedAcknowledgedCount, currentUserCount, autoAdjusted }
  */
-async function updateSubscriptionQuantity(subscriptionId) {
+async function updateSubscriptionQuantity(subscriptionId, { declaredUserCount, updatedBy } = {}) {
   const stripe = initializeStripe();
 
   try {
-    const subscriptionDoc = await db.collection(COLLECTIONS.SUBSCRIPTIONS).doc(subscriptionId).get();
+    const subscriptionRef = db.collection(COLLECTIONS.SUBSCRIPTIONS).doc(subscriptionId);
+    const subscriptionDoc = await subscriptionRef.get();
     if (!subscriptionDoc.exists) {
       throw new Error('Subscription not found');
     }
 
     const subscriptionData = subscriptionDoc.data();
-    const currentUserCount = await getActiveUserCount(subscriptionData.companyId);
+    const previousDeclared = subscriptionData.declaredUserCount || 0;
+    let nextDeclaredCount = declaredUserCount !== undefined ? declaredUserCount : previousDeclared;
 
-    // Only update if user count changed
-    if (currentUserCount === subscriptionData.currentUserCount) {
-      return;
+    const { billableCount, verifiedCount } = await getBillableUserCount(
+      subscriptionData.companyId,
+      nextDeclaredCount
+    );
+
+    let autoAdjusted = false;
+    if (verifiedCount > nextDeclaredCount) {
+      nextDeclaredCount = verifiedCount;
+      autoAdjusted = true;
     }
 
-    // Update Stripe subscription
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionData.stripeSubscriptionId);
-    await stripe.subscriptions.update(subscriptionData.stripeSubscriptionId, {
-      items: [
-        {
-          id: stripeSubscription.items.data[0].id,
-          quantity: currentUserCount,
-        },
-      ],
-      proration_behavior: 'always_invoice', // Create proration invoice
-    });
+    const quantityChanged = billableCount !== subscriptionData.currentUserCount;
 
-    // Update Firestore
-    await db.collection(COLLECTIONS.SUBSCRIPTIONS).doc(subscriptionId).update({
-      currentUserCount,
+    if (quantityChanged) {
+      const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionData.stripeSubscriptionId);
+      await stripe.subscriptions.update(subscriptionData.stripeSubscriptionId, {
+        items: [
+          {
+            id: stripeSubscription.items.data[0].id,
+            quantity: billableCount,
+          },
+        ],
+        proration_behavior: 'always_invoice', // Create proration invoice
+      });
+    }
+
+    const updates = {
+      declaredUserCount: nextDeclaredCount,
+      verifiedAcknowledgedCount: verifiedCount,
+      lastVerifiedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    });
+    };
+    if (quantityChanged) {
+      updates.currentUserCount = billableCount;
+    }
+    if (updatedBy) {
+      updates.declaredUserCountUpdatedAt = serverTimestamp();
+      updates.declaredUserCountUpdatedBy = updatedBy;
+    }
+    await subscriptionRef.update(updates);
 
-    // Log event
-    await logBillingEvent({
-      companyId: subscriptionData.companyId,
-      subscriptionId,
-      eventType: BILLING_EVENT_TYPE.SUBSCRIPTION_UPDATED,
-      description: `User count updated from ${subscriptionData.currentUserCount} to ${currentUserCount}`,
-      eventData: {
-        oldUserCount: subscriptionData.currentUserCount,
-        newUserCount: currentUserCount,
-      },
-    });
+    if (quantityChanged) {
+      await logBillingEvent({
+        companyId: subscriptionData.companyId,
+        subscriptionId,
+        eventType: BILLING_EVENT_TYPE.SUBSCRIPTION_UPDATED,
+        description: `Billed user count updated from ${subscriptionData.currentUserCount} to ${billableCount}`,
+        eventData: {
+          oldUserCount: subscriptionData.currentUserCount,
+          newUserCount: billableCount,
+          declaredUserCount: nextDeclaredCount,
+          verifiedCount,
+        },
+        performedBy: updatedBy,
+      });
+    }
+
+    if (autoAdjusted) {
+      await logBillingEvent({
+        companyId: subscriptionData.companyId,
+        subscriptionId,
+        eventType: BILLING_EVENT_TYPE.DECLARED_COUNT_AUTO_ADJUSTED,
+        description: `Declared count auto-adjusted from ${declaredUserCount !== undefined ? declaredUserCount : previousDeclared} to ${verifiedCount} to match verified employees`,
+        eventData: {
+          oldDeclaredCount: previousDeclared,
+          newDeclaredCount: nextDeclaredCount,
+          verifiedCount,
+        },
+      });
+    } else if (updatedBy && declaredUserCount !== undefined) {
+      await logBillingEvent({
+        companyId: subscriptionData.companyId,
+        subscriptionId,
+        eventType: BILLING_EVENT_TYPE.DECLARED_COUNT_UPDATED,
+        description: `Declared employee count updated from ${previousDeclared} to ${nextDeclaredCount}`,
+        eventData: {
+          oldDeclaredCount: previousDeclared,
+          newDeclaredCount: nextDeclaredCount,
+          verifiedCount,
+        },
+        performedBy: updatedBy,
+      });
+    }
+
+    return {
+      declaredUserCount: nextDeclaredCount,
+      verifiedAcknowledgedCount: verifiedCount,
+      currentUserCount: quantityChanged ? billableCount : subscriptionData.currentUserCount,
+      autoAdjusted,
+    };
   } catch (error) {
     console.error('Error updating subscription quantity:', error);
     throw error;
   }
+}
+
+/**
+ * Update the declared employee count (Company Admin action)
+ * @param {Object} params - Parameters
+ * @param {string} params.subscriptionId - Subscription ID
+ * @param {number} params.declaredUserCount - New declared employee count
+ * @param {string} params.updatedBy - User ID performing the update
+ * @returns {Promise<Object>} Result of updateSubscriptionQuantity
+ */
+async function updateDeclaredUserCount({ subscriptionId, declaredUserCount, updatedBy }) {
+  if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
+    throw new Error('Declared count must be a positive integer');
+  }
+
+  const subscriptionDoc = await db.collection(COLLECTIONS.SUBSCRIPTIONS).doc(subscriptionId).get();
+  if (!subscriptionDoc.exists) {
+    throw new Error('Subscription not found');
+  }
+
+  const verifiedCount = await countDistinctAcknowledgedEmployees(db, subscriptionDoc.data().companyId);
+  if (declaredUserCount < verifiedCount) {
+    throw new Error(
+      `Declared count cannot be below the verified employee count. Minimum allowed: ${verifiedCount}`
+    );
+  }
+
+  return updateSubscriptionQuantity(subscriptionId, { declaredUserCount, updatedBy });
 }
 
 /**
@@ -469,6 +594,8 @@ async function suspendAccount(subscriptionId) {
 module.exports = {
   createSubscription,
   updateSubscriptionQuantity,
+  updateDeclaredUserCount,
+  getBillableUserCount,
   cancelSubscription,
   reactivateSubscription,
   startGracePeriod,
