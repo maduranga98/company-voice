@@ -39,6 +39,7 @@ const CompanyManagement = () => {
     password: "",
     adminName: "",
     adminEmail: "",
+    trialDays: "0",
   });
 
   useEffect(() => {
@@ -89,6 +90,7 @@ const CompanyManagement = () => {
         password: formData.password,
         adminName: formData.adminName,
         adminEmail: formData.adminEmail,
+        trialDays: Number(formData.trialDays),
       });
 
       // Store credentials to display to user
@@ -107,6 +109,7 @@ const CompanyManagement = () => {
         password: "",
         adminName: "",
         adminEmail: "",
+        trialDays: "0",
       });
 
       setShowModal(false);
@@ -613,6 +616,27 @@ const CompanyManagement = () => {
                         placeholder="Technology"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Free trial
+                      </label>
+                      <select
+                        name="trialDays"
+                        value={formData.trialDays}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm sm:text-base bg-white"
+                      >
+                        <option value="0">No trial</option>
+                        <option value="7">7 days</option>
+                        <option value="14">14 days</option>
+                        <option value="30">30 days</option>
+                        <option value="60">60 days</option>
+                        <option value="90">90 days</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Trial companies see a banner with the days remaining and a prompt to subscribe.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -897,7 +921,7 @@ const CompanyManagement = () => {
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
                     <label className="block text-xs font-medium text-gray-500 mb-1">Subscription</label>
-                    <p className="text-sm font-semibold text-gray-900 capitalize">{selectedCompany.subscriptionStatus || "trial"}</p>
+                    <p className="text-sm font-semibold text-gray-900 capitalize">{selectedCompany.subscriptionStatus || "none"}</p>
                   </div>
                 </div>
 

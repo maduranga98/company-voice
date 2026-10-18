@@ -41,6 +41,7 @@ import {
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
 import ProductTour from "./tour/ProductTour";
+import TrialBanner from "./TrialBanner";
 import { TOUR_START_EVENT } from "./tour/tourSteps";
 
 const CompanyAdminLayout = ({ children }) => {
@@ -318,6 +319,13 @@ const CompanyAdminLayout = ({ children }) => {
           </aside>
         </>
       )}
+
+      {/* ── TRIAL BANNER ── */}
+      <TrialBanner
+        companyId={userData?.companyId}
+        canSubscribe={!isHR}
+        onSubscribe={() => handleNavigate("/company/billing")}
+      />
 
       {/* ── TOP HEADER ── */}
       <header className="sticky top-0 z-30 border-b border-gray-200/70 bg-white/80 backdrop-blur-md lg:ml-64">

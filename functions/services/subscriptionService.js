@@ -275,7 +275,7 @@ async function getOrCreatePriceId(stripe) {
  * @param {string} params.returnUrl - Billing page URL Stripe returns to
  * @returns {Promise<{url: string, sessionId: string}>}
  */
-async function createCheckoutSession({ companyId, createdBy, declaredUserCount, startTrial = false, returnUrl }) {
+async function createCheckoutSession({ companyId, createdBy, declaredUserCount, returnUrl }) {
   const stripe = initializeStripe();
 
   if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
@@ -310,17 +310,13 @@ async function createCheckoutSession({ companyId, createdBy, declaredUserCount, 
     companyId,
     createdBy,
     declaredUserCount: String(declaredUserCount),
-    startTrial: String(Boolean(startTrial)),
   };
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     customer: stripeCustomerId,
     line_items: [{ price: stripePriceId, quantity: billableCount }],
-    subscription_data: {
-      metadata,
-      ...(startTrial ? { trial_period_days: PRICING.TRIAL_PERIOD_DAYS } : {}),
-    },
+    subscription_data: { metadata },
     metadata,
     client_reference_id: companyId,
     success_url: `${returnUrl}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
@@ -356,7 +352,7 @@ async function finalizeCheckoutSession(sessionId) {
 
   const createdBy = session.metadata.createdBy;
   const declaredUserCount = parseInt(session.metadata.declaredUserCount, 10);
-  const startTrial = session.metadata.startTrial === 'true';
+  const startTrial = false; // trials are granted by the super admin, never through Checkout
   const { billableCount: userCount, verifiedCount } = await getBillableUserCount(companyId, declaredUserCount);
 
   const currentPeriodStart = new Date(stripeSubscription.current_period_start * 1000);

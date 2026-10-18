@@ -77,7 +77,7 @@ const createCompanyCheckoutSession = onCall({
     throw new HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { companyId, declaredUserCount, startTrial = false, returnOrigin } = data;
+  const { companyId, declaredUserCount, returnOrigin } = data;
 
   if (!companyId) {
     throw new HttpsError('invalid-argument', 'Company ID is required');
@@ -98,7 +98,6 @@ const createCompanyCheckoutSession = onCall({
       companyId,
       createdBy: auth.uid,
       declaredUserCount,
-      startTrial,
       returnUrl: `${origin}/company/billing`,
     });
     return { success: true, data: result };

@@ -831,7 +831,6 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
-  const [startTrial, setStartTrial] = useState(false);
   const [employeeCount, setEmployeeCount] = useState('');
 
   async function handleSubmit(e) {
@@ -856,7 +855,7 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
 
       // New subscription: card details are entered on Stripe's hosted Checkout page
       if (!subscription) {
-        const { url } = await createCheckoutSession({ companyId, declaredUserCount, startTrial });
+        const { url } = await createCheckoutSession({ companyId, declaredUserCount });
         window.location.assign(url);
         return; // keep the loading state while the browser navigates
       }
@@ -939,18 +938,7 @@ function AddPaymentMethodModal({ companyId, subscription, onClose, onSuccess, on
           )}
 
           {!subscription && (
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={startTrial}
-                  onChange={(e) => setStartTrial(e.target.checked)}
-                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Start with 14-day free trial</span>
-              </label>
-              <p className="text-xs text-gray-500 mt-2">You'll enter your card details securely on Stripe.</p>
-            </div>
+            <p className="mb-4 text-xs text-gray-500">You'll enter your card details securely on Stripe.</p>
           )}
 
           <div className="flex space-x-3">

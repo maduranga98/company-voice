@@ -181,6 +181,11 @@ const createCompanyWithAdmin = onCall(OPTIONS, async (request) => {
   const companyName = sanitizeText(data.companyName);
   const industry = sanitizeText(data.industry);
   if (!companyName || companyName.length > 150 || industry.length > 100) throw invalid();
+  // Trial is opt-in, granted by the super admin: 0/absent means no trial.
+  const trialDays = data.trialDays === undefined || data.trialDays === null ? 0 : data.trialDays;
+  if (!Number.isInteger(trialDays) || trialDays < 0 || trialDays > 365) {
+    throw invalid('Trial length must be a whole number of days between 0 and 365.');
+  }
   const { password, generated } = resolvePassword(data.password);
 
   const companyRef = db.collection('companies').doc();
@@ -195,7 +200,9 @@ const createCompanyWithAdmin = onCall(OPTIONS, async (request) => {
           name: companyName,
           industry,
           isActive: true,
-          subscriptionStatus: 'trial',
+          subscriptionStatus: trialDays > 0 ? 'trial' : 'none',
+          trialStartedAt: trialDays > 0 ? FieldValue.serverTimestamp() : null,
+          trialEndsAt: trialDays > 0 ? Timestamp.fromMillis(Date.now() + trialDays * 86400000) : null,
           employeeCount: 1,
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),

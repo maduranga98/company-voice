@@ -47,15 +47,13 @@ export async function createSubscription({ companyId, paymentMethodId, declaredU
  * @param {Object} params
  * @param {string} params.companyId - Company ID
  * @param {number} params.declaredUserCount - Employee count declared by the Company Admin
- * @param {boolean} params.startTrial - Whether to start with trial
  * @returns {Promise<{url: string, sessionId: string}>}
  */
-export async function createCheckoutSession({ companyId, declaredUserCount, startTrial = false }) {
+export async function createCheckoutSession({ companyId, declaredUserCount }) {
   const callable = httpsCallable(functions, 'createCompanyCheckoutSession');
   const result = await callable({
     companyId,
     declaredUserCount,
-    startTrial,
     returnOrigin: window.location.origin,
   });
   return result.data.data;
