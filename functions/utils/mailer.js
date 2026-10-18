@@ -79,7 +79,7 @@ async function sendCredentialsEmail({ to, displayName, username, temporaryPasswo
     });
     return true;
   } catch (err) {
-    logger.error('Failed to send credentials email', { message: err.message, code: err.code });
+    logger.error('Failed to send credentials email', { reason: err.message, code: err.code, response: err.response, command: err.command });
     return false;
   }
 }
