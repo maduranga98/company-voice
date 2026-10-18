@@ -314,9 +314,22 @@ curl -X POST \
 
 1. Navigate to **Billing** page
 2. Click **Start Subscription**
-3. Enter payment card details
-4. Choose trial option (optional)
-5. Click **Subscribe**
+3. Enter the **Number of Employees** in your company (positive whole number)
+4. Enter payment card details
+5. Choose trial option (optional)
+6. Click **Subscribe**
+
+#### Declared vs. Verified Employee Count
+
+Billing is no longer driven by platform logins or active accounts. Instead:
+
+- **Declared count** – the Company Admin states how many employees the company has (set at signup, editable from the Billing page via **Update**).
+- **Verified count** – distinct employees who have acknowledged a policy through the public no-login acknowledgement link (`countDistinctAcknowledgedEmployees`).
+- **Billed quantity** (`currentUserCount`) = `max(declaredUserCount, verifiedAcknowledgedCount)`.
+
+**Floor:** a declared count can never be set below the verified count. The API rejects it with a `failed-precondition` error naming the minimum allowed, and a subscription cannot be created below it.
+
+**Auto-adjust:** if the verified count overtakes the declared count, the declared count is bumped up to match (never down) the next time the quantity is synced, and a `declared_count_auto_adjusted` billing event is logged. Manual changes log `declared_count_updated`.
 
 #### Managing Subscription
 

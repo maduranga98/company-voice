@@ -5,7 +5,8 @@
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { isCompanyAdmin } = require('../utils/helpers');
-const { createSubscription, cancelSubscription, reactivateSubscription } = require('../services/subscriptionService');
+const { createSubscription, cancelSubscription, reactivateSubscription, updateDeclaredUserCount } = require('../services/subscriptionService');
+const { countDistinctAcknowledgedEmployees } = require('../utils/policyAck');
 const { getCompanyInvoices, getInvoiceById } = require('../services/invoiceService');
 const { addPaymentMethod, getPaymentMethods, removePaymentMethod, getPaymentHistory } = require('../services/paymentService');
 const { getCurrentPeriodUsageSummary } = require('../services/usageTrackingService');
@@ -26,10 +27,14 @@ const createCompanySubscription = onCall({
     throw new HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const { companyId, paymentMethodId, startTrial = false } = data;
+  const { companyId, paymentMethodId, declaredUserCount, startTrial = false } = data;
 
   if (!companyId || !paymentMethodId) {
     throw new HttpsError('invalid-argument', 'Company ID and payment method ID are required');
+  }
+
+  if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
+    throw new HttpsError('invalid-argument', 'Declared employee count must be a positive integer');
   }
 
   // Verify user is company admin
@@ -45,6 +50,7 @@ const createCompanySubscription = onCall({
       companyId,
       paymentMethodId,
       createdBy: userId,
+      declaredUserCount,
       startTrial,
     });
 
@@ -188,15 +194,75 @@ const getCompanySubscription = onCall({ cors: true, memory: '128MiB' }, async (r
     }
 
     const subscriptionDoc = subscriptionsSnapshot.docs[0];
+    const liveVerifiedAcknowledgedCount = await countDistinctAcknowledgedEmployees(db, companyId);
     return {
       success: true,
       data: {
         id: subscriptionDoc.id,
         ...subscriptionDoc.data(),
+        liveVerifiedAcknowledgedCount,
       },
     };
   } catch (error) {
     console.error('Error getting subscription:', error);
+    throw new HttpsError('internal', error.message);
+  }
+});
+
+/**
+ * Update the declared employee count for a company's subscription
+ */
+const updateDeclaredEmployeeCount = onCall({
+  cors: true,
+  memory: '128MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
+  const { auth, data } = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { companyId, declaredUserCount } = data;
+
+  if (!companyId) {
+    throw new HttpsError('invalid-argument', 'Company ID is required');
+  }
+
+  if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
+    throw new HttpsError('invalid-argument', 'Declared employee count must be a positive integer');
+  }
+
+  // Verify user is company admin
+  const isAuthorized = await isCompanyAdmin(auth, companyId);
+  if (!isAuthorized) {
+    throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
+  }
+
+  try {
+    const subscriptionsSnapshot = await db
+      .collection(COLLECTIONS.SUBSCRIPTIONS)
+      .where('companyId', '==', companyId)
+      .limit(1)
+      .get();
+
+    if (subscriptionsSnapshot.empty) {
+      throw new HttpsError('not-found', 'No subscription found for this company');
+    }
+
+    const result = await updateDeclaredUserCount({
+      subscriptionId: subscriptionsSnapshot.docs[0].id,
+      declaredUserCount,
+      updatedBy: auth.uid,
+    });
+
+    return { success: true, data: result };
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    console.error('Error updating declared employee count:', error);
+    if (/declared count/i.test(error.message)) {
+      throw new HttpsError('failed-precondition', error.message);
+    }
     throw new HttpsError('internal', error.message);
   }
 });
@@ -474,6 +540,7 @@ module.exports = {
   cancelCompanySubscription,
   reactivateCompanySubscription,
   getCompanySubscription,
+  updateDeclaredEmployeeCount,
   getInvoices,
   getInvoice,
   addCompanyPaymentMethod,

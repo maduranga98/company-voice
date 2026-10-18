@@ -9,6 +9,7 @@ const {
   cancelCompanySubscription,
   reactivateCompanySubscription,
   getCompanySubscription,
+  updateDeclaredEmployeeCount,
   getInvoices,
   getInvoice,
   addCompanyPaymentMethod,
@@ -134,6 +135,7 @@ exports.getCompanyPaymentMethods = getCompanyPaymentMethods;
 exports.removeCompanyPaymentMethod = removeCompanyPaymentMethod;
 exports.getCompanyPaymentHistory = getCompanyPaymentHistory;
 exports.getUsageSummary = getUsageSummary;
+exports.updateDeclaredEmployeeCount = updateDeclaredEmployeeCount;
 
 // Export Super Admin Functions
 exports.getAllSubscriptions = getAllSubscriptions;

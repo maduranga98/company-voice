@@ -103,6 +103,8 @@ const BILLING_EVENT_TYPE = {
   PAYMENT_METHOD_ADDED: 'payment_method_added',
   PAYMENT_METHOD_UPDATED: 'payment_method_updated',
   PAYMENT_METHOD_REMOVED: 'payment_method_removed',
+  DECLARED_COUNT_UPDATED: 'declared_count_updated',
+  DECLARED_COUNT_AUTO_ADJUSTED: 'declared_count_auto_adjusted',
 };
 
 module.exports = {

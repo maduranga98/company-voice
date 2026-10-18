@@ -32,12 +32,25 @@ export async function getStripe() {
  * @param {Object} params - Subscription parameters
  * @param {string} params.companyId - Company ID
  * @param {string} params.paymentMethodId - Stripe payment method ID
+ * @param {number} params.declaredUserCount - Employee count declared by the Company Admin
  * @param {boolean} params.startTrial - Whether to start with trial
  * @returns {Promise<Object>} Subscription result
  */
-export async function createSubscription({ companyId, paymentMethodId, startTrial = false }) {
+export async function createSubscription({ companyId, paymentMethodId, declaredUserCount, startTrial = false }) {
   const createCompanySubscription = httpsCallable(functions, 'createCompanySubscription');
-  const result = await createCompanySubscription({ companyId, paymentMethodId, startTrial });
+  const result = await createCompanySubscription({ companyId, paymentMethodId, declaredUserCount, startTrial });
+  return result.data;
+}
+
+/**
+ * Update the declared employee count (billing basis)
+ * @param {string} companyId - Company ID
+ * @param {number} declaredUserCount - New declared employee count
+ * @returns {Promise<Object>} Result with declared, verified and billed counts
+ */
+export async function updateDeclaredEmployeeCount(companyId, declaredUserCount) {
+  const callable = httpsCallable(functions, 'updateDeclaredEmployeeCount');
+  const result = await callable({ companyId, declaredUserCount });
   return result.data;
 }
 
