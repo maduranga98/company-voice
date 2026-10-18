@@ -241,6 +241,190 @@ async function createSubscription({ companyId, paymentMethodId, createdBy, decla
   }
 }
 
+async function getOrCreateStripeCustomer(stripe, companyId, companyData) {
+  if (companyData.stripeCustomerId) return companyData.stripeCustomerId;
+  const customer = await stripe.customers.create({
+    metadata: { companyId, companyName: companyData.name },
+    email: companyData.email,
+    name: companyData.name,
+  });
+  return customer.id;
+}
+
+async function getOrCreatePriceId(stripe) {
+  const prices = await stripe.prices.list({ lookup_keys: ['standard_monthly_per_user'], limit: 1 });
+  if (prices.data.length > 0) return prices.data[0].id;
+  const price = await stripe.prices.create({
+    unit_amount: Math.round(PRICING.PRICE_PER_USER * 100),
+    currency: PRICING.CURRENCY,
+    recurring: { interval: PRICING.BILLING_INTERVAL },
+    product_data: { name: 'Company Voice Platform - Per User' },
+    lookup_key: 'standard_monthly_per_user',
+  });
+  return price.id;
+}
+
+/**
+ * Create a Stripe-hosted Checkout Session so the company enters card details on Stripe's page.
+ * The Firestore subscription record is written by finalizeCheckoutSession (webhook / return sync).
+ * @param {Object} params
+ * @param {string} params.companyId - Company ID
+ * @param {string} params.createdBy - User ID starting the subscription
+ * @param {number} params.declaredUserCount - Employee count declared by the Company Admin
+ * @param {boolean} params.startTrial - Whether to start with a trial period
+ * @param {string} params.returnUrl - Billing page URL Stripe returns to
+ * @returns {Promise<{url: string, sessionId: string}>}
+ */
+async function createCheckoutSession({ companyId, createdBy, declaredUserCount, startTrial = false, returnUrl }) {
+  const stripe = initializeStripe();
+
+  if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
+    throw new Error('declaredUserCount must be a positive integer');
+  }
+
+  const companyDoc = await db.collection(COLLECTIONS.COMPANIES).doc(companyId).get();
+  if (!companyDoc.exists) throw new Error('Company not found');
+  const companyData = companyDoc.data();
+
+  const existing = companyData.subscriptionId
+    ? await db.collection(COLLECTIONS.SUBSCRIPTIONS).doc(companyData.subscriptionId).get()
+    : null;
+  if (existing?.exists && ['active', 'trial', 'past_due'].includes(existing.data().status)) {
+    throw new Error('This company already has a subscription');
+  }
+
+  const { billableCount, verifiedCount } = await getBillableUserCount(companyId, declaredUserCount);
+  if (verifiedCount > declaredUserCount) {
+    throw new Error(
+      `Declared count (${declaredUserCount}) cannot be below the verified employee count (${verifiedCount}). Minimum allowed: ${verifiedCount}`
+    );
+  }
+
+  const stripeCustomerId = await getOrCreateStripeCustomer(stripe, companyId, companyData);
+  if (!companyData.stripeCustomerId) {
+    await db.collection(COLLECTIONS.COMPANIES).doc(companyId).update({ stripeCustomerId });
+  }
+  const stripePriceId = await getOrCreatePriceId(stripe);
+
+  const metadata = {
+    companyId,
+    createdBy,
+    declaredUserCount: String(declaredUserCount),
+    startTrial: String(Boolean(startTrial)),
+  };
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    customer: stripeCustomerId,
+    line_items: [{ price: stripePriceId, quantity: billableCount }],
+    subscription_data: {
+      metadata,
+      ...(startTrial ? { trial_period_days: PRICING.TRIAL_PERIOD_DAYS } : {}),
+    },
+    metadata,
+    client_reference_id: companyId,
+    success_url: `${returnUrl}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${returnUrl}?checkout=canceled`,
+  });
+
+  return { url: session.url, sessionId: session.id };
+}
+
+/**
+ * Write the Firestore subscription record for a completed Checkout Session.
+ * Idempotent: called from both the webhook and the post-redirect sync.
+ * @param {string} sessionId - Stripe Checkout Session ID
+ * @returns {Promise<{subscriptionId: string|null, created: boolean}>}
+ */
+async function finalizeCheckoutSession(sessionId) {
+  const stripe = initializeStripe();
+  const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
+
+  const stripeSubscription = session.subscription;
+  const companyId = session.metadata?.companyId;
+  if (!stripeSubscription || !companyId) return { subscriptionId: null, created: false };
+  if (!['active', 'trialing'].includes(stripeSubscription.status)) {
+    return { subscriptionId: null, created: false };
+  }
+
+  const duplicate = await db
+    .collection(COLLECTIONS.SUBSCRIPTIONS)
+    .where('stripeSubscriptionId', '==', stripeSubscription.id)
+    .limit(1)
+    .get();
+  if (!duplicate.empty) return { subscriptionId: duplicate.docs[0].id, created: false };
+
+  const createdBy = session.metadata.createdBy;
+  const declaredUserCount = parseInt(session.metadata.declaredUserCount, 10);
+  const startTrial = session.metadata.startTrial === 'true';
+  const { billableCount: userCount, verifiedCount } = await getBillableUserCount(companyId, declaredUserCount);
+
+  const currentPeriodStart = new Date(stripeSubscription.current_period_start * 1000);
+  const currentPeriodEnd = new Date(stripeSubscription.current_period_end * 1000);
+  const nextBillingDate = getNextBillingDate(currentPeriodEnd);
+  const status = stripeSubscription.status === 'trialing' ? SUBSCRIPTION_STATUS.TRIAL : SUBSCRIPTION_STATUS.ACTIVE;
+
+  const subscriptionRef = await db.collection(COLLECTIONS.SUBSCRIPTIONS).add({
+    companyId,
+    stripeCustomerId: session.customer,
+    stripeSubscriptionId: stripeSubscription.id,
+    stripePriceId: stripeSubscription.items.data[0].price.id,
+    status,
+    currentPeriodStart: admin.firestore.Timestamp.fromDate(currentPeriodStart),
+    currentPeriodEnd: admin.firestore.Timestamp.fromDate(currentPeriodEnd),
+    cancelAtPeriodEnd: false,
+    canceledAt: null,
+
+    pricePerUser: PRICING.PRICE_PER_USER,
+    currency: PRICING.CURRENCY,
+
+    declaredUserCount,
+    verifiedAcknowledgedCount: verifiedCount,
+    lastVerifiedAt: serverTimestamp(),
+    declaredUserCountUpdatedAt: serverTimestamp(),
+    declaredUserCountUpdatedBy: createdBy,
+
+    currentUserCount: userCount,
+    lastBilledUserCount: userCount,
+
+    paymentStatus: status === SUBSCRIPTION_STATUS.TRIAL ? 'pending' : 'paid',
+    lastPaymentDate: null,
+    nextPaymentDate: admin.firestore.Timestamp.fromDate(nextBillingDate),
+
+    gracePeriodEndsAt: null,
+    gracePeriodDays: PRICING.GRACE_PERIOD_DAYS,
+
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    createdBy,
+    updatedBy: createdBy,
+  });
+
+  await db.collection(COLLECTIONS.COMPANIES).doc(companyId).update({
+    subscriptionStatus: status,
+    subscriptionId: subscriptionRef.id,
+    stripeCustomerId: session.customer,
+    trialStartedAt: startTrial ? serverTimestamp() : null,
+    trialEndsAt: startTrial ? admin.firestore.Timestamp.fromDate(currentPeriodEnd) : null,
+    lastBillingDate: admin.firestore.Timestamp.fromDate(currentPeriodStart),
+    nextBillingDate: admin.firestore.Timestamp.fromDate(nextBillingDate),
+    accountStatus: 'active',
+    suspendedAt: null,
+    suspensionReason: null,
+  });
+
+  await logBillingEvent({
+    companyId,
+    subscriptionId: subscriptionRef.id,
+    eventType: BILLING_EVENT_TYPE.SUBSCRIPTION_CREATED,
+    description: `Subscription created via Stripe Checkout with ${userCount} billed users (declared: ${declaredUserCount}, verified: ${verifiedCount})${startTrial ? ' (trial period)' : ''}`,
+    eventData: { userCount, declaredUserCount, verifiedCount, pricePerUser: PRICING.PRICE_PER_USER, startTrial },
+    performedBy: createdBy,
+  });
+
+  return { subscriptionId: subscriptionRef.id, created: true };
+}
+
 /**
  * Update subscription quantity based on declared and verified employee counts.
  * Billable quantity = max(declared, verified). If verified overtakes declared,
@@ -618,6 +802,8 @@ async function suspendAccount(subscriptionId) {
 
 module.exports = {
   createSubscription,
+  createCheckoutSession,
+  finalizeCheckoutSession,
   updateSubscriptionQuantity,
   updateDeclaredUserCount,
   getBillableUserCount,

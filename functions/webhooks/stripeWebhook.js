@@ -7,7 +7,7 @@ const { onRequest } = require('firebase-functions/v2/https');
 const { initializeStripe, getWebhookSecret, stripeWebhookSecret } = require('../config/stripe');
 const { markInvoiceAsPaid, getInvoiceByStripeId } = require('../services/invoiceService');
 const { handlePaymentFailure, processPayment } = require('../services/paymentService');
-const { updateSubscriptionQuantity } = require('../services/subscriptionService');
+const { updateSubscriptionQuantity, finalizeCheckoutSession } = require('../services/subscriptionService');
 const { logBillingEvent } = require('../utils/helpers');
 const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
 const { BILLING_EVENT_TYPE } = require('../config/stripe');
@@ -231,6 +231,12 @@ const handleStripeWebhook = onRequest(
 
         case 'payment_intent.payment_failed':
           await handlePaymentIntentFailed(event.data.object);
+          break;
+
+        case 'checkout.session.completed':
+          if (event.data.object.mode === 'subscription') {
+            await finalizeCheckoutSession(event.data.object.id);
+          }
           break;
 
         case 'customer.subscription.updated':

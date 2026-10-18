@@ -43,6 +43,35 @@ export async function createSubscription({ companyId, paymentMethodId, declaredU
 }
 
 /**
+ * Start a Stripe-hosted Checkout Session and return its URL
+ * @param {Object} params
+ * @param {string} params.companyId - Company ID
+ * @param {number} params.declaredUserCount - Employee count declared by the Company Admin
+ * @param {boolean} params.startTrial - Whether to start with trial
+ * @returns {Promise<{url: string, sessionId: string}>}
+ */
+export async function createCheckoutSession({ companyId, declaredUserCount, startTrial = false }) {
+  const callable = httpsCallable(functions, 'createCompanyCheckoutSession');
+  const result = await callable({
+    companyId,
+    declaredUserCount,
+    startTrial,
+    returnOrigin: window.location.origin,
+  });
+  return result.data.data;
+}
+
+/**
+ * Record the subscription after Stripe redirects back from Checkout
+ * @param {string} sessionId - Stripe Checkout Session ID
+ */
+export async function syncCheckoutSession(sessionId) {
+  const callable = httpsCallable(functions, 'syncCheckoutSession');
+  const result = await callable({ sessionId });
+  return result.data;
+}
+
+/**
  * Update the declared employee count (billing basis)
  * @param {string} companyId - Company ID
  * @param {number} declaredUserCount - New declared employee count

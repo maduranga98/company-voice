@@ -5,13 +5,14 @@
 
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { isCompanyAdmin } = require('../utils/helpers');
-const { createSubscription, cancelSubscription, reactivateSubscription, updateDeclaredUserCount } = require('../services/subscriptionService');
+const { createSubscription, createCheckoutSession, finalizeCheckoutSession, cancelSubscription, reactivateSubscription, updateDeclaredUserCount } = require('../services/subscriptionService');
 const { countDistinctAcknowledgedEmployees } = require('../utils/policyAck');
 const { getCompanyInvoices, getInvoiceById } = require('../services/invoiceService');
 const { addPaymentMethod, getPaymentMethods, removePaymentMethod, getPaymentHistory } = require('../services/paymentService');
 const { getCurrentPeriodUsageSummary } = require('../services/usageTrackingService');
 const { db, COLLECTIONS } = require('../config/firebase');
-const { stripeSecretKey, stripeWebhookSecret } = require('../config/stripe');
+const { stripeSecretKey, stripeWebhookSecret, initializeStripe } = require('../config/stripe');
+const { PORTAL_ORIGINS } = require('../config/callableOptions');
 
 /**
  * Create subscription for company
@@ -58,6 +59,85 @@ const createCompanySubscription = onCall({
   } catch (error) {
     console.error('Error creating subscription:', error);
     // 'internal' hides the message from the client; surface the real reason (e.g. card declined)
+    throw new HttpsError('failed-precondition', error.message);
+  }
+});
+
+/**
+ * Start a Stripe-hosted Checkout Session; the client redirects the browser to the returned URL
+ */
+const createCompanyCheckoutSession = onCall({
+  cors: true,
+  memory: '256MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
+  const { auth, data } = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { companyId, declaredUserCount, startTrial = false, returnOrigin } = data;
+
+  if (!companyId) {
+    throw new HttpsError('invalid-argument', 'Company ID is required');
+  }
+  if (!Number.isInteger(declaredUserCount) || declaredUserCount <= 0) {
+    throw new HttpsError('invalid-argument', 'Declared employee count must be a positive integer');
+  }
+  if (!(await isCompanyAdmin(auth, companyId))) {
+    throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
+  }
+
+  // Only redirect back to our own origins (plus localhost for development)
+  const isLocal = /^http:\/\/localhost:\d+$/.test(returnOrigin || '');
+  const origin = PORTAL_ORIGINS.includes(returnOrigin) || isLocal ? returnOrigin : PORTAL_ORIGINS[0];
+
+  try {
+    const result = await createCheckoutSession({
+      companyId,
+      createdBy: auth.uid,
+      declaredUserCount,
+      startTrial,
+      returnUrl: `${origin}/company/billing`,
+    });
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    throw new HttpsError('failed-precondition', error.message);
+  }
+});
+
+/**
+ * Record the subscription right after Stripe redirects back (the webhook may be slower)
+ */
+const syncCheckoutSession = onCall({
+  cors: true,
+  memory: '256MiB',
+  secrets: [stripeSecretKey]
+}, async (request) => {
+  const { auth, data } = request;
+
+  if (!auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { sessionId } = data;
+  if (typeof sessionId !== 'string' || !sessionId.startsWith('cs_')) {
+    throw new HttpsError('invalid-argument', 'Checkout session ID is required');
+  }
+
+  try {
+    const session = await initializeStripe().checkout.sessions.retrieve(sessionId);
+    const companyId = session.metadata?.companyId;
+    if (!companyId || !(await isCompanyAdmin(auth, companyId))) {
+      throw new HttpsError('permission-denied', 'User is not authorized to manage this company');
+    }
+    const result = await finalizeCheckoutSession(sessionId);
+    return { success: true, data: result };
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    console.error('Error syncing checkout session:', error);
     throw new HttpsError('failed-precondition', error.message);
   }
 });
@@ -538,6 +618,8 @@ const getUsageSummary = onCall({ cors: true, memory: '128MiB' }, async (request)
 
 module.exports = {
   createCompanySubscription,
+  createCompanyCheckoutSession,
+  syncCheckoutSession,
   cancelCompanySubscription,
   reactivateCompanySubscription,
   getCompanySubscription,
