@@ -36,10 +36,12 @@ import {
   LayoutGrid,
   Route as RouteIcon,
   Layers,
+  PlayCircle,
 } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Logo from "./brand/Logo";
 import ProductTour from "./tour/ProductTour";
+import { TOUR_START_EVENT } from "./tour/tourSteps";
 
 const CompanyAdminLayout = ({ children }) => {
   const { t } = useTranslation();
@@ -166,6 +168,16 @@ const CompanyAdminLayout = ({ children }) => {
         { label: t("navigation.categoriesRouting", "Categories & Routing"), path: "/company/categories-routing", icon: Layers },
         { label: t("navigation.profile", "Profile"), path: "/company/profile", icon: UserCircle },
         { label: t("navigation.help", "Help & Instructions"), path: "/help", icon: HelpCircle },
+        {
+          label: t("tour.replay"),
+          path: "tour",
+          icon: PlayCircle,
+          onSelect: () => {
+            setSidebarOpen(false);
+            // Wait for the mobile drawer to unmount so the tour only sees what stays on screen.
+            setTimeout(() => window.dispatchEvent(new Event(TOUR_START_EVENT)), 0);
+          },
+        },
       ],
     },
   ];
@@ -176,8 +188,8 @@ const CompanyAdminLayout = ({ children }) => {
     return (
       <button
         key={item.path}
-        data-tour={item.path}
-        onClick={() => handleNavigate(item.path)}
+        data-tour={item.onSelect ? undefined : item.path}
+        onClick={() => (item.onSelect ? item.onSelect() : handleNavigate(item.path))}
         aria-current={active ? "page" : undefined}
         className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors duration-150 ${
           active
