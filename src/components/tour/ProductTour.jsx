@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -10,6 +11,11 @@ const POPOVER_W = 320;
 const GAP = 14;
 const MARGIN = 12;
 const AUTO_START_DELAY_MS = 900;
+const TARGET_WAIT_MS = 1500;
+const POLL_MS = 250;
+
+// The staff layout remounts on every route change, so a running tour lives here, not in state.
+let session = null;
 
 const readDone = (uid) => {
   try {
@@ -71,29 +77,42 @@ const ProductTour = () => {
   const uid = userData?.id;
   const role = userData?.role;
 
-  const [steps, setSteps] = useState(null);
-  const [index, setIndex] = useState(0);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const [steps, setSteps] = useState(session?.steps ?? null);
+  const [index, setIndexState] = useState(session?.index ?? 0);
   const [rect, setRect] = useState(null);
   const [pos, setPos] = useState(null);
+  const [searching, setSearching] = useState(true);
   const popRef = useRef(null);
+  const scrolled = useRef(false);
+
+  const setIndex = useCallback((next) => {
+    if (session) session.index = next;
+    setIndexState(next);
+  }, []);
 
   const start = useCallback(() => {
-    // Skip steps whose target is not on this screen (for example sidebar items on mobile).
+    // Skip navigation steps whose target is not on this screen (for example the sidebar on mobile).
+    // Steps with a route are always kept: their target only exists once that page has loaded.
     const available = TOUR_STEPS.filter(
-      (s) => (!s.roles || s.roles.includes(role)) && (!s.target || findTarget(s.target))
+      (s) => (!s.roles || s.roles.includes(role)) && (s.route || !s.target || findTarget(s.target))
     );
     if (available.length === 0) return;
-    setIndex(0);
+    session = { steps: available, index: 0 };
+    setIndexState(0);
     setSteps(available);
   }, [role]);
 
   const close = useCallback(() => {
     if (uid) writeDone(uid);
+    session = null;
     setSteps(null);
   }, [uid]);
 
   useEffect(() => {
-    if (!uid || readDone(uid)) return undefined;
+    if (!uid || session || readDone(uid)) return undefined;
     const timer = setTimeout(start, AUTO_START_DELAY_MS);
     return () => clearTimeout(timer);
   }, [uid, start]);
@@ -114,23 +133,43 @@ const ProductTour = () => {
       if (next >= steps.length) close();
       else setIndex(next);
     },
-    [steps, index, close]
+    [steps, index, close, setIndex]
   );
 
+  // Pages load their data after the route changes, so keep looking for the target until it shows up.
   const measure = useCallback(() => {
     if (!step) return;
-    const r = findTarget(step.target)?.getBoundingClientRect();
-    setRect(r ? { top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height } : null);
+    const el = findTarget(step.target);
+    if (el && !scrolled.current) {
+      scrolled.current = true;
+      el.scrollIntoView({ block: step.route ? "center" : "nearest", inline: "nearest" });
+    }
+    const r = el?.getBoundingClientRect();
+    const next = r
+      ? { top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height }
+      : null;
+    setRect((prev) => {
+      if (!prev || !next) return prev === next ? prev : next;
+      return Object.keys(next).every((k) => prev[k] === next[k]) ? prev : next;
+    });
   }, [step]);
 
-  // Bring the target into view first (the sidebar scrolls), then measure.
+  useEffect(() => {
+    if (step?.route && pathname !== step.route) navigate(step.route);
+  }, [step, pathname, navigate]);
+
   useLayoutEffect(() => {
     if (!step) return undefined;
-    findTarget(step.target)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    scrolled.current = false;
+    setSearching(true);
+    const giveUp = setTimeout(() => setSearching(false), TARGET_WAIT_MS);
     measure();
+    const poll = setInterval(measure, POLL_MS);
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure, true);
     return () => {
+      clearTimeout(giveUp);
+      clearInterval(poll);
       window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", measure, true);
     };
@@ -183,7 +222,7 @@ const ProductTour = () => {
         aria-labelledby="tour-title"
         aria-describedby="tour-body"
         className="absolute rounded-2xl border border-gray-200 bg-white p-4 shadow-xl transition-all duration-200"
-        style={pos ? { ...pos } : { visibility: "hidden" }}
+        style={pos && (rect || !searching || !step.target) ? { ...pos } : { visibility: "hidden" }}
       >
         <button
           type="button"

@@ -394,6 +394,10 @@ const PolicyManagement = () => {
     );
   }
 
+  // Anchors for the guided tour: the first row that shows each action.
+  const firstDraftId = filteredPolicies.find((p) => p.status === "draft")?.id;
+  const firstPublishedId = filteredPolicies.find((p) => p.status === "published")?.id;
+
   return (
     <PageContainer>
       {/* Toast */}
@@ -419,6 +423,7 @@ const PolicyManagement = () => {
               </button>
             )}
             <button
+              data-tour="policy-new"
               onClick={openCreateModal}
               className="inline-flex items-center gap-1.5 rounded-xl bg-[#1ABC9C] px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#16A085]"
             >
@@ -483,6 +488,7 @@ const PolicyManagement = () => {
                       <input
                         type="checkbox"
                         aria-label="Select all shareable policies"
+                        data-tour="policy-select"
                         checked={allShareableSelected}
                         disabled={shareable.length === 0}
                         onChange={toggleAllShareable}
@@ -551,6 +557,7 @@ const PolicyManagement = () => {
                           </button>
                           {policy.status === "draft" && (
                             <button
+                              data-tour={policy.id === firstDraftId ? "policy-publish" : undefined}
                               onClick={() => handlePublish(policy)}
                               className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200 transition flex items-center gap-1"
                             >
@@ -568,6 +575,7 @@ const PolicyManagement = () => {
                                 <Archive className="w-4 h-4" />
                               </button>
                               <button
+                                data-tour={policy.id === firstPublishedId ? "policy-link" : undefined}
                                 onClick={() => navigate(`/company/policies/${policy.id}/link`)}
                                 className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition"
                                 title="Public link, QR code and acknowledgements"
@@ -575,6 +583,7 @@ const PolicyManagement = () => {
                                 <Link2 className="w-4 h-4" />
                               </button>
                               <button
+                                data-tour={policy.id === firstPublishedId ? "policy-stats" : undefined}
                                 onClick={() => openStatsModal(policy)}
                                 className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                                 title="Acknowledgement Stats"
