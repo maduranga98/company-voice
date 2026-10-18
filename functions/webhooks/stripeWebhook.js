@@ -9,6 +9,7 @@ const { markInvoiceAsPaid, getInvoiceByStripeId } = require('../services/invoice
 const { handlePaymentFailure, processPayment } = require('../services/paymentService');
 const { updateSubscriptionQuantity } = require('../services/subscriptionService');
 const { logBillingEvent } = require('../utils/helpers');
+const { db, COLLECTIONS, serverTimestamp } = require('../config/firebase');
 const { BILLING_EVENT_TYPE } = require('../config/stripe');
 
 /**
@@ -115,6 +116,25 @@ async function handlePaymentIntentFailed(paymentIntent) {
 async function handleSubscriptionUpdated(subscription) {
   try {
     console.log('Subscription updated:', subscription.id);
+
+    // Promote a subscription that was waiting on card authentication (3DS) once Stripe activates it
+    const mappedStatus = { active: 'active', trialing: 'trial' }[subscription.status];
+    if (mappedStatus && subscription.metadata?.companyId) {
+      const pending = await db
+        .collection(COLLECTIONS.SUBSCRIPTIONS)
+        .where('stripeSubscriptionId', '==', subscription.id)
+        .where('status', '==', 'incomplete')
+        .limit(1)
+        .get();
+
+      if (!pending.empty) {
+        await pending.docs[0].ref.update({ status: mappedStatus, updatedAt: serverTimestamp() });
+        await db.collection(COLLECTIONS.COMPANIES).doc(subscription.metadata.companyId).update({
+          subscriptionStatus: mappedStatus,
+          accountStatus: 'active',
+        });
+      }
+    }
 
     if (subscription.metadata?.companyId) {
       await logBillingEvent({
